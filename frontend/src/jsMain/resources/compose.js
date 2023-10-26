@@ -1,6 +1,6 @@
 function composeReady() {
-    let counterController = AppComposables.ComposeApp('root');
-    counterController.setCount(0);
+    let app = AppComposables.ComposeApp('root');
+    app.notifyReady();
 }
 
 window.onload = (event) => {
