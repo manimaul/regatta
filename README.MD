@@ -1,12 +1,12 @@
 
 ### Run in browser
-`./gradlew :frontend:jsRun`
+`./gradlew run`
 
 #### Run in browser hot loading
-`./gradlew :frontend:jsBrowserDevelopmentRun --continuous`
+`./gradlew jsRun --continuous`
 
 ### Building and using the output
-`./gradlew :frontend:jsBrowserProductionWebpack`
+`./gradlew jsBrowserProductionWebpack`
 This will produce the output in `build/dist/js/productionExecutable`.
 
 ### Useful links:
