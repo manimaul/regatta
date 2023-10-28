@@ -1,5 +1,10 @@
+# Regatta
+Software for scoring sailing regattas utilizing [PHRF](https://www.ussailing.org/competition/offshore/phrf/) scoring.
+Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacoma](https://cyct.com/).
 
-### Run in browser
+![Sailing Vessel Waymaker](./sv_waymaker.jpeg "SV Waymaker")
+
+### Build and run 
 `./gradlew run`
 
 #### Run in browser hot loading
