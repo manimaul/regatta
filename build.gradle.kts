@@ -1,9 +1,10 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
-    kotlin("multiplatform") version "1.9.10"
+    kotlin("multiplatform") version kotlinVersion
     id("org.jetbrains.compose") version composeVersion
     id("io.ktor.plugin") version ktorVersion
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "com.mxmariner.regatta"
@@ -46,6 +47,7 @@ kotlin {
             dependencies {
                 implementation(compose.html.core)
                 implementation(compose.runtime)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
         val jsTest by getting {
@@ -54,7 +56,11 @@ kotlin {
             }
         }
 
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -66,7 +72,9 @@ kotlin {
                 implementation("io.ktor:ktor-server-netty-jvm")
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
                 implementation("io.ktor:ktor-server-status-pages:${ktorVersion}")
-                implementation(compose.runtime)
+                implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                compileOnly(compose.runtime)
             }
         }
         val jvmTest by getting {

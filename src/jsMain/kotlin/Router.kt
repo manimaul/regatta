@@ -1,7 +1,10 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.data.AboutInfo
 import kotlinx.browser.window
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.dom.*
 
 enum class Route(val path: String) {
@@ -16,8 +19,13 @@ enum class Route(val path: String) {
     }
 }
 
+val mainScope = MainScope()
 class RouteViewModel {
     private var routeState = mutableStateOf(Route.from(window.location.pathname))
+    private val aboutState = mutableStateOf<AboutInfo?>(null)
+
+    val aboutInfo: AboutInfo?
+        get() = aboutState.value
 
     val route: Route
         get() = routeState.value
@@ -27,6 +35,9 @@ class RouteViewModel {
             println("event = ${it.type} $it")
             setRoute(Route.from(window.location.pathname), true)
         })
+        mainScope.launch {
+            aboutState.value = Network.fetch("about")
+        }
     }
 
     fun setRoute(value: Route, replace: Boolean = false) {
@@ -56,7 +67,9 @@ fun Router(
 ) {
     Div {
         H1 {
-            Text("Regatta")
+            viewModel.aboutInfo?.let {
+                Text("Regatta version: ${it.name}")
+            } ?: Text("Regatta")
         }
         Hr()
         P {
