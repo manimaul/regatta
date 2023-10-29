@@ -24,6 +24,9 @@ fun Application.configureRouting() {
                 RegattaDatabase.findSeries(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
+        get("/allSeries".versionedApi()) {
+            call.respond(RegattaDatabase.allSeries())
+        }
         get("/about".versionedApi()) {
             call.respond(AboutInfo("1.0"))
         }
