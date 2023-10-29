@@ -19,26 +19,5 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: regatta
 
-  postgressetup:
-    build:
-      context: ./postgres_init
-      dockerfile: Dockerfile
-    depends_on:
-      - postgres
-    networks:
-      - overlay
-    restart: "no"
-    volumes:
-      - ./postgres_init/scripts:/postgres_init
-    environment:
-      PGUSER: admin
-      PGPASSWORD: mysecretpassword
-      PGHOST: postgres
-      PGPORT: 5432
-      PGDATABASE: regatta
-
-    entrypoint: [ "/postgres_init/postgres_init.sh" ]
-
-
 networks:
   overlay:

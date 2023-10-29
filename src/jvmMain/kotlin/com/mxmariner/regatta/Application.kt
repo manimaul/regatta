@@ -1,5 +1,6 @@
 package com.mxmariner.regatta
 
+import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.plugins.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -16,6 +17,7 @@ fun main() {
 }
 
 fun Application.module() {
+    RegattaDatabase.init()
     configureRouting()
     install(ContentNegotiation) {
         json()

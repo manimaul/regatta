@@ -75,6 +75,12 @@ kotlin {
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 compileOnly(compose.runtime)
+
+                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+                implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+                implementation("org.postgresql:postgresql:42.5.4")
             }
         }
         val jvmTest by getting {
