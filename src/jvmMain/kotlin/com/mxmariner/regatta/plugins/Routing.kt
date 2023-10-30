@@ -1,8 +1,8 @@
 package com.mxmariner.regatta.plugins
 
 import com.mxmariner.regatta.data.AboutInfo
+import com.mxmariner.regatta.data.Series
 import com.mxmariner.regatta.db.RegattaDatabase
-import com.mxmariner.regatta.db.Series
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
 import io.ktor.server.application.*
