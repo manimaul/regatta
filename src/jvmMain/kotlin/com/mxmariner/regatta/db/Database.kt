@@ -16,7 +16,8 @@ object RegattaDatabase {
             SchemaUtils.create(PersonTable)
             SchemaUtils.create(RaceClassTable)
             SchemaUtils.create(RaceTable)
-            //todo: race entry table
+            SchemaUtils.create(BoatTable)
+            SchemaUtils.create(RaceResultsTable)
         }
     }
 
