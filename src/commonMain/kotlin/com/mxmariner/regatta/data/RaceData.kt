@@ -16,6 +16,7 @@ data class Person(
     val id: Long? = null,
     val first: String,
     val last: String,
+    val clubMember: Boolean,
 )
 
 @Serializable
@@ -29,9 +30,30 @@ data class RaceClass(
 data class Race(
     val id: Long? = null,
     val name: String,
-    val rcId: Long?,
-    val seriesId: Long,
+    val series: Series,
     val startDate: Instant?,
     val endDate: Instant?,
+    val rc: Person?,
     val correctionFactor: Int?,
+)
+
+@Serializable
+data class Boat(
+    val id: Long? = null,
+    val name: String,
+    val sailNumber: String,
+    val boatType: String,
+    val phrfRating: Int?,
+    val skipper: Person,
+)
+
+@Serializable
+data class RaceResult(
+    val id: Long? = null,
+    val name: String,
+    val race: Race,
+    val boat: Boat,
+    val startTime: Instant?,
+    val endTime: Instant?,
+    val phrfRating: Int?,
 )

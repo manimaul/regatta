@@ -1,8 +1,10 @@
 package com.mxmariner.regatta.db
 
+import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -39,10 +41,15 @@ object RegattaDatabase {
             .singleOrNull()
     }
 
-    suspend fun findSeries(name: String): Series? = dbQuery {
-        SeriesTable.select { SeriesTable.name eq name }
+    suspend fun deleteSeries(id: Long) = dbQuery {
+        SeriesTable.deleteWhere {
+            SeriesTable.id eq id
+        }
+    }
+
+    suspend fun findSeries(name: String): List<Series> = dbQuery {
+        SeriesTable.select { SeriesTable.name ilike LikePattern("%$name%")}
             .map(::resultRowToSeries)
-            .singleOrNull()
     }
 
     suspend fun upsertSeries(series: Series): Series? = dbQuery {
@@ -60,6 +67,55 @@ object RegattaDatabase {
                 it[name] = series.name
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
+        }
+    }
+
+    private fun resultRowToPerson(row: ResultRow) = Person(
+        id = row[PersonTable.id],
+        first = row[PersonTable.first],
+        last = row[PersonTable.last],
+        clubMember = row[PersonTable.clubMember],
+    )
+
+    suspend fun findPerson(id: Long): Person? = dbQuery {
+        PersonTable.select {
+            PersonTable.id eq id
+        }.map(::resultRowToPerson).singleOrNull()
+    }
+    suspend fun findPerson(name: String): List<Person> = dbQuery {
+        PersonTable.select {
+            (PersonTable.first ilike LikePattern("%$name%")) or (PersonTable.last ilike LikePattern("%$name%"))
+        }.map(::resultRowToPerson)
+    }
+    suspend fun upsertPerson(person: Person): Person? = dbQuery {
+        person.id?.let {
+            val updated = PersonTable.update({PersonTable.id eq it}) {
+                it[first] = first
+                it[last] = last
+            } > 0
+            if (updated) {
+                person
+            } else {
+                null
+            }
+        } ?: run {
+            val statement = PersonTable.insert {
+                it[first] = person.first
+                it[last] = person.last
+                it[clubMember] = person.clubMember
+            }
+            statement.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
+        }
+        null
+    }
+
+    suspend fun allPeople(): List<Person> = dbQuery {
+        PersonTable.selectAll().map(::resultRowToPerson)
+    }
+
+    suspend fun deletePerson(id: Long) = dbQuery {
+        PersonTable.deleteWhere {
+            PersonTable.id eq id
         }
     }
 }
