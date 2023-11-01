@@ -6,6 +6,7 @@ import com.mxmariner.regatta.data.AboutInfo
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import viewmodel.Scopes.mainScope
 
 enum class Route(val path: String) {
     Home("/"),
@@ -22,7 +23,6 @@ enum class Route(val path: String) {
     }
 }
 
-val mainScope = MainScope()
 class RouteViewModel {
     private var routeState = mutableStateOf(Route.from(window.location.pathname))
     private val aboutState = mutableStateOf<AboutInfo?>(null)
@@ -63,6 +63,5 @@ private val routeViewModel = RouteViewModel()
 
 @Composable
 fun provideRouteViewModel(): RouteViewModel {
-//    return remember { RouteViewModel() }
     return routeViewModel
 }

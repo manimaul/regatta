@@ -1,7 +1,10 @@
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun RaceResults() {
-    Text("Race Results")
+    H4 {
+        Text("Race Results")
+    }
 }
