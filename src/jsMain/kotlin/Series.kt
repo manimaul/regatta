@@ -52,7 +52,7 @@ fun TextInput(
                 name = ""
             }
         }) {
-            Text("Submit")
+            Text("Add")
         }
     }
 }

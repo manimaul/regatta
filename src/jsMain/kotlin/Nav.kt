@@ -12,10 +12,19 @@ fun Nav(
 ) {
     P {
 
-        Route.entries.forEach { route ->
+        arrayOf(
+            Route.Home,
+            Route.People,
+            Route.Boats,
+            Route.Classes,
+            Route.Series,
+            Route.Races,
+            Route.RaceResult,
+        ).forEach { route ->
             if (route != Route.NotFound) {
                 Button(attrs = {
                     onClick {
+                        println("clicked $route")
                         viewModel.setRoute(route)
                     }
                 }) {

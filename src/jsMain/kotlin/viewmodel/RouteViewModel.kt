@@ -2,17 +2,31 @@ package viewmodel
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import com.mxmariner.regatta.data.AboutInfo
 import kotlinx.browser.window
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import viewmodel.Scopes.mainScope
+
+
+sealed interface RoutingArgs
+
+data class Routing(
+    val route: Route,
+    val args: RoutingArgs? = null
+) {
+    companion object {
+        fun from(path: String): Routing {
+            val route = Route.entries.firstOrNull { it.path == path } ?: Route.NotFound
+            return Routing(route)
+        }
+    }
+}
 
 enum class Route(val path: String) {
     Home("/"),
     Series("/series"),
     People("/people"),
     Races("/races"),
+    Boats("/boats"),
+    BoatEdit("/boat/{id}"),
+    Classes("/class"),
     RaceResult("/races/results"),
     NotFound("/404");
 
@@ -24,33 +38,25 @@ enum class Route(val path: String) {
 }
 
 class RouteViewModel {
-    private var routeState = mutableStateOf(Route.from(window.location.pathname))
-    private val aboutState = mutableStateOf<AboutInfo?>(null)
-
-    val aboutInfo: AboutInfo?
-        get() = aboutState.value
+    private var routeState = mutableStateOf(Routing.from(window.location.pathname))
 
     val route: Route
-        get() = routeState.value
+        get() = routeState.value.route
+
     init {
         window.addEventListener("popstate", {
             println("history location set to ${window.location.pathname}")
             println("event = ${it.type} $it")
             setRoute(Route.from(window.location.pathname), true)
         })
-        mainScope.launch {
-            aboutState.value = Network.fetch("about")
-        }
     }
 
-    fun setRoute(value: Route, replace: Boolean = false) {
-        if (value.path != routeState.value.path) {
-            routeState.value = value
+    fun setRoute(value: Route, replace: Boolean = false, args: RoutingArgs? = null) {
+        if (value.path != routeState.value.route.path) {
+            routeState.value = Routing(value, args)
             if (replace) {
-                println("replacing route $route")
                 window.history.replaceState(null, value.name, value.path)
             } else {
-                println("pushing route $route")
                 window.history.pushState(null, value.name, value.path)
             }
         } else {

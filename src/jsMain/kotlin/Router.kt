@@ -11,19 +11,19 @@ fun Router(
 ) {
     Div {
         H1 {
-            viewModel.aboutInfo?.let {
-                Text("Regatta version: ${it.name}")
-            } ?: Text("Regatta")
+            Text("Regatta")
         }
         Hr()
         Nav()
         when (viewModel.route) {
             Route.Home -> Home()
-            Route.NotFound -> Text("womp womp")
             Route.Series -> Series()
             Route.People -> People()
             Route.Races -> Races()
             Route.RaceResult -> RaceResults()
+            Route.Boats -> Boats()
+            Route.Classes -> Classes()
+            else -> Text("womp womp")
         }
     }
 }
