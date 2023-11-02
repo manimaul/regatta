@@ -1,3 +1,5 @@
+package utils
+
 import com.mxmariner.regatta.versionedApi
 import kotlinx.browser.window
 import kotlinx.coroutines.await

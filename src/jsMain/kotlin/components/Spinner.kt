@@ -1,17 +1,9 @@
+package components
+
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.ExperimentalComposeWebSvgApi
-import org.jetbrains.compose.web.dom.H4
-import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.svg.*
 import kotlin.math.PI
-
-@Composable
-fun Boats() {
-    H4 {
-        Text("Boats")
-    }
-    Spinner(50f)
-}
 
 @OptIn(ExperimentalComposeWebSvgApi::class)
 @Composable

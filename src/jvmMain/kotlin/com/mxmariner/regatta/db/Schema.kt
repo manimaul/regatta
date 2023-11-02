@@ -50,8 +50,7 @@ object RaceResultsTable : Table() {
     val name = varchar("name", 128)
     val raceId = (long("race_id") references RaceTable.id).nullable()
     val boatId = (long("boat_id") references BoatTable.id).nullable()
-    val startDate = timestamp("start_date").nullable()
-    val endDate = timestamp("end_date").nullable()
+    val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
     override val primaryKey = PrimaryKey(id)
 }

@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import viewmodel.Scopes.mainScope
+import utils.Scopes.mainScope
 import kotlin.js.Date
 
 class ClockViewModel {

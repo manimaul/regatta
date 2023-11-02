@@ -1,4 +1,5 @@
 import androidx.compose.runtime.Composable
+import components.routes.*
 import org.jetbrains.compose.web.dom.*
 import viewmodel.Route
 import viewmodel.RouteViewModel
@@ -14,7 +15,7 @@ fun Router(
             Text("Regatta")
         }
         Hr()
-        Nav()
+        components.Nav()
         when (viewModel.route) {
             Route.Home -> Home()
             Route.Series -> Series()
