@@ -54,6 +54,7 @@ kotlin {
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test-js"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
             }
         }
 
@@ -76,6 +77,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-status-pages:${ktorVersion}")
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                implementation("io.ktor:ktor-server-auth:$ktorVersion")
                 compileOnly(compose.runtime)
 
                 implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
@@ -109,6 +111,17 @@ tasks.named<Copy>("jvmProcessResources") {
 }
 
 tasks.named<KotlinWebpack>("jsBrowserProductionWebpack") {
+    doFirst {
+        File("webpack.config.d/dev_server_config.js")
+            .renameTo(File("webpack.config.d/dev_server_config"))
+    }
+    doLast {
+        File("webpack.config.d/dev_server_config")
+            .renameTo(File("webpack.config.d/dev_server_config.js"))
+    }
+}
+
+tasks.named("jsBrowserTest") {
     doFirst {
         File("webpack.config.d/dev_server_config.js")
             .renameTo(File("webpack.config.d/dev_server_config"))

@@ -19,3 +19,8 @@ curl -H "Content-Type: application/json" 'http://localhost:8888/v1/api/allSeries
 ###########################
 #curl -d '{"first":"William", "last": "Kamp", "clubMember": true}' -H "Content-Type: application/json" -X POST http://localhost:8888/v1/api/person
 #curl -H "Content-Type: application/json" 'http://localhost:8888/v1/api/people' | jq
+
+curl -v \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer abc123" \
+  'http://localhost:8888/v1/api/about'

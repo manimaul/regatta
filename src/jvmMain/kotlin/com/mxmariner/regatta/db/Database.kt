@@ -1,5 +1,6 @@
 package com.mxmariner.regatta.db
 
+import com.mxmariner.regatta.data.AuthRecord
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ object RegattaDatabase {
             SchemaUtils.create(RaceTable)
             SchemaUtils.create(BoatTable)
             SchemaUtils.create(RaceResultsTable)
+            SchemaUtils.create(AuthTable)
         }
     }
 
@@ -116,6 +118,54 @@ object RegattaDatabase {
     suspend fun deletePerson(id: Long) = dbQuery {
         PersonTable.deleteWhere {
             PersonTable.id eq id
+        }
+    }
+
+    fun resultRowToAuth(row: ResultRow) : AuthRecord {
+        return AuthRecord(
+            id = row[AuthTable.id],
+            admin = row[AuthTable.isAdmin],
+            hash = row[AuthTable.hash],
+            userName = row[AuthTable.userName],
+        )
+    }
+    suspend fun adminExists() = dbQuery {
+        AuthTable.select { AuthTable.isAdmin eq Op.TRUE }.count() > 0
+    }
+
+    suspend fun getAuth(userName: String) = dbQuery {
+        AuthTable.select { AuthTable.userName eq userName}.singleOrNull()?.let(::resultRowToAuth)
+    }
+    suspend fun getAuth(id: Long) = dbQuery {
+        AuthTable.select { AuthTable.id eq id }.singleOrNull()?.let {
+            AuthRecord(
+                id = it[AuthTable.id],
+                admin = it[AuthTable.isAdmin],
+                hash = it[AuthTable.hash],
+                userName = it[AuthTable.userName],
+            )
+        }
+    }
+
+    suspend fun saveAuth(record: AuthRecord) = dbQuery {
+        record.id?.let {
+            val statement = AuthTable.update {
+                it[hash] = record.hash
+                it[userName] = record.userName
+                it[isAdmin] = record.admin
+            }
+            if (statement > 0) {
+                record
+            } else {
+                null
+            }
+        } ?: run {
+            val statement = AuthTable.insert {
+                it[hash] = record.hash
+                it[userName] = record.userName
+                it[isAdmin] = record.admin
+            }
+            statement.resultedValues?.singleOrNull()?.let(::resultRowToAuth)
         }
     }
 }

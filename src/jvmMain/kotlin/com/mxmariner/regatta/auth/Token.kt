@@ -1,0 +1,112 @@
+package com.mxmariner.regatta.auth
+
+import com.mxmariner.regatta.data.AuthRecord
+import com.mxmariner.regatta.data.Login
+import com.mxmariner.regatta.data.LoginResponse
+import com.mxmariner.regatta.db.RegattaDatabase
+import io.ktor.server.auth.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.*
+import kotlin.time.Duration.Companion.seconds
+
+
+object Token {
+
+    private val expiresIn = (60 * 60 * 8).seconds
+
+    object Admin {
+        const val name = "admin-auth-bearer"
+        const val realm = "admin access"
+        val principal = UserIdPrincipal("regatta-admin")
+    }
+
+    object User {
+        const val name = "user-auth-bearer"
+        const val realm = "user access"
+        val principal = UserIdPrincipal("regatta-user")
+    }
+
+    private fun hashInternal(value: String) : String {
+        val md = MessageDigest.getInstance("SHA-512")
+        val hash = md.digest(value.encodeToByteArray())
+        return Base64.getEncoder().encodeToString(hash)
+    }
+
+    fun hash(vararg data: String) : String {
+        var result = ""
+        data.forEach {
+            result = hashInternal(it + result)
+        }
+        return result
+    }
+
+    fun timeStampHash(instant: Instant, salt: String, hash: String) : String {
+        return hash(salt, "${instant.epochSeconds}", hash)
+    }
+
+    fun salt() : String {
+        val random = SecureRandom()
+        val bytes = ByteArray(16)
+        random.nextBytes(bytes)
+        return Base64.getEncoder().encodeToString(bytes)
+    }
+
+    suspend fun createLoginResponse(login: Login) : LoginResponse? {
+        RegattaDatabase.getAuth(login.userName)?.let {
+            val expected = timeStampHash(login.time, login.salt, it.hash)
+            if (expected == it.hash) {
+                val expires = Clock.System.now().plus(expiresIn)
+                val salt = salt()
+                val hash = timeStampHash(expires, salt, it.hash)
+                LoginResponse(
+                    id = it.id!!,
+                    hashOfHash = hash,
+                    salt,
+                    expires
+                )
+            } else {
+                null
+            }
+        }
+        return null
+
+    }
+
+    private fun validateHash(response: LoginResponse, record: AuthRecord) : Boolean {
+        response.expires.takeIf {it.minus(Clock.System.now()).isPositive() }?.let {
+            val expected = timeStampHash(response.expires, response.salt, record.hash)
+            expected == response.hashOfHash
+        }
+        return false
+    }
+
+    suspend fun validateUserToken(token: String) : UserIdPrincipal? {
+        return LoginResponse.parseToken(token)?.let {login ->
+            RegattaDatabase.getAuth(login.id)?.let {record ->
+                if (validateHash(login, record)) {
+                    User.principal
+                } else {
+                    null
+                }
+            }
+        }
+    }
+    suspend fun validateAdminToken(token: String) : UserIdPrincipal? {
+        return if (RegattaDatabase.adminExists()) {
+            LoginResponse.parseToken(token)?.let {login ->
+                RegattaDatabase.getAuth(login.id)?.let {record ->
+                    if (record.admin && validateHash(login, record)) {
+                        Admin.principal
+                    } else {
+                        null
+                    }
+                }
+            }
+        } else {
+            Admin.principal
+        }
+    }
+}

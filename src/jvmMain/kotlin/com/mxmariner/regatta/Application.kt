@@ -1,10 +1,12 @@
 package com.mxmariner.regatta
 
+import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.plugins.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -18,6 +20,20 @@ fun main() {
 
 fun Application.module() {
     RegattaDatabase.init()
+    install(Authentication) {
+        bearer(Token.User.name) {
+            realm = Token.User.realm
+            authenticate { tokenCredential ->
+                Token.validateUserToken(tokenCredential.token)
+            }
+        }
+        bearer(Token.Admin.name) {
+            realm = Token.Admin.realm
+            authenticate { tokenCredential ->
+                Token.validateAdminToken(tokenCredential.token)
+            }
+        }
+    }
     configureRouting()
     install(ContentNegotiation) {
         json()
