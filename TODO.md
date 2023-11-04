@@ -9,5 +9,5 @@
   implementation("com.zaxxer:HikariCP:5.0.1")
 ```
 - RaceResult finish type (NOR, DNS, DSQ, DNF)
-
+- Offline race upload (PWA / native app)
 
