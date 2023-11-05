@@ -3,9 +3,9 @@ package components.routes
 import androidx.compose.runtime.*
 import components.Clock
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.name
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.ClockViewModel
 import viewmodel.HomeViewModel
 
 @Composable
@@ -19,15 +19,13 @@ fun Home(
         Clock(viewModel)
     } ?: run {
         Clock(viewModel)
-        Login { userName, password ->
-
-        }
+        Login(viewModel)
     }
 }
 
 @Composable
 fun Login(
-    onSubmit: (String, String) -> Unit
+    viewModel: HomeViewModel
 ) {
     var name by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -43,15 +41,30 @@ fun Login(
         Input(type = InputType.Password) {
             placeholder("password")
             onInput {
-                name = it.value
+                pass = it.value
+                viewModel.password(pass)
             }
-            value(name)
+            value(pass)
+        }
+        CheckboxInput {
+            checked(viewModel.admin)
+            id("Admin")
+            name("Admin")
+            onChange {
+                viewModel.admin = it.value
+            }
+        }
+        Label("Admin") { Text("Admin") }
+        viewModel.hash.takeIf { it.isNotBlank() }?.let {
+            Br()
+            Br()
+            Text(viewModel.hash)
+            Br()
         }
         Br()
         Button(attrs = {
             onClick {
-                onSubmit(name, pass)
-                name = ""
+//                name = ""
             }
         }) {
             Text("Login")

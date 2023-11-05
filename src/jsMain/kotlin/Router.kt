@@ -24,6 +24,7 @@ fun Router(
             Route.RaceResult -> RaceResults()
             Route.Boats -> Boats()
             Route.Classes -> Classes()
+            Route.PeopleAdd -> PersonAdd()
             else -> Text("womp womp, something's missing")
         }
     }

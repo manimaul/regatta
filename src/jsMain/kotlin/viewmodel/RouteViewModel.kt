@@ -23,6 +23,7 @@ enum class Route(val path: String) {
     Home("/"),
     Series("/series"),
     People("/people"),
+    PeopleAdd("/people/add"),
     Races("/races"),
     Boats("/boats"),
     BoatEdit("/boat/{id}"),

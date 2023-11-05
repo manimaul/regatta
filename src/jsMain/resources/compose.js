@@ -6,7 +6,7 @@ function composeReady() {
 window.onload = (event) => {
     let script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = 'regatta.js';
+    script.src = '/regatta.js';
 
     script.onreadystatechange = composeReady;
     script.onload = composeReady;
