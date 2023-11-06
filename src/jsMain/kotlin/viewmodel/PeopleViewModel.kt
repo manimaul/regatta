@@ -11,6 +11,10 @@ sealed interface PeopleState
 
 data object PeopleStateLoading : PeopleState
 
+data class DeletePerson(
+    val person: Person
+) : PeopleState
+
 data class PeopleStateLoaded(
     val people: List<Person>
 ) : PeopleState
@@ -30,11 +34,29 @@ class PeopleViewModel {
         }
     }
 
+    fun reload() {
+        mainScope.launch {
+            peopleState.value = PeopleStateLoading
+            fetchAllPeople()
+        }
+    }
+
     fun upsertPerson(person: Person) {
         mainScope.launch {
             peopleState.value = PeopleStateLoading
             Network.post<Person, Person>("person", person)
             fetchAllPeople()
         }
+    }
+
+    fun delete(person: Person) {
+        mainScope.launch {
+            peopleState.value = PeopleStateLoading
+            Network.delete("person", mapOf("id" to "${person.id}"))
+            fetchAllPeople()
+        }
+    }
+    fun setDeletePerson(person: Person) {
+        peopleState.value = DeletePerson(person)
     }
 }

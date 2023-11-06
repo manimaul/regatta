@@ -29,13 +29,6 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
                 H4 {
                     Text("Logged in as ${viewModel.userName}")
                 }
-                Button(attrs = {
-                    onClick {
-                        viewModel.logout()
-                    }
-                }) {
-                    Text("Logout")
-                }
                 val creator = routeViewModel.getQueryParam("create").isNotEmpty()
                 if (creator) {
                     Login()

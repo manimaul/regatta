@@ -2,11 +2,13 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
+import components.Confirm
 import components.Spinner
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.name
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
+import viewmodel.DeletePerson
 import viewmodel.PeopleStateLoaded
 import viewmodel.PeopleStateLoading
 import viewmodel.PeopleViewModel
@@ -28,25 +30,42 @@ fun People(
                             Th { Text("Last") }
                             Th { Text("Boat") }
                             Th { Text("Member") }
+                            Th { Text("") }
                         }
                         people.forEach { person ->
                             Tr {
                                 Td { Text(person.first) }
                                 Td { Text(person.last) }
                                 Td { Text("-") }
-                                Td { CheckboxInput(person.clubMember) }
+                                Td { Text(if(person.clubMember) "Yes" else "No") }
+                                Td {
+                                    Button(attrs = {
+                                        onClick { viewModel.setDeletePerson(person) }
+                                    }) {
+                                        Text("X")
+                                    }
+                                }
                             }
                         }
                     }
                 } ?: run {
                     P { Text("No one was found") }
                 }
-                H4 {
-                    Text("Add person")
-                }
+                Br()
+                Hr()
+                H4 { Text("Add person") }
                 AddPerson(viewModel)
             }
             PeopleStateLoading -> Spinner(50f)
+            is DeletePerson -> {
+                Confirm("Delete '${state.person.first} ${state.person.last}'?") { delete ->
+                    if (delete) {
+                        viewModel.delete(state.person)
+                    } else {
+                        viewModel.reload()
+                    }
+                }
+            }
         }
     }
 }

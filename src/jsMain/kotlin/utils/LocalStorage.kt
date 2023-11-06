@@ -52,5 +52,5 @@ fun token(): String {
     return localStoreGetEncoded<LoginResponse>() ?: "none"
 }
 fun LoginResponse.isExpired() : Boolean {
-    return expires.minus(kotlinx.datetime.Clock.System.now()).isPositive()
+    return expires.minus(kotlinx.datetime.Clock.System.now()).isNegative()
 }

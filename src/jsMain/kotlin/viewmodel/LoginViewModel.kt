@@ -102,6 +102,7 @@ class LoginViewModel {
         localStoreSet("username", "")
         localStoreSet<LoginResponse>(null)
         loginState.value = initialState()
+        routeViewModel.setRoute(Route.Home)
     }
 
     fun login() {
@@ -124,6 +125,7 @@ class LoginViewModel {
                     state = LoginStatus.LoggedIn,
                     login = it,
                 )
+                routeViewModel.setRoute(Route.Home)
             } ?: run {
                 loginState.value = loginState.value.copy(
                     state = LoginStatus.Failed,

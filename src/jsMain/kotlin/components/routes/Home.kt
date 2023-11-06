@@ -2,41 +2,28 @@ package components.routes
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.H4
-import org.jetbrains.compose.web.dom.Text
+import kotlinx.browser.window
+import org.jetbrains.compose.web.dom.*
+import utils.token
 import viewmodel.HomeViewModel
 import viewmodel.LoginStatus
-import viewmodel.Route
 
 @Composable
 fun Home(
     viewModel: HomeViewModel = remember { HomeViewModel() },
 ) {
     val loginVm = viewModel.loginVm
-    val routeVm = viewModel.routeVm
     if (loginVm.loginStatus == LoginStatus.LoggedIn) {
         H4 {
             Text("Logged in as ${loginVm.userName}")
         }
         H4 {
-            Text("Expires: ${viewModel.state.expires}")
+            Text("Authorization expires: ${viewModel.state.expires}")
         }
         Button(attrs = {
-            onClick {
-                loginVm.logout()
-            }
+            onClick { window.navigator.clipboard.writeText(token()) }
         }) {
-            Text("Logout")
-        }
-    } else {
-        Button(attrs = {
-            onClick {
-                routeVm.setRoute(Route.Admin)
-            }
-        }) {
-            Text("Login")
+            Text("Copy auth token")
         }
     }
     Div {

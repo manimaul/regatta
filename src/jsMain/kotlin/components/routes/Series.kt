@@ -39,6 +39,7 @@ fun Series(
                 Br()
             }
             Hr()
+            H4 { Text("Add series") }
             TextInputAdd {
                 viewModel.addSeries(Series(name = it))
             }
