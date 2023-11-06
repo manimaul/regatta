@@ -1,33 +1,31 @@
 package components.routes
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import components.Spinner
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
+import viewmodel.LoginStatus
 import viewmodel.LoginViewModel
-import viewmodel.State
+import viewmodel.loginViewModel
 import viewmodel.routeViewModel
 
 
 @Composable
-fun Admin(
-    viewModel: LoginViewModel = remember { LoginViewModel() },
-) {
+fun Admin(viewModel: LoginViewModel = loginViewModel) {
     Div {
-        when (viewModel.state) {
-            State.Loading -> Spinner(50f)
-            State.Ready -> {
-                Login(viewModel)
+        when (viewModel.loginStatus) {
+            LoginStatus.Loading -> Spinner(50f)
+            LoginStatus.Ready -> {
+                Login()
             }
-            State.Complete -> {
+            LoginStatus.Complete -> {
                 Div {
                     Text("Done")
                 }
             }
-            State.LoggedIn -> {
+            LoginStatus.LoggedIn -> {
                 H4 {
                     Text("Logged in as ${viewModel.userName}")
                 }
@@ -39,7 +37,7 @@ fun Admin(
                     Text("Logout")
                 }
             }
-            State.Failed -> {
+            LoginStatus.Failed -> {
                 P {
                     Text("Error")
                 }
@@ -51,9 +49,7 @@ fun Admin(
 }
 
 @Composable
-fun Login(
-    viewModel: LoginViewModel
-) {
+fun Login(viewModel: LoginViewModel = loginViewModel) {
     val creator = routeViewModel.getQueryParam("create").isNotEmpty()
     H2 {
         if (creator) {
@@ -92,5 +88,4 @@ fun Login(
     }) {
         Text(if (creator) "Add" else "Login")
     }
-
 }

@@ -11,7 +11,7 @@ import utils.*
 import utils.Scopes.mainScope
 
 
-enum class State {
+enum class LoginStatus {
     Loading,
     Ready,
     Complete,
@@ -19,21 +19,23 @@ enum class State {
     Failed,
 }
 
-private fun initialState(): LoginVmState {
+private fun initialState(): LoginState {
     val savedLogin = localStoreGet<LoginResponse>()
-    return LoginVmState(
+    return LoginState(
         login = savedLogin,
-        state = savedLogin?.takeIf { it.expires.minus(Clock.System.now()).isPositive() }?.let { State.LoggedIn }
-            ?: State.Ready
+        state = savedLogin?.takeIf { it.expires.minus(Clock.System.now()).isPositive() }?.let { LoginStatus.LoggedIn }
+            ?: LoginStatus.Ready
     )
 }
 
-data class LoginVmState(
+data class LoginState(
     val auth: AuthRecord = AuthRecord(hash = "", userName = localStoreGet("username") ?: ""),
     val pass: String = "",
-    val state: State = State.Ready,
+    val state: LoginStatus = LoginStatus.Ready,
     val login: LoginResponse? = localStoreGet<LoginResponse>()
 )
+
+val loginViewModel = LoginViewModel()
 
 class LoginViewModel {
     private val loginState = mutableStateOf(initialState())
@@ -41,7 +43,7 @@ class LoginViewModel {
     val hash: String
         get() = loginState.value.auth.hash
 
-    val state: State
+    val loginStatus: LoginStatus
         get() = loginState.value.state
 
     val loginResponse: LoginResponse?
@@ -76,16 +78,16 @@ class LoginViewModel {
     fun isValid() = password.length > 4
 
     fun submitNew() {
-        loginState.value = loginState.value.copy(state = State.Loading)
+        loginState.value = loginState.value.copy(state = LoginStatus.Loading)
         mainScope.launch {
             val record: AuthRecord? = Network.post("auth", loginState.value.auth)
             record?.let {
                 loginState.value = loginState.value.copy(
                     auth = it,
-                    state = State.Complete
+                    state = LoginStatus.Complete
                 )
             } ?: run {
-                loginState.value = loginState.value.copy(state = State.Failed)
+                loginState.value = loginState.value.copy(state = LoginStatus.Failed)
             }
         }
     }
@@ -98,7 +100,7 @@ class LoginViewModel {
 
     fun login() {
         mainScope.launch {
-            loginState.value = loginState.value.copy(state = State.Loading)
+            loginState.value = loginState.value.copy(state = LoginStatus.Loading)
             val time = Clock.System.now()
             val salt = salt()
             val login = Login(
@@ -111,9 +113,13 @@ class LoginViewModel {
             response?.let {
                 localStoreSet(it)
                 localStoreSet("username", login.userName)
-                loginState.value = loginState.value.copy(state = State.LoggedIn)
+                println("storing login $it")
+                loginState.value = loginState.value.copy(
+                    state = LoginStatus.LoggedIn,
+                    login = it,
+                )
             } ?: run {
-                loginState.value = loginState.value.copy(state = State.Failed)
+                loginState.value = loginState.value.copy(state = LoginStatus.Failed)
             }
         }
     }
@@ -121,7 +127,7 @@ class LoginViewModel {
     fun reload() {
         mainScope.launch {
             delay(3000)
-            loginState.value = loginState.value.copy(state = State.Ready)
+            loginState.value = loginState.value.copy(state = LoginStatus.Ready)
         }
     }
 }

@@ -1,40 +1,63 @@
 package viewmodel
 
 import androidx.compose.runtime.mutableStateOf
-import com.mxmariner.regatta.data.Login
-import com.mxmariner.regatta.data.Person
-import components.ClockTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJSDate
 import utils.Scopes.mainScope
-import kotlin.js.Date
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
-data class LoginState(
-    val login: Login? = null,
-    val person: Person? = null,
+
+data class HomeState(
+    val clock: String,
+    val expires: String,
 )
 
-class HomeViewModel : ClockTime {
-    private val state = mutableStateOf(LoginState())
-    private val clockState = mutableStateOf("")
+class HomeViewModel(
+    val loginVm: LoginViewModel = loginViewModel,
+    val routeVm: RouteViewModel = routeViewModel
+) {
+    private val homeState = mutableStateOf(
+        HomeState(
+            clock = getClockValue(),
+            expires = loginExpires()
+        )
+    )
 
-    override val readOut: String
-        get() = clockState.value
-
+    val state: HomeState
+        get() = homeState.value
 
     private fun getClockValue(): String {
-        return Date().toLocaleTimeString()
+        val now = Clock.System.now()
+        return now.toJSDate().toLocaleTimeString()
     }
 
-    val loggedInPerson: Person?
-        get() = state.value.person
+    private fun loginExpires(): String {
+        return loginVm.loginResponse?.expires?.let {
+            var remaining = it.minus(Clock.System.now())
+            val days = remaining.inWholeDays
+            remaining = remaining.minus(days.days)
+            val hours = remaining.inWholeHours
+            remaining = remaining.minus(hours.hours)
+            val minutes = remaining.inWholeMinutes
+            remaining = remaining.minus(minutes.minutes)
+            val seconds = remaining.inWholeSeconds
+            "$days days, $hours hours, $minutes minutes, $seconds seconds"
+        } ?: ""
+    }
 
     init {
         mainScope.launch(Dispatchers.Unconfined) {
             while (true) {
-                delay(100)
-                clockState.value = getClockValue()
+                delay(250)
+                homeState.value = HomeState(
+                    clock = getClockValue(),
+                    expires = loginExpires()
+                )
             }
         }
     }

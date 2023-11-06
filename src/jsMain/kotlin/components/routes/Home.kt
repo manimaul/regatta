@@ -2,28 +2,30 @@ package components.routes
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import components.Clock
-import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Text
-import viewmodel.*
+import viewmodel.HomeViewModel
+import viewmodel.LoginStatus
+import viewmodel.Route
 
 @Composable
 fun Home(
     viewModel: HomeViewModel = remember { HomeViewModel() },
-    loginViewModel: LoginViewModel = remember { LoginViewModel() }
-
 ) {
-    if (loginViewModel.state == State.LoggedIn) {
+    val loginVm = viewModel.loginVm
+    val routeVm = viewModel.routeVm
+    if (loginVm.loginStatus == LoginStatus.LoggedIn) {
         H4 {
-            Text("Logged in as ${loginViewModel.userName}")
+            Text("Logged in as ${loginVm.userName}")
         }
-        Text("Login expires: ${loginViewModel.loginResponse?.expires}")
-        Br()
+        H4 {
+            Text("Expires: ${viewModel.state.expires}")
+        }
         Button(attrs = {
             onClick {
-                loginViewModel.logout()
+                loginVm.logout()
             }
         }) {
             Text("Logout")
@@ -31,11 +33,13 @@ fun Home(
     } else {
         Button(attrs = {
             onClick {
-                routeViewModel.setRoute(Route.Admin)
+                routeVm.setRoute(Route.Admin)
             }
         }) {
             Text("Login")
         }
     }
-    Clock(viewModel)
+    Div {
+        H4 { Text(viewModel.state.clock) }
+    }
 }
