@@ -6,10 +6,32 @@ import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.w3c.fetch.RequestInit
+import org.w3c.fetch.Response
 import kotlin.js.json
 
+
+data class NetworkResponse<T>(
+    val url: String? = null,
+    val ok: Boolean,
+    val body: T? = null,
+    val status: Short? = null,
+    val statusText: String? = null,
+    val error: Exception? = null
+)
+
 object Network {
-    suspend inline fun <reified T> get(api: String): T {
+
+    suspend inline fun <reified T> Response.networkResponse() : NetworkResponse<T> {
+        var body: T? = null
+        var error: Exception? = null
+        try {
+            body = Json.decodeFromString(text().await())
+        } catch (e: Exception) {
+            error = e
+        }
+        return NetworkResponse(url, ok, body, status, statusText, error)
+    }
+    suspend inline fun <reified T> get(api: String): NetworkResponse<T> {
         val response = window.fetch(
             api.versionedApi(),
             RequestInit(
@@ -19,14 +41,11 @@ object Network {
                     "Authorization" to "Bearer ${token()}"
                 ),
             )
-        )
-            .await()
-            .text()
-            .await()
-        return Json.decodeFromString(response)
+        ).await()
+        return response.networkResponse()
     }
 
-    suspend inline fun <reified T, reified R> post(api: String, item: T): R? {
+    suspend inline fun <reified T, reified R> post(api: String, item: T): NetworkResponse<R> {
         val response = window.fetch(
             api.versionedApi(),
             RequestInit(
@@ -39,12 +58,7 @@ object Network {
                 body = Json.encodeToJsonElement(item)
             )
         ).await()
-        return if (response.ok) {
-            val body = response.text().await()
-            return Json.decodeFromString<R>(body)
-        } else {
-            null
-        }
+        return response.networkResponse()
     }
 
     suspend fun delete(api: String, params: Map<String, String>): Int {

@@ -28,9 +28,10 @@ class PeopleViewModel {
 
     suspend fun fetchAllPeople() {
         val people = minimumDelay(1500) {
-            Network.get<List<Person>>("people")
+            Network.get<List<Person>>("people").body
+        }?.let {
+            peopleState.value = PeopleStateLoaded(it)
         }
-        peopleState.value = PeopleStateLoaded(people)
     }
 
     fun upsertPerson(person: Person) {

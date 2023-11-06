@@ -12,20 +12,22 @@ class SeriesViewModel {
     private val seriesState = mutableStateOf<List<Series>>(emptyList())
    init {
        mainScope.launch {
-           seriesState.value = Network.get("allSeries")
+           Network.get<List<Series>>("allSeries").let {
+               seriesState.value = it.body ?: emptyList()
+           }
        }
    }
 
     fun deleteSeries(series: Series) {
         mainScope.launch {
             Network.delete("series", mapOf("id" to "${series.id}"))
-            seriesState.value = Network.get("allSeries")
+            seriesState.value = Network.get<List<Series>>("allSeries").body ?: emptyList()
         }
     }
 
     fun addSeries(series: Series) {
         mainScope.launch {
-            val newSeries: Series? = Network.post("series", series)
+            val newSeries: Series? = Network.post<Series, Series>("series", series).body
             newSeries?.let {
                 seriesState.value += newSeries
             }

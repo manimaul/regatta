@@ -32,6 +32,7 @@ data class LoginState(
     val auth: AuthRecord = AuthRecord(hash = "", userName = localStoreGet("username") ?: ""),
     val pass: String = "",
     val state: LoginStatus = LoginStatus.Ready,
+    val errorMessage: String? = null,
     val login: LoginResponse? = localStoreGet<LoginResponse>()
 )
 
@@ -61,6 +62,9 @@ class LoginViewModel {
             )
         }
 
+    val state: LoginState
+        get() = loginState.value
+
     var password: String
         get() = loginState.value.pass
         set(value) {
@@ -80,14 +84,17 @@ class LoginViewModel {
     fun submitNew() {
         loginState.value = loginState.value.copy(state = LoginStatus.Loading)
         mainScope.launch {
-            val record: AuthRecord? = Network.post("auth", loginState.value.auth)
-            record?.let {
+            val response  = Network.post<AuthRecord, AuthRecord>("auth", loginState.value.auth)
+            response.body?.let {
                 loginState.value = loginState.value.copy(
                     auth = it,
                     state = LoginStatus.Complete
                 )
             } ?: run {
-                loginState.value = loginState.value.copy(state = LoginStatus.Failed)
+                loginState.value = loginState.value.copy(
+                    state = LoginStatus.Failed,
+                    errorMessage = "${response.status} ${response.statusText}",
+                )
             }
         }
     }
@@ -109,8 +116,8 @@ class LoginViewModel {
                 salt = salt,
                 time = time,
             )
-            val response: LoginResponse? = Network.post("login", login)
-            response?.let {
+            val response  = Network.post<Login, LoginResponse>("login", login)
+            response.body?.let {
                 localStoreSet(it)
                 localStoreSet("username", login.userName)
                 println("storing login $it")
@@ -119,7 +126,10 @@ class LoginViewModel {
                     login = it,
                 )
             } ?: run {
-                loginState.value = loginState.value.copy(state = LoginStatus.Failed)
+                loginState.value = loginState.value.copy(
+                    state = LoginStatus.Failed,
+                    errorMessage = "${response.status} ${response.statusText}"
+                )
             }
         }
     }

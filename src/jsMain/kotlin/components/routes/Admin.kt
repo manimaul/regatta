@@ -36,12 +36,15 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
                 }) {
                     Text("Logout")
                 }
+                val creator = routeViewModel.getQueryParam("create").isNotEmpty()
+                if (creator) {
+                    Login()
+                }
             }
             LoginStatus.Failed -> {
                 P {
-                    Text("Error")
+                    Text(viewModel.state.errorMessage ?: "")
                 }
-                Spinner(50f)
                 viewModel.reload()
             }
         }
