@@ -1,6 +1,5 @@
 package utils
 
-import com.mxmariner.regatta.data.AuthRecord
 import com.mxmariner.regatta.data.LoginResponse
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToString
@@ -51,4 +50,7 @@ inline fun <reified T> localStoreGetEncoded(): String? {
 
 fun token(): String {
     return localStoreGetEncoded<LoginResponse>() ?: "none"
+}
+fun LoginResponse.isExpired() : Boolean {
+    return expires.minus(kotlinx.datetime.Clock.System.now()).isPositive()
 }

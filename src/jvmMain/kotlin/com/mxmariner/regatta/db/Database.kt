@@ -50,7 +50,7 @@ object RegattaDatabase {
     }
 
     suspend fun findSeries(name: String): List<Series> = dbQuery {
-        SeriesTable.select { SeriesTable.name ilike LikePattern("%$name%")}
+        SeriesTable.select { SeriesTable.name ilike LikePattern("%$name%") }
             .map(::resultRowToSeries)
     }
 
@@ -84,14 +84,16 @@ object RegattaDatabase {
             PersonTable.id eq id
         }.map(::resultRowToPerson).singleOrNull()
     }
+
     suspend fun findPerson(name: String): List<Person> = dbQuery {
         PersonTable.select {
             (PersonTable.first ilike LikePattern("%$name%")) or (PersonTable.last ilike LikePattern("%$name%"))
         }.map(::resultRowToPerson)
     }
+
     suspend fun upsertPerson(person: Person): Person? = dbQuery {
         person.id?.let {
-            val updated = PersonTable.update({PersonTable.id eq it}) {
+            val updated = PersonTable.update({ PersonTable.id eq it }) {
                 it[first] = first
                 it[last] = last
             } > 0
@@ -121,20 +123,22 @@ object RegattaDatabase {
         }
     }
 
-    fun resultRowToAuth(row: ResultRow) : AuthRecord {
+    fun resultRowToAuth(row: ResultRow): AuthRecord {
         return AuthRecord(
             id = row[AuthTable.id],
             hash = row[AuthTable.hash],
             userName = row[AuthTable.userName],
         )
     }
+
     suspend fun adminExists() = dbQuery {
         AuthTable.selectAll().count() > 0
     }
 
     suspend fun getAuth(userName: String) = dbQuery {
-        AuthTable.select { AuthTable.userName eq userName}.singleOrNull()?.let(::resultRowToAuth)
+        AuthTable.select { AuthTable.userName eq userName }.singleOrNull()?.let(::resultRowToAuth)
     }
+
     suspend fun getAuth(id: Long) = dbQuery {
         AuthTable.select { AuthTable.id eq id }.singleOrNull()?.let {
             AuthRecord(

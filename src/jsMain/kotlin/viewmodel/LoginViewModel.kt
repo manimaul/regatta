@@ -20,11 +20,10 @@ enum class LoginStatus {
 }
 
 private fun initialState(): LoginState {
-    val savedLogin = localStoreGet<LoginResponse>()
+    val savedLogin = localStoreGet<LoginResponse>()?.takeIf { !it.isExpired() }
     return LoginState(
         login = savedLogin,
-        state = savedLogin?.takeIf { it.expires.minus(Clock.System.now()).isPositive() }?.let { LoginStatus.LoggedIn }
-            ?: LoginStatus.Ready
+        state = savedLogin?.let { LoginStatus.LoggedIn } ?: LoginStatus.Ready
     )
 }
 
@@ -48,7 +47,7 @@ class LoginViewModel {
         get() = loginState.value.state
 
     val loginResponse: LoginResponse?
-        get() = loginState.value.login
+        get() = loginState.value.login?.takeIf { !it.isExpired() }
 
     var userName: String
         get() = loginState.value.auth.userName

@@ -2,7 +2,7 @@ package com.mxmariner.regatta
 
 import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.db.RegattaDatabase
-import com.mxmariner.regatta.plugins.*
+import com.mxmariner.regatta.plugins.configureRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -10,7 +10,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 
 fun main() {

@@ -1,6 +1,5 @@
 package viewmodel
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.browser.window
 import org.w3c.dom.url.URL

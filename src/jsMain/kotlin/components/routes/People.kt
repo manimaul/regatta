@@ -33,13 +33,16 @@ fun People(
                             Tr {
                                 Td { Text(person.first) }
                                 Td { Text(person.last) }
-                                Td { Text("?") }
+                                Td { Text("-") }
                                 Td { CheckboxInput(person.clubMember) }
                             }
                         }
                     }
                 } ?: run {
                     P { Text("No one was found") }
+                }
+                H4 {
+                    Text("Add person")
                 }
                 AddPerson(viewModel)
             }
@@ -52,14 +55,13 @@ fun People(
 fun AddPerson(viewModel: PeopleViewModel) {
     var first by remember { mutableStateOf("") }
     var last by remember { mutableStateOf("") }
-    var admin by remember { mutableStateOf(false) }
-    var userName by remember { mutableStateOf<String?>(null) }
-    var password by remember { mutableStateOf<String?>(null) }
+    var member by remember { mutableStateOf(false) }
     Input(type = InputType.Text) {
         placeholder("First")
         onInput {
             first = it.value
         }
+        value(first)
     }
     Br()
     Input(type = InputType.Text) {
@@ -67,34 +69,25 @@ fun AddPerson(viewModel: PeopleViewModel) {
         onInput {
             last = it.value
         }
+        value(last)
     }
     CheckboxInput {
-        checked(admin)
-        id("Admin")
-        name("Admin")
+        id("Member")
+        name("Member")
         onChange {
-            admin = it.value
+            member = it.value
         }
+        checked(member)
     }
-    Label("Admin") { Text("Admin") }
-    if (admin) {
+    Label("Member") { Text("Club member") }
+    if (first.isNotBlank() && last.isNotBlank()) {
         Br()
-        Input(type = InputType.Text) {
-            placeholder("Username")
-            onInput {
-                userName = it.value
+        Button(attrs = {
+            onClick {
+                viewModel.upsertPerson(Person(first = first, last = last, clubMember = member))
             }
-        }
-        Br()
-        Input(type = InputType.Password) {
-            placeholder("Password")
-            onInput {
-                password = it.value
-            }
-        }
-        password?.let {
-            Br()
-            Text(it)
+        }) {
+            Text("Add")
         }
     }
 }

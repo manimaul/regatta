@@ -2,9 +2,6 @@ package com.mxmariner.regatta.data
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Serializable
 data class Login(

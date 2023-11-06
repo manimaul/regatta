@@ -1,7 +1,5 @@
 package com.mxmariner.regatta.db
 
-import com.mxmariner.regatta.db.PersonTable.autoIncrement
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
@@ -24,6 +22,7 @@ object AuthTable : Table() {
     //hmac sha512 hash of user's password - hashed client side
     val hash = varchar("hash", 128)
     val userName = varchar("user_name", 128).uniqueIndex("user_name_idx")
+    override val primaryKey = PrimaryKey(PersonTable.id)
 }
 
 object RaceClassTable : Table() {
