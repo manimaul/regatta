@@ -49,7 +49,7 @@ object BoatTable : Table() {
     val sailNumber = varchar("sail_number", 128)
     val boatType = varchar("boat_type", 128)
     val phrfRating = integer("phrf_rating").nullable()
-    val skipper = (long("skipper_id") references RaceTable.id)
+    val skipper = (long("skipper_id") references PersonTable.id)
     override val primaryKey = PrimaryKey(id)
 }
 

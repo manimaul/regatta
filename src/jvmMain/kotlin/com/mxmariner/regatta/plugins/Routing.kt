@@ -1,10 +1,7 @@
 package com.mxmariner.regatta.plugins
 
 import com.mxmariner.regatta.auth.Token
-import com.mxmariner.regatta.data.AuthRecord
-import com.mxmariner.regatta.data.Login
-import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.Series
+import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
@@ -80,6 +77,22 @@ fun Application.configureRouting() {
             }
             get("/about".versionedApi()) {
                 call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
+            }
+            get("/allBoats".versionedApi()) {
+                call.respond(RegattaDatabase.allBoats())
+            }
+            get("/boat".versionedApi()) {
+                call.request.queryParameters["person_id"]?.toLong()?.let {
+                    RegattaDatabase.findBoatForPerson(it)?.let { boat ->
+                        call.respond(boat)
+                    } ?: call.respond(HttpStatusCode.NoContent)
+                } ?: call.respond(HttpStatusCode.BadRequest)
+            }
+            post("/boat".versionedApi()) {
+                val boat = call.receive<Boat>()
+                RegattaDatabase.upsertBoat(boat)?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.InternalServerError)
             }
         }
         staticResources("/", "static", "index.html")

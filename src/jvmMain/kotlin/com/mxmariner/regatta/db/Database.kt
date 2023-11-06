@@ -1,6 +1,7 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.AuthRecord
+import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.Dispatchers
@@ -166,7 +167,67 @@ object RegattaDatabase {
                 it[userName] = record.userName
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToAuth)
-            //todo: should this return LoginResponse?
         }
     }
+
+    suspend fun upsertBoat(boat: Boat): Boat? = dbQuery {
+        boat.id?.let { id ->
+            val update = BoatTable.update({ BoatTable.id eq id }) {
+                it[name] = boat.name
+                it[sailNumber] = boat.sailNumber
+                it[boatType] = boat.boatType
+                it[phrfRating] = boat.phrfRating
+                boat.skipper.id?.let { skipperId ->
+                    it[skipper] = skipperId
+                }
+            } > 0
+            if (update) {
+                boat
+            } else {
+                null
+            }
+        } ?: run {
+            val statement = BoatTable.insert {
+                it[name] = boat.name
+                it[sailNumber] = boat.sailNumber
+                it[boatType] = boat.boatType
+                it[phrfRating] = boat.phrfRating
+                boat.skipper.id?.let { skipperId ->
+                    it[skipper] = skipperId
+                }
+            }
+            statement.resultedValues?.singleOrNull()?.let {
+                resultRowToBoat(it)
+            }
+        }
+    }
+
+    suspend fun allBoats(): List<Boat> = dbQuery {
+        val query = (BoatTable innerJoin PersonTable)
+            .slice(BoatTable.skipper, PersonTable.id)
+            .selectAll()
+        query.map {
+            val person = resultRowToPerson(it)
+            resultRowToBoat(it, person)
+        }
+    }
+
+    suspend fun findBoatForPerson(personId: Long): Boat? = dbQuery {
+        val query = (BoatTable innerJoin PersonTable)
+            .slice(BoatTable.skipper, PersonTable.id)
+            .select { BoatTable.skipper eq personId }
+        query.singleOrNull()?.let {
+            val person = resultRowToPerson(it)
+            resultRowToBoat(it, person)
+        }
+    }
+
+    private suspend fun resultRowToBoat(row: ResultRow, person: Person? = null) = Boat(
+        id = row[BoatTable.id],
+        name = row[BoatTable.name],
+        sailNumber = row[BoatTable.sailNumber],
+        boatType = row[BoatTable.boatType],
+        phrfRating = row[BoatTable.phrfRating],
+        skipper = person ?: findPerson(row[BoatTable.skipper])!!
+    )
 }

@@ -10,7 +10,4 @@ fun Boats() {
     H4 {
         Text("Boats")
     }
-    Spinner(50f)
-    Spinner(100f)
-    Spinner(50f)
 }
