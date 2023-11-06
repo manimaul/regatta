@@ -6,11 +6,11 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import viewmodel.Route
 import viewmodel.RouteViewModel
-import viewmodel.provideRouteViewModel
+import viewmodel.routeViewModel
 
 @Composable
 fun Nav(
-    viewModel: RouteViewModel = provideRouteViewModel()
+    viewModel: RouteViewModel = routeViewModel
 ) {
     P {
 

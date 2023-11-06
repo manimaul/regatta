@@ -23,12 +23,6 @@ object Token {
         val principal = UserIdPrincipal("regatta-admin")
     }
 
-    object User {
-        const val name = "user-auth-bearer"
-        const val realm = "user access"
-        val principal = UserIdPrincipal("regatta-user")
-    }
-
     private fun hashInternal(value: String) : String {
         val md = MessageDigest.getInstance("SHA-512")
         val hash = md.digest(value.encodeToByteArray())
@@ -83,22 +77,11 @@ object Token {
         return false
     }
 
-    suspend fun validateUserToken(token: String) : UserIdPrincipal? {
-        return LoginResponse.parseToken(token)?.let {login ->
-            RegattaDatabase.getAuth(login.id)?.let {record ->
-                if (validateHash(login, record)) {
-                    User.principal
-                } else {
-                    null
-                }
-            }
-        }
-    }
     suspend fun validateAdminToken(token: String) : UserIdPrincipal? {
         return if (RegattaDatabase.adminExists()) {
             LoginResponse.parseToken(token)?.let {login ->
                 RegattaDatabase.getAuth(login.id)?.let {record ->
-                    if (record.admin && validateHash(login, record)) {
+                    if (validateHash(login, record)) {
                         Admin.principal
                     } else {
                         null

@@ -21,12 +21,6 @@ fun main() {
 fun Application.module() {
     RegattaDatabase.init()
     install(Authentication) {
-        bearer(Token.User.name) {
-            realm = Token.User.realm
-            authenticate { tokenCredential ->
-                Token.validateUserToken(tokenCredential.token)
-            }
-        }
         bearer(Token.Admin.name) {
             realm = Token.Admin.realm
             authenticate { tokenCredential ->

@@ -1,5 +1,7 @@
 package utils
 
+import com.mxmariner.regatta.data.AuthRecord
+import com.mxmariner.regatta.data.LoginResponse
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -19,6 +21,6 @@ inline fun <reified T> localStoreGet() : T? {
     }
 }
 
-
-fun foo() {
+fun token() : String {
+    return localStoreGet<LoginResponse>()?.token() ?: "none"
 }

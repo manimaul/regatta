@@ -15,7 +15,6 @@ data class Login(
 @Serializable
 data class AuthRecord(
     val id: Long? = null,
-    val admin: Boolean,
     val hash: String,
     val userName: String,
 )

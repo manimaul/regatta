@@ -14,7 +14,7 @@ private val crypto: dynamic
 private val subtle: dynamic get() = crypto.subtle
 
 @OptIn(ExperimentalEncodingApi::class)
-suspend fun hashInternal(data: String) : String {
+private suspend fun hashInternal(data: String) : String {
     val digest = (subtle.digest("SHA-512", data.encodeToByteArray()) as Promise<ArrayBuffer>).await()
     val hash = Int8Array(digest).unsafeCast<ByteArray>()
     return Base64.encode(hash)

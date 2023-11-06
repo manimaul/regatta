@@ -3,6 +3,7 @@ package viewmodel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.browser.window
+import org.w3c.dom.url.URL
 
 
 sealed interface RoutingArgs
@@ -23,7 +24,7 @@ enum class Route(val path: String) {
     Home("/"),
     Series("/series"),
     People("/people"),
-    PeopleAdd("/people/add"),
+    Admin("/admin"),
     Races("/races"),
     Boats("/boats"),
     BoatEdit("/boat/{id}"),
@@ -43,6 +44,13 @@ class RouteViewModel {
 
     val route: Route
         get() = routeState.value.route
+
+
+    fun getQueryParam(key: String) : List<String> {
+        return URL(window.location.href).searchParams.let{
+            it.getAll(key)
+        }.toList()
+    }
 
     init {
         window.addEventListener("popstate", {
@@ -66,9 +74,4 @@ class RouteViewModel {
     }
 }
 
-private val routeViewModel = RouteViewModel()
-
-@Composable
-fun provideRouteViewModel(): RouteViewModel {
-    return routeViewModel
-}
+val routeViewModel = RouteViewModel()

@@ -25,8 +25,10 @@ class SeriesViewModel {
 
     fun addSeries(series: Series) {
         mainScope.launch {
-            val newSeries: Series = Network.post("series", series)
-            seriesState.value += newSeries
+            val newSeries: Series? = Network.post("series", series)
+            newSeries?.let {
+                seriesState.value += newSeries
+            }
         }
     }
 

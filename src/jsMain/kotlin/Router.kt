@@ -1,14 +1,17 @@
 import androidx.compose.runtime.Composable
 import components.routes.*
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Hr
+import org.jetbrains.compose.web.dom.Text
 import viewmodel.Route
 import viewmodel.RouteViewModel
-import viewmodel.provideRouteViewModel
+import viewmodel.routeViewModel
 
 
 @Composable
 fun Router(
-    viewModel: RouteViewModel = provideRouteViewModel()
+    viewModel: RouteViewModel = routeViewModel
 ) {
     Div {
         H1 {
@@ -24,7 +27,7 @@ fun Router(
             Route.RaceResult -> RaceResults()
             Route.Boats -> Boats()
             Route.Classes -> Classes()
-            Route.PeopleAdd -> PersonAdd()
+            Route.Admin -> Admin()
             else -> Text("womp womp, something's missing")
         }
     }

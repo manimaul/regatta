@@ -30,21 +30,19 @@ fun Application.configureRouting() {
                 RegattaDatabase.findSeries(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        get("/login".versionedApi()) {
+        post("/login".versionedApi()) {
             val login = call.receive<Login>()
             Token.createLoginResponse(login)?.let {
                 call.respond(it)
             } ?: call.respond(HttpStatusCode.Unauthorized)
         }
         authenticate(Token.Admin.name) {
-            post("/login".versionedApi()) {
+            post("/auth".versionedApi()) {
                 val auth = call.receive<AuthRecord>()
                 RegattaDatabase.saveAuth(auth)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-        }
-        authenticate(Token.User.name) {
             post("/person".versionedApi()) {
                 val person = call.receive<Person>()
                 RegattaDatabase.upsertPerson(person)?.let {

@@ -16,7 +16,7 @@ object Network {
             .await()
         return Json.decodeFromString(response)
     }
-    suspend inline fun <reified T> post(api: String, item: T): T {
+    suspend inline fun <reified T> post(api: String, item: T): T? {
         val response = window.fetch(
             api.versionedApi(),
             RequestInit(
@@ -24,14 +24,18 @@ object Network {
                 headers = json(
                     "Content-Type" to "application/json",
                     "Accept" to "application/json",
+                    "Authorization" to "Bearer ${token()}"
                 ),
                 body = Json.encodeToJsonElement(item)
             )
-        )
-            .await()
-            .text()
-            .await()
-        return Json.decodeFromString(response)
+        ).await()
+        return if (response.ok) {
+            val body = response.text().await()
+            return Json.decodeFromString(body)
+
+        } else {
+            null
+        }
 
     }
 
