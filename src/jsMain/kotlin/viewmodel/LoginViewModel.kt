@@ -15,18 +15,28 @@ enum class State {
     Loading,
     Ready,
     Complete,
+    LoggedIn,
     Failed,
 }
 
+private fun initialState(): LoginVmState {
+    val savedLogin = localStoreGet<LoginResponse>()
+    return LoginVmState(
+        login = savedLogin,
+        state = savedLogin?.takeIf { it.expires.minus(Clock.System.now()).isPositive() }?.let { State.LoggedIn }
+            ?: State.Ready
+    )
+}
+
 data class LoginVmState(
-    val auth: AuthRecord = AuthRecord(hash = "", userName = ""),
+    val auth: AuthRecord = AuthRecord(hash = "", userName = localStoreGet("username") ?: ""),
     val pass: String = "",
     val state: State = State.Ready,
     val login: LoginResponse? = localStoreGet<LoginResponse>()
 )
 
 class LoginViewModel {
-    private val loginState = mutableStateOf(LoginVmState())
+    private val loginState = mutableStateOf(initialState())
 
     val hash: String
         get() = loginState.value.auth.hash
@@ -65,7 +75,6 @@ class LoginViewModel {
 
     fun isValid() = password.length > 4
 
-
     fun submitNew() {
         loginState.value = loginState.value.copy(state = State.Loading)
         mainScope.launch {
@@ -79,6 +88,12 @@ class LoginViewModel {
                 loginState.value = loginState.value.copy(state = State.Failed)
             }
         }
+    }
+
+    fun logout() {
+        localStoreSet("username", "")
+        localStoreSet<LoginResponse>(null)
+        loginState.value = initialState()
     }
 
     fun login() {
@@ -95,10 +110,18 @@ class LoginViewModel {
             val response: LoginResponse? = Network.post("login", login)
             response?.let {
                 localStoreSet(it)
-                loginState.value = loginState.value.copy(state = State.Complete)
+                localStoreSet("username", login.userName)
+                loginState.value = loginState.value.copy(state = State.LoggedIn)
             } ?: run {
                 loginState.value = loginState.value.copy(state = State.Failed)
             }
+        }
+    }
+
+    fun reload() {
+        mainScope.launch {
+            delay(3000)
+            loginState.value = loginState.value.copy(state = State.Ready)
         }
     }
 }

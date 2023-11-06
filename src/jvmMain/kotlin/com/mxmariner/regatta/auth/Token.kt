@@ -5,11 +5,17 @@ import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
 import com.mxmariner.regatta.db.RegattaDatabase
 import io.ktor.server.auth.*
+import io.ktor.utils.io.core.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import java.io.ByteArrayInputStream
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.*
+import kotlin.io.use
 import kotlin.time.Duration.Companion.seconds
 
 

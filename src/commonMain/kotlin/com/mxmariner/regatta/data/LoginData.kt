@@ -26,12 +26,12 @@ data class LoginResponse(
     val expires: Instant,
 ) {
     fun token(): String {
-        return "$id:$hashOfHash:$salt:${expires.epochSeconds}"
+        return "$id*$hashOfHash*$salt*${expires.epochSeconds}"
     }
 
     companion object {
         fun parseToken(token: String) : LoginResponse? {
-            return token.split(":").takeIf { it.size == 4 }?.let {
+            return token.split("*").takeIf { it.size == 4 }?.let {
                 val id = it[0].toLongOrNull()
                 LoginResponse(
                     id ?: 0L,
