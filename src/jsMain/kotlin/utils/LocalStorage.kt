@@ -5,6 +5,8 @@ import com.mxmariner.regatta.data.LoginResponse
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 fun localStoreSet(key: String, value: String) {
@@ -34,6 +36,19 @@ inline fun <reified T> localStoreGet(): T? {
     }
 }
 
+@OptIn(ExperimentalEncodingApi::class)
+inline fun <reified T> localStoreGetEncoded(): String? {
+    return T::class.simpleName?.let { key ->
+        window.localStorage.getItem(key)?.let { value ->
+            try {
+                Base64.encode(value.encodeToByteArray())
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+}
+
 fun token(): String {
-    return localStoreGet<LoginResponse>()?.token() ?: "none"
+    return localStoreGetEncoded<LoginResponse>() ?: "none"
 }

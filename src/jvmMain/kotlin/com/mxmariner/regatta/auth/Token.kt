@@ -5,17 +5,15 @@ import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
 import com.mxmariner.regatta.db.RegattaDatabase
 import io.ktor.server.auth.*
-import io.ktor.utils.io.core.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.*
-import kotlin.io.use
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -29,13 +27,13 @@ object Token {
         val principal = UserIdPrincipal("regatta-admin")
     }
 
-    private fun hashInternal(value: String) : String {
+    private fun hashInternal(value: String): String {
         val md = MessageDigest.getInstance("SHA-512")
         val hash = md.digest(value.encodeToByteArray())
         return Base64.getEncoder().encodeToString(hash)
     }
 
-    fun hash(vararg data: String) : String {
+    fun hash(vararg data: String): String {
         var result = ""
         data.forEach {
             result = hashInternal(it + result)
@@ -43,18 +41,18 @@ object Token {
         return result
     }
 
-    fun timeStampHash(instant: Instant, salt: String, hash: String) : String {
+    fun timeStampHash(instant: Instant, salt: String, hash: String): String {
         return hash(salt, "${instant.epochSeconds}", hash)
     }
 
-    fun salt() : String {
+    fun salt(): String {
         val random = SecureRandom()
         val bytes = ByteArray(16)
         random.nextBytes(bytes)
         return Base64.getEncoder().encodeToString(bytes)
     }
 
-    suspend fun createLoginResponse(login: Login) : LoginResponse? {
+    suspend fun createLoginResponse(login: Login): LoginResponse? {
         return RegattaDatabase.getAuth(login.userName)?.let {
             val expected = timeStampHash(login.time, login.salt, it.hash)
             if (expected == login.hashOfHash) {
@@ -73,18 +71,17 @@ object Token {
         }
     }
 
-    private fun validateHash(response: LoginResponse, record: AuthRecord) : Boolean {
-        response.expires.takeIf {it.minus(Clock.System.now()).isPositive() }?.let {
+    private fun validateHash(response: LoginResponse, record: AuthRecord): Boolean {
+        return response.expires.takeIf { it.minus(Clock.System.now()).isPositive() }?.let {
             val expected = timeStampHash(response.expires, response.salt, record.hash)
             expected == response.hashOfHash
-        }
-        return false
+        } ?: false
     }
 
-    suspend fun validateAdminToken(token: String) : UserIdPrincipal? {
+    suspend fun validateAdminToken(token: String): UserIdPrincipal? {
         return if (RegattaDatabase.adminExists()) {
-            LoginResponse.parseToken(token)?.let {login ->
-                RegattaDatabase.getAuth(login.id)?.let {record ->
+            parseToken(token)?.let { login ->
+                RegattaDatabase.getAuth(login.id)?.let { record ->
                     if (validateHash(login, record)) {
                         Admin.principal
                     } else {
@@ -94,6 +91,16 @@ object Token {
             }
         } else {
             Admin.principal
+        }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun parseToken(token: String): LoginResponse? {
+        val json = Base64.getDecoder().decode(token)
+        return try {
+            Json.decodeFromStream<LoginResponse>(json.inputStream())
+        } catch (error: IOException) {
+            null
         }
     }
 }

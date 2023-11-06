@@ -2,6 +2,9 @@ package com.mxmariner.regatta.data
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Serializable
 data class Login(
@@ -24,22 +27,4 @@ data class LoginResponse(
     val hashOfHash: String,
     val salt: String,
     val expires: Instant,
-) {
-    fun token(): String {
-        return "$id*$hashOfHash*$salt*${expires.epochSeconds}"
-    }
-
-    companion object {
-        fun parseToken(token: String) : LoginResponse? {
-            return token.split("*").takeIf { it.size == 4 }?.let {
-                val id = it[0].toLongOrNull()
-                LoginResponse(
-                    id ?: 0L,
-                    it[1],
-                    it[2],
-                    Instant.fromEpochSeconds(it[3].toLongOrNull() ?: 0)
-                )
-            }
-        }
-    }
-}
+)
