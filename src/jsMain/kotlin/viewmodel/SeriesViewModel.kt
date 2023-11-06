@@ -12,14 +12,14 @@ class SeriesViewModel {
     private val seriesState = mutableStateOf<List<Series>>(emptyList())
    init {
        mainScope.launch {
-           seriesState.value = Network.fetch("allSeries")
+           seriesState.value = Network.get("allSeries")
        }
    }
 
     fun deleteSeries(series: Series) {
         mainScope.launch {
             Network.delete("series", mapOf("id" to "${series.id}"))
-            seriesState.value = Network.fetch("allSeries")
+            seriesState.value = Network.get("allSeries")
         }
     }
 

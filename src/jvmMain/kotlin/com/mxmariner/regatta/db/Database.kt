@@ -162,6 +162,7 @@ object RegattaDatabase {
                 it[userName] = record.userName
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToAuth)
+            //todo: should this return LoginResponse?
         }
     }
 }

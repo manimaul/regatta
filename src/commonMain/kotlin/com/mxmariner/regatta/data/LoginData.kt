@@ -9,7 +9,6 @@ data class Login(
     val hashOfHash: String,
     val salt: String,
     val time: Instant,
-    val admin: Boolean,
 )
 
 @Serializable

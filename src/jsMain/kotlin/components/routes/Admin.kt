@@ -17,10 +17,15 @@ fun Admin(
     viewModel: LoginViewModel = remember { LoginViewModel() },
 ) {
     val creator = routeViewModel.getQueryParam("create").isNotEmpty()
-    when (viewModel.state) {
-        State.Loading -> Spinner(50f)
-        State.Ready -> {
-            Div {
+    Div {
+        H4 {
+            viewModel.loginResponse?.id?.let {
+                Text("Logged in as $it")
+            } ?: Text("Not logged in")
+        }
+        when (viewModel.state) {
+            State.Loading -> Spinner(50f)
+            State.Ready -> {
                 H2 {
                     if (creator) {
                         Text("Add Login")
@@ -59,15 +64,14 @@ fun Admin(
                     Text(if (creator) "Add" else "Login")
                 }
             }
-
-        }
-        State.Complete -> {
-            Div {
-                Text("Done")
+            State.Complete -> {
+                Div {
+                    Text("Done")
+                }
             }
-        }
-        State.Failed -> {
-            Text("Error")
+            State.Failed -> {
+                Text("Error")
+            }
         }
     }
 }

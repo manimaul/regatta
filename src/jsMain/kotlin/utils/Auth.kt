@@ -20,6 +20,9 @@ private suspend fun hashInternal(data: String) : String {
     return Base64.encode(hash)
 }
 
+fun salt() : String {
+    return crypto.randomUUID()
+}
 suspend fun hash(vararg data: String) : String {
     var result = ""
     data.forEach {

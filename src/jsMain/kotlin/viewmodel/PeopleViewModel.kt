@@ -28,7 +28,7 @@ class PeopleViewModel {
 
     suspend fun fetchAllPeople() {
         val people = minimumDelay(1500) {
-            Network.fetch<List<Person>>("people")
+            Network.get<List<Person>>("people")
         }
         peopleState.value = PeopleStateLoaded(people)
     }
@@ -36,7 +36,7 @@ class PeopleViewModel {
     fun upsertPerson(person: Person) {
         mainScope.launch {
             peopleState.value = PeopleStateLoading
-            Network.post<Person>("person", person)
+            Network.post<Person, Person>("person", person)
             fetchAllPeople()
         }
     }

@@ -49,9 +49,9 @@ object Token {
     }
 
     suspend fun createLoginResponse(login: Login) : LoginResponse? {
-        RegattaDatabase.getAuth(login.userName)?.let {
+        return RegattaDatabase.getAuth(login.userName)?.let {
             val expected = timeStampHash(login.time, login.salt, it.hash)
-            if (expected == it.hash) {
+            if (expected == login.hashOfHash) {
                 val expires = Clock.System.now().plus(expiresIn)
                 val salt = salt()
                 val hash = timeStampHash(expires, salt, it.hash)
@@ -65,8 +65,6 @@ object Token {
                 null
             }
         }
-        return null
-
     }
 
     private fun validateHash(response: LoginResponse, record: AuthRecord) : Boolean {
