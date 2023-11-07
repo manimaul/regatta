@@ -83,7 +83,7 @@ class LoginViewModel {
     fun submitNew() {
         loginState.value = loginState.value.copy(state = LoginStatus.Loading)
         mainScope.launch {
-            val response  = Network.post<AuthRecord, AuthRecord>("auth", loginState.value.auth)
+            val response  = Api.postAuth(loginState.value.auth)
             response.body?.let {
                 loginState.value = loginState.value.copy(
                     auth = it,
@@ -116,7 +116,7 @@ class LoginViewModel {
                 salt = salt,
                 time = time,
             )
-            val response  = Network.post<Login, LoginResponse>("login", login)
+            val response  = Api.login(login)
             response.body?.let {
                 localStoreSet(it)
                 localStoreSet("username", login.userName)

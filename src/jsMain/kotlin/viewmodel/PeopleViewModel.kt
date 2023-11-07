@@ -3,6 +3,7 @@ package viewmodel
 import androidx.compose.runtime.mutableStateOf
 import com.mxmariner.regatta.data.Person
 import kotlinx.coroutines.launch
+import utils.Api
 import utils.Network
 import utils.Scopes.mainScope
 
@@ -29,7 +30,7 @@ class PeopleViewModel {
     }
 
     suspend fun fetchAllPeople() {
-        Network.get<List<Person>>("people").body?.let {
+        Api.getAllPeople().body?.let {
             peopleState.value = PeopleStateLoaded(it)
         }
     }
@@ -44,16 +45,18 @@ class PeopleViewModel {
     fun upsertPerson(person: Person) {
         mainScope.launch {
             peopleState.value = PeopleStateLoading
-            Network.post<Person, Person>("person", person)
+            Api.postPerson(person)
             fetchAllPeople()
         }
     }
 
     fun delete(person: Person) {
         mainScope.launch {
-            peopleState.value = PeopleStateLoading
-            Network.delete("person", mapOf("id" to "${person.id}"))
-            fetchAllPeople()
+            person.id?.let {
+                peopleState.value = PeopleStateLoading
+                Api.deletePerson(person.id)
+                fetchAllPeople()
+            }
         }
     }
     fun setDeletePerson(person: Person) {
