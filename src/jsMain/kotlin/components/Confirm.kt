@@ -15,21 +15,11 @@ fun Confirm(
         H3 {
             Text(msg)
         }
-        Text(" ")
-        Button(attrs = {
-            onClick {
-                handler(true)
-            }
-        }) {
-            Text("Yes")
+        RgButton("No", RgButtonStyle.Error) {
+            handler(false)
         }
-        Text(" ")
-        Button(attrs = {
-            onClick {
-                handler(false)
-            }
-        }) {
-            Text("No")
+        RgButton("Yes", RgButtonStyle.Primary) {
+            handler(true)
         }
     }
 }

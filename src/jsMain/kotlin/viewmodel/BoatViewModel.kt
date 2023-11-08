@@ -26,6 +26,19 @@ class BoatViewModel(
         internalState.value = state
     }
 
+    fun addBoat(boat: Boat) {
+       mainScope.launch {
+           setState(BoatStateLoading)
+           internalState.value = BoatStateLoading
+           Api.postBoat(boat)
+           setState(
+               BoatStateLoaded(
+                   Api.getAllBoats().body ?: emptyList()
+               )
+           )
+       }
+    }
+
     init {
         mainScope.launch {
             setState(

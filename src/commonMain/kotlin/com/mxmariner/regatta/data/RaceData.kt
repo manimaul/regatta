@@ -14,9 +14,9 @@ data class Series(
 @Serializable
 data class Person(
     val id: Long? = null,
-    val first: String,
-    val last: String,
-    val clubMember: Boolean,
+    val first: String = "",
+    val last: String = "",
+    val clubMember: Boolean = false,
 )
 
 @Serializable
@@ -40,11 +40,11 @@ data class Race(
 @Serializable
 data class Boat(
     val id: Long? = null,
-    val name: String,
-    val sailNumber: String,
-    val boatType: String,
-    val phrfRating: Int?,
-    val skipper: Person,
+    val name: String = "",
+    val sailNumber: String = "",
+    val boatType: String = "",
+    val phrfRating: Int? = null,
+    val skipper: Person = Person(),
 )
 
 @Serializable

@@ -2,46 +2,81 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Series
+import components.Column
 import components.Confirm
-import components.TextInputAdd
+import components.RgButton
+import components.RgButtonStyle
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJSDate
+import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import viewmodel.SeriesViewModel
 import viewmodel.provideSeriesViewModel
-import kotlin.text.Typography.nbsp
 
 @Composable
 fun Series(
     viewModel: SeriesViewModel = provideSeriesViewModel()
 ) {
     var deleteSeries: Series? by remember { mutableStateOf(null) }
+    var addName by remember { mutableStateOf("") }
     Div {
-        H4 {
-            Text("Series")
-        }
         deleteSeries?.let { series ->
-            Confirm("Delete '${series.name}'?") { delete ->
-                if (delete) {
-                    viewModel.deleteSeries(series)
+            Column {
+                Confirm("Delete '${series.name}'?") { delete ->
+                    if (delete) {
+                        viewModel.deleteSeries(series)
+                    }
+                    deleteSeries = null
                 }
-                deleteSeries = null
             }
         } ?: run {
-            viewModel.series.forEach { series ->
-                Text(series.name)
-                Text("$nbsp")
-                Button(attrs = {
-                    onClick {
-                        deleteSeries = series
+            Article {
+                H1 { Text("Series") }
+                Table(attrs = { classes("striped") }) {
+
+                    Caption {
+                        Text("${Clock.System.now().toJSDate().getFullYear()}")
                     }
-                }) {
-                    Text("X")
+                    Tr {
+                        Th { Text("Series Name") }
+                        Th { Text("Action") }
+                    }
+                    viewModel.series.forEach { series ->
+                        Tr {
+                            Td { Text(series.name) }
+                            Td {
+                                RgButton("Delete", RgButtonStyle.Error) {
+                                    deleteSeries = series
+                                }
+                            }
+                        }
+                    }
+
+                    Tr {
+                        Td {  }
+                        Td {  }
+                    }
+
+                    Tr {
+                        Td {
+                            Input(type = InputType.Text) {
+                                placeholder("Add series")
+                                onInput {
+                                    addName = it.value
+                                }
+                                value(addName)
+                            }
+                        }
+                        Td {
+                            RgButton("Add", RgButtonStyle.Primary) {
+                                viewModel.addSeries(Series(name = addName))
+                                addName = ""
+                            }
+                        }
+
+                    }
                 }
-                Br()
-            }
-            Hr()
-            H4 { Text("Add series") }
-            TextInputAdd {
-                viewModel.addSeries(Series(name = it))
             }
         }
     }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This is a fake token, you can login and copy from http://localhost:8080 home page after logging in
-token="eyJpZCI6MSwiaGFzaE9mSGFzaCI6Im9FNHNMc3duZ0QzQzBaN0szZnFlOFZ5ZDRGQmRHK0Z6dTM3OGhUTHRKS2NVMFZxQ3VBZU54NWcyekdJc3hnV2FXNEhWV2duTnYrWjJSbHBKeWNVZWJRPT0iLCJzYWx0IjoiK3NzQUcwdU5CR2JvUEZlWFYyZDk1Zz09IiwiZXhwaXJlcyI6IjIwMjMtMTEtMDdUMDQ6Mzg6MjkuODI1ODM5MzE5WiJ9"
+token="eyJpZCI6MSwiaGFzaE9mSGFzaCI6Imk0eDR0T3dLNWU3WkdvSi81a3R1NnhtbEVUU243d00vY0p2YjN0K1dsQ3pPS3ZYM2tXZHhseTBBY1FmZmtod2ZBeGdYYlNGNndQY0k4U0RKZk0yZjFBPT0iLCJzYWx0IjoiSnJ4QW5hd2xLUldOK2JCMTJZbkFpUT09IiwiZXhwaXJlcyI6IjIwMjMtMTEtMDhUMTM6MjQ6MTYuODEwMTU4MjQ5WiJ9"
 echo $token | base64 -d | jq
 
 function postSeries() {
@@ -19,6 +19,7 @@ do
 done
 }
 
+postAllSeries
 curl -H "Content-Type: application/json" 'http://localhost:8888/v1/api/allSeries' | jq
 #curl -d '{"first":"William", "last": "Kamp", "clubMember": true}' \
 #     -H "Content-Type: application/json" \

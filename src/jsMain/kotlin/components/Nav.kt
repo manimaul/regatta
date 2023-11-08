@@ -26,32 +26,25 @@ fun Nav(
             Route.Home,
             Route.RaceResult,
         )).forEach { route ->
-            Button(attrs = {
-                onClick {
-                    println("clicked $route")
-                    viewModel.setRoute(route)
-                }
-            }) {
-                Text(route.name)
+            val style = if (viewModel.route == route) {
+                RgButtonStyle.PrimaryOutline
+            } else {
+                RgButtonStyle.SecondaryOutline
+            }
+            RgButton(route.name, style) {
+                println("clicked $route")
+                viewModel.setRoute(route)
             }
             Text("${Typography.nbsp}")
         }
 
         if (loginVm.loginStatus == LoginStatus.LoggedIn) {
-            Button(attrs = {
-                onClick {
-                    loginVm.logout()
-                }
-            }) {
-                Text("Logout")
+            RgButton("Logout", RgButtonStyle.Primary) {
+                loginVm.logout()
             }
         } else {
-            Button(attrs = {
-                onClick {
-                    viewModel.setRoute(Route.Admin)
-                }
-            }) {
-                Text("Login")
+            RgButton("Login", RgButtonStyle.Primary) {
+                viewModel.setRoute(Route.Admin)
             }
         }
     }

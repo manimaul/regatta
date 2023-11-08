@@ -2,6 +2,8 @@ package components.routes
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import components.RgButton
+import components.RgButtonStyle
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.*
 import utils.token
@@ -20,13 +22,12 @@ fun Home(
         H4 {
             Text("Authorization expires: ${viewModel.state.expires}")
         }
-        Button(attrs = {
-            onClick { window.navigator.clipboard.writeText(token()) }
-        }) {
-            Text("Copy auth token")
+        RgButton("Copy auth token", RgButtonStyle.Primary) {
+            window.navigator.clipboard.writeText(token())
         }
     }
     Div {
         H4 { Text(viewModel.state.clock) }
     }
 }
+

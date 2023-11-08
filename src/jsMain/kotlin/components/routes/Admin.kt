@@ -1,9 +1,10 @@
 package components.routes
 
 import androidx.compose.runtime.Composable
+import components.RgButton
+import components.RgButtonStyle
 import components.Spinner
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import viewmodel.LoginStatus
@@ -70,18 +71,12 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
         value(viewModel.password)
     }
     Br()
-    Button(attrs = {
-        if (!viewModel.isValid()) {
-            disabled()
+    val label = if (creator) "Add" else "Login"
+    RgButton(label, RgButtonStyle.Primary, !viewModel.isValid()) {
+        if (creator) {
+            viewModel.submitNew()
+        } else {
+            viewModel.login()
         }
-        onClick {
-            if (creator) {
-                viewModel.submitNew()
-            } else {
-                viewModel.login()
-            }
-        }
-    }) {
-        Text(if (creator) "Add" else "Login")
     }
 }
