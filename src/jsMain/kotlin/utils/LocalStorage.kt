@@ -38,7 +38,7 @@ inline fun <reified T> localStoreGet(): T? {
 @OptIn(ExperimentalEncodingApi::class)
 inline fun <reified T> localStoreGetEncoded(): String? {
     return T::class.simpleName?.let { key ->
-        window.localStorage.getItem(key)?.let { value ->
+        window.localStorage.getItem(key)?.takeIf { it.isNotBlank() }?.let { value ->
             try {
                 Base64.encode(value.encodeToByteArray())
             } catch (e: Exception) {

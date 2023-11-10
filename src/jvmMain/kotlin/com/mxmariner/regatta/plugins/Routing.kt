@@ -44,7 +44,7 @@ fun Application.configureRouting() {
                 val person = call.receive<Person>()
                 RegattaDatabase.upsertPerson(person)?.let {
                     call.respond(it)
-                } ?: call.respond(HttpStatusCode.InternalServerError)
+                } ?: call.respond(HttpStatusCode.Conflict)
             }
             post("/series".versionedApi()) {
                 val series = call.receive<Series>()
@@ -93,6 +93,11 @@ fun Application.configureRouting() {
                 RegattaDatabase.upsertBoat(boat)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
+            }
+            delete("/boat".versionedApi()) {
+                call.request.queryParameters["id"]?.toLong()?.let {
+                    RegattaDatabase.deleteBoat(it)
+                }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
         }
         staticResources("/", "static", "index.html")

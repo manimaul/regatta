@@ -15,6 +15,7 @@ object PersonTable : Table() {
     val last = varchar("last", 128)
     val clubMember = bool("club_member")
     override val primaryKey = PrimaryKey(id)
+    val compoundIdx = uniqueIndex( first, last)
 }
 
 object AuthTable : Table() {

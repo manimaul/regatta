@@ -8,7 +8,7 @@ import kotlin.math.PI
 @OptIn(ExperimentalComposeWebSvgApi::class)
 @Composable
 fun Spinner(
-    size: Float,
+    size: Float = 50f,
     color: String = "black"
 ) {
     val center = size / 2f

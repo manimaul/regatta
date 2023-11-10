@@ -7,9 +7,7 @@ import components.RgButton
 import components.RgButtonStyle
 import components.Spinner
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.name
 import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.dom.*
 import viewmodel.DeletePerson
 import viewmodel.PeopleStateLoaded
@@ -20,8 +18,9 @@ import viewmodel.PeopleViewModel
 fun People(
     viewModel: PeopleViewModel = remember { PeopleViewModel() }
 ) {
+    val flowState by viewModel.flow.collectAsState()
     Div {
-        when (val state = viewModel.state) {
+        when (val state = flowState) {
             is PeopleStateLoaded -> PeopleLoaded(state, viewModel)
             PeopleStateLoading -> Spinner(50f)
             is DeletePerson -> {

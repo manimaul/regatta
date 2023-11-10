@@ -33,4 +33,7 @@ object Api {
 
     suspend fun login(login: Login) =
         Network.post<Login, LoginResponse>("login", login)
+
+    suspend fun deleteBoat(id: Long) =
+        Network.delete("boat", mapOf("id" to "$id"))
 }

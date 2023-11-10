@@ -23,7 +23,9 @@ fun Home(
             Text("Authorization expires: ${viewModel.state.expires}")
         }
         RgButton("Copy auth token", RgButtonStyle.Primary) {
-            window.navigator.clipboard.writeText(token())
+            val token = token()
+            window.navigator.clipboard.writeText(token)
+            window.alert("Auth token copied to clipboard\n\n$token")
         }
     }
     Div {

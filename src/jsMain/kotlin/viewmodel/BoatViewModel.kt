@@ -1,7 +1,9 @@
 package viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.Person
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import utils.Api
 import utils.Scopes.mainScope
@@ -11,16 +13,28 @@ sealed interface BoatState
 data object BoatStateLoading : BoatState
 
 data class BoatStateLoaded(
-    val boats: List<Boat>
+    val boats: List<Boat>,
+    val people: List<Person>,
 ) : BoatState
 
-class BoatViewModel(
-    val peopleVm: PeopleViewModel = PeopleViewModel()
-) {
-    private val internalState = mutableStateOf<BoatState>(BoatStateLoading)
+class BoatViewModel {
+    private val internalState = MutableStateFlow<BoatState>(BoatStateLoading)
 
-    val state: BoatState
-        get() = internalState.value
+    val flow: StateFlow<BoatState>
+        get() = internalState
+
+    init {
+        getAllBoats()
+    }
+
+    private fun getAllBoats() {
+        mainScope.launch {
+            val boats: List<Boat> = Api.getAllBoats().body ?: emptyList()
+            val people = Api.getAllPeople().body ?: emptyList()
+            setState(BoatStateLoaded(boats, people))
+        }
+
+    }
 
     private fun setState(state: BoatState) {
         internalState.value = state
@@ -31,21 +45,18 @@ class BoatViewModel(
            setState(BoatStateLoading)
            internalState.value = BoatStateLoading
            Api.postBoat(boat)
-           setState(
-               BoatStateLoaded(
-                   Api.getAllBoats().body ?: emptyList()
-               )
-           )
+           getAllBoats()
        }
     }
 
-    init {
+    fun setDeleteBoat(boat: Boat) {
         mainScope.launch {
-            setState(
-                BoatStateLoaded(
-                    Api.getAllBoats().body ?: emptyList()
-                )
-            )
+            boat.id?.let {
+                setState(BoatStateLoading)
+                Api.deleteBoat(boat.id)
+                getAllBoats()
+            }
         }
     }
+
 }

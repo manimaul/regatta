@@ -1,10 +1,10 @@
 package viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import com.mxmariner.regatta.data.Person
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import utils.Api
-import utils.Network
 import utils.Scopes.mainScope
 
 
@@ -21,9 +21,10 @@ data class PeopleStateLoaded(
 ) : PeopleState
 
 class PeopleViewModel {
-    private val peopleState = mutableStateOf<PeopleState>(PeopleStateLoading)
-    val state: PeopleState
-        get() = peopleState.value
+    private val peopleState = MutableStateFlow<PeopleState>(PeopleStateLoading)
+
+    val flow: StateFlow<PeopleState>
+        get() = peopleState
 
     init {
         mainScope.launch { fetchAllPeople() }

@@ -17,7 +17,7 @@ import viewmodel.routeViewModel
 fun Admin(viewModel: LoginViewModel = loginViewModel) {
     Div {
         when (viewModel.loginStatus) {
-            LoginStatus.Loading -> Spinner(50f)
+            LoginStatus.Loading -> Progress {  }
             LoginStatus.Ready -> {
                 Login()
             }
@@ -36,6 +36,7 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
                 }
             }
             LoginStatus.Failed -> {
+                Progress {  }
                 P {
                     Text(viewModel.state.errorMessage ?: "")
                 }

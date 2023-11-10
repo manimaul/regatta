@@ -3,10 +3,13 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
+import components.RgButton
+import components.RgButtonStyle
 import components.Spinner
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import viewmodel.BoatStateLoaded
 import viewmodel.BoatStateLoading
@@ -16,88 +19,90 @@ import viewmodel.BoatViewModel
 fun Boats(
     viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
-    StyleText()
-    when (val state = viewModel.state) {
+    val flowState by viewModel.flow.collectAsState()
+    when (val state = flowState) {
         BoatStateLoading -> Spinner(50f)
-        is BoatStateLoaded -> state.boats.takeIf { it.isNotEmpty() }?.let {
-            BoatList(state.boats)
-        }
+        is BoatStateLoaded -> BoatList(state.boats, state.people, viewModel)
     }
-    H4 { Text("Add boat") }
-    AddBoat(viewModel)
 }
 
 @Composable
-fun AddBoat(viewModel: BoatViewModel) {
-    var boat by remember { mutableStateOf(Boat()) }
+fun BoatList(
+    boats: List<Boat>,
+    people: List<Person>,
+    boatViewModel: BoatViewModel,
+) {
+    var addBoat by remember { mutableStateOf(Boat()) }
     Div {
-        Table {
-            BoatTr()
-            Tr {
-                Td {
-                    Input(type = InputType.Text) {
-                        placeholder("Name")
-                        onInput { boat = boat.copy(name = it.value) }
-                        value(boat.name)
-                    }
+        Article {
+            Table(attrs = { classes("striped") }) {
+                Caption {
+                    Text("${Clock.System.now().toJSDate().getFullYear()}")
                 }
-                Td {
-                    Input(type = InputType.Text) {
-                        placeholder("Sail number")
-                        onInput { boat = boat.copy(sailNumber = it.value) }
-                        value(boat.sailNumber)
-                    }
-                }
-                Td {
-                    Input(type = InputType.Text) {
-                        placeholder("Type")
-                        onInput { boat = boat.copy(boatType = it.value) }
-                        value(boat.boatType)
-                    }
-                }
-                Td {
-                    Input(type = InputType.Text) {
-                        placeholder("Rating")
-                        onInput { boat = boat.copy(boatType = it.value) }
-                        value(boat.phrfRating?.toString() ?: "")
-                    }
-                }
-                Td {
-                    StyleText()
-                }
-            }
-        }
-        Br()
-        Hr()
-    }
-}
-
-@Composable
-fun StyleText() {
-    Style(BoatStyle)
-    P(attrs = {
-        classes(BoatStyle.titleText)
-    }) {
-        Text("This is styled text")
-    }
-
-}
-
-@Composable
-fun BoatList(boats: List<Boat>) {
-    Div {
-        BoatTr()
-        Table {
-            boats.forEach { boat ->
                 Tr {
-                    Td { Text(boat.name) }
-                    Td { Text(boat.sailNumber) }
-                    Td { Text(boat.boatType) }
-                    Td { Text(boat.phrfRating?.let { "$it" } ?: "-") }
+                    Th { Text("Name") }
+                    Th { Text("Sail Number") }
+                    Th { Text("Type") }
+                    Th { Text("PHRF Rating") }
+                    Th { Text("Skipper") }
+                    Th { Text("Action") }
+                }
+                boats.forEach { boat ->
+                    Tr {
+                        Td { Text(boat.name) }
+                        Td { Text(boat.sailNumber) }
+                        Td { Text(boat.boatType) }
+                        Td { Text(boat.phrfRating?.let { "$it" } ?: "-") }
+                        Td {
+                            Text(
+                                "${boat.skipper.first} ${boat.skipper.last}"
+                            )
+                        }
+                        Td {
+                            RgButton("Delete", RgButtonStyle.Error) {
+                                boatViewModel.setDeleteBoat(boat)
+                            }
+                        }
+                    }
+                }
+                Tr {
                     Td {
-                        Text(
-                            "${boat.skipper.first} ${boat.skipper.last}"
-                        )
+                        Input(type = InputType.Text) {
+                            placeholder("Name")
+                            onInput { addBoat = addBoat.copy(name = it.value) }
+                            value(addBoat.name)
+                        }
+                    }
+                    Td {
+                        Input(type = InputType.Text) {
+                            placeholder("Sail number")
+                            onInput { addBoat = addBoat.copy(sailNumber = it.value) }
+                            value(addBoat.sailNumber)
+                        }
+                    }
+                    Td {
+                        Input(type = InputType.Text) {
+                            placeholder("Type")
+                            onInput { addBoat = addBoat.copy(boatType = it.value) }
+                            value(addBoat.boatType)
+                        }
+                    }
+                    Td {
+                        Input(type = InputType.Number) {
+                            placeholder("Rating")
+                            onInput { addBoat = addBoat.copy(phrfRating = it.value?.toInt()) }
+                            value(addBoat.phrfRating?.toString() ?: "")
+                        }
+                    }
+                    Td {
+                        Dropdown(people) {
+                            addBoat = addBoat.copy(skipper = it)
+                        }
+                    }
+                    Td {
+                        RgButton("Add", RgButtonStyle.Primary) {
+                            boatViewModel.addBoat(addBoat)
+                        }
                     }
                 }
             }
@@ -105,29 +110,35 @@ fun BoatList(boats: List<Boat>) {
     }
 }
 
+
 @Composable
-private fun BoatTr() {
-    Tr {
-        Th { Text("Name") }
-        Th { Text("Sail Number") }
-        Th { Text("Type") }
-        Th { Text("PHRF Rating") }
-        Th { Text("Skipper") }
+fun Dropdown(
+    people: List<Person>,
+    selected: (Person) -> Unit
+) {
+    Select(attrs = {
+        onChange { change ->
+            change.value?.toLongOrNull()?.let { id ->
+                people.firstOrNull {
+                    it.id == id
+                }?.let { selected(it) }
+            }
+        }
+    }) {
+        OptGroup("Club Members")
+        Option("-1") {
+            Text("None")
+        }
+        people.filter { it.clubMember }.forEach {
+            Option(it.id.toString()) {
+                Text("${it.first} ${it.last}")
+            }
+        }
+        OptGroup("Non Members")
+        people.filter { !it.clubMember }.forEach {
+            Option(it.id.toString()) {
+                Text("${it.first} ${it.last}")
+            }
+        }
     }
-}
-private object BoatStyle : StyleSheet() {
-    val titleText by style {
-        color(rgb(23,24, 28))
-        fontSize(50.px)
-        property("font-size", 50.px)
-        property("letter-spacing", (-1.5).px)
-        property("font-weight", 900)
-        property("line-height", 58.px)
-
-        property(
-            "font-family",
-            "Gotham SSm A,Gotham SSm B,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif"
-        )
-    }
-
 }

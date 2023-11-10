@@ -56,21 +56,10 @@ object RegattaDatabase {
     }
 
     suspend fun upsertSeries(series: Series): Series? = dbQuery {
-        series.id?.let {
-            val updated = SeriesTable.update({ SeriesTable.id eq it }) {
-                it[name] = series.name
-            } > 0
-            if (updated) {
-                series
-            } else {
-                null
-            }
-        } ?: run {
-            val statement = SeriesTable.insert {
-                it[name] = series.name
-            }
-            statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
+        val statement = SeriesTable.upsert {
+            it[name] = series.name
         }
+        statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
     }
 
     private fun resultRowToPerson(row: ResultRow) = Person(
@@ -93,25 +82,13 @@ object RegattaDatabase {
     }
 
     suspend fun upsertPerson(person: Person): Person? = dbQuery {
-        person.id?.let {
-            val updated = PersonTable.update({ PersonTable.id eq it }) {
-                it[first] = first
-                it[last] = last
-            } > 0
-            if (updated) {
-                person
-            } else {
-                null
-            }
-        } ?: run {
-            val statement = PersonTable.insert {
-                it[first] = person.first
-                it[last] = person.last
-                it[clubMember] = person.clubMember
-            }
-            statement.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
+        val statement = PersonTable.upsert { stmt ->
+            stmt[first] = person.first
+            stmt[last] = person.last
+            stmt[clubMember] = person.clubMember
         }
-        null
+        val values = statement.resultedValues
+        values?.singleOrNull()?.let(::resultRowToPerson)
     }
 
     suspend fun allPeople(): List<Person> = dbQuery {
@@ -171,41 +148,22 @@ object RegattaDatabase {
     }
 
     suspend fun upsertBoat(boat: Boat): Boat? = dbQuery {
-        boat.id?.let { id ->
-            val update = BoatTable.update({ BoatTable.id eq id }) {
-                it[name] = boat.name
-                it[sailNumber] = boat.sailNumber
-                it[boatType] = boat.boatType
-                it[phrfRating] = boat.phrfRating
-                boat.skipper.id?.let { skipperId ->
-                    it[skipper] = skipperId
-                }
-            } > 0
-            if (update) {
-                boat
-            } else {
-                null
+        val statement = BoatTable.upsert {
+            it[name] = boat.name
+            it[sailNumber] = boat.sailNumber
+            it[boatType] = boat.boatType
+            it[phrfRating] = boat.phrfRating
+            boat.skipper.id?.let { skipperId ->
+                it[skipper] = skipperId
             }
-        } ?: run {
-            val statement = BoatTable.insert {
-                it[name] = boat.name
-                it[sailNumber] = boat.sailNumber
-                it[boatType] = boat.boatType
-                it[phrfRating] = boat.phrfRating
-                boat.skipper.id?.let { skipperId ->
-                    it[skipper] = skipperId
-                }
-            }
-            statement.resultedValues?.singleOrNull()?.let {
-                resultRowToBoat(it)
-            }
+        }
+        statement.resultedValues?.singleOrNull()?.let {
+            resultRowToBoat(it)
         }
     }
 
     suspend fun allBoats(): List<Boat> = dbQuery {
-        val query = (BoatTable innerJoin PersonTable)
-            .slice(BoatTable.skipper, PersonTable.id)
-            .selectAll()
+        val query = (BoatTable innerJoin PersonTable).selectAll()
         query.map {
             val person = resultRowToPerson(it)
             resultRowToBoat(it, person)
@@ -214,7 +172,6 @@ object RegattaDatabase {
 
     suspend fun findBoatForPerson(personId: Long): Boat? = dbQuery {
         val query = (BoatTable innerJoin PersonTable)
-            .slice(BoatTable.skipper, PersonTable.id)
             .select { BoatTable.skipper eq personId }
         query.singleOrNull()?.let {
             val person = resultRowToPerson(it)
@@ -230,4 +187,10 @@ object RegattaDatabase {
         phrfRating = row[BoatTable.phrfRating],
         skipper = person ?: findPerson(row[BoatTable.skipper])!!
     )
+
+    suspend fun deleteBoat(id: Long) = dbQuery {
+        BoatTable.deleteWhere {
+            BoatTable.id eq id
+        }
+    }
 }
