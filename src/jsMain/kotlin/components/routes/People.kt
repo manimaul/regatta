@@ -109,6 +109,9 @@ fun AddPerson(viewModel: PeopleViewModel) {
         Td {
             RgButton("Add", RgButtonStyle.Primary, first.isBlank() || last.isBlank()) {
                 viewModel.upsertPerson(Person(first = first, last = last, clubMember = member))
+                first = ""
+                last = ""
+                member = false
             }
         }
     }

@@ -44,7 +44,7 @@ data class Boat(
     val sailNumber: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
-    val skipper: Person = Person(),
+    val skipper: Person? = null,
 )
 
 @Serializable

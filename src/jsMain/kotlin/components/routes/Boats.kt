@@ -54,9 +54,11 @@ fun BoatList(
                         Td { Text(boat.boatType) }
                         Td { Text(boat.phrfRating?.let { "$it" } ?: "-") }
                         Td {
-                            Text(
-                                "${boat.skipper.first} ${boat.skipper.last}"
-                            )
+                            boat.skipper?.let {
+                                Text(
+                                    "${boat.skipper.first} ${boat.skipper.last}"
+                                )
+                            }
                         }
                         Td {
                             RgButton("Delete", RgButtonStyle.Error) {

@@ -62,6 +62,16 @@ object RegattaDatabase {
         statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
     }
 
+    private fun resultRowToMaybePerson(row: ResultRow) : Person? {
+        return row[PersonTable.id]?.let {
+            Person(
+                id = it,
+                first = row[PersonTable.first],
+                last = row[PersonTable.last],
+                clubMember = row[PersonTable.clubMember],
+            )
+        }
+    }
     private fun resultRowToPerson(row: ResultRow) = Person(
         id = row[PersonTable.id],
         first = row[PersonTable.first],
@@ -69,10 +79,12 @@ object RegattaDatabase {
         clubMember = row[PersonTable.clubMember],
     )
 
-    suspend fun findPerson(id: Long): Person? = dbQuery {
-        PersonTable.select {
-            PersonTable.id eq id
-        }.map(::resultRowToPerson).singleOrNull()
+    suspend fun findPerson(id: Long?): Person? = dbQuery {
+        id?.let {
+            PersonTable.select {
+                PersonTable.id eq id
+            }.map(::resultRowToPerson).singleOrNull()
+        }
     }
 
     suspend fun findPerson(name: String): List<Person> = dbQuery {
@@ -96,8 +108,19 @@ object RegattaDatabase {
     }
 
     suspend fun deletePerson(id: Long) = dbQuery {
+        removePersonFromBoats(id).takeIf { it > 0 }?.let {
+            println("removed person id $id from their boat")
+        }
         PersonTable.deleteWhere {
             PersonTable.id eq id
+        }
+    }
+
+    suspend fun removePersonFromBoats(personId: Long) = dbQuery {
+        BoatTable.update(where = {
+            BoatTable.skipper eq personId
+        }) {
+            it[skipper] = null
         }
     }
 
@@ -153,7 +176,7 @@ object RegattaDatabase {
             it[sailNumber] = boat.sailNumber
             it[boatType] = boat.boatType
             it[phrfRating] = boat.phrfRating
-            boat.skipper.id?.let { skipperId ->
+            boat.skipper?.id?.let { skipperId ->
                 it[skipper] = skipperId
             }
         }
@@ -167,7 +190,11 @@ object RegattaDatabase {
         query.map {
             val person = resultRowToPerson(it)
             resultRowToBoat(it, person)
-        }
+        }.plus(
+            BoatTable.select { BoatTable.skipper eq null }.map {
+                resultRowToBoat(it, null)
+            }
+        )
     }
 
     suspend fun findBoatForPerson(personId: Long): Boat? = dbQuery {
@@ -185,7 +212,7 @@ object RegattaDatabase {
         sailNumber = row[BoatTable.sailNumber],
         boatType = row[BoatTable.boatType],
         phrfRating = row[BoatTable.phrfRating],
-        skipper = person ?: findPerson(row[BoatTable.skipper])!!
+        skipper = person
     )
 
     suspend fun deleteBoat(id: Long) = dbQuery {

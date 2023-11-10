@@ -45,7 +45,6 @@ class PeopleViewModel {
 
     fun upsertPerson(person: Person) {
         mainScope.launch {
-            peopleState.value = PeopleStateLoading
             Api.postPerson(person)
             fetchAllPeople()
         }
