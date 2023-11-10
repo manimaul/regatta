@@ -2,6 +2,7 @@ package com.mxmariner.regatta.data
 
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
 
@@ -16,6 +17,7 @@ data class Person(
     val id: Long? = null,
     val first: String = "",
     val last: String = "",
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val clubMember: Boolean = false,
 )
 

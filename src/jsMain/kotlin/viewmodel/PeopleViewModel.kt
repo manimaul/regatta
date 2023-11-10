@@ -1,49 +1,41 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.Person
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import utils.Api
 import utils.Scopes.mainScope
 
+data class PeopleState(
+    val people: Async<List<Person>> = Uninitialized,
+    val editPerson: Person? = null
+) : VmState
 
-sealed interface PeopleState
 
-data object PeopleStateLoading : PeopleState
-
-data class DeletePerson(
-    val person: Person
-) : PeopleState
-
-data class PeopleStateLoaded(
-    val people: List<Person>
-) : PeopleState
-
-class PeopleViewModel {
-    private val peopleState = MutableStateFlow<PeopleState>(PeopleStateLoading)
-
-    val flow: StateFlow<PeopleState>
-        get() = peopleState
-
+class PeopleViewModel : BaseViewModel<PeopleState>(PeopleState()) {
     init {
-        mainScope.launch { fetchAllPeople() }
+        launch { fetchAllPeople() }
     }
 
-    suspend fun fetchAllPeople() {
-        Api.getAllPeople().body?.let {
-            peopleState.value = PeopleStateLoaded(it)
+    private fun fetchAllPeople() {
+        launch {
+            setState { copy(people = people.loading()) }
+            val response = Api.getAllPeople()
+            setState {
+                copy(people = response.body?.let {
+                    Complete(it)
+                } ?: people.error(response.error))
+            }
         }
     }
 
     fun reload() {
-        mainScope.launch {
-            peopleState.value = PeopleStateLoading
-            fetchAllPeople()
-        }
+        fetchAllPeople()
     }
 
     fun upsertPerson(person: Person) {
+        setEditPerson(null)
         mainScope.launch {
             Api.postPerson(person)
             fetchAllPeople()
@@ -51,15 +43,18 @@ class PeopleViewModel {
     }
 
     fun delete(person: Person) {
-        mainScope.launch {
+        setEditPerson(null)
+        launch {
             person.id?.let {
-                peopleState.value = PeopleStateLoading
                 Api.deletePerson(person.id)
                 fetchAllPeople()
             }
         }
     }
-    fun setDeletePerson(person: Person) {
-        peopleState.value = DeletePerson(person)
+
+    fun setEditPerson(person: Person?) {
+        setState {
+            copy(editPerson = person)
+        }
     }
 }

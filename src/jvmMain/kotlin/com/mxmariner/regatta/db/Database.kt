@@ -56,13 +56,19 @@ object RegattaDatabase {
     }
 
     suspend fun upsertSeries(series: Series): Series? = dbQuery {
-        val statement = SeriesTable.upsert {
-            it[name] = series.name
+        if (series.id != null) {
+            SeriesTable.update(where = { SeriesTable.id eq series.id }) {
+                it[name] = series.name
+            }.takeIf { it == 1 }?.let { series }
+        } else {
+            val statement = SeriesTable.insert{
+                it[name] = series.name
+            }
+            statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
         }
-        statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
     }
 
-    private fun resultRowToMaybePerson(row: ResultRow) : Person? {
+    private fun resultRowToMaybePerson(row: ResultRow): Person? {
         return row[PersonTable.id]?.let {
             Person(
                 id = it,
@@ -72,6 +78,7 @@ object RegattaDatabase {
             )
         }
     }
+
     private fun resultRowToPerson(row: ResultRow) = Person(
         id = row[PersonTable.id],
         first = row[PersonTable.first],
@@ -94,13 +101,19 @@ object RegattaDatabase {
     }
 
     suspend fun upsertPerson(person: Person): Person? = dbQuery {
-        val statement = PersonTable.upsert { stmt ->
-            stmt[first] = person.first
-            stmt[last] = person.last
-            stmt[clubMember] = person.clubMember
+        if (person.id != null) {
+            PersonTable.update(where = { PersonTable.id eq person.id }) { stmt ->
+                stmt[first] = person.first
+                stmt[last] = person.last
+                stmt[clubMember] = person.clubMember
+            }.takeIf { it == 1 }?.let { person }
+        } else {
+            PersonTable.insert { stmt ->
+                stmt[first] = person.first
+                stmt[last] = person.last
+                stmt[clubMember] = person.clubMember
+            }.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
         }
-        val values = statement.resultedValues
-        values?.singleOrNull()?.let(::resultRowToPerson)
     }
 
     suspend fun allPeople(): List<Person> = dbQuery {
@@ -171,17 +184,28 @@ object RegattaDatabase {
     }
 
     suspend fun upsertBoat(boat: Boat): Boat? = dbQuery {
-        val statement = BoatTable.upsert {
-            it[name] = boat.name
-            it[sailNumber] = boat.sailNumber
-            it[boatType] = boat.boatType
-            it[phrfRating] = boat.phrfRating
-            boat.skipper?.id?.let { skipperId ->
-                it[skipper] = skipperId
+        if (boat.id != null) {
+            BoatTable.update {
+                it[name] = boat.name
+                it[sailNumber] = boat.sailNumber
+                it[boatType] = boat.boatType
+                it[phrfRating] = boat.phrfRating
+                boat.skipper?.id?.let { skipperId ->
+                    it[skipper] = skipperId
+                }
+            }.takeIf { it == 1 }?.let { boat }
+        } else  {
+            BoatTable.insert {
+                it[name] = boat.name
+                it[sailNumber] = boat.sailNumber
+                it[boatType] = boat.boatType
+                it[phrfRating] = boat.phrfRating
+                boat.skipper?.id?.let { skipperId ->
+                    it[skipper] = skipperId
+                }
+            }.resultedValues?.singleOrNull()?.let {
+                resultRowToBoat(it)
             }
-        }
-        statement.resultedValues?.singleOrNull()?.let {
-            resultRowToBoat(it)
         }
     }
 

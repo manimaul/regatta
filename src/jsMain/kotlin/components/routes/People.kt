@@ -6,13 +6,12 @@ import components.Confirm
 import components.RgButton
 import components.RgButtonStyle
 import components.Spinner
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.DeletePerson
-import viewmodel.PeopleStateLoaded
-import viewmodel.PeopleStateLoading
-import viewmodel.PeopleViewModel
+import viewmodel.*
 
 @Composable
 fun People(
@@ -20,25 +19,92 @@ fun People(
 ) {
     val flowState by viewModel.flow.collectAsState()
     Div {
-        when (val state = flowState) {
-            is PeopleStateLoaded -> PeopleLoaded(state, viewModel)
-            PeopleStateLoading -> Spinner(50f)
-            is DeletePerson -> {
-                Confirm("Delete '${state.person.first} ${state.person.last}'?") { delete ->
-                    if (delete) {
-                        viewModel.delete(state.person)
-                    } else {
-                        viewModel.reload()
+        flowState.editPerson?.let { person ->
+            EditPerson(person, viewModel)
+        } ?: when (val state = flowState.people) {
+            is Complete -> PeopleLoaded(state.value, viewModel)
+            is Error -> {
+                Text("Womp Womp")
+                PeopleLoaded(state.value ?: emptyList(), viewModel)
+            }
+
+            is Loading -> {
+                Spinner()
+                PeopleLoaded(state.value ?: emptyList(), viewModel)
+            }
+            Uninitialized -> Spinner()
+        }
+    }
+}
+
+@Composable
+fun EditPerson(
+    person: Person,
+    viewModel: PeopleViewModel,
+) {
+    var confirmDelete by remember { mutableStateOf(false) }
+    var newPerson by remember { mutableStateOf(person) }
+    if (confirmDelete) {
+        Confirm("Delete '${person.first} ${person.last}'?") { delete ->
+            if (delete) {
+                viewModel.delete(person)
+            } else {
+                confirmDelete = false
+            }
+        }
+    } else {
+        Form {
+            Fieldset {
+                Legend { Text("Edit id:${person.id} ${person.first} ${person.last}") }
+                P {
+                    Input(InputType.Text) {
+                        id("first")
+                        value(newPerson.first)
+                        onInput { newPerson = newPerson.copy(first = it.value) }
                     }
+                    Label("first") { Text("First name") }
+                }
+                P {
+                    Input(InputType.Text) {
+                        id("last")
+                        value(newPerson.last)
+                        onInput { newPerson = newPerson.copy(last = it.value) }
+                    }
+                    Label("last") { Text("Last name") }
+                }
+                P {
+                    CheckboxInput (
+                        attrs = {
+                            id("member")
+                            checked(newPerson.clubMember)
+                            onChange {
+                                println("checked = ${it.value}")
+                                newPerson = newPerson.copy(clubMember = it.value)
+                                println("newperson ${Json.encodeToString(newPerson)}")
+                                println("checked = ${it.value}")
+                            }
+                        }
+                    )
+                    Label("member") { Text("Club member") }
                 }
             }
+        }
+        Br()
+        RgButton("Cancel", RgButtonStyle.PrimaryOutline) {
+            viewModel.setEditPerson(null)
+        }
+        RgButton("Save", RgButtonStyle.Primary) {
+            viewModel.upsertPerson(newPerson)
+        }
+        RgButton("Delete", RgButtonStyle.Error) {
+            confirmDelete = true
         }
     }
 }
 
 @Composable
 fun PeopleLoaded(
-    state: PeopleStateLoaded,
+    people: List<Person>,
     viewModel: PeopleViewModel,
 ) {
     Div {
@@ -46,7 +112,7 @@ fun PeopleLoaded(
             H1 { Text("People") }
         }
         Table(attrs = { classes("striped") }) {
-            state.people.takeIf { it.isNotEmpty() }?.let { people ->
+            people.takeIf { it.isNotEmpty() }?.let { people ->
                 Tr {
                     Th { Text("First") }
                     Th { Text("Last") }
@@ -61,8 +127,8 @@ fun PeopleLoaded(
                         Td { Text("-") }
                         Td { Text(if (person.clubMember) "Yes" else "No") }
                         Td {
-                            RgButton("Delete", RgButtonStyle.Error) {
-                                viewModel.setDeletePerson(person)
+                            RgButton("Edit", RgButtonStyle.PrimaryOutline) {
+                                viewModel.setEditPerson(person)
                             }
                         }
                     }
@@ -97,7 +163,7 @@ fun AddPerson(viewModel: PeopleViewModel) {
                 value(last)
             }
         }
-        Td {  }
+        Td { }
         Td {
             CheckboxInput {
                 onChange {
