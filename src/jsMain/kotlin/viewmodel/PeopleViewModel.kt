@@ -2,10 +2,7 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Person
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import utils.Api
-import utils.Scopes.mainScope
 
 data class PeopleState(
     val people: Async<List<Person>> = Uninitialized,
@@ -30,13 +27,9 @@ class PeopleViewModel : BaseViewModel<PeopleState>(PeopleState()) {
         }
     }
 
-    fun reload() {
-        fetchAllPeople()
-    }
-
     fun upsertPerson(person: Person) {
         setEditPerson(null)
-        mainScope.launch {
+        launch {
             Api.postPerson(person)
             fetchAllPeople()
         }
@@ -44,10 +37,14 @@ class PeopleViewModel : BaseViewModel<PeopleState>(PeopleState()) {
 
     fun delete(person: Person) {
         setEditPerson(null)
-        launch {
-            person.id?.let {
-                Api.deletePerson(person.id)
-                fetchAllPeople()
+        person.id?.let {
+            setState {
+                val delete = Api.deletePerson(person.id)
+                if (delete.ok) {
+                    copy(people = Api.getAllPeople().toAsync(people))
+                } else {
+                    this
+                }
             }
         }
     }

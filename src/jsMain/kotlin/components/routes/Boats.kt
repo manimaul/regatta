@@ -11,18 +11,18 @@ import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.BoatStateLoaded
-import viewmodel.BoatStateLoading
-import viewmodel.BoatViewModel
+import viewmodel.*
 
 @Composable
 fun Boats(
     viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    when (val state = flowState) {
-        BoatStateLoading -> Spinner(50f)
-        is BoatStateLoaded -> BoatList(state.boats, state.people, viewModel)
+    when (val state = flowState.response) {
+        is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
+        is Error -> Spinner()
+        is Loading -> Spinner()
+        Uninitialized -> Unit
     }
 }
 

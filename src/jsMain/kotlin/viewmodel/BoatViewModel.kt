@@ -2,61 +2,69 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import utils.Api
-import utils.Scopes.mainScope
 
-sealed interface BoatState
 
-data object BoatStateLoading : BoatState
-
-data class BoatStateLoaded(
+data class BoatPeopleComposite(
     val boats: List<Boat>,
     val people: List<Person>,
-) : BoatState
+)
 
-class BoatViewModel {
-    private val internalState = MutableStateFlow<BoatState>(BoatStateLoading)
+data class BoatState(
+    val response: Async<BoatPeopleComposite> = Uninitialized,
+    val deleteBoat: Boat? = null,
+) : VmState
 
-    val flow: StateFlow<BoatState>
-        get() = internalState
+class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
 
     init {
         getAllBoats()
     }
 
     private fun getAllBoats() {
-        mainScope.launch {
-            val boats: List<Boat> = Api.getAllBoats().body ?: emptyList()
-            val people = Api.getAllPeople().body ?: emptyList()
-            setState(BoatStateLoaded(boats, people))
+        setState {
+            copy(
+                response = combineAsync(Api.getAllBoats(), Api.getAllPeople()) { boats, people ->
+                    BoatPeopleComposite(boats, people)
+                }
+            )
         }
-
     }
 
-    private fun setState(state: BoatState) {
-        internalState.value = state
-    }
 
     fun addBoat(boat: Boat) {
-       mainScope.launch {
-           setState(BoatStateLoading)
-           internalState.value = BoatStateLoading
-           Api.postBoat(boat)
-           getAllBoats()
-       }
+        setState {
+            val boats = Api.postBoat(boat).toAsync().flatMap { Api.getAllBoats().toAsync() }
+            copy(
+                response = response.flatMap { comp ->
+                    boats.map { boats ->
+                        comp.copy(boats = boats)
+                    }
+                }
+            )
+        }
     }
 
-    fun setDeleteBoat(boat: Boat) {
-        mainScope.launch {
-            boat.id?.let {
-                setState(BoatStateLoading)
-                Api.deleteBoat(boat.id)
-                getAllBoats()
+    fun deleteBoat() {
+        withState {
+            it.deleteBoat?.id?.let {id ->
+                setState {
+                    val boats = Api.deleteBoat(id).toAsync().flatMap { Api.getAllBoats().toAsync() }
+                    copy(
+                        response = response.flatMap { comp ->
+                            boats.map { boats ->
+                                comp.copy(boats = boats)
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 
+    fun setDeleteBoat(boat: Boat?) {
+        setState {
+            copy(deleteBoat = boat)
+        }
+    }
 }
