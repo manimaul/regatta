@@ -112,14 +112,14 @@ fun PeopleLoaded(
             H1 { Text("People") }
         }
         Table(attrs = { classes("striped") }) {
+            Tr {
+                Th { Text("First") }
+                Th { Text("Last") }
+                Th { Text("Boat") }
+                Th { Text("Member") }
+                Th { Text("Action") }
+            }
             people.takeIf { it.isNotEmpty() }?.let { people ->
-                Tr {
-                    Th { Text("First") }
-                    Th { Text("Last") }
-                    Th { Text("Boat") }
-                    Th { Text("Member") }
-                    Th { Text("Action") }
-                }
                 people.forEach { person ->
                     Tr {
                         Td { Text(person.first) }
@@ -133,8 +133,8 @@ fun PeopleLoaded(
                         }
                     }
                 }
-                AddPerson(viewModel)
             }
+            AddPerson(viewModel)
         }
     }
 }

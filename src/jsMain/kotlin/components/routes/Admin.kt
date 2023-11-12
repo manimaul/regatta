@@ -1,9 +1,10 @@
 package components.routes
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import components.RgButton
 import components.RgButtonStyle
-import components.Spinner
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
@@ -15,8 +16,9 @@ import viewmodel.routeViewModel
 
 @Composable
 fun Admin(viewModel: LoginViewModel = loginViewModel) {
+    val flowState by viewModel.flow.collectAsState()
     Div {
-        when (viewModel.loginStatus) {
+        when (flowState.state) {
             LoginStatus.Loading -> Progress {  }
             LoginStatus.Ready -> {
                 Login()
@@ -28,7 +30,7 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
             }
             LoginStatus.LoggedIn -> {
                 H4 {
-                    Text("Logged in as ${viewModel.userName}")
+                    Text("Logged in as ${flowState.auth.userName}")
                 }
                 val creator = routeViewModel.getQueryParam("create").isNotEmpty()
                 if (creator) {
@@ -38,9 +40,9 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
             LoginStatus.Failed -> {
                 Progress {  }
                 P {
-                    Text(viewModel.state.errorMessage ?: "")
+                    Text(flowState.errorMessage ?: "")
+                    viewModel.reload()
                 }
-                viewModel.reload()
             }
         }
     }
@@ -49,6 +51,7 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
 @Composable
 fun Login(viewModel: LoginViewModel = loginViewModel) {
     val creator = routeViewModel.getQueryParam("create").isNotEmpty()
+    val flowState by viewModel.flow.collectAsState()
     H2 {
         if (creator) {
             Text("Add Login")
@@ -59,21 +62,21 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
     Input(type = InputType.Text) {
         placeholder("user name")
         onInput {
-            viewModel.userName = it.value
+            viewModel.setUserName(it.value)
         }
-        value(viewModel.userName)
+        value(flowState.auth.userName)
     }
     Br()
     Input(type = InputType.Password) {
         placeholder("password")
         onInput {
-            viewModel.password = it.value
+            viewModel.setPassword(it.value)
         }
-        value(viewModel.password)
+        value(flowState.pass)
     }
     Br()
     val label = if (creator) "Add" else "Login"
-    RgButton(label, RgButtonStyle.Primary, !viewModel.isValid()) {
+    RgButton(label, RgButtonStyle.Primary, flowState.pass.length < 4) {
         if (creator) {
             viewModel.submitNew()
         } else {

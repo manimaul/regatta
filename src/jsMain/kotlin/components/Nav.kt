@@ -1,7 +1,8 @@
 package components
 
 import androidx.compose.runtime.Composable
-import org.jetbrains.compose.web.dom.Button
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import viewmodel.*
@@ -11,8 +12,9 @@ fun Nav(
     viewModel: RouteViewModel = routeViewModel,
     loginVm: LoginViewModel = loginViewModel,
 ) {
+    val loginFlowState by loginVm.flow.collectAsState()
     P {
-        (loginVm.loginResponse?.let {
+        (loginFlowState.login?.let {
             arrayOf(
                 Route.Home,
                 Route.People,
@@ -38,7 +40,7 @@ fun Nav(
             Text("${Typography.nbsp}")
         }
 
-        if (loginVm.loginStatus == LoginStatus.LoggedIn) {
+        if (loginFlowState.state== LoginStatus.LoggedIn) {
             RgButton("Logout", RgButtonStyle.Primary) {
                 loginVm.logout()
             }

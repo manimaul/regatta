@@ -32,6 +32,7 @@ object RegattaDatabase {
     private fun resultRowToSeries(row: ResultRow) = Series(
         id = row[SeriesTable.id],
         name = row[SeriesTable.name],
+        active = row[SeriesTable.active]
     )
 
     suspend fun allSeries(): List<Series> = dbQuery {
@@ -59,9 +60,11 @@ object RegattaDatabase {
         if (series.id != null) {
             SeriesTable.update(where = { SeriesTable.id eq series.id }) {
                 it[name] = series.name
+                it[active] = series.active
             }.takeIf { it == 1 }?.let { series }
         } else {
             val statement = SeriesTable.insert{
+                it[active] = series.active
                 it[name] = series.name
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
@@ -84,6 +87,7 @@ object RegattaDatabase {
         first = row[PersonTable.first],
         last = row[PersonTable.last],
         clubMember = row[PersonTable.clubMember],
+        active = row[PersonTable.active]
     )
 
     suspend fun findPerson(id: Long?): Person? = dbQuery {
@@ -106,12 +110,14 @@ object RegattaDatabase {
                 stmt[first] = person.first
                 stmt[last] = person.last
                 stmt[clubMember] = person.clubMember
+                stmt[active] = person.active
             }.takeIf { it == 1 }?.let { person }
         } else {
             PersonTable.insert { stmt ->
                 stmt[first] = person.first
                 stmt[last] = person.last
                 stmt[clubMember] = person.clubMember
+                stmt[active] = person.active
             }.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
         }
     }
@@ -190,6 +196,7 @@ object RegattaDatabase {
                 it[sailNumber] = boat.sailNumber
                 it[boatType] = boat.boatType
                 it[phrfRating] = boat.phrfRating
+                it[active] = boat.active
                 boat.skipper?.id?.let { skipperId ->
                     it[skipper] = skipperId
                 }
@@ -200,6 +207,7 @@ object RegattaDatabase {
                 it[sailNumber] = boat.sailNumber
                 it[boatType] = boat.boatType
                 it[phrfRating] = boat.phrfRating
+                it[active] = boat.active
                 boat.skipper?.id?.let { skipperId ->
                     it[skipper] = skipperId
                 }
@@ -230,7 +238,7 @@ object RegattaDatabase {
         }
     }
 
-    private suspend fun resultRowToBoat(row: ResultRow, person: Person? = null) = Boat(
+    private fun resultRowToBoat(row: ResultRow, person: Person? = null) = Boat(
         id = row[BoatTable.id],
         name = row[BoatTable.name],
         sailNumber = row[BoatTable.sailNumber],

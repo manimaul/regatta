@@ -1,6 +1,5 @@
 package viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import com.mxmariner.regatta.data.AuthRecord
 import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
@@ -8,7 +7,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import utils.*
-import utils.Scopes.mainScope
 
 
 enum class LoginStatus {
@@ -33,67 +31,47 @@ data class LoginState(
     val state: LoginStatus = LoginStatus.Ready,
     val errorMessage: String? = null,
     val login: LoginResponse? = localStoreGet<LoginResponse>()
-)
+) : VmState
 
 val loginViewModel = LoginViewModel()
 
-class LoginViewModel {
-    private val loginState = mutableStateOf(initialState())
+class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
 
-    val hash: String
-        get() = loginState.value.auth.hash
 
-    val loginStatus: LoginStatus
-        get() = loginState.value.state
-
-    val loginResponse: LoginResponse?
-        get() = loginState.value.login?.takeIf { !it.isExpired() }
-
-    var userName: String
-        get() = loginState.value.auth.userName
-        set(value) {
-            loginState.value = loginState.value.copy(
-                auth =
-                AuthRecord(
-                    hash = hash,
-                    userName = value
-                )
+    fun setPassword(value: String) {
+        setState {
+            copy(
+                auth = AuthRecord(
+                    hash = value.takeIf { it.isNotEmpty() }?.let { hash(value) } ?: "",
+                    userName = flow.value.auth.userName
+                ),
+                pass = value
             )
         }
-
-    val state: LoginState
-        get() = loginState.value
-
-    var password: String
-        get() = loginState.value.pass
-        set(value) {
-            mainScope.launch {
-                loginState.value = loginState.value.copy(
-                    auth = AuthRecord(
-                        hash = value.takeIf { it.isNotEmpty() }?.let { hash(value) } ?: "",
-                        userName = userName
-                    ),
-                    pass = value
-                )
-            }
-        }
-
-    fun isValid() = password.length > 4
+    }
 
     fun submitNew() {
-        loginState.value = loginState.value.copy(state = LoginStatus.Loading)
-        mainScope.launch {
-            val response  = Api.postAuth(loginState.value.auth)
+        setState {
+            copy(state = LoginStatus.Loading)
+        }
+        launch {
+            val response = Api.postAuth(flow.value.auth)
             response.body?.let {
-                loginState.value = loginState.value.copy(
-                    auth = it,
-                    state = LoginStatus.Complete
-                )
-            } ?: run {
-                loginState.value = loginState.value.copy(
+                setState {
+                    copy(
+                        auth = it,
+                        state = LoginStatus.Complete
+                    )
+                }
+            } ?: setState {
+                copy(
                     state = LoginStatus.Failed,
                     errorMessage = "${response.status} ${response.statusText}",
                 )
+            }
+            delay(3000)
+            setState {
+                initialState()
             }
         }
     }
@@ -101,33 +79,39 @@ class LoginViewModel {
     fun logout() {
         localStoreSet("username", "")
         localStoreSet<LoginResponse>(null)
-        loginState.value = initialState()
+        setState {
+            initialState()
+        }
         routeViewModel.setRoute(Route.Home)
     }
 
     fun login() {
-        mainScope.launch {
-            loginState.value = loginState.value.copy(state = LoginStatus.Loading)
+        setState {
+            copy(state = LoginStatus.Loading)
+        }
+        launch {
             val time = Clock.System.now()
             val salt = salt()
             val login = Login(
-                userName = userName,
-                hashOfHash = hash(salt, "${time.epochSeconds}", hash),
+                userName = flow.value.auth.userName,
+                hashOfHash = hash(salt, "${time.epochSeconds}", flow.value.auth.hash),
                 salt = salt,
                 time = time,
             )
-            val response  = Api.login(login)
+            val response = Api.login(login)
             response.body?.let {
                 localStoreSet(it)
                 localStoreSet("username", login.userName)
                 println("storing login $it")
-                loginState.value = loginState.value.copy(
-                    state = LoginStatus.LoggedIn,
-                    login = it,
-                )
+                setState {
+                    copy(
+                        state = LoginStatus.LoggedIn,
+                        login = it,
+                    )
+                }
                 routeViewModel.setRoute(Route.Home)
-            } ?: run {
-                loginState.value = loginState.value.copy(
+            } ?: setState {
+                copy(
                     state = LoginStatus.Failed,
                     errorMessage = "${response.status} ${response.statusText}"
                 )
@@ -136,9 +120,17 @@ class LoginViewModel {
     }
 
     fun reload() {
-        mainScope.launch {
+        launch {
             delay(3000)
-            loginState.value = loginState.value.copy(state = LoginStatus.Ready)
+            setState {
+                copy(state = LoginStatus.Ready)
+            }
+        }
+    }
+
+    fun setUserName(value: String) {
+        setState {
+            copy(auth = auth.copy(userName = value))
         }
     }
 }

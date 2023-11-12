@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Series(
     val id: Long? = null,
-    val name: String
+    val name: String,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true
 )
 
 @Serializable
@@ -19,6 +21,8 @@ data class Person(
     val last: String = "",
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val clubMember: Boolean = false,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true
 )
 
 @Serializable
@@ -26,6 +30,8 @@ data class RaceClass(
     val id: Long? = null,
     val name: String,
     val description: String?,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true
 )
 
 @Serializable
@@ -47,6 +53,8 @@ data class Boat(
     val boatType: String = "",
     val phrfRating: Int? = null,
     val skipper: Person? = null,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true
 )
 
 @Serializable

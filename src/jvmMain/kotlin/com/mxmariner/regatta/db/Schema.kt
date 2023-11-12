@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 object SeriesTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 1024).uniqueIndex("nameIdx")
+    val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -14,6 +15,7 @@ object PersonTable : Table() {
     val first = varchar("first", 128)
     val last = varchar("last", 128)
     val clubMember = bool("club_member")
+    val active = bool("active")
     override val primaryKey = PrimaryKey(id)
     val compoundIdx = uniqueIndex( first, last)
 }
@@ -30,6 +32,7 @@ object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val description = varchar("description", 1024).nullable()
+    val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -51,6 +54,8 @@ object BoatTable : Table() {
     val boatType = varchar("boat_type", 128)
     val phrfRating = integer("phrf_rating").nullable()
     val skipper = (long("skipper_id") references PersonTable.id).nullable()
+    val currentClass = (long("class_id") references RaceClassTable.id).nullable()
+    val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 }
 

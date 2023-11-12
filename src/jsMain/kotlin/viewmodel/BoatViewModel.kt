@@ -31,7 +31,6 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
         }
     }
 
-
     fun addBoat(boat: Boat) {
         setState {
             val boats = Api.postBoat(boat).toAsync().flatMap { Api.getAllBoats().toAsync() }
@@ -45,19 +44,18 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
         }
     }
 
-    fun deleteBoat() {
-        withState {
-            it.deleteBoat?.id?.let {id ->
-                setState {
-                    val boats = Api.deleteBoat(id).toAsync().flatMap { Api.getAllBoats().toAsync() }
-                    copy(
-                        response = response.flatMap { comp ->
-                            boats.map { boats ->
-                                comp.copy(boats = boats)
-                            }
+    fun deleteBoat(boat: Boat) {
+        setDeleteBoat(null)
+        boat.id?.let {id ->
+            setState {
+                val boats = Api.deleteBoat(id).toAsync().flatMap { Api.getAllBoats().toAsync() }
+                copy(
+                    response = response.flatMap { comp ->
+                        boats.map { boats ->
+                            comp.copy(boats = boats)
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }

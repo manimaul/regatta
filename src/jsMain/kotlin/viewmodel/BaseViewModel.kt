@@ -22,6 +22,16 @@ sealed class Async<out T>(
     fun error(throwable: Throwable? = null): Error<T> {
         return Error(value, throwable)
     }
+
+    override fun toString(): String {
+        val prefix = when (this) {
+            is Complete -> "Complete"
+            is Error -> "Error"
+            is Loading -> "Loading"
+            Uninitialized -> "Uninitialized"
+        }
+        return "$prefix:Async(complete=$complete, value=$value)"
+    }
 }
 
 suspend fun <T, R> Async<T>.flatMap(handler: suspend (T) -> Async<R>) : Async<R> {
@@ -76,7 +86,11 @@ suspend fun <T, R, O> combineAsync(
 object Uninitialized : Async<Nothing>(false, null)
 data class Loading<out T>(override val value: T? = null) : Async<T>(false, value)
 data class Complete<out T>(override val value: T) : Async<T>(true, value)
-data class Error<out T>(override val value: T? = null, val error: Throwable? = null) : Async<T>(true, value)
+data class Error<out T>(
+    override val value: T? = null,
+    val error: Throwable? = null,
+    val message: String? = null,
+) : Async<T>(true, value)
 
 abstract class BaseViewModel<T : VmState>(
     initialState: T,
@@ -86,8 +100,8 @@ abstract class BaseViewModel<T : VmState>(
     val flow: StateFlow<T>
         get() = internalState
 
-    protected fun withState(handler: (T) -> Unit) {
-        handler(internalState.value)
+    protected fun <A> withState(handler: (T) -> A) : A{
+        return handler(internalState.value)
     }
 
 //    protected fun <R> setState(

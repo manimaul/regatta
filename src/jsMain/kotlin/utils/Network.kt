@@ -21,10 +21,10 @@ data class NetworkResponse<T>(
 
 object Network {
 
-    suspend inline fun <reified T> Response.networkResponse(json: Boolean = true) : NetworkResponse<T> {
-        var body: T? = null
+    suspend inline fun <reified T> Response.networkResponse(setBody: T? = null) : NetworkResponse<T> {
+        var body: T? = setBody
         var error: Exception? = null
-        if (json) {
+        if (body == null) {
             try {
                 body = Json.decodeFromString(text().await())
             } catch (e: Exception) {
@@ -63,13 +63,13 @@ object Network {
         return response.networkResponse()
     }
 
-    suspend fun delete(api: String, params: Map<String, String>): NetworkResponse<Any> {
+    suspend fun delete(api: String, params: Map<String, String>): NetworkResponse<Unit> {
         val response = window.fetch(
             api.versionedApi(params), RequestInit(
                 method = "DELETE",
                 headers = json("Authorization" to "Bearer ${token()}"),
             )
         ).await()
-        return response.networkResponse(false)
+        return response.networkResponse(Unit)
     }
 }

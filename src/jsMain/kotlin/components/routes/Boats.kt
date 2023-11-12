@@ -3,6 +3,7 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
+import components.Confirm
 import components.RgButton
 import components.RgButtonStyle
 import components.Spinner
@@ -10,6 +11,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
+import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import viewmodel.*
 
@@ -18,9 +20,23 @@ fun Boats(
     viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    when (val state = flowState.response) {
+    flowState.deleteBoat?.let { boat ->
+        val msg = boat.skipper?.let {
+            "Delete ${boat.name} owned by ${it.first} ${it.last}?"
+        } ?: "Delete ${boat.name}?"
+        Confirm(msg) { delete ->
+            if (delete) {
+                viewModel.deleteBoat(boat)
+            } else {
+                viewModel.setDeleteBoat(null)
+            }
+        }
+    } ?: when (val state = flowState.response) {
         is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
-        is Error -> Spinner()
+        is Error -> {
+            Text("error")
+            Spinner()
+        }
         is Loading -> Spinner()
         Uninitialized -> Unit
     }
@@ -97,13 +113,14 @@ fun BoatList(
                         }
                     }
                     Td {
-                        Dropdown(people) {
+                        Dropdown(people, addBoat.skipper) {
                             addBoat = addBoat.copy(skipper = it)
                         }
                     }
                     Td {
                         RgButton("Add", RgButtonStyle.Primary) {
                             boatViewModel.addBoat(addBoat)
+                            addBoat = Boat()
                         }
                     }
                 }
@@ -116,29 +133,42 @@ fun BoatList(
 @Composable
 fun Dropdown(
     people: List<Person>,
-    selected: (Person) -> Unit
+    person: Person?,
+    handler: (Person) -> Unit
 ) {
     Select(attrs = {
         onChange { change ->
             change.value?.toLongOrNull()?.let { id ->
                 people.firstOrNull {
                     it.id == id
-                }?.let { selected(it) }
+                }?.let { handler(it) }
             }
         }
     }) {
         OptGroup("Club Members")
-        Option("-1") {
+        Option("-1", attrs = {
+            if (person == null) {
+                selected()
+            }
+        }) {
             Text("None")
         }
         people.filter { it.clubMember }.forEach {
-            Option(it.id.toString()) {
+            Option(it.id.toString(), attrs = {
+                if (it.id == person?.id) {
+                    selected()
+                }
+            }) {
                 Text("${it.first} ${it.last}")
             }
         }
         OptGroup("Non Members")
         people.filter { !it.clubMember }.forEach {
-            Option(it.id.toString()) {
+            Option(it.id.toString(), attrs = {
+                if (it.id == person?.id) {
+                    selected()
+                }
+            }) {
                 Text("${it.first} ${it.last}")
             }
         }
