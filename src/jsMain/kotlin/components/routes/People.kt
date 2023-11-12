@@ -15,22 +15,22 @@ import viewmodel.*
 
 @Composable
 fun People(
-    viewModel: PeopleViewModel = remember { PeopleViewModel() }
+    viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
     Div {
         flowState.editPerson?.let { person ->
             EditPerson(person, viewModel)
-        } ?: when (val state = flowState.people) {
+        } ?: when (val state = flowState.response) {
             is Complete -> PeopleLoaded(state.value, viewModel)
             is Error -> {
                 Text("Womp Womp")
-                PeopleLoaded(state.value ?: emptyList(), viewModel)
+                PeopleLoaded(state.value, viewModel)
             }
 
             is Loading -> {
                 Spinner()
-                PeopleLoaded(state.value ?: emptyList(), viewModel)
+                PeopleLoaded(state.value, viewModel)
             }
             Uninitialized -> Spinner()
         }
@@ -40,7 +40,7 @@ fun People(
 @Composable
 fun EditPerson(
     person: Person,
-    viewModel: PeopleViewModel,
+    viewModel: BoatViewModel ,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var newPerson by remember { mutableStateOf(person) }
@@ -104,8 +104,8 @@ fun EditPerson(
 
 @Composable
 fun PeopleLoaded(
-    people: List<Person>,
-    viewModel: PeopleViewModel,
+    composite: BoatPeopleComposite?,
+    viewModel: BoatViewModel,
 ) {
     Div {
         Article {
@@ -119,12 +119,12 @@ fun PeopleLoaded(
                 Th { Text("Member") }
                 Th { Text("Action") }
             }
-            people.takeIf { it.isNotEmpty() }?.let { people ->
+            composite?.people?.takeIf { it.isNotEmpty() }?.let { people ->
                 people.forEach { person ->
                     Tr {
                         Td { Text(person.first) }
                         Td { Text(person.last) }
-                        Td { Text("-") }
+                        Td { Text(viewModel.findBoatName(person, composite)) }
                         Td { Text(if (person.clubMember) "Yes" else "No") }
                         Td {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
@@ -140,7 +140,7 @@ fun PeopleLoaded(
 }
 
 @Composable
-fun AddPerson(viewModel: PeopleViewModel) {
+fun AddPerson(viewModel: BoatViewModel) {
     var first by remember { mutableStateOf("") }
     var last by remember { mutableStateOf("") }
     var member by remember { mutableStateOf(false) }
