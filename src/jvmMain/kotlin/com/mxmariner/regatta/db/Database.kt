@@ -10,11 +10,23 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
+
+class DbConfig {
+    val jdbcURL : String
+        get() = System.getProperty("jdbcurl") ?: "jdbc:postgresql://localhost:5432/regatta"
+    val user: String
+        get() = System.getProperty("user") ?: "admin"
+    val password: String
+        get() = System.getProperty("password") ?: "mysecretpassword"
+
+
+}
+
 object RegattaDatabase {
     fun init() {
+        val config = DbConfig()
         val driverClassName = "org.postgresql.Driver"
-        val jdbcURL = "jdbc:postgresql://localhost:5432/regatta"
-        val database = Database.connect(jdbcURL, driverClassName, "admin", "mysecretpassword")
+        val database = Database.connect(config.jdbcURL, driverClassName, config.user, config.password)
         transaction(database) {
             SchemaUtils.create(SeriesTable)
             SchemaUtils.create(PersonTable)

@@ -1,7 +1,9 @@
-- Log in page
-- admin user setup
+- Edit boat
+- Admin - add/ delete
+- Add edit / race classes
+- Add edit / races
+- Bootstrap
 - Race check in page
-- CSS / Styles
 - Raw (JSX like) component
 - Raw SQL & startup init & migrations 
 ```

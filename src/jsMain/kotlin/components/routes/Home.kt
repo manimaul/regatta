@@ -25,7 +25,7 @@ fun Home(
             Text("Logged in as ${loginFlowState.auth.userName}")
         }
         H4 {
-            Text("Authorization expires: ${loginFlowState.login?.expires ?: "?"}")
+            Text("Authorization expires: ${flowState.expires}")
         }
         RgButton("Copy auth token", RgButtonStyle.Primary) {
             val token = token()

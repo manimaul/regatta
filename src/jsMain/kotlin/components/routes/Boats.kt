@@ -20,7 +20,30 @@ fun Boats(
     viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    flowState.deleteBoat?.let { boat ->
+    flowState.editBoat?.let {
+        EditBoat(it, flowState.response.value?.people ?: emptyList(),  viewModel)
+    } ?: when (val state = flowState.response) {
+        is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
+        is Error -> {
+            Text("error")
+            Spinner()
+        }
+
+        is Loading -> Spinner()
+        Uninitialized -> Unit
+    }
+}
+
+@Composable
+fun EditBoat(
+    boat: Boat,
+    people: List<Person>,
+    viewModel: BoatViewModel,
+) {
+    var confirmDelete by remember { mutableStateOf(false) }
+    var newBoat by remember { mutableStateOf(boat) }
+
+    if (confirmDelete) {
         val msg = boat.skipper?.let {
             "Delete ${boat.name} owned by ${it.first} ${it.last}?"
         } ?: "Delete ${boat.name}?"
@@ -28,17 +51,65 @@ fun Boats(
             if (delete) {
                 viewModel.deleteBoat(boat)
             } else {
-                viewModel.setDeleteBoat(null)
+                confirmDelete = false
             }
         }
-    } ?: when (val state = flowState.response) {
-        is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
-        is Error -> {
-            Text("error")
-            Spinner()
+    } else {
+        Form(attrs = {
+            //todo: disable submit
+        }) {
+            Fieldset {
+                Legend { Text("Edit id:${boat.id} ${boat.name}") }
+                P {
+                    Input(InputType.Text) {
+                        id("name")
+                        value(newBoat.name)
+                        onInput { newBoat = newBoat.copy(name = it.value) }
+                    }
+                    Label("name") { Text("Name") }
+                }
+                P {
+                    Input(InputType.Text) {
+                        id("sail")
+                        value(newBoat.sailNumber)
+                        onInput { newBoat = newBoat.copy(sailNumber = it.value) }
+                    }
+                    Label("sail") { Text("Sail Number") }
+                }
+                P {
+                    Input(InputType.Text) {
+                        id("type")
+                        value(newBoat.boatType)
+                        onInput { newBoat = newBoat.copy(boatType = it.value) }
+                    }
+                    Label("type") { Text("Boat Type") }
+                }
+                P {
+                    Input(type = InputType.Number) {
+                        id("rating")
+                        onInput { newBoat = newBoat.copy(phrfRating = it.value?.toInt()) }
+                        value(newBoat.phrfRating?.toString() ?: "")
+                    }
+                    Label("rating") { Text("PHRF Rating") }
+                }
+                P {
+                    Dropdown(people, newBoat.skipper) {
+                        newBoat = newBoat.copy(skipper = it)
+                    }
+                    Text("Skipper")
+                }
+            }
         }
-        is Loading -> Spinner()
-        Uninitialized -> Unit
+        Br()
+        RgButton("Cancel", RgButtonStyle.PrimaryOutline) {
+            viewModel.setEditBoat(null)
+        }
+        RgButton("Save", RgButtonStyle.Primary) {
+            viewModel.upsertBoat(newBoat)
+        }
+        RgButton("Delete", RgButtonStyle.Error) {
+            confirmDelete = true
+        }
     }
 }
 
@@ -77,8 +148,8 @@ fun BoatList(
                             }
                         }
                         Td {
-                            RgButton("Delete", RgButtonStyle.Error) {
-                                boatViewModel.setDeleteBoat(boat)
+                            RgButton("Edit", RgButtonStyle.PrimaryOutline) {
+                                boatViewModel.setEditBoat(boat)
                             }
                         }
                     }

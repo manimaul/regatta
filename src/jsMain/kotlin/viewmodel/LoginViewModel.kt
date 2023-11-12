@@ -37,7 +37,6 @@ val loginViewModel = LoginViewModel()
 
 class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
 
-
     fun setPassword(value: String) {
         setState {
             copy(

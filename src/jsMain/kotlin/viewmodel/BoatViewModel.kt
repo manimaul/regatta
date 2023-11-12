@@ -13,7 +13,6 @@ data class BoatPeopleComposite(
 
 data class BoatState(
     val response: Async<BoatPeopleComposite> = Uninitialized,
-    val deleteBoat: Boat? = null,
     val editPerson: Person? = null,
     val editBoat: Boat? = null,
 ) : VmState
@@ -85,7 +84,7 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     }
 
     fun deleteBoat(boat: Boat) {
-        setDeleteBoat(null)
+        setEditBoat(null)
         boat.id?.let { id ->
             setState {
                 val boats = Api.deleteBoat(id).toAsync().flatMap { Api.getAllBoats().toAsync() }
@@ -100,9 +99,17 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
         }
     }
 
-    fun setDeleteBoat(boat: Boat?) {
-        setState {
-            copy(deleteBoat = boat)
+   fun setEditBoat(boat: Boat?) {
+       setState {
+           copy(editBoat = boat)
+       }
+   }
+
+    fun upsertBoat(newBoat: Boat) {
+        setEditBoat(null)
+        launch {
+            Api.postBoat(newBoat)
+            getAllBoatsAndPeople()
         }
     }
 }
