@@ -7,12 +7,13 @@ import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
 class DbConfig {
-    val jdbcURL : String
+    val jdbcURL: String
         get() = System.getProperty("jdbcurl") ?: "jdbc:postgresql://localhost:5432/regatta"
     val user: String
         get() = System.getProperty("user") ?: "admin"
@@ -75,7 +76,7 @@ object RegattaDatabase {
                 it[active] = series.active
             }.takeIf { it == 1 }?.let { series }
         } else {
-            val statement = SeriesTable.insert{
+            val statement = SeriesTable.insert {
                 it[active] = series.active
                 it[name] = series.name
             }
@@ -182,8 +183,8 @@ object RegattaDatabase {
     }
 
     suspend fun saveAuth(record: AuthRecord) = dbQuery {
-        record.id?.let {
-            val statement = AuthTable.update {
+        record.id?.let { id ->
+            val statement = AuthTable.update(where = { AuthTable.id eq id }) {
                 it[hash] = record.hash
                 it[userName] = record.userName
             }
@@ -203,7 +204,7 @@ object RegattaDatabase {
 
     suspend fun upsertBoat(boat: Boat): Boat? = dbQuery {
         if (boat.id != null) {
-            BoatTable.update {
+            BoatTable.update(where = { BoatTable.id eq boat.id }) {
                 it[name] = boat.name
                 it[sailNumber] = boat.sailNumber
                 it[boatType] = boat.boatType
@@ -213,7 +214,7 @@ object RegattaDatabase {
                     it[skipper] = skipperId
                 }
             }.takeIf { it == 1 }?.let { boat }
-        } else  {
+        } else {
             BoatTable.insert {
                 it[name] = boat.name
                 it[sailNumber] = boat.sailNumber

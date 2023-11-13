@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: regatta-postgres-service
+  namespace: regatta
+spec:
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: regatta-postgres-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regatta-postgres
+  namespace: regatta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: regatta-postgres-service
+  template:
+    metadata:
+      labels:
+        app: regatta-postgres-service
+    spec:
+      containers:
+        - name: regatta-postgres
+          image: postgres:16-bookworm
+          env:
+            - name: POSTGRES_USER
+              value: {REGATTA_PG_USER}
+            - name: POSTGRES_PASSWORD
+              value: {REGATTA_PG_PASS}
+            - name: POSTGRES_DB
+              value: regatta
+            - name: PG_DATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-volume-mount
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+      volumes:
+        - name: postgres-volume-mount
+          persistentVolumeClaim:
+            claimName: regatta-postgres-volume
+---

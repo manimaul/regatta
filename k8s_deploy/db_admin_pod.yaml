@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: regatta-db-admin
+  namespace: regatta
+spec:
+  containers:
+    - name: regatta-db-admin
+      image: debian:trixie
+      command: [ "sleep" ]
+      args: [ "infinity" ]
+      volumeMounts:
+          - name: postgres-volume-mount
+            mountPath: /opt/regatta-postgres-volume
+  volumes:
+    - name: postgres-volume-mount
+      persistentVolumeClaim:
+        claimName: regatta-postgres-volume
+---
+#  kubectl -n regatta exec --stdin --tty pod/regatta-db-admin -- bash
+#  kubectl -n regatta delete pod regatta-db-admin

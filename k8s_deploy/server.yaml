@@ -1,0 +1,82 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: regatta-scaler
+  namespace: regatta
+spec:
+  scaleTargetRef:
+    kind: ReplicaSet
+    name: regatta-deployment
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: regatta-service
+  namespace: regatta
+spec:
+  ports:
+    - name: http
+      port: 8888
+      targetPort: 8888
+  selector:
+    app: regatta-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regatta-deployment
+  namespace: regatta
+spec:
+  selector:
+    matchLabels:
+      app: regatta-service
+  template:
+    metadata:
+      labels:
+        app: regatta-service
+    spec:
+      imagePullSecrets:
+        - name: ghreg
+      containers:
+        - image: ghcr.io/manimaul/regatta:latest
+          imagePullPolicy: Always
+          name: regatta-service
+          ports:
+            - containerPort: 8888
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+          env:
+            - name: JAVA_OPTS
+              value: "-Djdbcurl=jdbc:postgresql://regatta-postgres-service.regatta.svc.cluster.local:5432/regatta -Duser={REGATTA_PG_USER} -Dpassword={REGATTA_PG_PASS}"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: regatta-ingress
+  namespace: regatta
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    haproxy.org/ssl-redirect: "true"
+spec:
+  rules:
+    - host: regatta.willkamp.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: regatta-service
+                port:
+                  number: 8888
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - regatta.willkamp.com
+      secretName: regatta-cert
+---

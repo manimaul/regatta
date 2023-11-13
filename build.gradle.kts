@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+import java.lang.IllegalStateException
 
 plugins {
     kotlin("multiplatform") version kotlinVersion
@@ -140,4 +141,87 @@ afterEvaluate {
     rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
         rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().resolution("colors", "1.4.0")
     }
+}
+
+tasks.named("installDist") {
+    dependsOn("jsBrowserProductionWebpack")
+}
+
+task<Exec>("makeImg") {
+    dependsOn( "installDist")
+    commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
+}
+
+
+task<Exec>("pubImg") {
+    mustRunAfter(":makeImg")
+    commandLine("bash", "-c", "docker push ghcr.io/manimaul/regatta:latest")
+}
+
+task<Exec>("k8sApplyServer") {
+    mustRunAfter(":pubImg")
+    commandLine("bash", "-c", "echo '${serverYaml()}' | kubectl apply -f -")
+}
+
+task<Exec>("k8sDeleteServer") {
+    commandLine("bash", "-c", "echo '${serverYaml()}' | kubectl delete -f -")
+}
+
+task<Exec>("k8sApplyDatabase") {
+    commandLine("bash", "-c", "echo '${dbYaml()}' | kubectl apply -f -")
+}
+
+task<Exec>("k8sDeleteDatabase") {
+    mustRunAfter(":pubImg")
+    commandLine("bash", "-c", "echo '${dbYaml()}' | kubectl delete -f -")
+}
+
+task<Exec>("holdOn") {
+    mustRunAfter(":pubImg")
+    commandLine("bash", "-c", "echo 'hold on' && sleep 5")
+}
+
+task<Exec>("cyclePods") {
+    mustRunAfter(":k8sApplyServer", ":pubImg", ":holdOn")
+    commandLine("bash", "-c", "kubectl -n regatta delete pods -l app=regatta-service")
+}
+
+tasks.register<GradleBuild>("deployServer") {
+    tasks = listOf(":makeImg", ":pubImg", ":k8sApplyServer", ":holdOn", ":cyclePods")
+}
+
+fun getProperty(name: String) : String {
+    if (project.hasProperty(name)) {
+        return "${project.property(name)}"
+    } else {
+        throw IllegalStateException("$name missing from ~/.gradle/gradle.properties")
+    }
+}
+
+fun dbYaml() : String {
+    val pgUser = getProperty("REGATTA_PG_USER")
+    val pgPass = getProperty("REGATTA_PG_PASS")
+    val root = File(rootProject.projectDir, "k8s_deploy/database.yaml")
+    return deploymentYaml(root, pgUser, pgPass)
+}
+
+fun serverYaml() : String {
+    val pgUser = getProperty("REGATTA_PG_USER")
+    val pgPass = getProperty("REGATTA_PG_PASS")
+    val root = File(rootProject.projectDir, "k8s_deploy/server.yaml")
+    return deploymentYaml(root, pgUser, pgPass)
+}
+
+fun deploymentYaml(root: File, pgUser: String, pgPass: String): String {
+    return root .inputStream()
+        .readBytes()
+        .toString(Charsets.UTF_8)
+        .replace(
+            "{REGATTA_PG_USER}",
+            "'$pgUser'"
+        )
+        .replace(
+            "{REGATTA_PG_PASS}",
+            "'$pgPass'"
+        )
 }
