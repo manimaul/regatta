@@ -6,42 +6,55 @@ import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
 import utils.Api
-import utils.Network
 import utils.Scopes.mainScope
 
-class SeriesViewModel {
-    private val seriesState = mutableStateOf<List<Series>>(emptyList())
-   init {
-       mainScope.launch {
-           Api.allSeries().let {
-               seriesState.value = it.body ?: emptyList()
-           }
-       }
-   }
+data class SeriesState(
+    val series: Async<List<Series>> = Uninitialized,
+    val deleteSeries: Series? = null,
+    val newSeries: Series = Series(),
+) : VmState
+
+class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
+
+    init {
+        launch {
+            setState {
+                copy(series = Api.allSeries().toAsync())
+            }
+        }
+    }
 
     fun deleteSeries(series: Series) {
-        mainScope.launch {
+        launch {
             series.id?.let {
-                Api.deleteSeries(it)
-                seriesState.value = Api.allSeries().body ?: emptyList()
+                setState {
+                    copy(
+                        deleteSeries = null,
+                        series = Api.deleteSeries(it).toAsync().flatMap {
+                            Api.allSeries().toAsync()
+                        }
+                    )
+                }
             }
         }
     }
 
-    fun addSeries(series: Series) {
-        mainScope.launch {
-            val newSeries: Series? = Api.postSeries(series) .body
-            newSeries?.let {
-                seriesState.value += newSeries
+    fun addSeries() {
+        launch {
+            setState {
+                copy(
+                    series = Api.postSeries(newSeries).toAsync().map { series.value?.plus(it) ?: emptyList() },
+                    newSeries = Series(),
+                )
             }
         }
     }
 
-   val series: List<Series>
-       get() = seriesState.value
-}
+    fun confirmDeleteSeries(series: Series?) {
+        setState { copy(deleteSeries = series) }
+    }
 
-@Composable
-fun provideSeriesViewModel(): SeriesViewModel {
-    return remember { SeriesViewModel() }
+    fun setNewSeriesName(name: String) {
+        setState { copy(newSeries = newSeries.copy(name = name)) }
+    }
 }

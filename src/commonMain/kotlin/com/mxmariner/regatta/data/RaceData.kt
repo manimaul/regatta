@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Series(
     val id: Long? = null,
-    val name: String,
+    val name: String = "",
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val active: Boolean = true
 )

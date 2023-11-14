@@ -2,35 +2,30 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Series
-import components.Column
-import components.Confirm
-import components.RgButton
-import components.RgButtonStyle
+import components.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.SeriesViewModel
-import viewmodel.provideSeriesViewModel
+import viewmodel.*
 
 @Composable
 fun Series(
-    viewModel: SeriesViewModel = provideSeriesViewModel()
+    viewModel: SeriesViewModel = remember { SeriesViewModel() }
 ) {
-    var deleteSeries: Series? by remember { mutableStateOf(null) }
-    var addName by remember { mutableStateOf("") }
+    val flowState by viewModel.flow.collectAsState()
     Div {
-        deleteSeries?.let { series ->
+        flowState.deleteSeries?.let { series ->
             Column {
                 Confirm("Delete '${series.name}'?") { delete ->
                     if (delete) {
                         viewModel.deleteSeries(series)
                     }
-                    deleteSeries = null
+                    viewModel.confirmDeleteSeries(null)
                 }
             }
-        } ?: run {
+        } ?: flowState.series.value?.let { allSeries ->
             Article {
                 H1 { Text("Series") }
                 Table(attrs = { classes("striped") }) {
@@ -42,20 +37,20 @@ fun Series(
                         Th { Text("Series Name") }
                         Th { Text("Action") }
                     }
-                    viewModel.series.forEach { series ->
+                    allSeries.forEach { series ->
                         Tr {
                             Td { Text(series.name) }
                             Td {
                                 RgButton("Delete", RgButtonStyle.Error) {
-                                    deleteSeries = series
+                                    viewModel.confirmDeleteSeries(series)
                                 }
                             }
                         }
                     }
 
                     Tr {
-                        Td {  }
-                        Td {  }
+                        Td { }
+                        Td { }
                     }
 
                     Tr {
@@ -63,21 +58,22 @@ fun Series(
                             Input(type = InputType.Text) {
                                 placeholder("Add series")
                                 onInput {
-                                    addName = it.value
+                                    viewModel.setNewSeriesName(it.value)
                                 }
-                                value(addName)
+                                value(flowState.newSeries.name)
                             }
                         }
                         Td {
                             RgButton("Add", RgButtonStyle.Primary) {
-                                viewModel.addSeries(Series(name = addName))
-                                addName = ""
+                                viewModel.addSeries()
                             }
                         }
 
                     }
                 }
             }
+        } ?: run {
+            Spinner()
         }
     }
 }
