@@ -36,4 +36,10 @@ object Api {
 
     suspend fun deleteBoat(id: Long) =
         Network.delete("boat", mapOf("id" to "$id"))
+
+    suspend fun getAllClasses() =
+        Network.get<List<RaceClass>>("allClasses")
+
+    suspend fun postClass(raceClass: RaceClass) =
+        Network.post<RaceClass, RaceClass>("raceClass", raceClass)
 }

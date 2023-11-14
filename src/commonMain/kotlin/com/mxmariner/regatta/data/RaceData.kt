@@ -32,6 +32,7 @@ data class RaceClass(
     val description: String?,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val active: Boolean = true
+    //todo: id of superClass? how to store tree in db
 )
 
 @Serializable

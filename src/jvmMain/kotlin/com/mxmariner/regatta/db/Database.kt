@@ -1,9 +1,7 @@
 package com.mxmariner.regatta.db
 
-import com.mxmariner.regatta.data.AuthRecord
-import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.Series
+
+import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -81,17 +79,6 @@ object RegattaDatabase {
                 it[name] = series.name
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
-        }
-    }
-
-    private fun resultRowToMaybePerson(row: ResultRow): Person? {
-        return row[PersonTable.id]?.let {
-            Person(
-                id = it,
-                first = row[PersonTable.first],
-                last = row[PersonTable.last],
-                clubMember = row[PersonTable.clubMember],
-            )
         }
     }
 
@@ -230,6 +217,22 @@ object RegattaDatabase {
         }
     }
 
+    suspend fun upsertRaceClass(item: RaceClass): RaceClass? = dbQuery {
+        if (item.id != null) {
+            RaceClassTable.update(where = { RaceClassTable.id eq item.id }) {
+                it[name] = item.name
+                it[description] = item.description
+                it[active] = item.active
+            }.takeIf { it == 1 }?.let { item }
+        } else {
+            RaceClassTable.insert {
+                it[name] = item.name
+                it[description] = item.description
+                it[active] = item.active
+            }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
+        }
+    }
+
     suspend fun allBoats(): List<Boat> = dbQuery {
         val query = (BoatTable innerJoin PersonTable).selectAll()
         query.map {
@@ -265,4 +268,22 @@ object RegattaDatabase {
             BoatTable.id eq id
         }
     }
+
+    suspend fun allRaceClasses() = dbQuery {
+        RaceClassTable.selectAll().map(::resultRowToClass)
+    }
+
+    private fun resultRowToClass(row: ResultRow) = RaceClass(
+        id = row[RaceClassTable.id],
+        name = row[RaceClassTable.name],
+        description = row[RaceClassTable.description],
+        active = row[RaceClassTable.active]
+    )
+
+    suspend fun deleteRaceClass(id: Long) = dbQuery {
+        RaceClassTable.deleteWhere {
+            RaceClassTable.id eq id
+        }
+    }
+
 }
