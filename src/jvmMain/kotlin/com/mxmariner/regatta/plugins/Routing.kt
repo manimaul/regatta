@@ -25,6 +25,9 @@ fun Application.configureRouting() {
         get("/allClasses".versionedApi()) {
             call.respond(RegattaDatabase.allRaceClasses())
         }
+        get("/allCategories".versionedApi()) {
+            call.respond(RegattaDatabase.allCategories())
+        }
         get("/find/series".versionedApi()) {
             call.request.queryParameters["name"]?.let {
                 RegattaDatabase.findSeries(it)
@@ -69,6 +72,12 @@ fun Application.configureRouting() {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteRaceClass(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            post("/raceCategory".versionedApi()) {
+                val body = call.receive<RaceCategory>()
+                RegattaDatabase.upsertRaceCategory(body)?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.InternalServerError)
             }
             post("/raceClass".versionedApi()) {
                 val body = call.receive<RaceClass>()

@@ -1,5 +1,8 @@
 package com.mxmariner.regatta.db
 
+import com.mxmariner.regatta.db.BoatTable.nullable
+import com.mxmariner.regatta.db.BoatTable.references
+import com.mxmariner.regatta.db.RaceClassTable.autoIncrement
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
@@ -28,11 +31,19 @@ object AuthTable : Table() {
     override val primaryKey = PrimaryKey(PersonTable.id)
 }
 
+object RaceClassCategoryTable : Table() {
+    val id = long("id").autoIncrement()
+    val name = varchar("name", 128)
+    val active = bool("active")
+    override val primaryKey = PrimaryKey(RaceClassCategoryTable.id)
+}
+
 object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val description = varchar("description", 1024).nullable()
     val active = bool("active")
+    val category = (long("category") references RaceClassCategoryTable.id)
     override val primaryKey = PrimaryKey(id)
 }
 

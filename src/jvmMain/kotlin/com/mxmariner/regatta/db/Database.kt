@@ -5,7 +5,6 @@ import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -26,14 +25,21 @@ object RegattaDatabase {
         val config = DbConfig()
         val driverClassName = "org.postgresql.Driver"
         val database = Database.connect(config.jdbcURL, driverClassName, config.user, config.password)
+        val tables = arrayOf(
+            SeriesTable,
+            PersonTable,
+            RaceClassCategoryTable,
+            RaceClassTable,
+            RaceTable,
+            BoatTable,
+            RaceResultsTable,
+            AuthTable,
+        )
         transaction(database) {
-            SchemaUtils.create(SeriesTable)
-            SchemaUtils.create(PersonTable)
-            SchemaUtils.create(RaceClassTable)
-            SchemaUtils.create(RaceTable)
-            SchemaUtils.create(BoatTable)
-            SchemaUtils.create(RaceResultsTable)
-            SchemaUtils.create(AuthTable)
+            SchemaUtils.create(*tables)
+            execInBatch(
+                SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
+            )
         }
     }
 
@@ -217,18 +223,34 @@ object RegattaDatabase {
         }
     }
 
+    suspend fun upsertRaceCategory(item: RaceCategory) = dbQuery {
+        if (item.id != null) {
+            RaceClassCategoryTable.update(where = { RaceClassTable.id eq item.id }) {
+                it[name] = item.name
+                it[active] = item.active
+            }.takeIf { it == 1 }?.let { item }
+        } else {
+            RaceClassCategoryTable.insert {
+                it[name] = item.name
+                it[active] = item.active
+            }.resultedValues?.singleOrNull()?.let(::resultRowToCategory)
+        }
+    }
+
     suspend fun upsertRaceClass(item: RaceClass): RaceClass? = dbQuery {
         if (item.id != null) {
             RaceClassTable.update(where = { RaceClassTable.id eq item.id }) {
                 it[name] = item.name
                 it[description] = item.description
                 it[active] = item.active
+                it[category] = item.category
             }.takeIf { it == 1 }?.let { item }
         } else {
             RaceClassTable.insert {
                 it[name] = item.name
                 it[description] = item.description
                 it[active] = item.active
+                it[category] = item.category
             }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
         }
     }
@@ -245,6 +267,12 @@ object RegattaDatabase {
         )
     }
 
+    suspend fun allCategories() : List<RaceClassCategory> = dbQuery {
+        RaceClassCategoryTable.selectAll().map(::resultRowToClassCategory).map { cat ->
+            cat.copy(children = RaceClassTable.select { RaceClassTable.category eq cat.id!! }.map(::resultRowToClass))
+        }
+    }
+
     suspend fun findBoatForPerson(personId: Long): Boat? = dbQuery {
         val query = (BoatTable innerJoin PersonTable)
             .select { BoatTable.skipper eq personId }
@@ -254,13 +282,18 @@ object RegattaDatabase {
         }
     }
 
-    private fun resultRowToBoat(row: ResultRow, person: Person? = null) = Boat(
+    private fun resultRowToBoat(
+        row: ResultRow,
+        person: Person? = null,
+        raceClass: RaceClass? = null,
+    ) = Boat(
         id = row[BoatTable.id],
         name = row[BoatTable.name],
         sailNumber = row[BoatTable.sailNumber],
         boatType = row[BoatTable.boatType],
         phrfRating = row[BoatTable.phrfRating],
-        skipper = person
+        skipper = person,
+        raceClass = raceClass
     )
 
     suspend fun deleteBoat(id: Long) = dbQuery {
@@ -277,7 +310,19 @@ object RegattaDatabase {
         id = row[RaceClassTable.id],
         name = row[RaceClassTable.name],
         description = row[RaceClassTable.description],
-        active = row[RaceClassTable.active]
+        active = row[RaceClassTable.active],
+        category = row[RaceClassTable.category],
+    )
+    private fun resultRowToClassCategory(row: ResultRow) = RaceClassCategory(
+        id = row[RaceClassCategoryTable.id],
+        name = row[RaceClassCategoryTable.name],
+        active = row[RaceClassCategoryTable.active],
+    )
+
+    private fun resultRowToCategory(row: ResultRow) = RaceCategory(
+        id = row[RaceClassCategoryTable.id],
+        name = row[RaceClassCategoryTable.name],
+        active = row[RaceClassCategoryTable.active],
     )
 
     suspend fun deleteRaceClass(id: Long) = dbQuery {
@@ -285,5 +330,4 @@ object RegattaDatabase {
             RaceClassTable.id eq id
         }
     }
-
 }

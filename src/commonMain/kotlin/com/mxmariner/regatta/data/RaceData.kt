@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.mxmariner.regatta.data
 
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 
@@ -26,13 +29,29 @@ data class Person(
 )
 
 @Serializable
+data class RaceClassCategory(
+    val id: Long? = null,
+    val name: String,
+    val children: List<RaceClass>? = null,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true,
+)
+@Serializable
+data class RaceCategory(
+    val id: Long? = null,
+    val name: String,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val active: Boolean = true,
+)
+
+@Serializable
 data class RaceClass(
     val id: Long? = null,
     val name: String,
     val description: String?,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
-    val active: Boolean = true
-    //todo: id of superClass? how to store tree in db
+    val active: Boolean = true,
+    val category: Long,
 )
 
 @Serializable
@@ -54,6 +73,7 @@ data class Boat(
     val boatType: String = "",
     val phrfRating: Int? = null,
     val skipper: Person? = null,
+    val raceClass: RaceClass? = null,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val active: Boolean = true
 )

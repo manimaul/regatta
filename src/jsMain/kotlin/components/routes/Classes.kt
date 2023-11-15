@@ -2,11 +2,12 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.RaceClass
-import components.RgButton
-import components.RgButtonStyle
-import components.Spinner
+import com.mxmariner.regatta.data.RaceClassCategory
+import components.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
@@ -14,7 +15,8 @@ import utils.Api
 import viewmodel.*
 
 data class ClassesState(
-    val classList: Async<List<RaceClass>> = Uninitialized
+    val classList: Async<List<RaceClassCategory>> = Uninitialized,
+    val editClass: RaceClass? = null,
 ) : VmState
 class ClassesViewModel : BaseViewModel<ClassesState>(ClassesState()){
 
@@ -26,18 +28,26 @@ class ClassesViewModel : BaseViewModel<ClassesState>(ClassesState()){
         launch {
             pause?.let { delay(it) }
             setState {
-                copy(classList = Api.getAllClasses().toAsync())
+                copy(classList = Api.getAllCategories().toAsync())
             }
         }
     }
 
-    fun setEditClass(rc: RaceClass) {
-        TODO("Not yet implemented")
+    fun setEditClass(rc: RaceClass?) {
+        setState { copy(editClass = rc) }
     }
 
-    fun upsertClass(raceClass: RaceClass) {
+    fun upsertCategory(category: RaceClassCategory) {
         setState {
-            val list = Api.postClass(raceClass).toAsync().flatMap { Api.getAllClasses().toAsync() }
+            val list = Api.postCategory(category).toAsync().flatMap { Api.getAllCategories().toAsync() }
+            copy(
+                classList = list
+            )
+        }
+    }
+    fun upsertClass(raceClass: RaceClass, category: RaceClassCategory) {
+        setState {
+            val list = Api.postClass(raceClass).toAsync().flatMap { Api.getAllCategories().toAsync() }
             copy(
                 classList = list
             )
@@ -52,7 +62,7 @@ fun Classes(
     val flowState by viewModel.flow.collectAsState()
 
     when (val list = flowState.classList) {
-        is Complete -> ClassList(viewModel, list.value)
+        is Complete -> CategoryList(viewModel, list.value)
         is Error -> {
             P {
                 Text("Something went wrong")
@@ -71,39 +81,84 @@ fun Classes(
 
 
 @Composable
-fun ClassList(
+fun CategoryList(
     viewModel: ClassesViewModel,
-    list: List<RaceClass>,
+    list: List<RaceClassCategory>,
 ) {
 
     Div {
         Article {
             H1 { Text("Race Classes") }
         }
-        Table(attrs = { classes("striped") }) {
-            Tr {
-                Th { Text("Name") }
-                Th { Text("Description") }
-                Th { Text("Action") }
-            }
-                list.forEach { rc ->
-                    Tr {
-                        Td { Text(rc.name) }
-                        Td { Text(rc.description ?: "-") }
-                        Td {
-                            RgButton("Edit", RgButtonStyle.PrimaryOutline) {
-                                viewModel.setEditClass(rc)
-                            }
-                        }
+        list.forEach { cat ->
+            Table(attrs = { classes("striped") }) {
+                Caption {
+                    H2 {
+                        Text(cat.name)
                     }
                 }
-                AddClass(viewModel)
+                Tr {
+                    Th { Text("Name") }
+                    Th { Text("Description") }
+                    Th { Text("Action") }
+                }
+                ClassRow(viewModel, cat.children ?: emptyList())
+                AddClass(viewModel, cat)
+            }
+        }
+        AddCategory(viewModel)
+    }
+}
+
+@Composable
+fun ClassRow(
+    viewModel: ClassesViewModel,
+    list: List<RaceClass>,
+) {
+
+    list.forEach { rc ->
+        Tr {
+            Td { Text(rc.name) }
+            Td { Text(rc.description ?: "-") }
+            Td {
+                RgButton("Edit", RgButtonStyle.PrimaryOutline) {
+                    viewModel.setEditClass(rc)
+                }
+            }
         }
     }
 }
 
 @Composable
-fun AddClass(viewModel: ClassesViewModel) {
+fun AddCategory(
+    viewModel: ClassesViewModel,
+) {
+    var name by remember { mutableStateOf("") }
+    Br()
+    Br()
+    Row {
+        Col4 {
+            Input(type = InputType.Text) {
+                placeholder("Name")
+                onInput {
+                    name = it.value
+                }
+                value(name)
+            }
+        }
+        Col4 {
+            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank() ) {
+                viewModel.upsertCategory(RaceClassCategory(name = name))
+                name = ""
+            }
+        }
+    }
+}
+@Composable
+fun AddClass(
+    viewModel: ClassesViewModel,
+    category: RaceClassCategory,
+) {
     var name by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
     Tr {
@@ -125,11 +180,10 @@ fun AddClass(viewModel: ClassesViewModel) {
                 value(desc)
             }
         }
-        Td { }
+        Td {  }
         Td {
             RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank()) {
-                viewModel.upsertClass(RaceClass(name = name, description = desc ))
-//                viewModel.upsertPerson(Person(first = first, last = last, clubMember = member))
+                viewModel.upsertClass(RaceClass(name = name, description = desc, category = category.id!!), category)
                 name = ""
                 desc = ""
             }

@@ -40,6 +40,11 @@ object Api {
     suspend fun getAllClasses() =
         Network.get<List<RaceClass>>("allClasses")
 
+    suspend fun getAllCategories() =
+        Network.get<List<RaceClassCategory>>("allCategories")
+
     suspend fun postClass(raceClass: RaceClass) =
         Network.post<RaceClass, RaceClass>("raceClass", raceClass)
+    suspend fun postCategory(raceClass: RaceClassCategory) =
+        Network.post<RaceClassCategory, RaceClassCategory>("raceCategory", raceClass)
 }
