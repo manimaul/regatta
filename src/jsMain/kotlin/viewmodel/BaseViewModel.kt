@@ -1,12 +1,12 @@
 package viewmodel
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import utils.NetworkResponse
-import utils.Scopes
-import kotlin.coroutines.CoroutineContext
 
 interface VmState
 
@@ -94,8 +94,7 @@ data class Error<out T>(
 
 abstract class BaseViewModel<T : VmState>(
     initialState: T,
-    context: CoroutineContext = Scopes.mainScope.coroutineContext
-) : CoroutineScope by CoroutineScope(context) {
+) : CoroutineScope by CoroutineScope(SupervisorJob() + Dispatchers.Default) {
     private val internalState = MutableStateFlow(initialState)
     val flow: StateFlow<T>
         get() = internalState

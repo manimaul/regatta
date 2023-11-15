@@ -1,6 +1,5 @@
 package viewmodel
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -39,7 +38,7 @@ class HomeViewModel(
 ) : BaseViewModel<HomeState>(HomeState()) {
 
     init {
-        launch(Dispatchers.Unconfined) {
+        launch {
             while (true) {
                 delay(250)
                 setState {
