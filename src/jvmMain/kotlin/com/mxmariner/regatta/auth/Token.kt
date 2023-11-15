@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 
 object Token {
 
-    private val expiresIn = (60 * 60 * 8).seconds
+    private val expiresIn = (60 * 60 * 24 * 30).seconds
 
     object Admin {
         const val name = "admin-auth-bearer"

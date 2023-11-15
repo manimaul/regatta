@@ -3,8 +3,8 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import org.jetbrains.compose.web.dom.P
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.H5
 import viewmodel.*
 
 @Composable
@@ -13,6 +13,10 @@ fun Nav(
     loginVm: LoginViewModel = loginViewModel,
 ) {
     val loginFlowState by loginVm.flow.collectAsState()
+    val clockState by loginVm.clockFlow.collectAsState()
+    H4 { Text("Regatta ${clockState.display}") }
+    H5 { Text("Login authorization expires in: ${clockState.expiresDisplay}") }
+    Hr()
     P {
         (loginFlowState.login?.let {
             arrayOf(

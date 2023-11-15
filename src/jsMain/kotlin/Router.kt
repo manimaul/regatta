@@ -2,8 +2,6 @@ import androidx.compose.runtime.Composable
 import components.routes.*
 import org.jetbrains.compose.web.css.Style
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.H1
-import org.jetbrains.compose.web.dom.Hr
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
 import viewmodel.Route
@@ -19,10 +17,6 @@ fun Router(
     Div(attrs = {
         classes(AppStyle.regattaStyle)
     }) {
-        H1 {
-            Text("Regatta")
-        }
-        Hr()
         components.Nav()
         when (viewModel.route) {
             Route.Home -> Home()

@@ -59,7 +59,7 @@ private fun loginExpires(login: LoginResponse?): String {
         } else {
             "$days days, $hours hours, $minutes minutes, $seconds seconds"
         }
-    } ?: ""
+    } ?: "NOT LOGGED IN"
 }
 
 data class ClockState(
