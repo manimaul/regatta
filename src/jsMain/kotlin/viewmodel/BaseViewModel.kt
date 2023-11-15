@@ -123,9 +123,12 @@ abstract class BaseViewModel<T : VmState>(
 //        }
 //    }
 
-    protected fun setState(reducer: suspend T.() -> T) {
+    protected fun <A> MutableStateFlow<A>.setState(reducer: suspend A.() -> A) {
         launch {
-            internalState.value = reducer(internalState.value)
+            value = reducer(value)
         }
+    }
+    protected fun setState(reducer: suspend T.() -> T) {
+        internalState.setState(reducer)
     }
 }

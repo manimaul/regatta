@@ -40,7 +40,7 @@ fun Nav(
             Text("${Typography.nbsp}")
         }
 
-        if (loginFlowState.state== LoginStatus.LoggedIn) {
+        if (loginFlowState.loginStatus== LoginStatus.LoggedIn) {
             RgButton("Logout", RgButtonStyle.Primary) {
                 loginVm.logout()
             }

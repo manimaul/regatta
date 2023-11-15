@@ -4,10 +4,15 @@ import com.mxmariner.regatta.data.AuthRecord
 import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.toJSDate
 import utils.*
-
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 enum class LoginStatus {
     Loading,
@@ -21,22 +26,64 @@ private fun initialState(): LoginState {
     val savedLogin = localStoreGet<LoginResponse>()?.takeIf { !it.isExpired() }
     return LoginState(
         login = savedLogin,
-        state = savedLogin?.let { LoginStatus.LoggedIn } ?: LoginStatus.Ready
+        loginStatus = savedLogin?.let { LoginStatus.LoggedIn } ?: LoginStatus.Ready
     )
 }
 
 data class LoginState(
     val auth: AuthRecord = AuthRecord(hash = "", userName = localStoreGet("username") ?: ""),
     val pass: String = "",
-    val state: LoginStatus = LoginStatus.Ready,
+    val loginStatus: LoginStatus = LoginStatus.Ready,
     val errorMessage: String? = null,
     val login: LoginResponse? = localStoreGet<LoginResponse>()
+) : VmState
+
+private fun getClockValue(): String {
+    val now = Clock.System.now()
+    return now.toJSDate().toLocaleTimeString()
+}
+
+private fun loginExpires(login: LoginResponse?): String {
+    return login?.expires?.let {
+        var remaining = it.minus(Clock.System.now())
+        val days = remaining.inWholeDays
+        remaining = remaining.minus(days.days)
+        val hours = remaining.inWholeHours
+        remaining = remaining.minus(hours.hours)
+        val minutes = remaining.inWholeMinutes
+        remaining = remaining.minus(minutes.minutes)
+        val seconds = remaining.inWholeSeconds
+        if (remaining.isNegative()) {
+            loginViewModel.logout(3000)
+            "EXPIRED"
+        } else {
+            "$days days, $hours hours, $minutes minutes, $seconds seconds"
+        }
+    } ?: ""
+}
+
+data class ClockState(
+    val display: String = "",
+    val expiresDisplay: String = "",
 ) : VmState
 
 val loginViewModel = LoginViewModel()
 
 class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
+    private val clockState = MutableStateFlow(ClockState())
+    val clockFlow: StateFlow<ClockState>
+        get() = clockState
 
+    init {
+        launch {
+            while (true) {
+                delay(250)
+                clockState.setState {
+                    ClockState(getClockValue(), loginExpires(flow.value.login))
+                }
+            }
+        }
+    }
     fun setPassword(value: String) {
         setState {
             copy(
@@ -51,7 +98,7 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
 
     fun submitNew() {
         setState {
-            copy(state = LoginStatus.Loading)
+            copy(loginStatus = LoginStatus.Loading)
         }
         launch {
             val response = Api.postAuth(flow.value.auth)
@@ -59,12 +106,12 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
                 setState {
                     copy(
                         auth = it,
-                        state = LoginStatus.Complete
+                        loginStatus = LoginStatus.Complete
                     )
                 }
             } ?: setState {
                 copy(
-                    state = LoginStatus.Failed,
+                    loginStatus = LoginStatus.Failed,
                     errorMessage = "${response.status} ${response.statusText}",
                 )
             }
@@ -75,18 +122,20 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
         }
     }
 
-    fun logout() {
-        localStoreSet("username", "")
-        localStoreSet<LoginResponse>(null)
+    fun logout(pause: Long? = null) {
         setState {
-            initialState()
+            pause?.let { delay(it) }
+            localStoreSet("username", "")
+            localStoreSet<LoginResponse>(null)
+            val state = initialState()
+            routeViewModel.setRoute(Route.Home)
+            state
         }
-        routeViewModel.setRoute(Route.Home)
     }
 
     fun login() {
         setState {
-            copy(state = LoginStatus.Loading)
+            copy(loginStatus = LoginStatus.Loading)
         }
         launch {
             val time = Clock.System.now()
@@ -104,14 +153,14 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
                 println("storing login $it")
                 setState {
                     copy(
-                        state = LoginStatus.LoggedIn,
+                        loginStatus = LoginStatus.LoggedIn,
                         login = it,
                     )
                 }
                 routeViewModel.setRoute(Route.Home)
             } ?: setState {
                 copy(
-                    state = LoginStatus.Failed,
+                    loginStatus = LoginStatus.Failed,
                     errorMessage = "${response.status} ${response.statusText}"
                 )
             }
@@ -122,7 +171,7 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
         launch {
             delay(3000)
             setState {
-                copy(state = LoginStatus.Ready)
+                copy(loginStatus = LoginStatus.Ready)
             }
         }
     }

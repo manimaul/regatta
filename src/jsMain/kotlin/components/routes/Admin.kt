@@ -18,7 +18,7 @@ import viewmodel.routeViewModel
 fun Admin(viewModel: LoginViewModel = loginViewModel) {
     val flowState by viewModel.flow.collectAsState()
     Div {
-        when (flowState.state) {
+        when (flowState.loginStatus) {
             LoginStatus.Loading -> Progress {  }
             LoginStatus.Ready -> {
                 Login()

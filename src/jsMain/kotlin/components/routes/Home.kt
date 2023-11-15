@@ -3,7 +3,6 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import components.RgButton
 import components.RgButtonStyle
 import kotlinx.browser.window
@@ -11,21 +10,23 @@ import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Text
 import utils.token
-import viewmodel.HomeViewModel
 import viewmodel.LoginStatus
+import viewmodel.LoginViewModel
+import viewmodel.loginViewModel
 
 @Composable
 fun Home(
-    viewModel: HomeViewModel = remember { HomeViewModel() },
+    viewModel: LoginViewModel = loginViewModel,
 ) {
-    val flowState by viewModel.flow.collectAsState()
-    val loginFlowState by viewModel.loginVm.flow.collectAsState()
-    if (loginFlowState.state == LoginStatus.LoggedIn) {
+    val state by viewModel.flow.collectAsState()
+    val clockState by viewModel.clockFlow.collectAsState()
+
+    if (state.loginStatus == LoginStatus.LoggedIn) {
         H4 {
-            Text("Logged in as ${loginFlowState.auth.userName}")
+            Text("Logged in as ${state.auth.userName}")
         }
         H4 {
-            Text("Authorization expires: ${flowState.expires}")
+            Text("Authorization expires: ${clockState.expiresDisplay}")
         }
         RgButton("Copy auth token", RgButtonStyle.Primary) {
             val token = token()
@@ -34,7 +35,7 @@ fun Home(
         }
     }
     Div {
-        H4 { Text(flowState.clock) }
+        H4 { Text(clockState.display) }
     }
 }
 
