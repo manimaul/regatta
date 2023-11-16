@@ -203,6 +203,7 @@ object RegattaDatabase {
                 it[boatType] = boat.boatType
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
+                it[currentClass] = boat.raceClass?.id
                 boat.skipper?.id?.let { skipperId ->
                     it[skipper] = skipperId
                 }
@@ -214,6 +215,7 @@ object RegattaDatabase {
                 it[boatType] = boat.boatType
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
+                it[currentClass] = boat.raceClass?.id
                 boat.skipper?.id?.let { skipperId ->
                     it[skipper] = skipperId
                 }
@@ -256,18 +258,28 @@ object RegattaDatabase {
     }
 
     suspend fun allBoats(): List<Boat> = dbQuery {
-        val query = (BoatTable innerJoin PersonTable).selectAll()
-        query.map {
-            val person = resultRowToPerson(it)
-            resultRowToBoat(it, person)
+        BoatTable.innerJoin(PersonTable).innerJoin(RaceClassTable).selectAll().map { row ->
+            val person = resultRowToPerson(row)
+            val raceClass = resultRowToClass(row)
+            resultRowToBoat(row, person, raceClass)
         }.plus(
-            BoatTable.select { BoatTable.skipper eq null }.map {
+            BoatTable.innerJoin(PersonTable).select { BoatTable.currentClass eq (null) }.map {
+                val person = resultRowToPerson(it)
+                resultRowToBoat(it, person, null)
+            }
+        ).plus(
+            BoatTable.innerJoin(RaceClassTable).select { BoatTable.skipper eq (null) }.map {
+                val person = resultRowToPerson(it)
+                resultRowToBoat(it, person, null)
+            }
+        ).plus(
+            BoatTable.select { (BoatTable.skipper eq null) and (BoatTable.currentClass eq null) }.map {
                 resultRowToBoat(it, null)
             }
         )
     }
 
-    suspend fun allCategories() : List<RaceClassCategory> = dbQuery {
+    suspend fun allCategories(): List<RaceClassCategory> = dbQuery {
         RaceClassCategoryTable.selectAll().map(::resultRowToClassCategory).map { cat ->
             cat.copy(children = RaceClassTable.select { RaceClassTable.category eq cat.id!! }.map(::resultRowToClass))
         }
@@ -313,6 +325,7 @@ object RegattaDatabase {
         active = row[RaceClassTable.active],
         category = row[RaceClassTable.category],
     )
+
     private fun resultRowToClassCategory(row: ResultRow) = RaceClassCategory(
         id = row[RaceClassCategoryTable.id],
         name = row[RaceClassCategoryTable.name],

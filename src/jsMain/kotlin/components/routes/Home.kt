@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import components.RgButton
 import components.RgButtonStyle
 import kotlinx.browser.window
-import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Text
 import utils.token

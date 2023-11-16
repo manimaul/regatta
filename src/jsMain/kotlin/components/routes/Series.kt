@@ -1,14 +1,16 @@
 package components.routes
 
-import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.Series
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import components.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.*
+import viewmodel.SeriesViewModel
 
 @Composable
 fun Series(

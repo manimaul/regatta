@@ -6,13 +6,12 @@ import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import utils.Api
-import viewmodel.*
+import utils.*
+import viewmodel.BaseViewModel
+import viewmodel.VmState
 
 data class ClassesState(
     val classList: Async<List<RaceClassCategory>> = Uninitialized,

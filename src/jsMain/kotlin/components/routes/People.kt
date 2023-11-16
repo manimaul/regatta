@@ -11,7 +11,12 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
-import viewmodel.*
+import utils.Complete
+import utils.Error
+import utils.Loading
+import utils.Uninitialized
+import viewmodel.BoatPeopleComposite
+import viewmodel.BoatViewModel
 
 @Composable
 fun People(

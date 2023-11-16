@@ -1,12 +1,8 @@
 package viewmodel
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
-import utils.Api
-import utils.Scopes.mainScope
+import utils.*
 
 data class SeriesState(
     val series: Async<List<Series>> = Uninitialized,

@@ -13,7 +13,11 @@ import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
-import viewmodel.*
+import utils.Complete
+import utils.Error
+import utils.Loading
+import utils.Uninitialized
+import viewmodel.BoatViewModel
 
 @Composable
 fun Boats(

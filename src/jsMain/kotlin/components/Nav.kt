@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.jetbrains.compose.web.dom.*
-import org.jetbrains.compose.web.dom.H5
 import viewmodel.*
 
 @Composable

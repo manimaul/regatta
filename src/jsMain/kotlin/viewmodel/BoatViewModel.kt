@@ -2,13 +2,15 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
+import com.mxmariner.regatta.data.RaceClass
 import kotlinx.coroutines.launch
-import utils.Api
+import utils.*
 
 
 data class BoatPeopleComposite(
     val boats: List<Boat>,
     val people: List<Person>,
+    val raceClass: List<RaceClass>,
 )
 
 data class BoatState(
@@ -26,8 +28,8 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     private fun getAllBoatsAndPeople() {
         setState {
             copy(
-                response = combineAsync(Api.getAllBoats(), Api.getAllPeople()) { boats, people ->
-                    BoatPeopleComposite(boats, people)
+                response = combineAsync(Api.getAllBoats(), Api.getAllPeople(), Api.getAllClasses()) { boats, people, raceClasses ->
+                    BoatPeopleComposite(boats, people, raceClasses)
                 }
             )
         }
