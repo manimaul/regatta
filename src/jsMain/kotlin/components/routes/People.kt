@@ -55,6 +55,7 @@ fun PeopleLoaded(
                 }
             }
             RgTbody {
+                AddPerson(viewModel)
                 composite?.people?.takeIf { it.isNotEmpty() }?.let { people ->
                     people.forEach { person ->
                         RgTr {
@@ -70,7 +71,6 @@ fun PeopleLoaded(
                         }
                     }
                 }
-                AddPerson(viewModel)
             }
         }
     }
@@ -81,12 +81,6 @@ fun AddPerson(viewModel: BoatViewModel) {
     var first by remember { mutableStateOf("") }
     var last by remember { mutableStateOf("") }
     var member by remember { mutableStateOf(false) }
-    RgTr {
-        RgTd(4) {
-            Br()
-            H6 { Text("Add person") }
-        }
-    }
     RgTr {
         RgTd {
             Input(type = InputType.Text) {

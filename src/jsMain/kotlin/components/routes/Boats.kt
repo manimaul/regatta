@@ -5,20 +5,15 @@ import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
-import components.Confirm
-import components.RgButton
-import components.RgButtonStyle
-import components.Spinner
+import components.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
-import utils.Complete
-import utils.Error
-import utils.Loading
-import utils.Uninitialized
+import org.jetbrains.compose.web.dom.Table
+import utils.*
 import viewmodel.BoatViewModel
 
 @Composable
@@ -97,7 +92,9 @@ fun EditBoat(
                 P {
                     Input(type = InputType.Text) {
                         id("rating")
-                        onInput { newBoat = newBoat.copy(phrfRating = it.value.toIntOrNull()) }
+                        onInput {
+                            newBoat = newBoat.copy(phrfRating = it.value.digits(3).toIntOrNull())
+                        }
                         value(newBoat.phrfRating?.toString() ?: "")
                     }
                     Label("rating") { Text("PHRF Rating") }
@@ -136,14 +133,11 @@ fun BoatList(
     categories: List<RaceClassCategory>,
     boatViewModel: BoatViewModel,
 ) {
-    var addBoat by remember { mutableStateOf(Boat()) }
     Div {
-        Article {
-            Table(attrs = { classes("table") }) {
-                Caption {
-                    Text("${Clock.System.now().toJSDate().getFullYear()}")
-                }
-                Tr {
+        H1 { Text("Boats") }
+        RgTable {
+            RgThead {
+                RgTr {
                     Th { Text("Boat Name") }
                     Th { Text("Class") }
                     Th { Text("Skipper") }
@@ -152,73 +146,94 @@ fun BoatList(
                     Th { Text("PHRF Rating") }
                     Th { Text("Action") }
                 }
+            }
+            RgTbody {
+                AddBoat(categories, people, boatViewModel)
                 boats.forEach { boat ->
-                    Tr {
-                        Td { Text(boat.name) }
-                        Td { Text(boat.raceClass?.name ?: "None") }
-                        Td {
+                    RgTr {
+                        RgTd { Text(boat.name) }
+                        RgTd { Text(boat.raceClass?.name ?: "None") }
+                        RgTd {
                             boat.skipper?.let {
                                 Text(
                                     "${boat.skipper.first} ${boat.skipper.last}"
                                 )
                             }
                         }
-                        Td { Text(boat.sailNumber) }
-                        Td { Text(boat.boatType) }
-                        Td { Text(boat.phrfRating?.let { "$it" } ?: "None") }
-                        Td {
+                        RgTd { Text(boat.sailNumber) }
+                        RgTd { Text(boat.boatType) }
+                        RgTd { Text(boat.phrfRating?.let { "$it" } ?: "None") }
+                        RgTd {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
                                 boatViewModel.setEditBoat(boat)
                             }
                         }
                     }
                 }
-                Tr {
-                    Td {
-                        Input(type = InputType.Text) {
-                            placeholder("Name")
-                            onInput { addBoat = addBoat.copy(name = it.value) }
-                            value(addBoat.name)
-                        }
-                    }
-                    Td {
-                        ClassDropdown(categories, addBoat.raceClass) {
-                            addBoat = addBoat.copy(raceClass = it)
-                        }
-                    }
-                    Td {
-                        SkipperDropdown(people, addBoat.skipper) {
-                            addBoat = addBoat.copy(skipper = it)
-                        }
-                    }
-                    Td {
-                        Input(type = InputType.Text) {
-                            placeholder("Sail number")
-                            onInput { addBoat = addBoat.copy(sailNumber = it.value) }
-                            value(addBoat.sailNumber)
-                        }
-                    }
-                    Td {
-                        Input(type = InputType.Text) {
-                            placeholder("Type")
-                            onInput { addBoat = addBoat.copy(boatType = it.value) }
-                            value(addBoat.boatType)
-                        }
-                    }
-                    Td {
-                        Input(type = InputType.Text) {
-                            placeholder("Rating")
-                            onInput { addBoat = addBoat.copy(phrfRating = it.value.toIntOrNull()) }
-                            value(addBoat.phrfRating?.toString() ?: "")
-                        }
-                    }
-                    Td {
-                        RgButton("Add", RgButtonStyle.Primary) {
-                            boatViewModel.addBoat(addBoat)
-                            addBoat = Boat()
-                        }
-                    }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun AddBoat(
+    categories: List<RaceClassCategory>,
+    people: List<Person>,
+    boatViewModel: BoatViewModel,
+) {
+    var addBoat by remember { mutableStateOf(Boat()) }
+    var phrfRating by remember { mutableStateOf("") }
+    RgTr {
+        RgTd {
+            Input(type = InputType.Text) {
+                placeholder("Name")
+                classes("form-control")
+                onInput { addBoat = addBoat.copy(name = it.value) }
+                value(addBoat.name)
+            }
+        }
+        RgTd {
+            ClassDropdown(categories, addBoat.raceClass) {
+                addBoat = addBoat.copy(raceClass = it)
+            }
+        }
+        RgTd {
+            SkipperDropdown(people, addBoat.skipper) {
+                addBoat = addBoat.copy(skipper = it)
+            }
+        }
+        RgTd {
+            Input(type = InputType.Text) {
+                placeholder("Sail number")
+                classes("form-control")
+                onInput { addBoat = addBoat.copy(sailNumber = it.value) }
+                value(addBoat.sailNumber)
+            }
+        }
+        RgTd {
+            Input(type = InputType.Text) {
+                placeholder("Type")
+                classes("form-control")
+                onInput { addBoat = addBoat.copy(boatType = it.value) }
+                value(addBoat.boatType)
+            }
+        }
+        RgTd {
+            Input(type = InputType.Text) {
+                placeholder("Rating")
+                classes("form-control")
+                onInput {
+                    phrfRating = it.value.digits(3)
                 }
+                value(phrfRating)
+            }
+        }
+        RgTd {
+            RgButton("Add", RgButtonStyle.Primary) {
+                boatViewModel.addBoat(addBoat.copy(phrfRating = phrfRating.toIntOrNull()))
+                addBoat = Boat()
+                phrfRating = ""
             }
         }
     }

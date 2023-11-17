@@ -50,23 +50,6 @@ class BoatViewModel(
         }
     }
 
-    fun delete(person: Person) {
-        setEditPerson(null)
-        person.id?.let {
-            setState {
-                val delete = Api.deletePerson(person.id)
-                if (delete.ok) {
-                    Api.getAllPeople().body?.let { people ->
-                        copy(response = response.map { it.copy(people = people) })
-
-                    } ?: this
-                } else {
-                    this
-                }
-            }
-        }
-    }
-
     fun setEditPerson(person: Person?) {
         person?.id?.let {
             routeVm.pushRoute("/people/$it")
