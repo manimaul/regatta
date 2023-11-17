@@ -128,7 +128,7 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
             localStoreSet("username", "")
             localStoreSet<LoginResponse>(null)
             val state = initialState()
-            routeViewModel.setRoute(Route.Home)
+            routeViewModel.pushRoute(Route.Home)
             state
         }
     }
@@ -157,7 +157,7 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
                         login = it,
                     )
                 }
-                routeViewModel.setRoute(Route.Home)
+                routeViewModel.pushRoute(Route.Home)
             } ?: setState {
                 copy(
                     loginStatus = LoginStatus.Failed,

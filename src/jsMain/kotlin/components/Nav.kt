@@ -31,18 +31,18 @@ fun Nav(
             Route.Home,
             Route.RaceResult,
         )).forEach { route ->
-            val style = if (state.route == route) {
+            val style = if (state.current.route == route) {
                 RgButtonStyle.Primary
             } else {
                 RgButtonStyle.PrimaryOutline
             }
             RgButton(route.name, style) {
                 println("clicked $route")
-                viewModel.setRoute(route)
+                viewModel.pushRoute(route)
             }
         }
 
-        val style = if (state.route == Route.Admin) {
+        val style = if (state.current.route == Route.Admin) {
             RgButtonStyle.Success
         } else {
             RgButtonStyle.SuccessOutline
@@ -53,7 +53,7 @@ fun Nav(
             }
         } else {
             RgButton("Admin", style) {
-                viewModel.setRoute(Route.Admin)
+                viewModel.pushRoute(Route.Admin)
             }
         }
     }

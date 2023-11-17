@@ -22,3 +22,17 @@ fun Confirm(
         }
     }
 }
+@Composable
+fun Ok(
+    msg: String,
+    handler: () -> Unit
+) {
+    Div {
+        H3 {
+            Text(msg)
+        }
+        RgButton("Ok", RgButtonStyle.Primary) {
+            handler()
+        }
+    }
+}

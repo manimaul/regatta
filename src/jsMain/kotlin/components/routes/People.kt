@@ -3,8 +3,6 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
 import components.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
@@ -17,13 +15,11 @@ import viewmodel.BoatViewModel
 
 @Composable
 fun People(
-    viewModel: BoatViewModel = remember { BoatViewModel() }
+    viewModel: BoatViewModel = remember { BoatViewModel() },
 ) {
     val flowState by viewModel.flow.collectAsState()
     Div {
-        flowState.editPerson?.let { person ->
-            EditPerson(person, viewModel)
-        } ?: when (val state = flowState.response) {
+        when (val state = flowState.response) {
             is Complete -> PeopleLoaded(state.value, viewModel)
             is Error -> {
                 Text("Womp Womp")
@@ -40,70 +36,6 @@ fun People(
     }
 }
 
-@Composable
-fun EditPerson(
-    person: Person,
-    viewModel: BoatViewModel,
-) {
-    var confirmDelete by remember { mutableStateOf(false) }
-    var newPerson by remember { mutableStateOf(person) }
-    if (confirmDelete) {
-        Confirm("Delete '${person.first} ${person.last}'?") { delete ->
-            if (delete) {
-                viewModel.delete(person)
-            } else {
-                confirmDelete = false
-            }
-        }
-    } else {
-        Form {
-            Fieldset {
-                Legend { Text("Edit id:${person.id} ${person.first} ${person.last}") }
-                P {
-                    Input(InputType.Text) {
-                        id("first")
-                        value(newPerson.first)
-                        onInput { newPerson = newPerson.copy(first = it.value) }
-                    }
-                    Label("first") { Text("First name") }
-                }
-                P {
-                    Input(InputType.Text) {
-                        id("last")
-                        value(newPerson.last)
-                        onInput { newPerson = newPerson.copy(last = it.value) }
-                    }
-                    Label("last") { Text("Last name") }
-                }
-                P {
-                    CheckboxInput(
-                        attrs = {
-                            id("member")
-                            checked(newPerson.clubMember)
-                            onChange {
-                                println("checked = ${it.value}")
-                                newPerson = newPerson.copy(clubMember = it.value)
-                                println("newperson ${Json.encodeToString(newPerson)}")
-                                println("checked = ${it.value}")
-                            }
-                        }
-                    )
-                    Label("member") { Text("Club member") }
-                }
-            }
-        }
-        Br()
-        RgButton("Cancel", RgButtonStyle.PrimaryOutline) {
-            viewModel.setEditPerson(null)
-        }
-        RgButton("Save", RgButtonStyle.Primary) {
-            viewModel.upsertPerson(newPerson)
-        }
-        RgButton("Delete", RgButtonStyle.Danger) {
-            confirmDelete = true
-        }
-    }
-}
 
 @Composable
 fun PeopleLoaded(

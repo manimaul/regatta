@@ -33,6 +33,14 @@ suspend fun <T, R> Async<T>.map(handler: suspend (T) -> R) : Async<R> {
     return value?.let { Complete(handler(it)) } ?: Error()
 }
 
+fun <T> Async<T>.mapErrorMessage(handler: (Error<T>) -> String) : Async<T> {
+    return if (this is Error) {
+        Error(value, error, handler(this))
+    } else {
+        this
+    }
+}
+
 fun <T> NetworkResponse<T>.toAsync(previous: Async<T>? = null): Async<T> {
     return body?.let {
         Complete(it)
@@ -42,17 +50,19 @@ fun <T> NetworkResponse<T>.toAsync(previous: Async<T>? = null): Async<T> {
 object Uninitialized : Async<Nothing>(false, null)
 data class Loading<out T>(override val value: T? = null) : Async<T>(false, value)
 data class Complete<out T>(override val value: T) : Async<T>(true, value)
+
+const val defaultErrorMessage = "An unknown error occurred :("
 data class Error<out T>(
     override val value: T? = null,
     override val error: List<Throwable> = emptyList(),
-    val message: String? = null,
+    val message: String = defaultErrorMessage,
 ) : Async<T>(true, value) {
     companion object {
-        fun <T> from(vararg errors: Throwable?,  value: T? = null, message: String? = null) : Error<T> {
+        fun <T> from(vararg errors: Throwable?,  value: T? = null, message: String = defaultErrorMessage) : Error<T> {
             val error = errors.filterNotNull()
             return Error(value, error, message)
         }
-        fun <T> from(vararg errors: List<Throwable>?,  value: T? = null, message: String? = null) : Error<T> {
+        fun <T> from(vararg errors: List<Throwable>?,  value: T? = null, message: String = defaultErrorMessage) : Error<T> {
             val error = errors.filterNotNull().flatten()
             return Error(value, error, message)
         }

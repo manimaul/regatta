@@ -21,7 +21,7 @@ data class NetworkResponse<T>(
 
 object Network {
 
-    suspend inline fun <reified T> Response.networkResponse(setBody: T? = null) : NetworkResponse<T> {
+    suspend inline fun <reified T> Response.networkResponse(setBody: T? = null): NetworkResponse<T> {
         var body: T? = setBody
         var error: Exception? = null
         if (body == null) {
@@ -33,9 +33,10 @@ object Network {
         }
         return NetworkResponse(url, ok, body, status, statusText, error)
     }
-    suspend inline fun <reified T> get(api: String): NetworkResponse<T> {
+
+    suspend inline fun <reified T> get(api: String, params: Map<String, String>? = null): NetworkResponse<T> {
         val response = window.fetch(
-            api.versionedApi(),
+            api.versionedApi(params = params),
             RequestInit(
                 method = "GET",
                 headers = json(
@@ -65,7 +66,7 @@ object Network {
 
     suspend fun delete(api: String, params: Map<String, String>): NetworkResponse<Unit> {
         val response = window.fetch(
-            api.versionedApi(params), RequestInit(
+            api.versionedApi(params = params), RequestInit(
                 method = "DELETE",
                 headers = json("Authorization" to "Bearer ${token()}"),
             )

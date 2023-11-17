@@ -24,7 +24,7 @@ fun Router(
         Div(attrs = {
             classes(AppStyle.marginVert)
         }) {
-            when (state.route) {
+            when (state.current.route) {
                 Route.Home -> Home()
                 Route.Series -> Series()
                 Route.People -> People()
@@ -33,7 +33,7 @@ fun Router(
                 Route.Boats -> Boats()
                 Route.Classes -> Classes()
                 Route.Admin -> Admin()
-                Route.PeopleEdit -> Text("person edit todo")
+                Route.PeopleEdit -> PeopleEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.BoatEdit -> Text("boat edit todo")
                 Route.NotFound -> Text("womp womp, something's missing")
             }

@@ -2,7 +2,6 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
 import kotlinx.coroutines.launch
 import utils.*
@@ -16,11 +15,12 @@ data class BoatPeopleComposite(
 
 data class BoatState(
     val response: Async<BoatPeopleComposite> = Uninitialized,
-    val editPerson: Person? = null,
     val editBoat: Boat? = null,
 ) : VmState
 
-class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
+class BoatViewModel(
+    val routeVm: RouteViewModel = routeViewModel,
+) : BaseViewModel<BoatState>(BoatState()) {
 
     init {
         getAllBoatsAndPeople()
@@ -68,8 +68,8 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     }
 
     fun setEditPerson(person: Person?) {
-        setState {
-            copy(editPerson = person)
+        person?.id?.let {
+            routeVm.pushRoute("/people/$it")
         }
     }
 

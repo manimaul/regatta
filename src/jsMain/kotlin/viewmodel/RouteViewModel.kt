@@ -10,8 +10,7 @@ data class Routing(
     val route: Route,
     val path: String,
     val args: Map<String, String>? = null,
-    val replace: Boolean = false,
-) : VmState {
+) {
 
     companion object {
 
@@ -19,12 +18,16 @@ data class Routing(
             Route.entries.map { RouteMatcher.build(it) }
         }
 
-        fun from(path: String, replace: Boolean = false): Routing {
+        fun from(path: String): Routing {
             return matchers.firstOrNull {
                 it.matches(path)
             }?.let {
-                Routing(it.route, path, it.groups(path), replace)
-            } ?: Routing(Route.NotFound, path, null, replace)
+                Routing(it.route, path, it.groups(path))
+            } ?: Routing(Route.NotFound, path, null)
+        }
+
+        fun from(route: Route): Routing {
+            return Routing(route, route.pathPattern)
         }
     }
 }
@@ -43,7 +46,13 @@ enum class Route(val pathPattern: String) {
     NotFound("/404")
 }
 
-class RouteViewModel : BaseViewModel<Routing>(Routing.from(window.location.pathname)) {
+data class RouteState(
+    val current: Routing = Routing.from(window.location.pathname),
+    val canGoback: Boolean = false,
+    val replace: Boolean = true,
+) : VmState
+
+class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
 
     fun getQueryParam(key: String): List<String> {
         return URL(window.location.href).searchParams.getAll(key).toList()
@@ -51,32 +60,66 @@ class RouteViewModel : BaseViewModel<Routing>(Routing.from(window.location.pathn
 
     init {
         window.addEventListener("popstate", {
-            println("history location set to ${window.location.pathname}")
-            println("event = ${it.type} $it")
             replaceRoute(window.location.pathname)
         })
 
         launch {
             flow.collect {
+                println("state = $it")
                 if (it.replace) {
-                    window.history.replaceState(null, it.route.name, it.path)
+                    println("replacing history state ${it.current.path}")
+                    window.history.replaceState(null, it.current.route.name, it.current.path)
                 } else {
-                    window.history.pushState(null, it.route.name, it.path)
+                    println("pushing history state ${it.current.path}")
+                    window.history.pushState(null, it.current.route.name, it.current.path)
                 }
             }
         }
     }
 
-    fun replaceRoute(path: String) {
-        val routing = Routing.from(path, true)
-        setState { routing }
+    fun goBackOrHome() {
+        withState {
+           if (it.canGoback)  {
+               window.history.back()
+           } else {
+               pushRoute(Route.Home)
+           }
+        }
     }
 
-    fun setRoute(value: Route, replace: Boolean = false) {
-        if (value.pathPattern != flow.value.route.pathPattern) {
-            setState { Routing(value, value.pathPattern, null, replace) }
+    private fun replaceRoute(path: String) {
+        setState {
+            copy(
+                current = Routing.from(path),
+                replace = true,
+            )
+        }
+    }
+    fun pushRoute(path: String) {
+        if (path != flow.value.current.path) {
+            setState {
+                copy(
+                    current = Routing.from(path),
+                    canGoback = true,
+                    replace = false,
+                )
+            }
         } else {
-            println("already at route $value")
+            println("already at route path $path")
+        }
+    }
+
+    fun pushRoute(route: Route) {
+        if (route.pathPattern != flow.value.current.route.pathPattern) {
+            setState {
+                copy(
+                    current = Routing(route, route.pathPattern, null),
+                    canGoback = true,
+                    replace = false,
+                )
+            }
+        } else {
+            println("already at route $route")
         }
     }
 }
