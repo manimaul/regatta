@@ -14,9 +14,8 @@ fun Nav(
     val loginFlowState by loginVm.flow.collectAsState()
     val clockState by loginVm.clockFlow.collectAsState()
     H4 { Text("Regatta ${clockState.display}") }
-    H5 { Text("Login authorization expires in: ${clockState.expiresDisplay}") }
-    Hr()
-    P {
+    P { Text("Login authorization expires in: ${clockState.expiresDisplay}") }
+    RgButtonGroup {
         (loginFlowState.login?.let {
             arrayOf(
                 Route.Home,
@@ -32,23 +31,27 @@ fun Nav(
             Route.RaceResult,
         )).forEach { route ->
             val style = if (viewModel.route == route) {
-                RgButtonStyle.PrimaryOutline
+                RgButtonStyle.Primary
             } else {
-                RgButtonStyle.SecondaryOutline
+                RgButtonStyle.PrimaryOutline
             }
             RgButton(route.name, style) {
                 println("clicked $route")
                 viewModel.setRoute(route)
             }
-            Text("${Typography.nbsp}")
         }
 
+        val style = if (viewModel.route == Route.Admin) {
+            RgButtonStyle.Success
+        } else {
+            RgButtonStyle.SuccessOutline
+        }
         if (loginFlowState.loginStatus== LoginStatus.LoggedIn) {
-            RgButton("Logout", RgButtonStyle.Primary) {
+            RgButton("Logout", style) {
                 loginVm.logout()
             }
         } else {
-            RgButton("Admin", RgButtonStyle.Primary) {
+            RgButton("Admin", style) {
                 viewModel.setRoute(Route.Admin)
             }
         }

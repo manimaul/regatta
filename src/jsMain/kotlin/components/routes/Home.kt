@@ -22,7 +22,7 @@ fun Home(
         H4 {
             Text("Logged in as ${state.auth.userName}")
         }
-        RgButton("Copy auth token", RgButtonStyle.Primary) {
+        RgButton("Copy auth token", RgButtonStyle.PrimaryOutline) {
             val token = token()
             window.navigator.clipboard.writeText(token)
             window.alert("Auth token copied to clipboard\n\n$token")

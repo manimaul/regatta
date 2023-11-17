@@ -123,7 +123,7 @@ fun EditBoat(
         RgButton("Save", RgButtonStyle.Primary) {
             viewModel.upsertBoat(newBoat)
         }
-        RgButton("Delete", RgButtonStyle.Error) {
+        RgButton("Delete", RgButtonStyle.Danger) {
             confirmDelete = true
         }
     }
@@ -139,7 +139,7 @@ fun BoatList(
     var addBoat by remember { mutableStateOf(Boat()) }
     Div {
         Article {
-            Table(attrs = { classes("striped") }) {
+            Table(attrs = { classes("table") }) {
                 Caption {
                     Text("${Clock.System.now().toJSDate().getFullYear()}")
                 }

@@ -14,7 +14,7 @@ fun Confirm(
         H3 {
             Text(msg)
         }
-        RgButton("No", RgButtonStyle.Error) {
+        RgButton("No", RgButtonStyle.Danger) {
             handler(false)
         }
         RgButton("Yes", RgButtonStyle.Primary) {

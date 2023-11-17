@@ -15,19 +15,24 @@ fun Router(
 ) {
     Style(AppStyle)
     Div(attrs = {
-        classes(AppStyle.regattaStyle)
+        classes("container-fluid")
     }) {
         components.Nav()
-        when (viewModel.route) {
-            Route.Home -> Home()
-            Route.Series -> Series()
-            Route.People -> People()
-            Route.Races -> Races()
-            Route.RaceResult -> RaceResults()
-            Route.Boats -> Boats()
-            Route.Classes -> Classes()
-            Route.Admin -> Admin()
-            else -> Text("womp womp, something's missing")
+        Div(attrs = {
+            classes(AppStyle.marginVert)
+        }) {
+            when (viewModel.route) {
+                Route.Home -> Home()
+                Route.Series -> Series()
+                Route.People -> People()
+                Route.Races -> Races()
+                Route.RaceResult -> RaceResults()
+                Route.Boats -> Boats()
+                Route.Classes -> Classes()
+                Route.Admin -> Admin()
+                else -> Text("womp womp, something's missing")
+            }
+
         }
     }
 }

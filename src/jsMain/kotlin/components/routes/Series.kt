@@ -28,50 +28,48 @@ fun Series(
                 }
             }
         } ?: flowState.series.value?.let { allSeries ->
-            Article {
-                H1 { Text("Series") }
-                Table(attrs = { classes("striped") }) {
+            H1 { Text("Series") }
+            Table(attrs = { classes("table", "table-striped-columns") }) {
 
-                    Caption {
-                        Text("${Clock.System.now().toJSDate().getFullYear()}")
-                    }
+                Caption {
+                    Text("${Clock.System.now().toJSDate().getFullYear()}")
+                }
+                Tr {
+                    Th { Text("Series Name") }
+                    Th { Text("Action") }
+                }
+                allSeries.forEach { series ->
                     Tr {
-                        Th { Text("Series Name") }
-                        Th { Text("Action") }
-                    }
-                    allSeries.forEach { series ->
-                        Tr {
-                            Td { Text(series.name) }
-                            Td {
-                                RgButton("Delete", RgButtonStyle.Error) {
-                                    viewModel.confirmDeleteSeries(series)
-                                }
-                            }
-                        }
-                    }
-
-                    Tr {
-                        Td { }
-                        Td { }
-                    }
-
-                    Tr {
+                        Td { Text(series.name) }
                         Td {
-                            Input(type = InputType.Text) {
-                                placeholder("Add series")
-                                onInput {
-                                    viewModel.setNewSeriesName(it.value)
-                                }
-                                value(flowState.newSeries.name)
+                            RgButton("Delete", RgButtonStyle.Danger) {
+                                viewModel.confirmDeleteSeries(series)
                             }
                         }
-                        Td {
-                            RgButton("Add", RgButtonStyle.Primary) {
-                                viewModel.addSeries()
-                            }
-                        }
-
                     }
+                }
+
+                Tr {
+                    Td { }
+                    Td { }
+                }
+
+                Tr {
+                    Td {
+                        Input(type = InputType.Text) {
+                            placeholder("Add series")
+                            onInput {
+                                viewModel.setNewSeriesName(it.value)
+                            }
+                            value(flowState.newSeries.name)
+                        }
+                    }
+                    Td {
+                        RgButton("Add", RgButtonStyle.Primary) {
+                            viewModel.addSeries()
+                        }
+                    }
+
                 }
             }
         } ?: run {

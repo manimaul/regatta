@@ -2,14 +2,13 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
-import components.Confirm
-import components.RgButton
-import components.RgButtonStyle
-import components.Spinner
+import components.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.attributes.placeholder
+import org.jetbrains.compose.web.attributes.scope
 import org.jetbrains.compose.web.dom.*
 import utils.Complete
 import utils.Error
@@ -37,6 +36,7 @@ fun People(
                 Spinner()
                 PeopleLoaded(state.value, viewModel)
             }
+
             Uninitialized -> Spinner()
         }
     }
@@ -45,7 +45,7 @@ fun People(
 @Composable
 fun EditPerson(
     person: Person,
-    viewModel: BoatViewModel ,
+    viewModel: BoatViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var newPerson by remember { mutableStateOf(person) }
@@ -78,7 +78,7 @@ fun EditPerson(
                     Label("last") { Text("Last name") }
                 }
                 P {
-                    CheckboxInput (
+                    CheckboxInput(
                         attrs = {
                             id("member")
                             checked(newPerson.clubMember)
@@ -101,7 +101,7 @@ fun EditPerson(
         RgButton("Save", RgButtonStyle.Primary) {
             viewModel.upsertPerson(newPerson)
         }
-        RgButton("Delete", RgButtonStyle.Error) {
+        RgButton("Delete", RgButtonStyle.Danger) {
             confirmDelete = true
         }
     }
@@ -113,33 +113,35 @@ fun PeopleLoaded(
     viewModel: BoatViewModel,
 ) {
     Div {
-        Article {
-            H1 { Text("People") }
-        }
-        Table(attrs = { classes("striped") }) {
-            Tr {
-                Th { Text("First") }
-                Th { Text("Last") }
-                Th { Text("Boat") }
-                Th { Text("Member") }
-                Th { Text("Action") }
+        H1 { Text("People") }
+        RgTable {
+            RgThead {
+                RgTr {
+                    RgTh { Text("First") }
+                    RgTh { Text("Last") }
+                    RgTh { Text("Boat") }
+                    RgTh { Text("Member") }
+                    RgTh { Text("Action") }
+                }
             }
-            composite?.people?.takeIf { it.isNotEmpty() }?.let { people ->
-                people.forEach { person ->
-                    Tr {
-                        Td { Text(person.first) }
-                        Td { Text(person.last) }
-                        Td { Text(viewModel.findBoatName(person, composite)) }
-                        Td { Text(if (person.clubMember) "Yes" else "No") }
-                        Td {
-                            RgButton("Edit", RgButtonStyle.PrimaryOutline) {
-                                viewModel.setEditPerson(person)
+            RgTbody {
+                composite?.people?.takeIf { it.isNotEmpty() }?.let { people ->
+                    people.forEach { person ->
+                        RgTr {
+                            RgTd { Text(person.first) }
+                            RgTd { Text(person.last) }
+                            RgTd { Text(viewModel.findBoatName(person, composite)) }
+                            RgTd { Text(if (person.clubMember) "Yes" else "No") }
+                            RgTd {
+                                RgButton("Edit", RgButtonStyle.PrimaryOutline) {
+                                    viewModel.setEditPerson(person)
+                                }
                             }
                         }
                     }
                 }
+                AddPerson(viewModel)
             }
-            AddPerson(viewModel)
         }
     }
 }
@@ -149,35 +151,43 @@ fun AddPerson(viewModel: BoatViewModel) {
     var first by remember { mutableStateOf("") }
     var last by remember { mutableStateOf("") }
     var member by remember { mutableStateOf(false) }
-    Tr {
-        Td {
+    RgTr {
+        RgTd {
             Input(type = InputType.Text) {
                 placeholder("First")
+                classes("form-control")
                 onInput {
                     first = it.value
                 }
                 value(first)
             }
         }
-        Td {
+        RgTd(2) {
             Input(type = InputType.Text) {
                 placeholder("Last")
+                classes("form-control")
                 onInput {
                     last = it.value
                 }
                 value(last)
             }
         }
-        Td { }
-        Td {
-            CheckboxInput {
-                onChange {
-                    member = it.value
+        RgTd {
+            Div(attrs = { classes("form-check") }) {
+                CheckboxInput {
+                    id("member")
+                    classes("form-check-input")
+                    onChange {
+                        member = it.value
+                    }
+                    checked(member)
                 }
-                checked(member)
+                Label("member", attrs = { classes("form-check-label") }) {
+                    Text("Member")
+                }
             }
         }
-        Td {
+        RgTd {
             RgButton("Add", RgButtonStyle.Primary, first.isBlank() || last.isBlank()) {
                 viewModel.upsertPerson(Person(first = first, last = last, clubMember = member))
                 first = ""

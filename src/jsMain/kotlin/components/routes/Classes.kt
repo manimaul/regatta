@@ -90,7 +90,7 @@ fun CategoryList(
             H1 { Text("Race Classes") }
         }
         list.forEach { cat ->
-            Table(attrs = { classes("striped") }) {
+            Table(attrs = { classes("table") }) {
                 Caption {
                     H2 {
                         Text(cat.name)
