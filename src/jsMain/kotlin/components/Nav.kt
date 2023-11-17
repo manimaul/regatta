@@ -11,6 +11,7 @@ fun Nav(
     viewModel: RouteViewModel = routeViewModel,
     loginVm: LoginViewModel = loginViewModel,
 ) {
+    val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
     val clockState by loginVm.clockFlow.collectAsState()
     H4 { Text("Regatta ${clockState.display}") }
@@ -30,7 +31,7 @@ fun Nav(
             Route.Home,
             Route.RaceResult,
         )).forEach { route ->
-            val style = if (viewModel.route == route) {
+            val style = if (state.route == route) {
                 RgButtonStyle.Primary
             } else {
                 RgButtonStyle.PrimaryOutline
@@ -41,7 +42,7 @@ fun Nav(
             }
         }
 
-        val style = if (viewModel.route == Route.Admin) {
+        val style = if (state.route == Route.Admin) {
             RgButtonStyle.Success
         } else {
             RgButtonStyle.SuccessOutline

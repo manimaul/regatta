@@ -6,9 +6,7 @@ import components.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.attributes.scope
 import org.jetbrains.compose.web.dom.*
 import utils.Complete
 import utils.Error
