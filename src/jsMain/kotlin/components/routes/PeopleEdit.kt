@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 import utils.*
 import viewmodel.*
 
@@ -116,9 +117,9 @@ fun EditPerson(
             }
         }
     } else {
+        H1 { Text("Edit") }
         Form {
             Fieldset {
-                Legend { Text("Edit id:${person.id} ${person.first} ${person.last}") }
                 P {
                     Input(InputType.Text) {
                         id("first")
@@ -152,14 +153,13 @@ fun EditPerson(
                 }
             }
         }
-        Br()
-        RgButton("Cancel", RgButtonStyle.PrimaryOutline) {
+        RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
             viewModel.cancelEdit()
         }
         RgButton("Save", RgButtonStyle.Primary) {
             viewModel.upsertPerson(newPerson)
         }
-        RgButton("Delete", RgButtonStyle.Danger) {
+        RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
             confirmDelete = true
         }
     }

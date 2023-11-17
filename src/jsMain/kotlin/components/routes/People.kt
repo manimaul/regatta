@@ -109,7 +109,7 @@ fun AddPerson(viewModel: BoatViewModel) {
             }
         }
         RgTd(classes = listOf("position-relative")) {
-            Div(attrs = { classes("form-check", "position-absolute", "top-50", "translate-middle") }) {
+            Div(attrs = { classes("form-check", "position-absolute", "top-50", "start-5", "translate-middle-y") }) {
                 CheckboxInput {
                     id("member")
                     classes("form-check-input")
