@@ -26,10 +26,15 @@ fun RgButton(
     label: String,
     style: RgButtonStyle = RgButtonStyle.Default,
     disabled: Boolean = false,
+    customClasses: List<String>? = null,
     click: () -> Unit,
 ) {
     Button(attrs = {
-        classes(*style.classes)
+        customClasses?.let {
+               it + style.classes
+            }?.toTypedArray()?.let {
+                classes(*it)
+        } ?: classes(*style.classes)
         onClick { click() }
         if (disabled) { disabled() }
     }) {

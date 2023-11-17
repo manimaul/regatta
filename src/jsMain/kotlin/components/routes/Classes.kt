@@ -84,29 +84,25 @@ fun CategoryList(
     viewModel: ClassesViewModel,
     list: List<RaceClassCategory>,
 ) {
-
-    Div {
-        Article {
-            H1 { Text("Race Classes") }
-        }
-        list.forEach { cat ->
-            Table(attrs = { classes("table") }) {
-                Caption {
-                    H2 {
-                        Text(cat.name)
-                    }
-                }
-                Tr {
-                    Th { Text("Name") }
-                    Th { Text("Description") }
-                    Th { Text("Action") }
-                }
-                ClassRow(viewModel, cat.children ?: emptyList())
-                AddClass(viewModel, cat)
+    RgTable {
+        RgThead {
+            RgTr {
+                RgTh { Text("Name") }
+                RgTh { Text("Description") }
+                RgTh { Text("Action") }
             }
         }
-        AddCategory(viewModel)
-    }
+        list.forEachIndexed { index, cat ->
+            H2 { Text(cat.name) }
+                RgTbody {
+                    ClassRow(viewModel, cat.children ?: emptyList())
+                    AddClass(viewModel, cat)
+                    if (index == list.size - 1) {
+                        AddCategory(viewModel)
+                    }
+                }
+            }
+        }
 }
 
 @Composable
@@ -116,11 +112,11 @@ fun ClassRow(
 ) {
 
     list.forEach { rc ->
-        Tr {
-            Td { Text(rc.name) }
-            Td { Text(rc.description ?: "-") }
-            Td {
-                RgButton("Edit", RgButtonStyle.PrimaryOutline) {
+        RgTr {
+            RgTd { Text(rc.name) }
+            RgTd { Text(rc.description ?: "-") }
+            RgTd {
+                RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
                     viewModel.setEditClass(rc)
                 }
             }
@@ -135,18 +131,19 @@ fun AddCategory(
     var name by remember { mutableStateOf("") }
     Br()
     Br()
-    Row {
-        Col4 {
+    RgTr {
+        RgTd(2) {
             Input(type = InputType.Text) {
                 placeholder("Name")
+                classes("form-control")
                 onInput {
                     name = it.value
                 }
                 value(name)
             }
         }
-        Col4 {
-            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank() ) {
+        RgTd {
+            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank(), listOf("float-end") ) {
                 viewModel.upsertCategory(RaceClassCategory(name = name))
                 name = ""
             }
@@ -160,9 +157,10 @@ fun AddClass(
 ) {
     var name by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
-    Tr {
-        Td {
+    RgTr {
+        RgTd {
             Input(type = InputType.Text) {
+                classes("form-control")
                 placeholder("Name")
                 onInput {
                     name = it.value
@@ -170,8 +168,9 @@ fun AddClass(
                 value(name)
             }
         }
-        Td {
+        RgTd {
             Input(type = InputType.Text) {
+                classes("form-control")
                 placeholder("Description")
                 onInput {
                     desc = it.value
@@ -179,9 +178,8 @@ fun AddClass(
                 value(desc)
             }
         }
-        Td {  }
-        Td {
-            RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank()) {
+        RgTd {
+            RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank(), listOf("float-end")) {
                 viewModel.upsertClass(RaceClass(name = name, description = desc, category = category.id!!), category)
                 name = ""
                 desc = ""

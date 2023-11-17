@@ -14,7 +14,7 @@ import org.w3c.dom.HTMLTableSectionElement
 fun RgTable(
     content: ContentBuilder<HTMLTableElement>? = null
 ) {
-    Table(attrs = { classes("table", "table-striped") }, content)
+    Table(attrs = { classes("table", "table-sm", "table-striped") }, content)
 }
 
 @Composable
