@@ -3,6 +3,8 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
+import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.RaceClassCategory
 import components.Confirm
 import components.RgButton
 import components.RgButtonStyle
@@ -25,9 +27,14 @@ fun Boats(
 ) {
     val flowState by viewModel.flow.collectAsState()
     flowState.editBoat?.let {
-        EditBoat(it, flowState.response.value?.people ?: emptyList(),  viewModel)
+        EditBoat(
+            boat = it,
+            people = flowState.response.value?.people ?: emptyList(),
+            categories = flowState.response.value?.raceClass ?: emptyList(),
+            viewModel = viewModel
+        )
     } ?: when (val state = flowState.response) {
-        is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
+        is Complete -> BoatList(state.value.boats, state.value.people, state.value.raceClass, viewModel)
         is Error -> {
             Text("error")
             Spinner()
@@ -42,6 +49,7 @@ fun Boats(
 fun EditBoat(
     boat: Boat,
     people: List<Person>,
+    categories: List<RaceClassCategory>,
     viewModel: BoatViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
@@ -59,9 +67,7 @@ fun EditBoat(
             }
         }
     } else {
-        Form(attrs = {
-            //todo: disable submit
-        }) {
+        Form {
             Fieldset {
                 Legend { Text("Edit id:${boat.id} ${boat.name}") }
                 P {
@@ -89,15 +95,21 @@ fun EditBoat(
                     Label("type") { Text("Boat Type") }
                 }
                 P {
-                    Input(type = InputType.Number) {
+                    Input(type = InputType.Text) {
                         id("rating")
-                        onInput { newBoat = newBoat.copy(phrfRating = it.value?.toInt()) }
+                        onInput { newBoat = newBoat.copy(phrfRating = it.value.toIntOrNull()) }
                         value(newBoat.phrfRating?.toString() ?: "")
                     }
                     Label("rating") { Text("PHRF Rating") }
                 }
                 P {
-                    Dropdown(people, newBoat.skipper) {
+                    ClassDropdown(categories, newBoat.raceClass) {
+                        newBoat = newBoat.copy(raceClass = it)
+                    }
+                    Text("Class")
+                }
+                P {
+                    SkipperDropdown(people, newBoat.skipper) {
                         newBoat = newBoat.copy(skipper = it)
                     }
                     Text("Skipper")
@@ -121,6 +133,7 @@ fun EditBoat(
 fun BoatList(
     boats: List<Boat>,
     people: List<Person>,
+    categories: List<RaceClassCategory>,
     boatViewModel: BoatViewModel,
 ) {
     var addBoat by remember { mutableStateOf(Boat()) }
@@ -131,19 +144,18 @@ fun BoatList(
                     Text("${Clock.System.now().toJSDate().getFullYear()}")
                 }
                 Tr {
-                    Th { Text("Name") }
+                    Th { Text("Boat Name") }
+                    Th { Text("Class") }
+                    Th { Text("Skipper") }
                     Th { Text("Sail Number") }
                     Th { Text("Type") }
                     Th { Text("PHRF Rating") }
-                    Th { Text("Skipper") }
                     Th { Text("Action") }
                 }
                 boats.forEach { boat ->
                     Tr {
                         Td { Text(boat.name) }
-                        Td { Text(boat.sailNumber) }
-                        Td { Text(boat.boatType) }
-                        Td { Text(boat.phrfRating?.let { "$it" } ?: "-") }
+                        Td { Text(boat.raceClass?.name ?: "None") }
                         Td {
                             boat.skipper?.let {
                                 Text(
@@ -151,6 +163,9 @@ fun BoatList(
                                 )
                             }
                         }
+                        Td { Text(boat.sailNumber) }
+                        Td { Text(boat.boatType) }
+                        Td { Text(boat.phrfRating?.let { "$it" } ?: "None") }
                         Td {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
                                 boatViewModel.setEditBoat(boat)
@@ -164,6 +179,16 @@ fun BoatList(
                             placeholder("Name")
                             onInput { addBoat = addBoat.copy(name = it.value) }
                             value(addBoat.name)
+                        }
+                    }
+                    Td {
+                        ClassDropdown(categories, addBoat.raceClass) {
+                            addBoat = addBoat.copy(raceClass = it)
+                        }
+                    }
+                    Td {
+                        SkipperDropdown(people, addBoat.skipper) {
+                            addBoat = addBoat.copy(skipper = it)
                         }
                     }
                     Td {
@@ -181,15 +206,10 @@ fun BoatList(
                         }
                     }
                     Td {
-                        Input(type = InputType.Number) {
+                        Input(type = InputType.Text) {
                             placeholder("Rating")
-                            onInput { addBoat = addBoat.copy(phrfRating = it.value?.toInt()) }
+                            onInput { addBoat = addBoat.copy(phrfRating = it.value.toIntOrNull()) }
                             value(addBoat.phrfRating?.toString() ?: "")
-                        }
-                    }
-                    Td {
-                        Dropdown(people, addBoat.skipper) {
-                            addBoat = addBoat.copy(skipper = it)
                         }
                     }
                     Td {
@@ -206,7 +226,45 @@ fun BoatList(
 
 
 @Composable
-fun Dropdown(
+fun ClassDropdown(
+    categories: List<RaceClassCategory>,
+    currentClass: RaceClass?,
+    handler: (RaceClass) -> Unit,
+) {
+    val classList = remember { categories.mapNotNull { it.children } }.flatten()
+    Select(attrs = {
+        onChange { change ->
+            change.value?.toLongOrNull()?.let { id ->
+                classList.firstOrNull {
+                    it.id == id
+                }?.let { handler(it) }
+            }
+        }
+    }) {
+        Option("-1", attrs = {
+            if (currentClass == null) {
+                selected()
+            }
+        }) {
+            Text("None")
+        }
+        categories.forEach { cat ->
+            OptGroup(cat.name)
+            cat.children?.forEach { rc ->
+                Option(rc.id.toString(), attrs = {
+                    if (rc.id == currentClass?.id) {
+                        selected()
+                    }
+                }) {
+                    Text("${rc.name} ${rc.description}")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SkipperDropdown(
     people: List<Person>,
     person: Person?,
     handler: (Person) -> Unit

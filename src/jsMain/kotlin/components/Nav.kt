@@ -48,7 +48,7 @@ fun Nav(
                 loginVm.logout()
             }
         } else {
-            RgButton("Login", RgButtonStyle.Primary) {
+            RgButton("Admin", RgButtonStyle.Primary) {
                 viewModel.setRoute(Route.Admin)
             }
         }

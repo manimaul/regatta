@@ -2,7 +2,8 @@ package utils
 
 sealed class Async<out T>(
     val complete: Boolean,
-    open val value: T?
+    open val value: T?,
+    open val error: List<Throwable>? = null,
 ) {
 
     fun loading(): Loading<T> {
@@ -43,7 +44,7 @@ data class Loading<out T>(override val value: T? = null) : Async<T>(false, value
 data class Complete<out T>(override val value: T) : Async<T>(true, value)
 data class Error<out T>(
     override val value: T? = null,
-    val error: List<Throwable> = emptyList(),
+    override val error: List<Throwable> = emptyList(),
     val message: String? = null,
 ) : Async<T>(true, value) {
     companion object {
@@ -51,7 +52,10 @@ data class Error<out T>(
             val error = errors.filterNotNull()
             return Error(value, error, message)
         }
-
+        fun <T> from(vararg errors: List<Throwable>?,  value: T? = null, message: String? = null) : Error<T> {
+            val error = errors.filterNotNull().flatten()
+            return Error(value, error, message)
+        }
     }
 }
 suspend fun <T, R, O> combine(
@@ -77,7 +81,7 @@ suspend fun <A, B, R> combineAsync(
     return if (oneAsync is Complete && twoAsync is Complete) {
         Complete(reducer(oneAsync.value, twoAsync.value))
     } else {
-        Error()
+        Error.from(oneAsync.error, twoAsync.error)
     }
 }
 suspend fun <A, B, C, R> combineAsync(
@@ -92,6 +96,6 @@ suspend fun <A, B, C, R> combineAsync(
     return if (oneAsync is Complete && twoAsync is Complete && threeAsync is Complete) {
         Complete(reducer(oneAsync.value, twoAsync.value, threeAsync.value))
     } else {
-        Error()
+        Error.from(oneAsync.error, twoAsync.error, threeAsync.error)
     }
 }

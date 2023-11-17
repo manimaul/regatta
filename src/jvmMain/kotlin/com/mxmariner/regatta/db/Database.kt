@@ -43,13 +43,10 @@ object RegattaDatabase {
         }
     }
 
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
+    private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 
     private fun resultRowToSeries(row: ResultRow) = Series(
-        id = row[SeriesTable.id],
-        name = row[SeriesTable.name],
-        active = row[SeriesTable.active]
+        id = row[SeriesTable.id], name = row[SeriesTable.name], active = row[SeriesTable.active]
     )
 
     suspend fun allSeries(): List<Series> = dbQuery {
@@ -57,9 +54,7 @@ object RegattaDatabase {
     }
 
     suspend fun findSeries(id: Long): Series? = dbQuery {
-        SeriesTable.select { SeriesTable.id eq id }
-            .map(::resultRowToSeries)
-            .singleOrNull()
+        SeriesTable.select { SeriesTable.id eq id }.map(::resultRowToSeries).singleOrNull()
     }
 
     suspend fun deleteSeries(id: Long) = dbQuery {
@@ -69,8 +64,7 @@ object RegattaDatabase {
     }
 
     suspend fun findSeries(name: String): List<Series> = dbQuery {
-        SeriesTable.select { SeriesTable.name ilike LikePattern("%$name%") }
-            .map(::resultRowToSeries)
+        SeriesTable.select { SeriesTable.name ilike LikePattern("%$name%") }.map(::resultRowToSeries)
     }
 
     suspend fun upsertSeries(series: Series): Series? = dbQuery {
@@ -129,7 +123,7 @@ object RegattaDatabase {
     }
 
     suspend fun allPeople(): List<Person> = dbQuery {
-        PersonTable.selectAll().map(::resultRowToPerson)
+        PersonTable.selectAll().map(::resultRowToPerson).sortedBy { it.first }
     }
 
     suspend fun deletePerson(id: Long) = dbQuery {
@@ -262,21 +256,27 @@ object RegattaDatabase {
             val person = resultRowToPerson(row)
             val raceClass = resultRowToClass(row)
             resultRowToBoat(row, person, raceClass)
-        }.plus(
-            BoatTable.innerJoin(PersonTable).select { BoatTable.currentClass eq (null) }.map {
-                val person = resultRowToPerson(it)
-                resultRowToBoat(it, person, null)
+        }.plus(BoatTable.innerJoin(PersonTable).select { BoatTable.currentClass eq (null) }.map {
+            val person = resultRowToPerson(it)
+            resultRowToBoat(it, person, null)
+        }).plus(BoatTable.innerJoin(RaceClassTable).select { BoatTable.skipper eq (null) }.map {
+            val person = resultRowToPerson(it)
+            resultRowToBoat(it, person, null)
+        }).plus(BoatTable.select { (BoatTable.skipper eq null) and (BoatTable.currentClass eq null) }.map {
+            resultRowToBoat(it, null)
+        }).sortedWith { lhs, rhs ->
+            if (lhs.phrfRating != null && rhs.phrfRating != null) {
+                lhs.phrfRating.compareTo(rhs.phrfRating)
+            } else if (lhs.phrfRating != null) {
+                -1
+            } else if (rhs.phrfRating != null) {
+                1
+            } else if (lhs.raceClass?.id != null && rhs.raceClass?.id != null) {
+                lhs.raceClass.id.compareTo(rhs.raceClass.id)
+            } else {
+                0
             }
-        ).plus(
-            BoatTable.innerJoin(RaceClassTable).select { BoatTable.skipper eq (null) }.map {
-                val person = resultRowToPerson(it)
-                resultRowToBoat(it, person, null)
-            }
-        ).plus(
-            BoatTable.select { (BoatTable.skipper eq null) and (BoatTable.currentClass eq null) }.map {
-                resultRowToBoat(it, null)
-            }
-        )
+        }
     }
 
     suspend fun allCategories(): List<RaceClassCategory> = dbQuery {
@@ -286,8 +286,7 @@ object RegattaDatabase {
     }
 
     suspend fun findBoatForPerson(personId: Long): Boat? = dbQuery {
-        val query = (BoatTable innerJoin PersonTable)
-            .select { BoatTable.skipper eq personId }
+        val query = (BoatTable innerJoin PersonTable).select { BoatTable.skipper eq personId }
         query.singleOrNull()?.let {
             val person = resultRowToPerson(it)
             resultRowToBoat(it, person)

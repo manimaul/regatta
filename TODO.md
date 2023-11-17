@@ -1,3 +1,5 @@
+- Race checkin / 
+- Websockets
 - Edit boat
 - Admin - add/ delete
 - Add edit / race classes
