@@ -152,6 +152,12 @@ fun AddPerson(viewModel: BoatViewModel) {
     var last by remember { mutableStateOf("") }
     var member by remember { mutableStateOf(false) }
     RgTr {
+        RgTd(4) {
+            Br()
+            H6 { Text("Add person") }
+        }
+    }
+    RgTr {
         RgTd {
             Input(type = InputType.Text) {
                 placeholder("First")
@@ -172,8 +178,8 @@ fun AddPerson(viewModel: BoatViewModel) {
                 value(last)
             }
         }
-        RgTd {
-            Div(attrs = { classes("form-check") }) {
+        RgTd(classes = listOf("position-relative")) {
+            Div(attrs = { classes("form-check", "position-absolute", "top-50", "translate-middle") }) {
                 CheckboxInput {
                     id("member")
                     classes("form-check-input")
@@ -182,8 +188,10 @@ fun AddPerson(viewModel: BoatViewModel) {
                     }
                     checked(member)
                 }
-                Label("member", attrs = { classes("form-check-label") }) {
-                    Text("Member")
+                Label("member", attrs = {
+                    classes("form-check-label")
+                }) {
+                    Text("Club member")
                 }
             }
         }

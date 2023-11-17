@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import components.RgButton
 import components.RgButtonStyle
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.placeholder
+import org.jetbrains.compose.web.attributes.onSubmit
 import org.jetbrains.compose.web.dom.*
 import viewmodel.LoginStatus
 import viewmodel.LoginViewModel
@@ -19,15 +19,17 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
     val flowState by viewModel.flow.collectAsState()
     Div {
         when (flowState.loginStatus) {
-            LoginStatus.Loading -> Progress {  }
+            LoginStatus.Loading -> Progress { }
             LoginStatus.Ready -> {
                 Login()
             }
+
             LoginStatus.Complete -> {
                 Div {
                     Text("Done")
                 }
             }
+
             LoginStatus.LoggedIn -> {
                 H4 {
                     Text("Logged in as ${flowState.auth.userName}")
@@ -37,8 +39,9 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
                     Login()
                 }
             }
+
             LoginStatus.Failed -> {
-                Progress {  }
+                Progress { }
                 P {
                     Text(flowState.errorMessage ?: "")
                     viewModel.reload()
@@ -59,28 +62,44 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
             Text("Login")
         }
     }
-    Input(type = InputType.Text) {
-        placeholder("user name")
-        onInput {
-            viewModel.setUserName(it.value)
+    Form(attrs = {
+        onSubmit { it.preventDefault() }
+    }) {
+        Div(attrs = { classes("mb-3") }) {
+            Label("username") {
+                Text("Username")
+            }
+            Input(type = InputType.Text) {
+                id("username")
+                classes("form-control")
+                onInput {
+                    viewModel.setUserName(it.value)
+                }
+                value(flowState.auth.userName)
+            }
+
         }
-        value(flowState.auth.userName)
-    }
-    Br()
-    Input(type = InputType.Password) {
-        placeholder("password")
-        onInput {
-            viewModel.setPassword(it.value)
+        Div(attrs = { classes("mb-3") }) {
+            Label("password") {
+                Text("Password")
+            }
+            Input(type = InputType.Password) {
+                id("password")
+                classes("form-control")
+                onInput {
+                    viewModel.setPassword(it.value)
+                }
+                value(flowState.pass)
+            }
+
         }
-        value(flowState.pass)
-    }
-    Br()
-    val label = if (creator) "Add" else "Login"
-    RgButton(label, RgButtonStyle.Primary, flowState.pass.length < 4) {
-        if (creator) {
-            viewModel.submitNew()
-        } else {
-            viewModel.login()
+        val label = if (creator) "Add" else "Login"
+        RgButton(label, RgButtonStyle.Primary, flowState.pass.length < 4) {
+            if (creator) {
+                viewModel.submitNew()
+            } else {
+                viewModel.login()
+            }
         }
     }
 }

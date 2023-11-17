@@ -1,3 +1,8 @@
+- Show num boats in class
+- Show num races in series 
+- People show last race date
+- Boats show last race date
+- Deactivate vs delete
 - Race checkin / 
 - Websockets
 - Edit boat

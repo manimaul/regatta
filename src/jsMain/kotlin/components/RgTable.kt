@@ -52,9 +52,11 @@ fun RgTh(
 fun RgTd(
     colSpan: Int? = null,
     scope: Scope = Scope.Row,
+    classes: Collection<String>? = null,
     content: ContentBuilder<HTMLTableCellElement>? = null
 ) = Td(
     attrs = {
+        classes?.let { classes(it) }
         scope(scope)
         colSpan?.let { colspan(it) }
     }, content = content
