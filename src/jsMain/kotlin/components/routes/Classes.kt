@@ -1,86 +1,57 @@
 package components.routes
 
 import androidx.compose.runtime.*
+import com.mxmariner.regatta.data.RaceCategory
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import utils.*
-import viewmodel.BaseViewModel
-import viewmodel.RouteViewModel
-import viewmodel.VmState
-import viewmodel.routeViewModel
+import viewmodel.*
 
-data class ClassesState(
-    val classList: Async<List<RaceClassCategory>> = Uninitialized,
-) : VmState
-class ClassesViewModel(
-    val routeVm: RouteViewModel = routeViewModel
-) : BaseViewModel<ClassesState>(ClassesState()){
-
-    init {
-        reload()
-    }
-
-    fun reload(pause: Long? = null) {
-        launch {
-            pause?.let { delay(it) }
-            setState {
-                copy(classList = Api.getAllCategories().toAsync())
+@Composable
+fun Classes(
+    viewModel: ClassesViewModel = remember { ClassesViewModel() }
+) {
+    val flowState by viewModel.flow.collectAsState()
+    when (val deleted = flowState.deletedCat) {
+        is Complete -> RgOk("Deleted '${deleted.value.name}'") {
+           viewModel.reload()
+        }
+        is Error -> CategoryError(viewModel, deleted)
+        is Loading -> RgSpinner()
+        Uninitialized -> flowState.deleteCat?.let { cat ->
+            RgConfirm("Delete", "${cat.name}!") {
+                if (it) {
+                    viewModel.delete(cat)
+                } else {
+                    viewModel.setDeleteCategory(null)
+                }
             }
-        }
-    }
-
-    fun setEditClass(rc: RaceClass?) {
-        routeVm.pushRoute("/class/${rc?.id}")
-    }
-
-    fun upsertCategory(category: RaceClassCategory) {
-        setState {
-            val list = Api.postCategory(category).toAsync().flatMap { Api.getAllCategories().toAsync() }
-            copy(
-                classList = list
-            )
-        }
-    }
-    fun upsertClass(raceClass: RaceClass) {
-        setState {
-            val list = Api.postClass(raceClass).toAsync().flatMap { Api.getAllCategories().toAsync() }
-            copy(
-                classList = list
-            )
+        } ?: when (val list = flowState.classList) {
+            is Complete -> CategoryList(viewModel, list.value)
+            is Error -> CategoryError(viewModel, list)
+            is Loading -> RgSpinner()
+            Uninitialized -> Unit
         }
     }
 }
 
 @Composable
-fun Classes(
-    viewModel: ClassesViewModel = remember { ClassesViewModel()}
+fun CategoryError(
+    viewModel: ClassesViewModel,
+    error: Error<*>,
 ) {
-    val flowState by viewModel.flow.collectAsState()
-
-    when (val list = flowState.classList) {
-        is Complete -> CategoryList(viewModel, list.value)
-        is Error -> {
-            P {
-                Text("Something went wrong")
-            }
-            list.message?.let {
-                P {
-                   Text(it)
-                }
-            }
-            viewModel.reload(3000)
-        }
-        is Loading -> RgSpinner()
-        Uninitialized -> Unit
+    P {
+        Text("Something went wrong")
     }
+    P {
+        Text(error.message)
+    }
+    viewModel.reload(3000)
 }
-
 
 @Composable
 fun CategoryList(
@@ -96,16 +67,36 @@ fun CategoryList(
             }
         }
         list.forEachIndexed { index, cat ->
-            H2 { Text(cat.name) }
-                RgTbody {
-                    ClassRow(viewModel, cat.children ?: emptyList())
-                    AddClass(viewModel, cat)
-                    if (index == list.size - 1) {
-                        AddCategory(viewModel)
+            RgTbody {
+                RgTr {
+                    val span = if (cat.children == null || cat.children.isEmpty()) {
+                        1
+                    } else {
+                        3
                     }
+                    RgTd(span) {
+                        H2 { Text(cat.name) }
+                    }
+                    if (span == 1) {
+                        RgTh {
+                            RgButton(
+                                "Delete",
+                                RgButtonStyle.Danger,
+                            ) {
+                                viewModel.setDeleteCategory(cat)
+                            }
+                        }
+                        RgTd { }
+                    }
+                }
+                ClassRow(viewModel, cat.children ?: emptyList())
+                AddClass(viewModel, cat)
+                if (index == list.size - 1) {
+                    AddCategory(viewModel)
                 }
             }
         }
+    }
 }
 
 @Composable
@@ -136,23 +127,19 @@ fun AddCategory(
     Br()
     RgTr {
         RgTd(2) {
-            Input(type = InputType.Text) {
-                placeholder("Name")
-                classes("form-control")
-                onInput {
-                    name = it.value
-                }
-                value(name)
+            RgInput("Name", name, true) {
+               name = it
             }
         }
         RgTd {
-            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank(), listOf("float-end") ) {
-                viewModel.upsertCategory(RaceClassCategory(name = name))
+            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank(), listOf("float-end")) {
+                viewModel.upsertCategory(RaceCategory(name = name))
                 name = ""
             }
         }
     }
 }
+
 @Composable
 fun AddClass(
     viewModel: ClassesViewModel,
@@ -162,23 +149,13 @@ fun AddClass(
     var desc by remember { mutableStateOf("") }
     RgTr {
         RgTd {
-            Input(type = InputType.Text) {
-                classes("form-control")
-                placeholder("Name")
-                onInput {
-                    name = it.value
-                }
-                value(name)
+            RgInput("Name", name, true) {
+               name = it
             }
         }
         RgTd {
-            Input(type = InputType.Text) {
-                classes("form-control")
-                placeholder("Description")
-                onInput {
-                    desc = it.value
-                }
-                value(desc)
+            RgInput("Description", desc, true) {
+                desc = it
             }
         }
         RgTd {

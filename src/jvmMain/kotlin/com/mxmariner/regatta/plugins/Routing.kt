@@ -68,6 +68,11 @@ fun Application.configureRouting() {
                     RegattaDatabase.deletePerson(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
+            delete("/category".versionedApi()) {
+                call.request.queryParameters["id"]?.toLong()?.let {
+                    RegattaDatabase.deleteCategory(it)
+                }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+            }
             delete("/series".versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteSeries(it)

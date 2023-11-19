@@ -376,4 +376,10 @@ object RegattaDatabase {
         }
     }
 
+    suspend fun deleteCategory(id: Long) = dbQuery {
+        RaceClassCategoryTable.deleteWhere {
+            RaceClassCategoryTable.id eq id
+        }
+    }
+
 }

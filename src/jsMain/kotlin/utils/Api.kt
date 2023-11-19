@@ -45,8 +45,8 @@ object Api {
 
     suspend fun postClass(raceClass: RaceClass) =
         Network.post<RaceClass, RaceClass>("raceClass", raceClass)
-    suspend fun postCategory(raceClass: RaceClassCategory) =
-        Network.post<RaceClassCategory, RaceClassCategory>("raceCategory", raceClass)
+    suspend fun postCategory(raceClass: RaceCategory) =
+        Network.post<RaceCategory, RaceCategory>("raceCategory", raceClass)
 
     suspend fun getPerson(id: Long) =
         Network.get<Person>("person", mapOf("id" to "$id"))
@@ -59,4 +59,7 @@ object Api {
 
     suspend fun deleteClass(id: Long) =
         Network.delete("raceClass", mapOf("id" to "$id"))
+
+    suspend fun deleteCategory(id: Long) =
+        Network.delete("category", mapOf("id" to "$id"))
 }
