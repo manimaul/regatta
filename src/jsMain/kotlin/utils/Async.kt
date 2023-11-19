@@ -94,6 +94,20 @@ suspend fun <A, B, R> combineAsync(
         Error.from(oneAsync.error, twoAsync.error)
     }
 }
+
+suspend fun <A, B, C, R> combineAsync(
+    oneAsync: Async<A>,
+    twoAsync: Async<B>,
+    threeAsync: Async<C>,
+    reducer: suspend (A, B, C) -> R
+): Async<R> {
+    return if (oneAsync is Complete && twoAsync is Complete && threeAsync is Complete) {
+        Complete(reducer(oneAsync.value, twoAsync.value, threeAsync.value))
+    } else {
+        Error.from(oneAsync.error, twoAsync.error, threeAsync.error)
+    }
+}
+
 suspend fun <A, B, C, R> combineAsync(
     one: NetworkResponse<A>,
     two: NetworkResponse<B>,

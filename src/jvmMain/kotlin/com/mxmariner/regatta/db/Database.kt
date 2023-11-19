@@ -281,18 +281,24 @@ object RegattaDatabase {
     }
 
     suspend fun allBoats(): List<Boat> = dbQuery {
-        BoatTable.innerJoin(PersonTable).innerJoin(RaceClassTable).selectAll().map { row ->
+        BoatTable.innerJoin(PersonTable).innerJoin(RaceClassTable).selectAll().asSequence().map { row ->
             val person = resultRowToPerson(row)
             val raceClass = resultRowToClass(row)
             resultRowToBoat(row, person, raceClass)
-        }.plus(BoatTable.innerJoin(PersonTable).select { BoatTable.currentClass eq (null) }.map {
+        }.plus(BoatTable.innerJoin(PersonTable).select {
+            BoatTable.currentClass eq (null)
+        }.map {
             val person = resultRowToPerson(it)
             resultRowToBoat(it, person, null)
-        }).plus(BoatTable.innerJoin(RaceClassTable).select { BoatTable.skipper eq (null) }.map {
-            val person = resultRowToPerson(it)
-            resultRowToBoat(it, person, null)
-        }).plus(BoatTable.select { (BoatTable.skipper eq null) and (BoatTable.currentClass eq null) }.map {
-            resultRowToBoat(it, null)
+        }).plus(BoatTable.innerJoin(RaceClassTable).select {
+            BoatTable.skipper eq (null)
+        }.map {
+            val raceClass = resultRowToClass(it)
+            resultRowToBoat(it, null, raceClass)
+        }).plus(BoatTable.select {
+            (BoatTable.skipper eq null) and (BoatTable.currentClass eq null)
+        }.map {
+            resultRowToBoat(it, null, null)
         }).sortedWith { lhs, rhs ->
             if (lhs.phrfRating != null && rhs.phrfRating != null) {
                 lhs.phrfRating.compareTo(rhs.phrfRating)
@@ -305,7 +311,7 @@ object RegattaDatabase {
             } else {
                 0
             }
-        }
+        }.toList()
     }
 
     suspend fun allCategories(): List<RaceClassCategory> = dbQuery {
