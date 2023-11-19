@@ -231,9 +231,7 @@ object RegattaDatabase {
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
                 it[currentClass] = boat.raceClass?.id
-                boat.skipper?.id?.let { skipperId ->
-                    it[skipper] = skipperId
-                }
+                it[skipper] = boat.skipper?.id
             }.takeIf { it == 1 }?.let { boat }
         } else {
             BoatTable.insert {
@@ -243,9 +241,7 @@ object RegattaDatabase {
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
                 it[currentClass] = boat.raceClass?.id
-                boat.skipper?.id?.let { skipperId ->
-                    it[skipper] = skipperId
-                }
+                it[skipper] = boat.skipper?.id
             }.resultedValues?.singleOrNull()?.let {
                 resultRowToBoat(it)
             }

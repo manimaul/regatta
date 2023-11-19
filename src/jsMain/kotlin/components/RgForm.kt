@@ -29,6 +29,7 @@ fun RgInput(
     listener: (String) -> Unit
 ) {
     val id = remember { "${++num}_input" }
+    if (!placeHolder) { Label(id) { B { Text(label) } } }
     Input(InputType.Text) {
         id(id)
         if (placeHolder) { placeholder(label) }
@@ -38,7 +39,6 @@ fun RgInput(
             listener(it.value)
         }
     }
-    if (!placeHolder) { Label(id) { B { Text(label) } } }
 }
 
 @Composable
@@ -55,6 +55,13 @@ fun RgCheck(
             classes(it)
         } ?: classes("form-check")
     }) {
+        Label(id, attrs = { classes("form-check-label") }) {
+            if (bold) {
+                B { Text(label) }
+            } else  {
+                Text(label)
+            }
+        }
         CheckboxInput(
             attrs = {
                 classes("form-check-input")
@@ -65,12 +72,5 @@ fun RgCheck(
                 }
             }
         )
-        Label(id, attrs = { classes("form-check-label") }) {
-            if (bold) {
-                B { Text(label) }
-            } else  {
-                Text(label)
-            }
-        }
     }
 }

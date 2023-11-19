@@ -28,14 +28,30 @@ class EditBoatViewModel(
     val id: Long?,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<EditBoatState>(EditBoatState()) {
+
+
     fun upsertBoat(newBoat: Boat) {
-        TODO("Not yet implemented")
+        setState {
+            copy(
+                data = Api.postBoat(newBoat).toAsync().mapErrorMessage { "error updating boat id $id" }.map { boat ->
+                    EditBoatComposite(boat, emptyList(), emptyList())
+                },
+                operation = Operation.Updated
+            )
+        }
     }
-
     fun deleteBoat(boat: Boat) {
-        TODO("Not yet implemented")
+        boat.id?.let { id ->
+            setState {
+                copy(
+                    data = Api.deleteBoat(id).toAsync().mapErrorMessage { "error deleting boat id $id" }.map {
+                        EditBoatComposite(boat, emptyList(), emptyList())
+                    },
+                    operation = Operation.Deleted
+                )
+            }
+        }
     }
-
     fun cancelEdit() {
         routeVm.goBackOrHome()
     }
@@ -67,7 +83,18 @@ fun BoatEdit(
 ) {
     val state by viewModel.flow.collectAsState()
     when (val data = state.data) {
-        is Complete -> EditBoat(data.value.boat, data.value.people, data.value.raceClass, viewModel)
+        is Complete -> {
+            when (state.operation) {
+                Operation.Fetched -> EditBoat(data.value.boat, data.value.people, data.value.raceClass, viewModel)
+                Operation.Updated -> RgOk("Updated!", data.value.boat.name)  {
+                    viewModel.routeVm.goBackOrHome()
+                }
+                Operation.Deleted -> RgOk("Deleted!", data.value.boat.name) {
+                    viewModel.routeVm.goBackOrHome()
+                }
+                Operation.None -> Unit
+            }
+        }
         is Error -> P { Text(data.message) }
         is Loading -> RgSpinner()
         Uninitialized -> Unit
@@ -103,54 +130,37 @@ fun EditBoat(
             Div(attrs = { classes("mb-3") }) {
                 Fieldset {
                     P {
-                        Input(InputType.Text) {
-                            id("name")
-                            classes("form-control")
-                            value(newBoat.name)
-                            onInput { newBoat = newBoat.copy(name = it.value) }
+                        RgInput("Name", newBoat.name) {
+                            newBoat = newBoat.copy(name = it)
                         }
-                        Label("name") { B { Text("Name") } }
                     }
                     P {
-                        Input(InputType.Text) {
-                            id("sail")
-                            classes("form-control")
-                            value(newBoat.sailNumber)
-                            onInput { newBoat = newBoat.copy(sailNumber = it.value) }
+                        RgInput("Sail Number", newBoat.sailNumber) {
+                            newBoat = newBoat.copy(sailNumber = it)
                         }
-                        Label("sail") { B { Text("Sail Number") } }
                     }
                     P {
-                        Input(InputType.Text) {
-                            id("type")
-                            classes("form-control")
-                            value(newBoat.boatType)
-                            onInput { newBoat = newBoat.copy(boatType = it.value) }
+                        RgInput("Boat Type", newBoat.boatType) {
+                            newBoat = newBoat.copy(boatType = it)
                         }
-                        Label("type") { B { Text("Boat Type") } }
                     }
                     P {
-                        Input(type = InputType.Text) {
-                            id("rating")
-                            classes("form-control")
-                            onInput {
-                                newBoat = newBoat.copy(phrfRating = it.value.digits(3).toIntOrNull())
-                            }
-                            value(newBoat.phrfRating?.toString() ?: "")
+                        RgInput("PHRF Rating", newBoat.phrfRating?.toString() ?: "") {
+                            newBoat = newBoat.copy(phrfRating = it.digits(3).toIntOrNull())
                         }
-                        Label("rating") { B { Text("PHRF Rating") } }
                     }
                     P {
-                        ClassDropdown(categories, newBoat.raceClass) {
+                        B { Text("Class") }
+                        RgClassDropdown(categories, newBoat.raceClass) {
                             newBoat = newBoat.copy(raceClass = it)
                         }
-                        Text("Class")
                     }
                     P {
-                        SkipperDropdown(people, newBoat.skipper) {
+                        B { Text("Skipper") }
+                        RgSkipperDropdown(people, newBoat.skipper) {
                             newBoat = newBoat.copy(skipper = it)
+                            println("skipper selected ${it} ${newBoat.skipper}")
                         }
-                        Text("Skipper")
                     }
                 }
                 RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {

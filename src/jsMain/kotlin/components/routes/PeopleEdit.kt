@@ -13,66 +13,10 @@ import utils.*
 import viewmodel.*
 
 
-data class EditPersonState(
-    val person: Async<Person> = Uninitialized,
-    val operation: Operation = Operation.None
-) : VmState
-
-class EditPersonViewModel(
-    val personId: Long?,
-    val routeVm: RouteViewModel = routeViewModel
-) : BaseViewModel<EditPersonState>(EditPersonState()) {
-
-    init {
-        launch {
-            personId?.let {
-                setState {
-                    EditPersonState(
-                        Api.getPerson(personId).toAsync().mapErrorMessage { "error fetching user id $personId" },
-                        Operation.Fetched
-                    )
-                }
-            } ?: setState {
-                EditPersonState(
-                    Error(),
-                    Operation.Fetched
-                )
-            }
-        }
-    }
-
-    fun delete(person: Person) {
-        person.id?.let {
-            setState {
-                copy(
-                    person = Api.deletePerson(person.id).toAsync().map { person }
-                        .mapErrorMessage { "error deleting ${person.first}, ${person.last}" },
-                    operation = Operation.Deleted
-                )
-            }
-        }
-    }
-
-    fun cancelEdit() {
-        routeVm.goBackOrHome()
-    }
-
-    fun upsertPerson(person: Person) {
-        setState {
-            copy(
-                person = Api.postPerson(person).toAsync()
-                    .mapErrorMessage { "error updating ${person.first}, ${person.last}" },
-                operation = Operation.Updated
-            )
-        }
-    }
-
-}
-
 @Composable
 fun PeopleEdit(
     id: Long?,
-    viewModel: EditPersonViewModel = remember { EditPersonViewModel(id) },
+    viewModel: PeopleEditViewModel = remember { PeopleEditViewModel(id) },
 ) {
     val state by viewModel.flow.collectAsState()
     when (val person = state.person) {
@@ -99,7 +43,7 @@ fun PeopleEdit(
 @Composable
 fun EditPerson(
     person: Person,
-    viewModel: EditPersonViewModel,
+    viewModel: PeopleEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var newPerson by remember { mutableStateOf(person) }
