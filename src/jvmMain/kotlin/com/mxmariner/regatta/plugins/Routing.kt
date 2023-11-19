@@ -25,6 +25,11 @@ fun Application.configureRouting() {
         get("/allClasses".versionedApi()) {
             call.respond(RegattaDatabase.allRaceClasses())
         }
+        get("/raceClass".versionedApi()) {
+            call.request.queryParameters["id"]?.toLong()?.let {
+                RegattaDatabase.findRaceClass(it)
+            }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+        }
         get("/allCategories".versionedApi()) {
             call.respond(RegattaDatabase.allCategories())
         }

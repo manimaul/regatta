@@ -107,23 +107,17 @@ object RegattaDatabase {
                 val person = resultRowToPerson(it)
                 val raceClass = resultRowToClass(it)
                 resultRowToBoat(it, person, raceClass)
-            }.singleOrNull() ?:
-
-            BoatTable.innerJoin(PersonTable).select {
+            }.singleOrNull() ?: BoatTable.innerJoin(PersonTable).select {
                 BoatTable.id eq id
             }.map {
                 val person = resultRowToPerson(it)
                 resultRowToBoat(it, person, null)
-            }.singleOrNull() ?:
-
-            BoatTable.innerJoin(RaceClassTable).select {
+            }.singleOrNull() ?: BoatTable.innerJoin(RaceClassTable).select {
                 BoatTable.id eq id
             }.map {
                 val raceClass = resultRowToClass(it)
                 resultRowToBoat(it, null, raceClass)
-            }.singleOrNull() ?:
-
-            BoatTable.select {
+            }.singleOrNull() ?: BoatTable.select {
                 BoatTable.id eq id
             }.map {
                 resultRowToBoat(it, null, null)
@@ -352,6 +346,10 @@ object RegattaDatabase {
         RaceClassTable.selectAll().map(::resultRowToClass)
     }
 
+    suspend fun findRaceClass(id: Long) = dbQuery {
+        RaceClassTable.select { RaceClassTable.id.eq(id) }.map(::resultRowToClass).singleOrNull()
+    }
+
     private fun resultRowToClass(row: ResultRow) = RaceClass(
         id = row[RaceClassTable.id],
         name = row[RaceClassTable.name],
@@ -377,4 +375,5 @@ object RegattaDatabase {
             RaceClassTable.id eq id
         }
     }
+
 }

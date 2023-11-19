@@ -54,4 +54,9 @@ object Api {
     suspend fun getBoat(id: Long) =
         Network.get<Boat>("boat", mapOf("id" to "$id"))
 
+    suspend fun getClass(id: Long) =
+        Network.get<RaceClass>("raceClass", mapOf("id" to "$id"))
+
+    suspend fun deleteClass(id: Long) =
+        Network.delete("raceClass", mapOf("id" to "$id"))
 }

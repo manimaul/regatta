@@ -35,6 +35,7 @@ fun Router(
                 Route.Admin -> Admin()
                 Route.PeopleEdit -> PeopleEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.BoatEdit -> BoatEdit(state.current.args?.get("id")?.toLongOrNull())
+                Route.ClassesEdit -> ClassEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.NotFound -> Text("womp womp, something's missing")
             }
         }

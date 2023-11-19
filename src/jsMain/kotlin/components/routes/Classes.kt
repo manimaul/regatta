@@ -11,13 +11,16 @@ import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import utils.*
 import viewmodel.BaseViewModel
+import viewmodel.RouteViewModel
 import viewmodel.VmState
+import viewmodel.routeViewModel
 
 data class ClassesState(
     val classList: Async<List<RaceClassCategory>> = Uninitialized,
-    val editClass: RaceClass? = null,
 ) : VmState
-class ClassesViewModel : BaseViewModel<ClassesState>(ClassesState()){
+class ClassesViewModel(
+    val routeVm: RouteViewModel = routeViewModel
+) : BaseViewModel<ClassesState>(ClassesState()){
 
     init {
         reload()
@@ -33,7 +36,7 @@ class ClassesViewModel : BaseViewModel<ClassesState>(ClassesState()){
     }
 
     fun setEditClass(rc: RaceClass?) {
-        setState { copy(editClass = rc) }
+        routeVm.pushRoute("/class/${rc?.id}")
     }
 
     fun upsertCategory(category: RaceClassCategory) {
@@ -44,7 +47,7 @@ class ClassesViewModel : BaseViewModel<ClassesState>(ClassesState()){
             )
         }
     }
-    fun upsertClass(raceClass: RaceClass, category: RaceClassCategory) {
+    fun upsertClass(raceClass: RaceClass) {
         setState {
             val list = Api.postClass(raceClass).toAsync().flatMap { Api.getAllCategories().toAsync() }
             copy(
@@ -180,7 +183,7 @@ fun AddClass(
         }
         RgTd {
             RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank(), listOf("float-end")) {
-                viewModel.upsertClass(RaceClass(name = name, description = desc, category = category.id!!), category)
+                viewModel.upsertClass(RaceClass(name = name, description = desc, category = category.id!!))
                 name = ""
                 desc = ""
             }

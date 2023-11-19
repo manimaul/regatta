@@ -41,10 +41,17 @@ fun <T> Async<T>.mapErrorMessage(handler: (Error<T>) -> String) : Async<T> {
     }
 }
 
+private const val unauthorized: Short = 401
 fun <T> NetworkResponse<T>.toAsync(previous: Async<T>? = null): Async<T> {
-    return body?.let {
-        Complete(it)
-    } ?: Error.from(error, value = previous?.value)
+    return if (ok) {
+        body?.let {
+            Complete(it)
+        } ?: Error.from(error, value = previous?.value, message = "$status - Network status")
+    } else if (status == unauthorized) {
+        Error.from(error, value = previous?.value, message = "401 - Unauthorized")
+    } else {
+        Error.from(error, value = previous?.value, message = "$status - Network status")
+    }
 }
 
 object Uninitialized : Async<Nothing>(false, null)
