@@ -3,7 +3,9 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.H4
+import org.jetbrains.compose.web.dom.P
+import org.jetbrains.compose.web.dom.Text
 import viewmodel.*
 
 @Composable

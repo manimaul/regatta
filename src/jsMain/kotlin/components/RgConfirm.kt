@@ -7,7 +7,7 @@ import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
 
 @Composable
-fun Confirm(
+fun RgConfirm(
     msg: String,
     handler: (Boolean) -> Unit
 ) {
@@ -24,7 +24,7 @@ fun Confirm(
     }
 }
 @Composable
-fun Ok(
+fun RgOk(
     msg: String,
     handler: () -> Unit
 ) {

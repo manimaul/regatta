@@ -15,7 +15,6 @@ data class BoatPeopleComposite(
 
 data class BoatState(
     val response: Async<BoatPeopleComposite> = Uninitialized,
-    val editBoat: Boat? = null,
 ) : VmState
 
 class BoatViewModel(
@@ -70,7 +69,6 @@ class BoatViewModel(
     }
 
     fun deleteBoat(boat: Boat) {
-        setEditBoat(null)
         boat.id?.let { id ->
             setState {
                 val boats = Api.deleteBoat(id).toAsync().flatMap { Api.getAllBoats().toAsync() }
@@ -86,13 +84,12 @@ class BoatViewModel(
     }
 
    fun setEditBoat(boat: Boat?) {
-       setState {
-           copy(editBoat = boat)
+       boat?.id?.let {
+           routeVm.pushRoute("/boat/${boat.id}")
        }
    }
 
     fun upsertBoat(newBoat: Boat) {
-        setEditBoat(null)
         launch {
             Api.postBoat(newBoat)
             getAllBoatsAndPeople()

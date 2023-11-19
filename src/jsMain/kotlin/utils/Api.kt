@@ -51,4 +51,7 @@ object Api {
     suspend fun getPerson(id: Long) =
         Network.get<Person>("person", mapOf("id" to "$id"))
 
+    suspend fun getBoat(id: Long) =
+        Network.get<Boat>("boat", mapOf("id" to "$id"))
+
 }

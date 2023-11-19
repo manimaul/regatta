@@ -7,7 +7,7 @@ import kotlin.math.PI
 
 @OptIn(ExperimentalComposeWebSvgApi::class)
 @Composable
-fun Spinner(
+fun RgSpinner(
     size: Float = 50f,
     color: String = "black"
 ) {

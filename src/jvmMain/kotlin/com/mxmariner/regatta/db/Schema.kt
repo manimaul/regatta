@@ -1,8 +1,5 @@
 package com.mxmariner.regatta.db
 
-import com.mxmariner.regatta.db.BoatTable.nullable
-import com.mxmariner.regatta.db.BoatTable.references
-import com.mxmariner.regatta.db.RaceClassTable.autoIncrement
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 

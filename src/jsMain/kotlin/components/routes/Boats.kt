@@ -6,13 +6,10 @@ import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
-import org.jetbrains.compose.web.dom.Table
 import utils.*
 import viewmodel.BoatViewModel
 
@@ -21,110 +18,17 @@ fun Boats(
     viewModel: BoatViewModel = remember { BoatViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    flowState.editBoat?.let {
-        EditBoat(
-            boat = it,
-            people = flowState.response.value?.people ?: emptyList(),
-            categories = flowState.response.value?.raceClass ?: emptyList(),
-            viewModel = viewModel
-        )
-    } ?: when (val state = flowState.response) {
+    when (val state = flowState.response) {
         is Complete -> BoatList(state.value.boats, state.value.people, state.value.raceClass, viewModel)
         is Error -> {
             Text("error")
-            Spinner()
+            RgSpinner()
         }
-
-        is Loading -> Spinner()
+        is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
 }
 
-@Composable
-fun EditBoat(
-    boat: Boat,
-    people: List<Person>,
-    categories: List<RaceClassCategory>,
-    viewModel: BoatViewModel,
-) {
-    var confirmDelete by remember { mutableStateOf(false) }
-    var newBoat by remember { mutableStateOf(boat) }
-
-    if (confirmDelete) {
-        val msg = boat.skipper?.let {
-            "Delete ${boat.name} owned by ${it.first} ${it.last}?"
-        } ?: "Delete ${boat.name}?"
-        Confirm(msg) { delete ->
-            if (delete) {
-                viewModel.deleteBoat(boat)
-            } else {
-                confirmDelete = false
-            }
-        }
-    } else {
-        Form {
-            Fieldset {
-                Legend { Text("Edit id:${boat.id} ${boat.name}") }
-                P {
-                    Input(InputType.Text) {
-                        id("name")
-                        value(newBoat.name)
-                        onInput { newBoat = newBoat.copy(name = it.value) }
-                    }
-                    Label("name") { Text("Name") }
-                }
-                P {
-                    Input(InputType.Text) {
-                        id("sail")
-                        value(newBoat.sailNumber)
-                        onInput { newBoat = newBoat.copy(sailNumber = it.value) }
-                    }
-                    Label("sail") { Text("Sail Number") }
-                }
-                P {
-                    Input(InputType.Text) {
-                        id("type")
-                        value(newBoat.boatType)
-                        onInput { newBoat = newBoat.copy(boatType = it.value) }
-                    }
-                    Label("type") { Text("Boat Type") }
-                }
-                P {
-                    Input(type = InputType.Text) {
-                        id("rating")
-                        onInput {
-                            newBoat = newBoat.copy(phrfRating = it.value.digits(3).toIntOrNull())
-                        }
-                        value(newBoat.phrfRating?.toString() ?: "")
-                    }
-                    Label("rating") { Text("PHRF Rating") }
-                }
-                P {
-                    ClassDropdown(categories, newBoat.raceClass) {
-                        newBoat = newBoat.copy(raceClass = it)
-                    }
-                    Text("Class")
-                }
-                P {
-                    SkipperDropdown(people, newBoat.skipper) {
-                        newBoat = newBoat.copy(skipper = it)
-                    }
-                    Text("Skipper")
-                }
-            }
-        }
-        Br()
-        RgButton("Cancel", RgButtonStyle.PrimaryOutline) {
-            viewModel.setEditBoat(null)
-        }
-        RgButton("Save", RgButtonStyle.Primary) {
-            viewModel.upsertBoat(newBoat)
-        }
-        RgButton("Delete", RgButtonStyle.Danger) {
-            confirmDelete = true
-        }
-    }
-}
 
 @Composable
 fun BoatList(

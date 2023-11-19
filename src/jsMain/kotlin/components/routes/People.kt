@@ -3,9 +3,9 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
 import components.*
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Text
 import utils.Complete
 import utils.Error
 import utils.Loading
@@ -27,11 +27,11 @@ fun People(
             }
 
             is Loading -> {
-                Spinner()
+                RgSpinner()
                 PeopleLoaded(state.value, viewModel)
             }
 
-            Uninitialized -> Spinner()
+            Uninitialized -> RgSpinner()
         }
     }
 }
@@ -83,40 +83,23 @@ fun AddPerson(viewModel: BoatViewModel) {
     var member by remember { mutableStateOf(false) }
     RgTr {
         RgTd {
-            Input(type = InputType.Text) {
-                placeholder("First")
-                classes("form-control")
-                onInput {
-                    first = it.value
-                }
-                value(first)
+            RgInput("First", first, true) {
+                first = it
             }
         }
         RgTd(2) {
-            Input(type = InputType.Text) {
-                placeholder("Last")
-                classes("form-control")
-                onInput {
-                    last = it.value
-                }
-                value(last)
+            RgInput("Last", last, true) {
+                last = it
             }
         }
         RgTd(classes = listOf("position-relative")) {
-            Div(attrs = { classes("form-check", "position-absolute", "top-50", "start-5", "translate-middle-y") }) {
-                CheckboxInput {
-                    id("member")
-                    classes("form-check-input")
-                    onChange {
-                        member = it.value
-                    }
-                    checked(member)
-                }
-                Label("member", attrs = {
-                    classes("form-check-label")
-                }) {
-                    Text("Club member")
-                }
+            RgCheck(
+                "Club member",
+                member,
+                false,
+                listOf("form-check", "position-absolute", "top-50", "start-5", "translate-middle-y")
+            ) {
+                member = it
             }
         }
         RgTd {

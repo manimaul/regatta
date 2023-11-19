@@ -105,7 +105,11 @@ fun Application.configureRouting() {
                 call.respond(RegattaDatabase.allBoats())
             }
             get("/boat".versionedApi()) {
-                call.request.queryParameters["person_id"]?.toLong()?.let {
+                call.request.queryParameters["id"]?.toLong()?.let {
+                    RegattaDatabase.findBoat(it)?.let {  boat ->
+                        call.respond(boat)
+                    }
+                } ?: call.request.queryParameters["person_id"]?.toLong()?.let {
                     RegattaDatabase.findBoatForPerson(it)?.let { boat ->
                         call.respond(boat)
                     } ?: call.respond(HttpStatusCode.NoContent)

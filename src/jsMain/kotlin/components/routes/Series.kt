@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import components.*
+import components.RgButton
+import components.RgButtonStyle
+import components.RgConfirm
+import components.RgSpinner
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
@@ -19,13 +22,11 @@ fun Series(
     val flowState by viewModel.flow.collectAsState()
     Div {
         flowState.deleteSeries?.let { series ->
-            Column {
-                Confirm("Delete '${series.name}'?") { delete ->
-                    if (delete) {
-                        viewModel.deleteSeries(series)
-                    }
-                    viewModel.confirmDeleteSeries(null)
+            RgConfirm("Delete '${series.name}'?") { delete ->
+                if (delete) {
+                    viewModel.deleteSeries(series)
                 }
+                viewModel.confirmDeleteSeries(null)
             }
         } ?: flowState.series.value?.let { allSeries ->
             H1 { Text("Series") }
@@ -73,7 +74,7 @@ fun Series(
                 }
             }
         } ?: run {
-            Spinner()
+            RgSpinner()
         }
     }
 }

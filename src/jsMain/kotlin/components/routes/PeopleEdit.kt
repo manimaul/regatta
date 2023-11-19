@@ -4,20 +4,14 @@ import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
 import components.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.Fieldset
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.P
+import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
 import utils.*
 import viewmodel.*
 
-enum class Operation {
-    None,
-    Fetched,
-    Updated,
-    Deleted
-}
 
 data class EditPersonState(
     val person: Async<Person> = Uninitialized,
@@ -86,17 +80,18 @@ fun PeopleEdit(
             when (state.operation) {
                 Operation.None -> Unit
                 Operation.Fetched -> EditPerson(person.value, viewModel)
-                Operation.Updated -> Ok("${person.value.first} ${person.value.last} has been updated") {
+                Operation.Updated -> RgOk("${person.value.first} ${person.value.last} has been updated") {
                     viewModel.cancelEdit()
                 }
-                Operation.Deleted -> Ok("${person.value.first} ${person.value.last} has been deleted!") {
+
+                Operation.Deleted -> RgOk("${person.value.first} ${person.value.last} has been deleted!") {
                     viewModel.cancelEdit()
                 }
             }
         }
 
         is Error -> P { Text(person.message) }
-        is Loading -> Spinner()
+        is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
 }
@@ -109,7 +104,7 @@ fun EditPerson(
     var confirmDelete by remember { mutableStateOf(false) }
     var newPerson by remember { mutableStateOf(person) }
     if (confirmDelete) {
-        Confirm("Delete '${person.first} ${person.last}'?") { delete ->
+        RgConfirm("Delete '${person.first} ${person.last}'?") { delete ->
             if (delete) {
                 viewModel.delete(person)
             } else {
@@ -118,49 +113,33 @@ fun EditPerson(
         }
     } else {
         H1 { Text("Edit") }
-        Form {
+        RgForm {
             Fieldset {
                 P {
-                    Input(InputType.Text) {
-                        id("first")
-                        value(newPerson.first)
-                        onInput { newPerson = newPerson.copy(first = it.value) }
+                    RgInput("First name", newPerson.first) {
+                        newPerson = newPerson.copy(first = it)
                     }
-                    Label("first") { Text("First name") }
                 }
                 P {
-                    Input(InputType.Text) {
-                        id("last")
-                        value(newPerson.last)
-                        onInput { newPerson = newPerson.copy(last = it.value) }
+                    RgInput("Last name", newPerson.last) {
+                        newPerson = newPerson.copy(last = it)
                     }
-                    Label("last") { Text("Last name") }
                 }
                 P {
-                    CheckboxInput(
-                        attrs = {
-                            id("member")
-                            checked(newPerson.clubMember)
-                            onChange {
-                                println("checked = ${it.value}")
-                                newPerson = newPerson.copy(clubMember = it.value)
-                                println("newperson ${Json.encodeToString(newPerson)}")
-                                println("checked = ${it.value}")
-                            }
-                        }
-                    )
-                    Label("member") { Text("Club member") }
+                    RgCheck("Club member", newPerson.clubMember) {
+                        newPerson = newPerson.copy(clubMember = it)
+                    }
                 }
             }
-        }
-        RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
-            viewModel.cancelEdit()
-        }
-        RgButton("Save", RgButtonStyle.Primary) {
-            viewModel.upsertPerson(newPerson)
-        }
-        RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
-            confirmDelete = true
+            RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
+                viewModel.cancelEdit()
+            }
+            RgButton("Save", RgButtonStyle.Primary) {
+                viewModel.upsertPerson(newPerson)
+            }
+            RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
+                confirmDelete = true
+            }
         }
     }
 }

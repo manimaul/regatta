@@ -73,7 +73,7 @@ fun Classes(
             }
             viewModel.reload(3000)
         }
-        is Loading -> Spinner()
+        is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
 }

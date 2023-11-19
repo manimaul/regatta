@@ -98,6 +98,39 @@ object RegattaDatabase {
         }
     }
 
+    suspend fun findBoat(id: Long?): Boat? = dbQuery {
+        id?.let {
+
+            BoatTable.innerJoin(PersonTable).innerJoin(RaceClassTable).select {
+                BoatTable.id eq id
+            }.map {
+                val person = resultRowToPerson(it)
+                val raceClass = resultRowToClass(it)
+                resultRowToBoat(it, person, raceClass)
+            }.singleOrNull() ?:
+
+            BoatTable.innerJoin(PersonTable).select {
+                BoatTable.id eq id
+            }.map {
+                val person = resultRowToPerson(it)
+                resultRowToBoat(it, person, null)
+            }.singleOrNull() ?:
+
+            BoatTable.innerJoin(RaceClassTable).select {
+                BoatTable.id eq id
+            }.map {
+                val raceClass = resultRowToClass(it)
+                resultRowToBoat(it, null, raceClass)
+            }.singleOrNull() ?:
+
+            BoatTable.select {
+                BoatTable.id eq id
+            }.map {
+                resultRowToBoat(it, null, null)
+            }.singleOrNull()
+        }
+    }
+
     suspend fun findPerson(name: String): List<Person> = dbQuery {
         PersonTable.select {
             (PersonTable.first ilike LikePattern("%$name%")) or (PersonTable.last ilike LikePattern("%$name%"))
