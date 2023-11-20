@@ -70,13 +70,13 @@ object RegattaDatabase {
     suspend fun upsertSeries(series: Series): Series? = dbQuery {
         if (series.id != null) {
             SeriesTable.update(where = { SeriesTable.id eq series.id }) {
-                it[name] = series.name
+                it[name] = series.name.trim()
                 it[active] = series.active
             }.takeIf { it == 1 }?.let { series }
         } else {
             val statement = SeriesTable.insert {
+                it[name] = series.name.trim()
                 it[active] = series.active
-                it[name] = series.name
             }
             statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
         }
@@ -134,15 +134,15 @@ object RegattaDatabase {
     suspend fun upsertPerson(person: Person): Person? = dbQuery {
         if (person.id != null) {
             PersonTable.update(where = { PersonTable.id eq person.id }) { stmt ->
-                stmt[first] = person.first
-                stmt[last] = person.last
+                stmt[first] = person.first.trim()
+                stmt[last] = person.last.trim()
                 stmt[clubMember] = person.clubMember
                 stmt[active] = person.active
             }.takeIf { it == 1 }?.let { person }
         } else {
             PersonTable.insert { stmt ->
-                stmt[first] = person.first
-                stmt[last] = person.last
+                stmt[first] = person.first.trim()
+                stmt[last] = person.last.trim()
                 stmt[clubMember] = person.clubMember
                 stmt[active] = person.active
             }.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
@@ -219,9 +219,9 @@ object RegattaDatabase {
     suspend fun upsertBoat(boat: Boat): Boat? = dbQuery {
         if (boat.id != null) {
             BoatTable.update(where = { BoatTable.id eq boat.id }) {
-                it[name] = boat.name
-                it[sailNumber] = boat.sailNumber
-                it[boatType] = boat.boatType
+                it[name] = boat.name.trim()
+                it[sailNumber] = boat.sailNumber.trim()
+                it[boatType] = boat.boatType.trim()
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
                 it[currentClass] = boat.raceClass?.id
@@ -229,9 +229,9 @@ object RegattaDatabase {
             }.takeIf { it == 1 }?.let { boat }
         } else {
             BoatTable.insert {
-                it[name] = boat.name
-                it[sailNumber] = boat.sailNumber
-                it[boatType] = boat.boatType
+                it[name] = boat.name.trim()
+                it[sailNumber] = boat.sailNumber.trim()
+                it[boatType] = boat.boatType.trim()
                 it[phrfRating] = boat.phrfRating
                 it[active] = boat.active
                 it[currentClass] = boat.raceClass?.id
@@ -245,12 +245,12 @@ object RegattaDatabase {
     suspend fun upsertRaceCategory(item: RaceCategory) = dbQuery {
         if (item.id != null) {
             RaceClassCategoryTable.update(where = { RaceClassCategoryTable.id eq item.id }) {
-                it[name] = item.name
+                it[name] = item.name.trim()
                 it[active] = item.active
             }.takeIf { it == 1 }?.let { item }
         } else {
             RaceClassCategoryTable.insert {
-                it[name] = item.name
+                it[name] = item.name.trim()
                 it[active] = item.active
             }.resultedValues?.singleOrNull()?.let(::resultRowToCategory)
         }
@@ -259,15 +259,15 @@ object RegattaDatabase {
     suspend fun upsertRaceClass(item: RaceClass): RaceClass? = dbQuery {
         if (item.id != null) {
             RaceClassTable.update(where = { RaceClassTable.id eq item.id }) {
-                it[name] = item.name
-                it[description] = item.description
+                it[name] = item.name.trim()
+                it[description] = item.description?.trim()
                 it[active] = item.active
                 it[category] = item.category
             }.takeIf { it == 1 }?.let { item }
         } else {
             RaceClassTable.insert {
-                it[name] = item.name
-                it[description] = item.description
+                it[name] = item.name.trim()
+                it[description] = item.description?.trim()
                 it[active] = item.active
                 it[category] = item.category
             }.resultedValues?.singleOrNull()?.let(::resultRowToClass)

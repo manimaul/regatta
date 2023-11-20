@@ -5,10 +5,7 @@ import com.mxmariner.regatta.data.RaceCategory
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
-import org.jetbrains.compose.web.dom.Br
-import org.jetbrains.compose.web.dom.H2
-import org.jetbrains.compose.web.dom.P
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.*
 import utils.Complete
 import utils.Error
 import utils.Loading
@@ -47,6 +44,7 @@ fun CategoryList(
     viewModel: ClassesViewModel,
     list: List<RaceClassCategory>,
 ) {
+    H1 { Text("Race Classes") }
     RgTable {
         RgThead {
             RgTr {
@@ -55,8 +53,9 @@ fun CategoryList(
                 RgTh { Text("Action") }
             }
         }
-        list.forEachIndexed { index, cat ->
-            RgTbody {
+        RgTbody {
+            AddCategory(viewModel)
+            list.forEach { cat ->
                 RgTr {
                     RgTd(2) {
                         H2 { Text(cat.name) }
@@ -69,9 +68,6 @@ fun CategoryList(
                 }
                 ClassRow(viewModel, cat.children ?: emptyList())
                 AddClass(viewModel, cat)
-                if (index == list.size - 1) {
-                    AddCategory(viewModel)
-                }
             }
         }
     }
@@ -101,8 +97,6 @@ fun AddCategory(
     viewModel: ClassesViewModel,
 ) {
     var name by remember { mutableStateOf("") }
-    Br()
-    Br()
     RgTr {
         RgTd(2) {
             RgInput("Name", name, true) {

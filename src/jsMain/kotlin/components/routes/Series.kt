@@ -4,10 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import components.RgButton
-import components.RgButtonStyle
-import components.RgConfirm
-import components.RgSpinner
+import components.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJSDate
 import org.jetbrains.compose.web.attributes.InputType
@@ -30,47 +27,36 @@ fun Series(
             }
         } ?: flowState.series.value?.let { allSeries ->
             H1 { Text("Series") }
-            Table(attrs = { classes("table", "table-striped-columns") }) {
-
-                Caption {
-                    Text("${Clock.System.now().toJSDate().getFullYear()}")
+            RgTable {
+                RgThead {
+                    RgTr {
+                        RgTh { Text("Series Name") }
+                        RgTh { Text("Action") }
+                    }
                 }
-                Tr {
-                    Th { Text("Series Name") }
-                    Th { Text("Action") }
-                }
-                allSeries.forEach { series ->
-                    Tr {
-                        Td { Text(series.name) }
-                        Td {
-                            RgButton("Delete", RgButtonStyle.Danger) {
-                                viewModel.confirmDeleteSeries(series)
+                RgTbody {
+                    allSeries.forEach { series ->
+                        RgTr {
+                            RgTd { Text(series.name) }
+                            RgTd {
+                                RgButton("Delete", RgButtonStyle.Danger) {
+                                    viewModel.confirmDeleteSeries(series)
+                                }
                             }
                         }
                     }
-                }
-
-                Tr {
-                    Td { }
-                    Td { }
-                }
-
-                Tr {
-                    Td {
-                        Input(type = InputType.Text) {
-                            placeholder("Add series")
-                            onInput {
-                                viewModel.setNewSeriesName(it.value)
+                    RgTr {
+                        RgTd {
+                            RgInput("New series name", flowState.newSeries.name, true) {
+                                viewModel.setNewSeriesName(it)
                             }
-                            value(flowState.newSeries.name)
+                        }
+                        RgTd {
+                            RgButton("Add", RgButtonStyle.Primary, disabled = flowState.newSeries.name.isBlank()) {
+                                viewModel.addSeries()
+                            }
                         }
                     }
-                    Td {
-                        RgButton("Add", RgButtonStyle.Primary) {
-                            viewModel.addSeries()
-                        }
-                    }
-
                 }
             }
         } ?: run {
