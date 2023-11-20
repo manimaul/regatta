@@ -9,8 +9,6 @@ import utils.*
 
 data class ClassesState(
     val classList: Async<List<RaceClassCategory>> = Uninitialized,
-    val deleteCat: RaceClassCategory? = null,
-    val deletedCat: Async<RaceClassCategory> = Uninitialized,
 ) : VmState
 
 class ClassesViewModel(
@@ -23,9 +21,6 @@ class ClassesViewModel(
 
     fun reload(pause: Long? = null) {
         launch {
-            setState {
-                copy(deleteCat = null, deletedCat = Uninitialized)
-            }
             pause?.let { delay(it) }
             setState {
                 copy(classList = Api.getAllCategories().toAsync())
@@ -55,20 +50,7 @@ class ClassesViewModel(
         }
     }
 
-    fun setDeleteCategory(cat: RaceClassCategory?) {
-        setState {
-            copy(deleteCat = cat)
-        }
-    }
-
-    fun delete(cat: RaceClassCategory) {
-        cat.id?.let {
-            setState {
-                copy(
-                    deletedCat = Api.deleteCategory(cat.id).toAsync().map { cat }
-                        .mapErrorMessage { "failed to delete '${cat.name}'!" }
-                )
-            }
-        }
+    fun editCategory(cat: RaceClassCategory) {
+        routeVm.pushRoute("/category/${cat.id}")
     }
 }

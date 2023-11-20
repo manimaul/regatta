@@ -5,37 +5,26 @@ import com.mxmariner.regatta.data.RaceCategory
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.dom.*
-import utils.*
-import viewmodel.*
+import org.jetbrains.compose.web.dom.Br
+import org.jetbrains.compose.web.dom.H2
+import org.jetbrains.compose.web.dom.P
+import org.jetbrains.compose.web.dom.Text
+import utils.Complete
+import utils.Error
+import utils.Loading
+import utils.Uninitialized
+import viewmodel.ClassesViewModel
 
 @Composable
 fun Classes(
     viewModel: ClassesViewModel = remember { ClassesViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    when (val deleted = flowState.deletedCat) {
-        is Complete -> RgOk("Deleted '${deleted.value.name}'") {
-           viewModel.reload()
-        }
-        is Error -> CategoryError(viewModel, deleted)
+    when (val list = flowState.classList) {
+        is Complete -> CategoryList(viewModel, list.value)
+        is Error -> CategoryError(viewModel, list)
         is Loading -> RgSpinner()
-        Uninitialized -> flowState.deleteCat?.let { cat ->
-            RgConfirm("Delete", "${cat.name}!") {
-                if (it) {
-                    viewModel.delete(cat)
-                } else {
-                    viewModel.setDeleteCategory(null)
-                }
-            }
-        } ?: when (val list = flowState.classList) {
-            is Complete -> CategoryList(viewModel, list.value)
-            is Error -> CategoryError(viewModel, list)
-            is Loading -> RgSpinner()
-            Uninitialized -> Unit
-        }
+        Uninitialized -> Unit
     }
 }
 
@@ -69,24 +58,13 @@ fun CategoryList(
         list.forEachIndexed { index, cat ->
             RgTbody {
                 RgTr {
-                    val span = if (cat.children == null || cat.children.isEmpty()) {
-                        1
-                    } else {
-                        3
-                    }
-                    RgTd(span) {
+                    RgTd(2) {
                         H2 { Text(cat.name) }
                     }
-                    if (span == 1) {
-                        RgTh {
-                            RgButton(
-                                "Delete",
-                                RgButtonStyle.Danger,
-                            ) {
-                                viewModel.setDeleteCategory(cat)
-                            }
+                    RgTh {
+                        RgButton("Edit Category", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                            viewModel.editCategory(cat)
                         }
-                        RgTd { }
                     }
                 }
                 ClassRow(viewModel, cat.children ?: emptyList())
@@ -128,7 +106,7 @@ fun AddCategory(
     RgTr {
         RgTd(2) {
             RgInput("Name", name, true) {
-               name = it
+                name = it
             }
         }
         RgTd {
@@ -150,7 +128,7 @@ fun AddClass(
     RgTr {
         RgTd {
             RgInput("Name", name, true) {
-               name = it
+                name = it
             }
         }
         RgTd {

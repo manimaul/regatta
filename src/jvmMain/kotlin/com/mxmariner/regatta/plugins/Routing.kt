@@ -38,6 +38,11 @@ fun Application.configureRouting() {
                 RegattaDatabase.findSeries(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
+        get("/raceCategory".versionedApi()) {
+            call.request.queryParameters["id"]?.toLong()?.let {
+                RegattaDatabase.findRaceCategory(it)
+            }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+        }
         post("/login".versionedApi()) {
             val login = call.receive<Login>()
             Token.createLoginResponse(login)?.let {

@@ -244,7 +244,7 @@ object RegattaDatabase {
 
     suspend fun upsertRaceCategory(item: RaceCategory) = dbQuery {
         if (item.id != null) {
-            RaceClassCategoryTable.update(where = { RaceClassTable.id eq item.id }) {
+            RaceClassCategoryTable.update(where = { RaceClassCategoryTable.id eq item.id }) {
                 it[name] = item.name
                 it[active] = item.active
             }.takeIf { it == 1 }?.let { item }
@@ -382,4 +382,15 @@ object RegattaDatabase {
         }
     }
 
+    suspend fun findRaceCategory(id: Long) = dbQuery {
+        RaceClassCategoryTable.select {
+            RaceClassCategoryTable.id eq id
+        }.map {
+            RaceCategory(
+                id = it[RaceClassCategoryTable.id],
+                name = it[RaceClassCategoryTable.name],
+                active = it[RaceClassCategoryTable.active],
+            )
+        }.singleOrNull()
+    }
 }

@@ -62,4 +62,7 @@ object Api {
 
     suspend fun deleteCategory(id: Long) =
         Network.delete("category", mapOf("id" to "$id"))
+
+    suspend fun getCategory(id: Long) =
+        Network.get<RaceCategory>("raceCategory", mapOf("id" to "$id"))
 }
