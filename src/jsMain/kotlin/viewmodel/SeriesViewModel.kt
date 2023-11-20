@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import utils.*
 
 data class SeriesState(
-    val series: Async<List<Series>> = Uninitialized,
+    val series: Async<List<Series>> = Loading(),
     val deleteSeries: Series? = null,
     val newSeries: Series = Series(),
 ) : VmState
@@ -13,10 +13,8 @@ data class SeriesState(
 class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
 
     init {
-        launch {
-            setState {
-                copy(series = Api.allSeries().toAsync())
-            }
+        setState {
+            copy(series = Api.allSeries().toAsync())
         }
     }
 
@@ -52,5 +50,10 @@ class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
 
     fun setNewSeriesName(name: String) {
         setState { copy(newSeries = newSeries.copy(name = name)) }
+    }
+
+    fun reload() {
+        setState { SeriesState() }
+        setState { copy(series = Api.allSeries().toAsync()) }
     }
 }

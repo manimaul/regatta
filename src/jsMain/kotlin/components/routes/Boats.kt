@@ -18,7 +18,9 @@ fun Boats(
     val flowState by viewModel.flow.collectAsState()
     when (val state = flowState.response) {
         is Complete -> BoatList(state.value.boats, state.value.people, state.value.raceClass, viewModel)
-        is Error -> Text(state.message)
+        is Error -> ErrorDisplay(state) {
+            viewModel.reload()
+        }
         is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
