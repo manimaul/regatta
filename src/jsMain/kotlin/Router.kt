@@ -27,6 +27,7 @@ fun Router(
             when (state.current.route) {
                 Route.Home -> Home()
                 Route.Series -> Series()
+                Route.SeriesEdit -> SeriesEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.People -> People()
                 Route.Races -> Races()
                 Route.RaceResult -> RaceResults()

@@ -1,24 +1,24 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
 import utils.*
 
-data class ClassEditState(
-    val series: Async<RaceClass> = Uninitialized,
+data class SeriesEditState(
+    val series: Async<Series> = Uninitialized,
     val operation: Operation = Operation.None,
 ) : VmState
 
-class ClassEditViewModel(
+class SeriesEditViewModel(
     val id: Long?,
     val routeVm: RouteViewModel = routeViewModel,
-) : BaseViewModel<ClassEditState>(ClassEditState()) {
+) : BaseViewModel<SeriesEditState>(SeriesEditState()) {
     init {
         launch {
             id?.let {
                 setState {
-                    ClassEditState(
-                        series = Api.getClass(id).toAsync(),
+                    SeriesEditState(
+                        series = Api.getSeries(id).toAsync(),
                         operation = Operation.Fetched
                     )
                 }
@@ -30,20 +30,20 @@ class ClassEditViewModel(
         routeVm.goBackOrHome()
     }
 
-    fun upsert(newClass: RaceClass) {
+    fun upsert(newSeries: Series) {
         setState {
             copy(
-                series = Api.postClass(newClass).toAsync(),
+                series = Api.postSeries(newSeries).toAsync(),
                 operation = Operation.Updated
             )
         }
     }
 
-    fun delete(raceClass: RaceClass) {
-        raceClass.id?.let { id ->
+    fun delete(series: Series) {
+        series.id?.let { id ->
             setState {
                 copy(
-                    series = Api.deleteClass(id).toAsync().map { raceClass },
+                    series = Api.deleteSeries(id).toAsync().map { series },
                     operation = Operation.Deleted
                 )
             }

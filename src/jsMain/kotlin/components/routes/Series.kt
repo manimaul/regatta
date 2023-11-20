@@ -11,7 +11,6 @@ import utils.Complete
 import utils.Error
 import utils.Loading
 import utils.Uninitialized
-import viewmodel.SeriesState
 import viewmodel.SeriesViewModel
 
 @Composable
@@ -19,22 +18,13 @@ fun Series(
     viewModel: SeriesViewModel = remember { SeriesViewModel() }
 ) {
     val flowState by viewModel.flow.collectAsState()
-    Div {
-        flowState.deleteSeries?.let { series ->
-            RgConfirm("Delete '${series.name}'?") { delete ->
-                if (delete) {
-                    viewModel.deleteSeries(series)
-                }
-                viewModel.confirmDeleteSeries(null)
-            }
-        } ?: when (val series = flowState.series) {
-            is Complete -> AllSeries(series.value, flowState.newSeries, viewModel)
-            is Error -> ErrorDisplay(series) {
-                viewModel.reload()
-            }
-            is Loading -> RgSpinner()
-            Uninitialized -> Unit
+    when (val series = flowState.series) {
+        is Complete -> AllSeries(series.value, flowState.newSeries, viewModel)
+        is Error -> ErrorDisplay(series) {
+            viewModel.reload()
         }
+        is Loading -> RgSpinner()
+        Uninitialized -> Unit
     }
 }
 
@@ -57,8 +47,8 @@ fun AllSeries(
                 RgTr {
                     RgTd { Text(series.name) }
                     RgTd {
-                        RgButton("Delete", RgButtonStyle.Danger) {
-                            viewModel.confirmDeleteSeries(series)
+                        RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                            viewModel.editSeries(series.id)
                         }
                     }
                 }
@@ -70,7 +60,7 @@ fun AllSeries(
                     }
                 }
                 RgTd {
-                    RgButton("Add", RgButtonStyle.Primary, disabled = newSeries.name.isBlank()) {
+                    RgButton("Add", RgButtonStyle.Primary, disabled = newSeries.name.isBlank(), customClasses = listOf("float-end")) {
                         viewModel.addSeries()
                     }
                 }

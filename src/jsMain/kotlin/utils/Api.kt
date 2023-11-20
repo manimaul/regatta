@@ -25,6 +25,9 @@ object Api {
     suspend fun allSeries() =
         Network.get<List<Series>>("allSeries")
 
+    suspend fun getSeries(id: Long) =
+        Network.get<Series>("series", mapOf("id" to "$id"))
+
     suspend fun postSeries(series: Series) =
         Network.post<Series, Series>("series", series)
 

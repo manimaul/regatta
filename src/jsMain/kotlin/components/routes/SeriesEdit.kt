@@ -1,7 +1,7 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Series
 import components.*
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
@@ -12,48 +12,48 @@ import utils.Complete
 import utils.Error
 import utils.Loading
 import utils.Uninitialized
-import viewmodel.ClassEditViewModel
 import viewmodel.Operation
+import viewmodel.SeriesEditViewModel
 
 @Composable
-fun ClassEdit(
+fun SeriesEdit(
     id: Long? = null,
-    viewModel: ClassEditViewModel = remember { ClassEditViewModel(id) }
+    viewModel: SeriesEditViewModel = remember { SeriesEditViewModel(id) }
 ) {
     val state by viewModel.flow.collectAsState()
-    when (val rc = state.series) {
+    when (val series = state.series) {
         is Complete -> {
             when (state.operation) {
                 Operation.None -> {}
-                Operation.Fetched -> ClassEditor(rc.value, viewModel)
-                Operation.Updated -> RgOk("'${rc.value.name}' updated!") {
+                Operation.Fetched -> SeriesEditor(series.value, viewModel)
+                Operation.Updated -> RgOk("'${series.value.name}' updated!") {
                     viewModel.cancelEdit()
                 }
 
-                Operation.Deleted -> RgOk("'${rc.value.name}' deleted!") {
+                Operation.Deleted -> RgOk("'${series.value.name}' deleted!") {
                     viewModel.cancelEdit()
                 }
             }
         }
 
-        is Error -> Text(rc.message)
+        is Error -> Text(series.message)
         is Loading -> RgSpinner()
         Uninitialized -> {}
     }
 }
 
 @Composable
-fun ClassEditor(
-    raceClass: RaceClass,
-    viewModel: ClassEditViewModel,
+fun SeriesEditor(
+    series: Series,
+    viewModel: SeriesEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
-    var newClass by remember { mutableStateOf(raceClass) }
+    var newSeries by remember { mutableStateOf(series) }
 
     if (confirmDelete) {
-        RgConfirm("Delete '${newClass.name}'?") { delete ->
+        RgConfirm("Delete '${newSeries.name}'?") { delete ->
             if (delete) {
-                viewModel.delete(raceClass)
+                viewModel.delete(series)
             } else {
                 confirmDelete = false
             }
@@ -64,13 +64,8 @@ fun ClassEditor(
         RgForm {
             Fieldset {
                 P {
-                    RgInput("Name", newClass.name) {
-                        newClass = newClass.copy(name = it)
-                    }
-                }
-                P {
-                    RgInput("Description", newClass.description ?: "") {
-                        newClass = newClass.copy(description = it)
+                    RgInput("Name", newSeries.name) {
+                        newSeries = newSeries.copy(name = it)
                     }
                 }
             }
@@ -79,7 +74,7 @@ fun ClassEditor(
                 viewModel.cancelEdit()
             }
             RgButton("Save", RgButtonStyle.Primary) {
-                viewModel.upsert(newClass)
+                viewModel.upsert(newSeries)
             }
             RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
                 confirmDelete = true

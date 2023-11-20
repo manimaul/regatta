@@ -6,30 +6,16 @@ import utils.*
 
 data class SeriesState(
     val series: Async<List<Series>> = Loading(),
-    val deleteSeries: Series? = null,
     val newSeries: Series = Series(),
 ) : VmState
 
-class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
+class SeriesViewModel(
+    val routeVm: RouteViewModel = routeViewModel
+) : BaseViewModel<SeriesState>(SeriesState()) {
 
     init {
         setState {
             copy(series = Api.allSeries().toAsync())
-        }
-    }
-
-    fun deleteSeries(series: Series) {
-        launch {
-            series.id?.let {
-                setState {
-                    copy(
-                        deleteSeries = null,
-                        series = Api.deleteSeries(it).toAsync().flatMap {
-                            Api.allSeries().toAsync()
-                        }
-                    )
-                }
-            }
         }
     }
 
@@ -44,10 +30,6 @@ class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
         }
     }
 
-    fun confirmDeleteSeries(series: Series?) {
-        setState { copy(deleteSeries = series) }
-    }
-
     fun setNewSeriesName(name: String) {
         setState { copy(newSeries = newSeries.copy(name = name)) }
     }
@@ -55,5 +37,9 @@ class SeriesViewModel : BaseViewModel<SeriesState>(SeriesState()) {
     fun reload() {
         setState { SeriesState() }
         setState { copy(series = Api.allSeries().toAsync()) }
+    }
+
+    fun editSeries(id: Long?) {
+        id?.let { routeVm.pushRoute("/series/$id") }
     }
 }
