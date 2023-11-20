@@ -14,7 +14,7 @@ data class BoatPeopleComposite(
 )
 
 data class BoatState(
-    val response: Async<BoatPeopleComposite> = Uninitialized,
+    val response: Async<BoatPeopleComposite> = Loading(),
 ) : VmState
 
 class BoatViewModel(
@@ -74,5 +74,10 @@ class BoatViewModel(
            routeVm.pushRoute("/boat/${boat.id}")
        }
    }
+
+    fun reload() {
+       setState { BoatState() }
+        getAllBoatsAndPeople()
+    }
 
 }

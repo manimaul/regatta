@@ -3,12 +3,11 @@ package viewmodel
 import com.mxmariner.regatta.data.RaceCategory
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassCategory
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import utils.*
 
 data class ClassesState(
-    val classList: Async<List<RaceClassCategory>> = Uninitialized,
+    val classList: Async<List<RaceClassCategory>> = Loading(),
 ) : VmState
 
 class ClassesViewModel(
@@ -19,9 +18,9 @@ class ClassesViewModel(
         reload()
     }
 
-    fun reload(pause: Long? = null) {
+    fun reload() {
         launch {
-            pause?.let { delay(it) }
+            setState { ClassesState() }
             setState {
                 copy(classList = Api.getAllCategories().toAsync())
             }

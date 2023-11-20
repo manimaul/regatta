@@ -21,11 +21,9 @@ fun People(
     Div {
         when (val state = flowState.response) {
             is Complete -> PeopleLoaded(state.value, viewModel)
-            is Error -> {
-                Text("Womp Womp")
-                PeopleLoaded(state.value, viewModel)
+            is Error -> ErrorDisplay(state) {
+                viewModel.reload()
             }
-
             is Loading -> {
                 RgSpinner()
                 PeopleLoaded(state.value, viewModel)

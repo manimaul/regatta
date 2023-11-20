@@ -19,25 +19,16 @@ fun Classes(
     val flowState by viewModel.flow.collectAsState()
     when (val list = flowState.classList) {
         is Complete -> CategoryList(viewModel, list.value)
-        is Error -> CategoryError(viewModel, list)
+        is Error -> {
+            ErrorDisplay(list) {
+                viewModel.reload()
+            }
+        }
         is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
 }
 
-@Composable
-fun CategoryError(
-    viewModel: ClassesViewModel,
-    error: Error<*>,
-) {
-    P {
-        Text("Something went wrong")
-    }
-    P {
-        Text(error.message)
-    }
-    viewModel.reload(3000)
-}
 
 @Composable
 fun CategoryList(
