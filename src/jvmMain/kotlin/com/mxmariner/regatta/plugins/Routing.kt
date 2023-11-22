@@ -49,7 +49,21 @@ fun Application.configureRouting() {
                 call.respond(it)
             } ?: call.respond(HttpStatusCode.Unauthorized)
         }
+        get("/allRaces".versionedApi()) {
+            call.respond(RegattaDatabase.allRaces())
+        }
+        get("/races".versionedApi()) {
+            call.request.queryParameters["id"]?.toLong()?.let {
+                RegattaDatabase.findRace(it)
+            }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+        }
         authenticate(Token.Admin.name) {
+            post("/races".versionedApi()) {
+                val race = call.receive<Race>()
+                RegattaDatabase.upsertRace(race)?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.Conflict)
+            }
             post("/auth".versionedApi()) {
                 val auth = call.receive<AuthRecord>()
                 RegattaDatabase.saveAuth(auth)?.let {
@@ -71,6 +85,11 @@ fun Application.configureRouting() {
             delete("/person".versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deletePerson(it)
+                }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            delete("/races".versionedApi()) {
+                call.request.queryParameters["id"]?.toLong()?.let {
+                    RegattaDatabase.deleteRace(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             delete("/category".versionedApi()) {

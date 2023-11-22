@@ -30,6 +30,8 @@ fun Router(
                 Route.SeriesEdit -> SeriesEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.People -> People()
                 Route.Races -> Races()
+                Route.RaceCreate -> RaceEdit()
+                Route.RaceEdit-> RaceEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.RaceResult -> RaceResults()
                 Route.Boats -> Boats()
                 Route.Classes -> Classes()

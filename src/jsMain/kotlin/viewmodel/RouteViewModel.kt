@@ -40,6 +40,8 @@ enum class Route(val pathPattern: String) {
     PeopleEdit("/people/:id"),
     Admin("/admin"),
     Races("/races"),
+    RaceCreate("/race/create"),
+    RaceEdit("/race/:id"),
     Boats("/boats"),
     BoatEdit("/boat/:id"),
     Classes("/class"),

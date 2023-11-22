@@ -1,3 +1,4 @@
+- Show next race on home screen with countdown
 - Show num boats in class
 - Show num races in series 
 - Auto refresh authorization

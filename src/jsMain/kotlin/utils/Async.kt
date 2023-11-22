@@ -33,6 +33,10 @@ suspend fun <T, R> Async<T>.map(handler: suspend (T) -> R) : Async<R> {
     return value?.let { Complete(handler(it)) } ?: Error()
 }
 
+suspend fun <T, R> Async<T>.mapNotNull(handler: suspend (T) -> R?) : Async<R> {
+    return value?.let { handler(it)?.let { Complete(it) } } ?: Error()
+}
+
 fun <T> Async<T>.mapErrorMessage(handler: (Error<T>) -> String) : Async<T> {
     return if (this is Error) {
         Error(value, error, handler(this))

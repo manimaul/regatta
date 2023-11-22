@@ -45,6 +45,26 @@ object RegattaDatabase {
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 
+    private fun rowToRace(row: ResultRow, series: Series? = null, person: Person? = null) = RaceFull(
+        id = row[RaceTable.id],
+        name = row[RaceTable.name],
+        series = series,
+        startDate = row[RaceTable.startDate],
+        endDate = row[RaceTable.endDate],
+        rc = person,
+        correctionFactor = row[RaceTable.correctionFactor]
+    )
+
+    private fun rowToRacePost(row: ResultRow) = RacePost(
+        id = row[RaceTable.id],
+        name = row[RaceTable.name],
+        seriesId = row[RaceTable.seriesId],
+        startDate = row[RaceTable.startDate],
+        endDate = row[RaceTable.endDate],
+        rcId = row[RaceTable.rcId],
+        correctionFactor = row[RaceTable.correctionFactor]
+    )
+
     private fun resultRowToSeries(row: ResultRow) = Series(
         id = row[SeriesTable.id], name = row[SeriesTable.name], active = row[SeriesTable.active]
     )
@@ -392,5 +412,91 @@ object RegattaDatabase {
                 active = it[RaceClassCategoryTable.active],
             )
         }.singleOrNull()
+    }
+
+    suspend fun allRaces() = dbQuery {
+        RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).selectAll().map {
+            val series = resultRowToSeries(it)
+            val person = resultRowToPerson(it)
+            rowToRace(it, series, person)
+        } + RaceTable.innerJoin(SeriesTable).select {
+            RaceTable.rcId eq null
+        }.map {
+            val series = resultRowToSeries(it)
+            rowToRace(it, series)
+        } + RaceTable.innerJoin(PersonTable).select {
+            RaceTable.seriesId.eq(null)
+        }.map {
+            val person = resultRowToPerson(it)
+            rowToRace(it, null, person)
+        } + RaceTable.select {
+            RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null))
+        }.map {
+            rowToRace(it)
+        }
+    }
+
+    suspend fun findRace(id: Long) = dbQuery {
+        val races = RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).select {
+            RaceTable.id eq id
+        }.map {
+            val series = resultRowToSeries(it)
+            val person = resultRowToPerson(it)
+            rowToRace(it, series, person)
+        } + RaceTable.innerJoin(SeriesTable).select {
+            RaceTable.id.eq(id).and(RaceTable.rcId.eq(null))
+        }.map {
+            val series = resultRowToSeries(it)
+            rowToRace(it, series, null)
+        } + RaceTable.innerJoin(PersonTable).select {
+            RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null))
+        }.map {
+            val person = resultRowToPerson(it)
+            rowToRace(it, null, person)
+        } + RaceTable.select {
+            RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null)))
+        }.map {
+            rowToRace(it, null, null)
+        }
+        races.singleOrNull()
+    }
+
+    suspend fun upsertRace(race: Race): RaceFull? {
+        return dbQuery {
+            val id = race.id
+            if (id != null) {
+                RaceTable.update(where = { RaceTable.id eq id }) {
+                    it[name] = race.name.trim()
+                    it[seriesId] = race.seriesId
+                    it[startDate] = race.startDate
+                    it[endDate] = race.endDate
+                    it[rcId] = race.rcId
+                    it[correctionFactor] = race.correctionFactor
+                }.takeIf { it > 0 }?.let { race }
+            } else {
+                RaceTable.insert {
+                    it[name] = race.name.trim()
+                    it[seriesId] = race.seriesId
+                    it[startDate] = race.startDate
+                    it[endDate] = race.endDate
+                    it[rcId] = race.rcId
+                    it[correctionFactor] = race.correctionFactor
+                }.resultedValues?.map { rowToRacePost(it) }?.singleOrNull()
+            }
+        }?.let {
+            RaceFull(
+                id = it.id,
+                name = it.name,
+                series = it.seriesId?.let { findSeries(it) },
+                startDate = it.startDate,
+                endDate = it.endDate,
+                rc = findPerson(it.rcId),
+                correctionFactor = it.correctionFactor
+            )
+        }
+    }
+
+    suspend fun deleteRace(id: Long) = dbQuery {
+        RaceTable.deleteWhere { RaceTable.id eq id }
     }
 }
