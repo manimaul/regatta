@@ -38,10 +38,6 @@ data class LoginState(
     val login: LoginResponse? = localStoreGet<LoginResponse>()
 ) : VmState
 
-private fun getClockValue(): String {
-    val now = Clock.System.now()
-    return now.toJSDate().toLocaleTimeString()
-}
 
 private fun loginExpires(login: LoginResponse?): String {
     return login?.expires?.let {

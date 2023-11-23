@@ -6,10 +6,7 @@ import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
-import utils.Complete
-import utils.Error
-import utils.Loading
-import utils.Uninitialized
+import utils.*
 import viewmodel.Operation
 import viewmodel.RacesViewModel
 
@@ -52,8 +49,8 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
                 RgTr {
                     RgTd { Text(rf.series?.name ?: "-") }
                     RgTd { Text(rf.name) }
-                    RgTd { Text(rf.startDate?.formattedDateString(false) ?: "-") }
-                    RgTd { Text(rf.endDate?.formattedDateString(false) ?: "-") }
+                    RgTd { Text(rf.startDate?.display() ?: "-") }
+                    RgTd { Text(rf.endDate?.display() ?: "-") }
                     RgTd { Text(rf.correctionFactor?.let { "$it" } ?: "-") }
                     RgTd { Text(rf.rc?.let { "${it.first} ${it.last}" } ?: "-") }
                     RgTd {
@@ -194,10 +191,12 @@ fun RaceForm(
                 }
                 Br()
                 RgDate(label = "Race start", date = race.startDate, time = true) {
+                    println("start date set to $it")
                     race = race.copy(startDate = it)
                 }
                 Br()
                 RgDate(label = "Race end", date = race.endDate, time = true) {
+                    println("end date set to $it")
                     race = race.copy(endDate = it)
                 }
             }

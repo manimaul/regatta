@@ -149,9 +149,6 @@ fun Application.configureRouting() {
                     RegattaDatabase.findPerson(it)
                 }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            get("/about".versionedApi()) {
-                call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
-            }
             get("/allBoats".versionedApi()) {
                 call.respond(RegattaDatabase.allBoats())
             }

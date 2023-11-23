@@ -3,14 +3,13 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.datetime.Instant
-import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
-import kotlinx.datetime.toKotlinInstant
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.onSubmit
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLFormElement
-import kotlin.js.Date
+import utils.datePickerInstant
+import utils.formattedDateString
 
 private var num = 0
 
@@ -49,17 +48,6 @@ fun RgInput(
     }
 }
 
-fun Instant.formattedDateString(addTime: Boolean): String {
-    val date = kotlinx.datetime.internal.JSJoda.LocalDateTime.ofInstant(
-        kotlinx.datetime.internal.JSJoda.Instant.ofEpochMilli(toEpochMilliseconds())
-    )
-    return if (addTime) {
-        DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(date)
-    } else {
-        DateTimeFormatter.ISO_LOCAL_DATE.format(date)
-    }
-}
-
 @Composable
 fun RgDate(
     label: String,
@@ -84,8 +72,7 @@ fun RgDate(
         }
         onInput {
             it.value.takeIf { it.isNotBlank() }?.let {
-                val inst = Date(it).toKotlinInstant()
-                listener(inst)
+                listener(it.datePickerInstant())
             }
         }
     }
