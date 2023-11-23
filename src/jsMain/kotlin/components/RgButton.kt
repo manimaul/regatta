@@ -24,7 +24,7 @@ enum class RgButtonStyle(val classes:  Array<String>) {
 @Composable
 fun RgButton(
     label: String,
-    style: RgButtonStyle = RgButtonStyle.Default,
+    style: RgButtonStyle = RgButtonStyle.Primary,
     disabled: Boolean = false,
     customClasses: List<String>? = null,
     click: () -> Unit,
