@@ -3,6 +3,7 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -498,5 +499,82 @@ object RegattaDatabase {
 
     suspend fun deleteRace(id: Long) = dbQuery {
         RaceTable.deleteWhere { RaceTable.id eq id }
+    }
+
+    suspend fun deleteResult(id: Long) = dbQuery {
+        RaceResultsTable.deleteWhere { RaceResultsTable.id eq id }
+    }
+
+    fun rowToResult(row: ResultRow, race: RaceFull, boat: Boat, raceClass: RaceClass) = RaceResultFull(
+        id = row[RaceResultsTable.id],
+        race = race,
+        boat = boat,
+        raceClass = raceClass,
+        finish = row[RaceResultsTable.finish],
+        phrfRating = row[RaceResultsTable.phrfRating],
+    )
+
+    suspend fun getResults(year: Int) = dbQuery {
+        val start = Instant.parse("$year-01-01")
+        val end = Instant.parse("${year + 1}-01-01")
+        RaceResultsTable.innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(RaceClassTable).select {
+            RaceResultsTable.finish.greaterEq(start) and RaceResultsTable.finish.less(end)
+        }.map {
+            val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
+            val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
+            val raceClass = resultRowToClass(it)
+            val race = rowToRace(it, series, person)
+            val boat = resultRowToBoat(it, person, raceClass)
+            rowToResult(it, race, boat, raceClass)
+        }
+    }
+
+    suspend fun getResult(id: Long) = dbQuery {
+        RaceResultsTable.innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(RaceClassTable).select {
+            RaceResultsTable.id eq id
+        }.map {
+            val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
+            val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
+            val raceClass = resultRowToClass(it)
+            val race = rowToRace(it, series, person)
+            val boat = resultRowToBoat(it, person, raceClass)
+            rowToResult(it, race, boat, raceClass)
+        }.singleOrNull()
+    }
+
+    suspend fun allResults() {
+        RaceResultsTable.innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(RaceClassTable).selectAll().map {
+            val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
+            val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
+            val raceClass = resultRowToClass(it)
+            val race = rowToRace(it, series, person)
+            val boat = resultRowToBoat(it, person, raceClass)
+            rowToResult(it, race, boat, raceClass)
+        }
+    }
+
+    suspend fun upsertResult(result: RaceResult): RaceResultFull? = dbQuery {
+        val id = result.id
+        if (id != null) {
+            RaceResultsTable.update( where = { RaceResultsTable.id eq id }) {
+                it[raceId] = result.raceId
+                it[boatId] = result.boatId
+                it[raceClass] = result.raceClassId
+                it[finish] = result.finish
+                it[phrfRating] = result.phrfRating
+            }.takeIf { it > 0 }?.let {
+                getResult(id)
+            }
+        } else {
+            RaceResultsTable.insert {
+                it[raceId] = result.raceId
+                it[boatId] = result.boatId
+                it[raceClass] = result.raceClassId
+                it[finish] = result.finish
+                it[phrfRating] = result.phrfRating
+            }.resultedValues?.singleOrNull()?.let {
+                getResult(it[RaceResultsTable.id])
+            }
+        }
     }
 }

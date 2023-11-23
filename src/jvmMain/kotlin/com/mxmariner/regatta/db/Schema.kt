@@ -69,10 +69,10 @@ object BoatTable : Table() {
 
 object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
-    val name = varchar("name", 128)
-    val raceId = (long("race_id") references RaceTable.id).nullable()
-    val boatId = (long("boat_id") references BoatTable.id).nullable()
-    val finish = timestamp("end_date").nullable()
+    val raceId = (long("race_id") references RaceTable.id)
+    val boatId = (long("boat_id") references BoatTable.id)
+    val raceClass = (long("class_id") references RaceClassTable.id)
+    val finish = timestamp("end_date")
     val phrfRating = integer("phrf_rating").nullable()
     override val primaryKey = PrimaryKey(id)
 }

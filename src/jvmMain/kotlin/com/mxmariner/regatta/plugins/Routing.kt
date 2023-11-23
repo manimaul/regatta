@@ -57,7 +57,24 @@ fun Application.configureRouting() {
                 RegattaDatabase.findRace(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
+        get("/results".versionedApi()) {
+            val results = call.request.queryParameters["year"]?.toIntOrNull()?.let {
+                RegattaDatabase.getResults(it)
+            } ?: RegattaDatabase.allResults()
+            call.respond(results)
+        }
         authenticate(Token.Admin.name) {
+            delete("/results".versionedApi()) {
+                call.request.queryParameters["id"]?.toLong()?.let {
+                    RegattaDatabase.deleteResult(it)
+                }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            post("/results".versionedApi()) {
+                val result = call.receive<RaceResult>()
+                RegattaDatabase.upsertResult(result)?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.Conflict)
+            }
             post("/races".versionedApi()) {
                 val race = call.receive<Race>()
                 RegattaDatabase.upsertRace(race)?.let {
