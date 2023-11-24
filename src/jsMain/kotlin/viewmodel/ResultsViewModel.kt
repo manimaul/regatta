@@ -10,7 +10,6 @@ data class ResultState(
 class ResultsViewModel(
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<ResultState>(ResultState()){
-
     fun addResult() {
         routeVm.pushRoute(Route.RaceResultCreate)
     }

@@ -1,3 +1,5 @@
+- Add timeseries https://github.com/chartjs/Chart.js
+- Race editor and display table (show race duration)
 - Show next race on home screen with countdown
 - Show num boats in class
 - Show num races in series 

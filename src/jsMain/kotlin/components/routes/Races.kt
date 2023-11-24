@@ -9,6 +9,7 @@ import styles.AppStyle
 import utils.*
 import viewmodel.Operation
 import viewmodel.RacesViewModel
+import kotlin.time.Duration.Companion.hours
 
 @Composable
 fun Races(
@@ -116,6 +117,7 @@ fun RaceForm(
     viewModel: RacesViewModel
 ) {
     var race by remember { mutableStateOf(editRace?.toPost() ?: RacePost()) }
+    var endSet by remember { mutableStateOf(race.endDate != null) }
     var person by remember {
         mutableStateOf(
             if (editRace is RaceFull) {
@@ -191,12 +193,15 @@ fun RaceForm(
                 }
                 Br()
                 RgDate(label = "Race start", date = race.startDate, time = true) {
-                    println("start date set to $it")
-                    race = race.copy(startDate = it)
+                    val endDate = if (!endSet) it.plus(2.5.hours) else race.endDate
+                    race = race.copy(
+                        startDate = it,
+                        endDate = endDate
+                    )
                 }
                 Br()
                 RgDate(label = "Race end", date = race.endDate, time = true) {
-                    println("end date set to $it")
+                    endSet = true
                     race = race.copy(endDate = it)
                 }
             }

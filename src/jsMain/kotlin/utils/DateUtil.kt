@@ -30,9 +30,5 @@ fun Instant.display(): String {
 }
 
 fun String.datePickerInstant() : Instant {
-    return Date(this).also {
-        println("date to date = $it")
-    }.toKotlinInstant().also {
-        println("date to instant = $it")
-    }
+    return Date(this).toKotlinInstant()
 }
