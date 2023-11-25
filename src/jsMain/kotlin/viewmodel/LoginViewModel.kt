@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.toJSDate
 import utils.*
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours

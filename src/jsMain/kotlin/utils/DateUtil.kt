@@ -23,9 +23,19 @@ fun getClockValue(): String {
     val now = Clock.System.now()
     return now.toJSDate().toLocaleTimeString()
 }
+
+fun currentYear() : String {
+    return Clock.System.now().year()
+}
 fun Instant.display(): String {
     return toJSDate().let {
         "${it.toLocaleDateString()} ${it.toLocaleTimeString()}"
+    }
+}
+
+fun Instant.year(): String {
+    return toJSDate().let {
+        "${it.getFullYear()}"
     }
 }
 

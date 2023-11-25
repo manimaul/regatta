@@ -1,16 +1,51 @@
 package viewmodel
 
+import com.mxmariner.regatta.data.RaceFull
 import com.mxmariner.regatta.data.RaceResultFull
-import utils.Async
-import utils.Uninitialized
+import kotlinx.coroutines.launch
+import kotlinx.datetime.toJSDate
+import utils.*
 
 data class ResultState(
-    val results: Async<List<RaceResultFull>> = Uninitialized
-) : VmState
+    val loggedIn: Boolean = loginViewModel.flow.value.login?.isExpired() == false,
+    val results: Async<List<RaceResultFull>> = Uninitialized,
+    val races: Async<List<RaceFull>> = Uninitialized,
+    val year: String? = currentYear()
+) : VmState {
+
+    fun racesByYear(): List<RaceFull> {
+        return races.value?.sortedByDescending{ it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
+    }
+
+    fun years(): List<String> {
+        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct() ?: emptyList()
+    }
+}
+
 class ResultsViewModel(
     val routeVm: RouteViewModel = routeViewModel,
-) : BaseViewModel<ResultState>(ResultState()){
+    val loginVm: LoginViewModel = loginViewModel,
+) : BaseViewModel<ResultState>(ResultState()) {
+
+    init {
+        launch {
+            loginVm.flow.collect {
+                val isLoggedIn = it.login?.isExpired() == false
+                setState { copy(loggedIn = isLoggedIn) }
+            }
+        }
+        setState {
+            copy(
+                races = Api.getAllRaces().toAsync()
+            )
+        }
+    }
+
     fun addResult() {
         routeVm.pushRoute(Route.RaceResultCreate)
+    }
+
+    fun selectYear(year: String?) {
+        setState { copy(year = year) }
     }
 }
