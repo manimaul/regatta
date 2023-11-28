@@ -1,7 +1,9 @@
 package viewmodel
 
+import com.mxmariner.regatta.data.Race
 import com.mxmariner.regatta.data.RaceFull
 import com.mxmariner.regatta.data.RaceResultFull
+import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJSDate
 import utils.*
@@ -12,6 +14,11 @@ data class ResultState(
     val races: Async<List<RaceFull>> = Uninitialized,
     val year: String? = currentYear()
 ) : VmState {
+
+    fun raceBySeries(): Map<Series, List<RaceFull>> {
+        val none = Series(name = "No series")
+        return racesByYear().groupBy { it.series ?: none}
+    }
 
     fun racesByYear(): List<RaceFull> {
         return races.value?.sortedByDescending{ it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
@@ -41,11 +48,16 @@ class ResultsViewModel(
         }
     }
 
-    fun addResult() {
-        routeVm.pushRoute(Route.RaceResultCreate)
+    fun addResult(race: Race) {
+        routeVm.pushRoute("/races/results/create/${race.id}")
+    }
+
+    fun viewResult(race: Race) {
+        routeVm.pushRoute("/races/results/view/${race.id}")
     }
 
     fun selectYear(year: String?) {
         setState { copy(year = year) }
     }
+
 }
