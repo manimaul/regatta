@@ -81,4 +81,7 @@ object Api {
 
     suspend fun getRace(id: Long) =
         Network.get<RaceFull>("races", mapOf("id" to "$id"))
+
+    suspend fun getResults(raceId: Long) =
+        Network.get<List<RaceResultFull>>("results", mapOf("raceId" to "$raceId"))
 }

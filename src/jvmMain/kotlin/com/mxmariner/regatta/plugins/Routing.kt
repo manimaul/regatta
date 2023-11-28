@@ -60,6 +60,8 @@ fun Application.configureRouting() {
         get("/results".versionedApi()) {
             val results = call.request.queryParameters["year"]?.toIntOrNull()?.let {
                 RegattaDatabase.getResults(it)
+            } ?: call.request.queryParameters["raceId"]?.toLong()?.let {
+                RegattaDatabase.resultsByRaceId(it)
             } ?: RegattaDatabase.allResults()
             call.respond(results)
         }

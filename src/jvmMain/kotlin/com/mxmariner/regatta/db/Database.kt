@@ -530,25 +530,32 @@ object RegattaDatabase {
     }
 
     suspend fun getResult(id: Long) = dbQuery {
-        RaceResultsTable.innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(RaceClassTable).select {
+        RaceResultsTable.select {
             RaceResultsTable.id eq id
         }.map {
-            val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
-            val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
-            val raceClass = resultRowToClass(it)
-            val race = rowToRace(it, series, person)
-            val boat = resultRowToBoat(it, person, raceClass)
+            val raceClass = findRaceClass(it[RaceResultsTable.raceClass])!!
+            val race = findRace(it[RaceResultsTable.raceId])!!
+            val boat = findBoat(it[RaceResultsTable.boatId])!!
             rowToResult(it, race, boat, raceClass)
         }.singleOrNull()
     }
 
-    suspend fun allResults() {
-        RaceResultsTable.innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(RaceClassTable).selectAll().map {
-            val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
-            val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
-            val raceClass = resultRowToClass(it)
-            val race = rowToRace(it, series, person)
-            val boat = resultRowToBoat(it, person, raceClass)
+    suspend fun resultsByRaceId(raceId: Long) = dbQuery {
+        RaceResultsTable.select {
+            RaceResultsTable.raceId eq raceId
+        }.map {
+            val raceClass = findRaceClass(it[RaceResultsTable.raceClass])!!
+            val race = findRace(it[RaceResultsTable.raceId])!!
+            val boat = findBoat(it[RaceResultsTable.boatId])!!
+            rowToResult(it, race, boat, raceClass)
+        }
+    }
+
+    suspend fun allResults() = dbQuery {
+        RaceResultsTable.selectAll().map {
+            val raceClass = findRaceClass(it[RaceResultsTable.raceClass])!!
+            val race = findRace(it[RaceResultsTable.raceId])!!
+            val boat = findBoat(it[RaceResultsTable.boatId])!!
             rowToResult(it, race, boat, raceClass)
         }
     }

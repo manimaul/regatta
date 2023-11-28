@@ -5,6 +5,7 @@ import com.mxmariner.regatta.data.RaceFull
 import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import kotlinx.datetime.toJSDate
 import utils.*
 
@@ -17,15 +18,16 @@ data class ResultState(
 
     fun raceBySeries(): Map<Series, List<RaceFull>> {
         val none = Series(name = "No series")
-        return racesByYear().groupBy { it.series ?: none}
+        return racesByYear().groupBy { it.series ?: none }
     }
 
-    fun racesByYear(): List<RaceFull> {
-        return races.value?.sortedByDescending{ it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
+    private fun racesByYear(): List<RaceFull> {
+        return races.value?.sortedBy { it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
     }
 
     fun years(): List<String> {
-        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct() ?: emptyList()
+        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct()
+            ?: emptyList()
     }
 }
 
@@ -49,7 +51,7 @@ class ResultsViewModel(
     }
 
     fun addResult(race: Race) {
-        routeVm.pushRoute("/races/results/create/${race.id}")
+        routeVm.pushRoute("/races/results/${race.id}")
     }
 
     fun viewResult(race: Race) {

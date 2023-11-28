@@ -7,25 +7,28 @@ import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import utils.*
-import viewmodel.RaceResultAddViewModel
+import viewmodel.RaceResultEditViewModel
 import viewmodel.ResultsViewModel
 
 @Composable
-fun RaceResultsEdit(id: Long?) {
-
-}
-
-@Composable
-fun RaceResultsCreate(
+fun RaceResultsEdit(
     raceId: Long?,
-    viewModel: RaceResultAddViewModel = remember { RaceResultAddViewModel(raceId) }
+    viewModel: RaceResultEditViewModel = remember { RaceResultEditViewModel(raceId) }
 ) {
     val state = viewModel.flow.collectAsState()
-    H4 {
-        Text("Add Race Results")
-    }
     when (val race = state.value.race) {
         is Complete -> {
+            H1 {
+                Text("${race.value.name} - ${race.value.startDate?.year() ?: ""} Results")
+            }
+            RgTable {
+                RgThead {
+                    RgTr {
+                        RgTh { Text("Name") }
+                        RgTh { Text("Results") }
+                    }
+                }
+            }
 
             B { Text(race.value.startDate?.year() ?: "") }
 
@@ -45,7 +48,7 @@ fun RaceResults(
     viewModel: ResultsViewModel = remember { ResultsViewModel() }
 ) {
     val state = viewModel.flow.collectAsState()
-    H4 {
+    H1 {
         Text("Race Results")
     }
     B { Text("Year") }
@@ -58,6 +61,7 @@ fun RaceResults(
             RgThead {
                 RgTr {
                     RgTh { Text("Name") }
+                    RgTh { Text("Date") }
                     RgTh { Text("Results") }
                     if (state.value.loggedIn) {
                         RgTh { Text("Action") }
@@ -74,7 +78,12 @@ fun RaceResults(
                 RgTbody {
                     races?.forEach { rf ->
                         RgTr {
-                            RgTd { Text(rf.name) }
+                            RgTd {
+                                Text(rf.name)
+                            }
+                            RgTd {
+                                Text(rf.startDate?.display() ?: "")
+                            }
                             RgTd {
                                 RgButton("View Results") {
                                     viewModel.viewResult(rf)

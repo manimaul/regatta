@@ -19,6 +19,12 @@ data class NetworkResponse<T>(
     val error: Exception? = null
 )
 
+fun <T, R> NetworkResponse<T>.map(mapper: (T) -> R) : NetworkResponse<R> {
+    return body?.let {
+        NetworkResponse(url, ok, mapper(it), status, statusText, error)
+    } ?: NetworkResponse(url, ok, null, status, statusText, error)
+}
+
 object Network {
 
     suspend inline fun <reified T> Response.networkResponse(setBody: T? = null): NetworkResponse<T> {
