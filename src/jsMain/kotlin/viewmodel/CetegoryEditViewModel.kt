@@ -9,18 +9,20 @@ data class CategoryEditState(
 ) : VmState
 
 class CetegoryEditViewModel(
-    id: Long?,
+    private val id: Long,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<CategoryEditState>(CategoryEditState()) {
 
     init {
-        id?.let {
-            setState {
-                copy(
-                    category = Api.getCategory(id).toAsync().mapErrorMessage { "foobar" },
-                    operation = Operation.Fetched,
-                )
-            }
+        reload()
+    }
+
+    override fun reload() {
+        setState {
+            copy(
+                category = Api.getCategory(id).toAsync().mapErrorMessage { "foobar" },
+                operation = Operation.Fetched,
+            )
         }
     }
 

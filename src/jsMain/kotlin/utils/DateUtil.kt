@@ -20,13 +20,18 @@ fun Instant.formattedDateString(addTime: Boolean): String {
 }
 
 fun getClockValue(): String {
-    val now = Clock.System.now()
+    val now = now()
     return now.toJSDate().toLocaleTimeString()
 }
 
-fun currentYear() : String {
-    return Clock.System.now().year()
+fun now() : Instant {
+   return Clock.System.now()
 }
+
+fun currentYear() : String {
+    return now().year()
+}
+
 fun Instant.display(): String {
     return toJSDate().let {
         "${it.toLocaleDateString()} ${it.toLocaleTimeString()}"

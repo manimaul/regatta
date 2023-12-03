@@ -76,7 +76,6 @@ fun RgDate(
             }
         }
     }
-
 }
 
 @Composable

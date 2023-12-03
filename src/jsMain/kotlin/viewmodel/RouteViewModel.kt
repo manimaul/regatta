@@ -83,6 +83,9 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
         }
     }
 
+    override fun reload() {
+    }
+
     fun goBackOrHome() {
         withState {
            if (it.canGoback)  {

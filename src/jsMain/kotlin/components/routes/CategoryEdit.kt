@@ -18,7 +18,7 @@ import viewmodel.Operation
 @Composable
 fun CategoryEdit(
     id: Long?,
-    viewModel: CetegoryEditViewModel = remember { CetegoryEditViewModel(id)}
+    viewModel: CetegoryEditViewModel = remember { CetegoryEditViewModel(id ?: 0)}
 ) {
     val state by viewModel.flow.collectAsState()
     when (val cat = state.category) {

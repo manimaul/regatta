@@ -16,7 +16,7 @@ import viewmodel.*
 @Composable
 fun PeopleEdit(
     id: Long?,
-    viewModel: PeopleEditViewModel = remember { PeopleEditViewModel(id) },
+    viewModel: PeopleEditViewModel = remember { PeopleEditViewModel(id ?: 0) },
 ) {
     val state by viewModel.flow.collectAsState()
     when (val person = state.person) {

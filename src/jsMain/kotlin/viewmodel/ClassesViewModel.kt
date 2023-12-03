@@ -18,7 +18,7 @@ class ClassesViewModel(
         reload()
     }
 
-    fun reload() {
+    override fun reload() {
         launch {
             setState { ClassesState() }
             setState {

@@ -1,9 +1,7 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.Person
-import kotlinx.coroutines.launch
 import utils.*
-import utils.Error
 
 data class PeopleEditState(
     val person: Async<Person> = Uninitialized,
@@ -11,25 +9,20 @@ data class PeopleEditState(
 ) : VmState
 
 class PeopleEditViewModel(
-    val personId: Long?,
+    val personId: Long,
     val routeVm: RouteViewModel = routeViewModel
 ) : BaseViewModel<PeopleEditState>(PeopleEditState()) {
 
     init {
-        launch {
-            personId?.let {
-                setState {
-                    PeopleEditState(
-                        Api.getPerson(personId).toAsync().mapErrorMessage { "error fetching user id $personId" },
-                        Operation.Fetched
-                    )
-                }
-            } ?: setState {
-                PeopleEditState(
-                    Error(),
-                    Operation.Fetched
-                )
-            }
+        reload()
+    }
+
+    override fun reload() {
+        setState {
+            PeopleEditState(
+                Api.getPerson(personId).toAsync().mapErrorMessage { "error fetching user id $personId" },
+                Operation.Fetched
+            )
         }
     }
 

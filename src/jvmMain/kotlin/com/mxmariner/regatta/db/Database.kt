@@ -17,8 +17,6 @@ class DbConfig {
         get() = System.getProperty("user") ?: "admin"
     val password: String
         get() = System.getProperty("password") ?: "mysecretpassword"
-
-
 }
 
 object RegattaDatabase {

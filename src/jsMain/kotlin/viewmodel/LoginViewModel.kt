@@ -162,7 +162,7 @@ class LoginViewModel : BaseViewModel<LoginState>(initialState()) {
         }
     }
 
-    fun reload() {
+    override fun reload() {
         launch {
             delay(3000)
             setState {

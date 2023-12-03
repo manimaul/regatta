@@ -18,26 +18,26 @@ data class EditBoatState(
 ) : VmState
 
 class EditBoatViewModel(
-    val id: Long?,
+    val id: Long,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<EditBoatState>(EditBoatState()) {
 
     init {
-        launch {
-            id?.let {
-                setState {
-                    EditBoatState(
-                        data = combineAsync(
-                            Api.getBoat(id),
-                            Api.getAllPeople(),
-                            Api.getAllCategories()
-                        ) { boat, people, cat ->
-                            EditBoatComposite(boat, people, cat)
-                        }.mapErrorMessage { "error fetching boat id $id" },
-                        operation = Operation.Fetched
-                    )
-                }
-            }
+        reload()
+    }
+
+    override fun reload() {
+        setState {
+            EditBoatState(
+                data = combineAsync(
+                    Api.getBoat(id),
+                    Api.getAllPeople(),
+                    Api.getAllCategories()
+                ) { boat, people, cat ->
+                    EditBoatComposite(boat, people, cat)
+                }.mapErrorMessage { "error fetching boat id $id" },
+                operation = Operation.Fetched
+            )
         }
     }
 
@@ -51,6 +51,7 @@ class EditBoatViewModel(
             )
         }
     }
+
     fun deleteBoat(boat: Boat) {
         boat.id?.let { id ->
             setState {
@@ -63,6 +64,7 @@ class EditBoatViewModel(
             }
         }
     }
+
     fun cancelEdit() {
         routeVm.goBackOrHome()
     }

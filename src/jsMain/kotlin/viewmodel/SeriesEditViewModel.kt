@@ -14,14 +14,16 @@ class SeriesEditViewModel(
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<SeriesEditState>(SeriesEditState()) {
     init {
-        launch {
-            id?.let {
-                setState {
-                    SeriesEditState(
-                        series = Api.getSeries(id).toAsync(),
-                        operation = Operation.Fetched
-                    )
-                }
+        reload()
+    }
+
+    override fun reload() {
+        id?.let {
+            setState {
+                SeriesEditState(
+                    series = Api.getSeries(id).toAsync(),
+                    operation = Operation.Fetched
+                )
             }
         }
     }

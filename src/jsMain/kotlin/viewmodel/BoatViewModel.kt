@@ -75,7 +75,7 @@ class BoatViewModel(
        }
    }
 
-    fun reload() {
+    override fun reload() {
        setState { BoatState() }
         getAllBoatsAndPeople()
     }

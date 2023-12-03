@@ -1,7 +1,6 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.RaceClass
-import kotlinx.coroutines.launch
 import utils.*
 
 data class ClassEditState(
@@ -10,19 +9,19 @@ data class ClassEditState(
 ) : VmState
 
 class ClassEditViewModel(
-    val id: Long?,
+    val id: Long,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<ClassEditState>(ClassEditState()) {
     init {
-        launch {
-            id?.let {
-                setState {
-                    ClassEditState(
-                        series = Api.getClass(id).toAsync(),
-                        operation = Operation.Fetched
-                    )
-                }
-            }
+        reload()
+    }
+
+    override fun reload() {
+        setState {
+            ClassEditState(
+                series = Api.getClass(id).toAsync(),
+                operation = Operation.Fetched
+            )
         }
     }
 

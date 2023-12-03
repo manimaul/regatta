@@ -27,7 +27,7 @@ class RacesViewModel(
         reload()
     }
 
-    fun reload() {
+    override fun reload() {
         setState {
             val allRaces = if (fetchRaces) Api.getAllRaces().toAsync().map {
                 it.sortedBy { it.startDate }

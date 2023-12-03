@@ -13,7 +13,7 @@ import viewmodel.*
 @Composable
 fun BoatEdit(
     id: Long?,
-    viewModel: EditBoatViewModel = remember { EditBoatViewModel(id) }
+    viewModel: EditBoatViewModel = remember { EditBoatViewModel(id ?: 0) }
 ) {
     val state by viewModel.flow.collectAsState()
     when (val data = state.data) {

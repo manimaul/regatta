@@ -18,7 +18,7 @@ import viewmodel.Operation
 @Composable
 fun ClassEdit(
     id: Long? = null,
-    viewModel: ClassEditViewModel = remember { ClassEditViewModel(id) }
+    viewModel: ClassEditViewModel = remember { ClassEditViewModel(id ?: 0) }
 ) {
     val state by viewModel.flow.collectAsState()
     when (val rc = state.series) {

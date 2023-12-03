@@ -34,7 +34,7 @@ class SeriesViewModel(
         setState { copy(newSeries = newSeries.copy(name = name)) }
     }
 
-    fun reload() {
+    override fun reload() {
         setState { SeriesState() }
         setState { copy(series = Api.allSeries().toAsync()) }
     }
