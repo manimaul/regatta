@@ -3,8 +3,7 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import components.RgButton
-import components.RgButtonStyle
+import components.*
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.onSubmit
 import org.jetbrains.compose.web.dom.*
@@ -65,7 +64,7 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
     Form(attrs = {
         onSubmit { it.preventDefault() }
     }) {
-        Div(attrs = { classes("mb-3") }) {
+        RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
             Label("username") {
                 Text("Username")
             }
@@ -79,7 +78,7 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
             }
 
         }
-        Div(attrs = { classes("mb-3") }) {
+        RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
             Label("password") {
                 Text("Password")
             }

@@ -3,12 +3,14 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.*
 import components.*
+import kotlinx.datetime.Instant
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
 import viewmodel.Operation
 import viewmodel.RacesViewModel
+import viewmodel.complete
 import kotlin.time.Duration.Companion.hours
 
 @Composable
@@ -50,10 +52,10 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
                 RgTr {
                     RgTd { Text(rf.series?.name ?: "-") }
                     RgTd { Text(rf.name) }
-                    RgTd { Text(rf.startDate?.display() ?: "-") }
-                    RgTd { Text(rf.endDate?.display() ?: "-") }
-                    RgTd { Text(rf.correctionFactor?.let { "$it" } ?: "-") }
-                    RgTd { Text(rf.rc?.let { "${it.first} ${it.last}" } ?: "-") }
+//                    RgTd { Text(rf.startDate?.display() ?: "-") }
+//                    RgTd { Text(rf.endDate?.display() ?: "-") }
+//                    RgTd { Text(rf.correctionFactor?.let { "$it" } ?: "-") }
+//                    RgTd { Text(rf.rc?.let { "${it.first} ${it.last}" } ?: "-") }
                     RgTd {
                         RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-start")) {
                             viewModel.editRace(rf)
@@ -81,6 +83,7 @@ fun RaceEdit(
             fetchRaces = false,
             fetchPeople = true,
             fetchSeries = true,
+            fetchCategories = true,
             editRaceId = raceId,
         )
     }
@@ -117,7 +120,8 @@ fun RaceForm(
     viewModel: RacesViewModel
 ) {
     var race by remember { mutableStateOf(editRace?.toPost() ?: RacePost()) }
-    var endSet by remember { mutableStateOf(race.endDate != null) }
+
+    var raceTimes by remember { mutableStateOf(emptyList<RaceTime>()) }
     var person by remember {
         mutableStateOf(
             if (editRace is RaceFull) {
@@ -192,18 +196,37 @@ fun RaceForm(
                     Uninitialized -> Unit
                 }
                 Br()
-                RgDate(label = "Race start", date = race.startDate, time = true) {
-                    val endDate = if (!endSet) it.plus(2.5.hours) else race.endDate
-                    race = race.copy(
-                        startDate = it,
-                        endDate = endDate
-                    )
+                B { Text("Race Times") }
+                raceTimes.forEachIndexed { index, raceTime ->
+                    RgDate(label = "Race start", date = raceTime.startDate, time = true) { st ->
+                        raceTimes = raceTimes.toMutableList().apply {
+                            set(index, raceTime.copy(startDate = st))
+                        }
+//                    val endDate = if (!endSet) it.plus(2.5.hours) else race.endDate
+//                    race = race.copy(
+//                        startDate = it,
+//                        endDate = endDate
+//                    )
+                    }
+
+                    RgDate(label = "Race end", date = raceTime.endDate, time = true) { et ->
+                        raceTimes = raceTimes.toMutableList().apply {
+                            set(index, raceTime.copy(endDate = et))
+                        }
+                    }
+
                 }
                 Br()
-                RgDate(label = "Race end", date = race.endDate, time = true) {
-                    endSet = true
-                    race = race.copy(endDate = it)
+//                RgDate(label = "Race end", date = race.endDate, time = true) {
+//                    endSet = true
+//                    race = race.copy(endDate = it)
+//                }
+            }
+            state.categories.complete(viewModel) {
+                RgAddRaceTime(it) {
+                    raceTimes = raceTimes.toMutableList().apply { add(it) }
                 }
+
             }
             Br()
             RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
@@ -218,6 +241,48 @@ fun RaceForm(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun RgAddRaceTime(
+    categories: List<RaceClassCategory>,
+    added: (RaceTime) -> Unit
+) {
+    var raceClass by remember { mutableStateOf<RaceClass?>(null) }
+    var startDate by remember { mutableStateOf<Instant?>(null) }
+    var endDate by remember { mutableStateOf<Instant?>(null) }
+    var cf by remember { mutableStateOf<Int?>(null) }
+
+    println("RgAddRaceTime $raceClass $startDate $endDate $cf")
+    RgClassDropdown(categories, raceClass) {
+        raceClass = it
+    }
+    RgDate(label = "Race start", date = startDate, time = true) { st ->
+        if (endDate == null) {
+            endDate = st.plus(2.5.hours)
+            println("enddate set by start = ${endDate?.display()}")
+        }
+        startDate = st
+        println("startDate= ${startDate?.display()}")
+    }
+    RgDate(label = "Race end", date = endDate, time = true) { et ->
+        endDate = et
+        println("enddate = ${endDate?.display()}")
+    }
+    RgInput(label = "Correction factor", cf?.let { "$it" } ?: "") {
+        cf = it.toIntOrNull()
+    }
+    RgButton(
+        "Add",
+        disabled = raceClass == null || startDate == null || endDate == null,
+        customClasses = listOf(AppStyle.marginAll)
+    ) {
+        added(RaceTime(raceClass!!, startDate!!, endDate!!, cf))
+        raceClass = null
+        startDate = null
+        endDate = null
+        cf = null
     }
 }
 

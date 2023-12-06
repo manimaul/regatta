@@ -1,6 +1,7 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import components.*
 import components.routes.*
 import org.jetbrains.compose.web.css.Style
 import org.jetbrains.compose.web.dom.Div
@@ -17,13 +18,9 @@ fun Router(
 ) {
     val state by viewModel.flow.collectAsState()
     Style(AppStyle)
-    Div(attrs = {
-        classes("container-fluid")
-    }) {
-        components.Nav()
-        Div(attrs = {
-            classes(AppStyle.marginVert)
-        }) {
+    RgGrid(RgContainerType.container_fluid) {
+        RgDiv(RgSpace.m, size = RgSz.s2) {
+            Nav()
             when (state.current.route) {
                 Route.Home -> Home()
                 Route.Series -> Series()
@@ -31,7 +28,7 @@ fun Router(
                 Route.People -> People()
                 Route.Races -> Races()
                 Route.RaceCreate -> RaceEdit()
-                Route.RaceEdit-> RaceEdit(state.current.args?.get("id")?.toLongOrNull())
+                Route.RaceEdit -> RaceEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.RaceResult -> RaceResults()
                 Route.RaceResultEdit -> RaceResultsEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.Boats -> Boats()

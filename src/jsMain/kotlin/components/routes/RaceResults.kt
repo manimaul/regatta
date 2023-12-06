@@ -1,45 +1,126 @@
 package components.routes
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import com.mxmariner.regatta.data.Boat
 import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import utils.*
 import viewmodel.RaceResultEditViewModel
 import viewmodel.ResultsViewModel
+import viewmodel.complete
 
 @Composable
 fun RaceResultsEdit(
     raceId: Long?,
-    viewModel: RaceResultEditViewModel = remember { RaceResultEditViewModel(raceId) }
+    viewModel: RaceResultEditViewModel = remember { RaceResultEditViewModel(raceId ?: 0) }
 ) {
     val state = viewModel.flow.collectAsState()
-    when (val race = state.value.race) {
-        is Complete -> {
-            H1 {
-                Text("${race.value.name} - ${race.value.startDate?.year() ?: ""} Results")
+    var addBoat by remember { mutableStateOf<Boat?>(null) }
+    state.value.race.complete(viewModel) { race ->
+        var finish by remember { mutableStateOf(now())  /*race.endDate)*/ }
+        H1 {
+//            Text("${race.name} - ${race.startDate?.year() ?: ""} Results")
+        }
+        RgTable {
+            RgThead {
+                RgTr {
+                    RgTh { Text("Boat Name") }
+                    RgTh { Text("Skipper") }
+                    RgTh { Text("Sail Number") }
+                    RgTh { Text("Boat Type") }
+                    RgTh { Text("PHRF Rating") }
+                    RgTh { Text("Start Time") }
+                    RgTh { Text("Finish Time") }
+                    RgTh { Text("Elapsed Time") }
+                    RgTh { Text("Elapsed Seconds") }
+                    RgTh { Text("Correction Factor") }
+                    RgTh { Text("Corrected Time") }
+                    RgTh { Text("Place In Class") }
+                    RgTh { Text("Place Overall") }
+                    RgTh { Text("Action") }
+                }
             }
-            RgTable {
-                RgThead {
+            RgTbody {
+                RgTr {
+                    RgTd {
+                        state.value.boats.complete(viewModel) {
+                            RgBoatDropdown(it, addBoat) { boat ->
+                                addBoat = boat
+                            }
+                        }
+                    }
+                    RgTd {
+                        Text(addBoat?.skipper?.fullName() ?: "")
+                    }
+                    RgTd {
+                        Text(addBoat?.sailNumber ?: "")
+                    }
+                    RgTd {
+                        Text(addBoat?.boatType?: "")
+                    }
+                    RgTd {
+                        Text(addBoat?.boatType?: "")
+                    }
+                    RgTd {
+                        //todo: class starts?
+//                        Text(race.startDate?.display() ?: "")
+                    }
+                    RgTd {
+                        RgDate("Finish", finish, placeHolder = true, time = true) {
+                            finish = it
+                        }
+                    }
+                    RgTd(6) {
+                    }
+                    RgTd {
+                        RgButton("Save") {
+
+                        }
+                    }
+                }
+                state.value.result.complete(viewModel) { results ->
                     RgTr {
-                        RgTh { Text("Name") }
-                        RgTh { Text("Results") }
+                        RgTd(2) {
+                            Text("${results.size}")
+                        }
                     }
                 }
             }
-
-            B { Text(race.value.startDate?.year() ?: "") }
-
         }
+    }
+}
 
-        is Error -> ErrorDisplay(race) {
-            viewModel.reload()
+@Composable
+fun RgBoatDropdown(
+    boats: List<Boat>,
+    selectedBoat: Boat?,
+    handler: (Boat?) -> Unit
+) {
+    Select(attrs = {
+        classes("form-select")
+        onChange { change ->
+            change.value?.toLongOrNull()?.let { id ->
+                handler(boats.firstOrNull { it.id == id })
+            }
         }
-
-        is Loading -> RgSpinner()
-        Uninitialized -> Unit
+    }) {
+        Option("-1", attrs = {
+            if (selectedBoat == null) {
+                selected()
+            }
+        }) {
+            Text("None")
+        }
+        boats.forEach { boat ->
+            Option(boat.id.toString(), attrs = {
+                if (selectedBoat?.id == boat.id) {
+                    selected()
+                }
+            }) {
+                Text(boat.name)
+            }
+        }
     }
 }
 
@@ -82,7 +163,7 @@ fun RaceResults(
                                 Text(rf.name)
                             }
                             RgTd {
-                                Text(rf.startDate?.display() ?: "")
+//                                Text(rf.startDate?.display() ?: "")
                             }
                             RgTd {
                                 RgButton("View Results") {

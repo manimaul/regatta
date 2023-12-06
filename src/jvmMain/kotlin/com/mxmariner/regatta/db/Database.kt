@@ -33,35 +33,42 @@ object RegattaDatabase {
             BoatTable,
             RaceResultsTable,
             AuthTable,
+            RaceTimeTable,
         )
         transaction(database) {
             SchemaUtils.create(*tables)
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
+            exec(
+                "alter table race drop column if exists start_date, drop column if exists end_date, drop column if exists correction_factor"
+            )
         }
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    private fun rowToRace(row: ResultRow, series: Series? = null, person: Person? = null) = RaceFull(
+    private fun rowToRace(
+        row: ResultRow,
+        series: Series?,
+        person: Person?,
+        raceTimes: List<RaceTime>,
+    ) = RaceFull(
         id = row[RaceTable.id],
         name = row[RaceTable.name],
         series = series,
-        startDate = row[RaceTable.startDate],
-        endDate = row[RaceTable.endDate],
+        raceTimes = raceTimes,
         rc = person,
-        correctionFactor = row[RaceTable.correctionFactor]
     )
 
     private fun rowToRacePost(row: ResultRow) = RacePost(
         id = row[RaceTable.id],
         name = row[RaceTable.name],
         seriesId = row[RaceTable.seriesId],
-        startDate = row[RaceTable.startDate],
-        endDate = row[RaceTable.endDate],
+//        startDate = row[RaceTable.startDate],
+//        endDate = row[RaceTable.endDate],
         rcId = row[RaceTable.rcId],
-        correctionFactor = row[RaceTable.correctionFactor]
+//        correctionFactor = row[RaceTable.correctionFactor]
     )
 
     private fun resultRowToSeries(row: ResultRow) = Series(
@@ -413,25 +420,36 @@ object RegattaDatabase {
         }.singleOrNull()
     }
 
+    suspend fun findRaceTimes(raceId: Long) = dbQuery {
+        RaceTimeTable.innerJoin(RaceClassTable).select { RaceTimeTable.raceId eq raceId }.map {
+            RaceTime(
+                raceClass = resultRowToClass(it),
+                startDate = it[RaceTimeTable.startDate],
+                endDate = it[RaceTimeTable.endDate],
+                correctionFactor = it[RaceTimeTable.correctionFactor],
+            )
+        }
+    }
+
     suspend fun allRaces() = dbQuery {
         RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).selectAll().map {
             val series = resultRowToSeries(it)
             val person = resultRowToPerson(it)
-            rowToRace(it, series, person)
+            rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.innerJoin(SeriesTable).select {
             RaceTable.rcId eq null
         }.map {
             val series = resultRowToSeries(it)
-            rowToRace(it, series)
+            rowToRace(it, series, null, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.innerJoin(PersonTable).select {
             RaceTable.seriesId.eq(null)
         }.map {
             val person = resultRowToPerson(it)
-            rowToRace(it, null, person)
+            rowToRace(it, null, person, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.select {
             RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null))
         }.map {
-            rowToRace(it)
+            rowToRace(it, null, null, findRaceTimes(it[RaceTable.id]))
         }
     }
 
@@ -441,45 +459,50 @@ object RegattaDatabase {
         }.map {
             val series = resultRowToSeries(it)
             val person = resultRowToPerson(it)
-            rowToRace(it, series, person)
+            rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.innerJoin(SeriesTable).select {
             RaceTable.id.eq(id).and(RaceTable.rcId.eq(null))
         }.map {
             val series = resultRowToSeries(it)
-            rowToRace(it, series, null)
+            rowToRace(it, series, null, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.innerJoin(PersonTable).select {
             RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null))
         }.map {
             val person = resultRowToPerson(it)
-            rowToRace(it, null, person)
+            rowToRace(it, null, person, findRaceTimes(it[RaceTable.id]))
         } + RaceTable.select {
             RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null)))
         }.map {
-            rowToRace(it, null, null)
+            rowToRace(it, null, null, findRaceTimes(it[RaceTable.id]))
         }
         races.singleOrNull()
     }
 
+    suspend fun updateRaceTimes(raceId: Long, times: List<RaceTime>) = dbQuery {
+        RaceTimeTable.deleteWhere { RaceTimeTable.raceId eq raceId }
+        times.forEach { time ->
+            RaceTimeTable.insert {
+                it[startDate] = time.startDate
+                it[endDate] = time.endDate
+                it[correctionFactor] = time.correctionFactor
+            }
+        }
+    }
+
     suspend fun upsertRace(race: Race): RaceFull? {
-        return dbQuery {
+        val raceFull = dbQuery {
             val id = race.id
             if (id != null) {
                 RaceTable.update(where = { RaceTable.id eq id }) {
                     it[name] = race.name.trim()
                     it[seriesId] = race.seriesId
-                    it[startDate] = race.startDate
-                    it[endDate] = race.endDate
                     it[rcId] = race.rcId
-                    it[correctionFactor] = race.correctionFactor
                 }.takeIf { it > 0 }?.let { race }
             } else {
                 RaceTable.insert {
                     it[name] = race.name.trim()
                     it[seriesId] = race.seriesId
-                    it[startDate] = race.startDate
-                    it[endDate] = race.endDate
                     it[rcId] = race.rcId
-                    it[correctionFactor] = race.correctionFactor
                 }.resultedValues?.map { rowToRacePost(it) }?.singleOrNull()
             }
         }?.let {
@@ -487,11 +510,12 @@ object RegattaDatabase {
                 id = it.id,
                 name = it.name,
                 series = it.seriesId?.let { findSeries(it) },
-                startDate = it.startDate,
-                endDate = it.endDate,
+                raceTimes = race.raceTimes,
                 rc = findPerson(it.rcId),
-                correctionFactor = it.correctionFactor
             )
+        }
+        return raceFull?.also {
+            updateRaceTimes(it.id!!, race.raceTimes)
         }
     }
 
@@ -521,7 +545,7 @@ object RegattaDatabase {
             val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
             val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
             val raceClass = resultRowToClass(it)
-            val race = rowToRace(it, series, person)
+            val race = rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
             val boat = resultRowToBoat(it, person, raceClass)
             rowToResult(it, race, boat, raceClass)
         }
@@ -561,7 +585,7 @@ object RegattaDatabase {
     suspend fun upsertResult(result: RaceResult): RaceResultFull? = dbQuery {
         val id = result.id
         if (id != null) {
-            RaceResultsTable.update( where = { RaceResultsTable.id eq id }) {
+            RaceResultsTable.update(where = { RaceResultsTable.id eq id }) {
                 it[raceId] = result.raceId
                 it[boatId] = result.boatId
                 it[raceClass] = result.raceClassId

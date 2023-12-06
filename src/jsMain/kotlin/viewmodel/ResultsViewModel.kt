@@ -22,12 +22,14 @@ data class ResultState(
     }
 
     private fun racesByYear(): List<RaceFull> {
-        return races.value?.sortedBy { it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
+        return emptyList()
+//        return races.value?.sortedBy { it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
     }
 
     fun years(): List<String> {
-        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct()
-            ?: emptyList()
+        return emptyList()
+//        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct()
+//            ?: emptyList()
     }
 }
 
@@ -50,6 +52,15 @@ class ResultsViewModel(
         }
     }
 
+    override fun reload() {
+        setState { ResultState() }
+        setState {
+            copy(
+                races = Api.getAllRaces().toAsync()
+            )
+        }
+    }
+
     fun addResult(race: Race) {
         routeVm.pushRoute("/races/results/${race.id}")
     }
@@ -61,5 +72,4 @@ class ResultsViewModel(
     fun selectYear(year: String?) {
         setState { copy(year = year) }
     }
-
 }

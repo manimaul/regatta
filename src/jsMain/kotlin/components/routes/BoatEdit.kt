@@ -20,15 +20,18 @@ fun BoatEdit(
         is Complete -> {
             when (state.operation) {
                 Operation.Fetched -> EditBoat(data.value.boat, data.value.people, data.value.raceClass, viewModel)
-                Operation.Updated -> RgOk("Updated!", data.value.boat.name)  {
+                Operation.Updated -> RgOk("Updated!", data.value.boat.name) {
                     viewModel.routeVm.goBackOrHome()
                 }
+
                 Operation.Deleted -> RgOk("Deleted!", data.value.boat.name) {
                     viewModel.routeVm.goBackOrHome()
                 }
+
                 Operation.None -> Unit
             }
         }
+
         is Error -> P { Text(data.message) }
         is Loading -> RgSpinner()
         Uninitialized -> Unit
@@ -59,7 +62,7 @@ fun EditBoat(
     } else {
         H1 { Text("Edit") }
         RgForm {
-            Div(attrs = { classes("mb-3") }) {
+            RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
                 Fieldset {
                     P {
                         RgInput("Name", newBoat.name) {

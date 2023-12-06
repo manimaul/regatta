@@ -1,5 +1,7 @@
 package com.mxmariner.regatta.db
 
+import com.mxmariner.regatta.db.BoatTable.nullable
+import com.mxmariner.regatta.db.BoatTable.references
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
@@ -48,11 +50,22 @@ object RaceTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val seriesId = (long("series_id") references SeriesTable.id).nullable()
-    val startDate = timestamp("start_date").nullable()
-    val endDate = timestamp("end_date").nullable()
     val rcId = (long("rc_id") references PersonTable.id).nullable()
-    val correctionFactor = integer("correction_factor").nullable()
     override val primaryKey = PrimaryKey(id)
+}
+
+object RaceTimeTable: Table() {
+    val raceClass = (long("class_id") references RaceClassTable.id)
+    val raceId = (long("race_id") references RaceTable.id)
+    val startDate = timestamp("start_date")
+    val endDate = timestamp("end_date")
+    val correctionFactor = integer("correction_factor").nullable()
+}
+
+//todo:
+object SkipperBoatJunction : Table() {
+    val skipper = (long("skipper_id") references PersonTable.id)
+    val boat = (long("boat_id") references BoatTable.id)
 }
 
 object BoatTable : Table() {

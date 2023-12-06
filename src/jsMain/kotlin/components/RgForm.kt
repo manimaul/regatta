@@ -56,6 +56,7 @@ fun RgDate(
     time: Boolean = false,
     listener: (Instant) -> Unit
 ) {
+    println("RgDate $label $date")
     val id = remember { "${++num}_input" }
     if (!placeHolder) {
         Label(id) { B { Text(label) } }
