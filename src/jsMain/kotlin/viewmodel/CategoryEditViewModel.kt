@@ -1,6 +1,8 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.RaceCategory
+import com.mxmariner.regatta.data.RaceClassCat
+import com.mxmariner.regatta.data.RaceClassCategory
 import utils.*
 
 data class CategoryEditState(
@@ -8,7 +10,7 @@ data class CategoryEditState(
     val operation: Operation = Operation.None,
 ) : VmState
 
-class CetegoryEditViewModel(
+class CategoryEditViewModel(
     private val id: Long,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<CategoryEditState>(CategoryEditState()) {
@@ -56,6 +58,7 @@ class CetegoryEditViewModel(
         setState {
             copy(
                 category = Api.postCategory(cat).toAsync()
+                    .map { it.toCategory() }
                     .mapErrorMessage { "failed to update'${cat.name}'!" },
                 operation = Operation.Updated,
             )

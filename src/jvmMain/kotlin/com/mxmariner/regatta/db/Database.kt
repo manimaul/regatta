@@ -268,9 +268,10 @@ object RegattaDatabase {
         }
     }
 
-    suspend fun upsertRaceCategory(item: RaceCategory) = dbQuery {
-        if (item.id != null) {
-            RaceClassCategoryTable.update(where = { RaceClassCategoryTable.id eq item.id }) {
+    suspend fun upsertRaceCategory(item: RaceClassCat) = dbQuery {
+        val id = item.id
+        if (id != null) {
+            RaceClassCategoryTable.update(where = { RaceClassCategoryTable.id eq id }) {
                 it[name] = item.name.trim()
                 it[active] = item.active
             }.takeIf { it == 1 }?.let { item }
@@ -421,9 +422,9 @@ object RegattaDatabase {
     }
 
     suspend fun findRaceTimes(raceId: Long) = dbQuery {
-        RaceTimeTable.innerJoin(RaceClassTable).select { RaceTimeTable.raceId eq raceId }.map {
+        RaceTimeTable.select { RaceTimeTable.raceId eq raceId }.map {
             RaceTime(
-                raceClass = resultRowToClass(it),
+                raceClassCategory = findRaceCategory(it[RaceTimeTable.raceClassCategory])!!,
                 startDate = it[RaceTimeTable.startDate],
                 endDate = it[RaceTimeTable.endDate],
                 correctionFactor = it[RaceTimeTable.correctionFactor],
@@ -478,10 +479,12 @@ object RegattaDatabase {
         races.singleOrNull()
     }
 
-    suspend fun updateRaceTimes(raceId: Long, times: List<RaceTime>) = dbQuery {
-        RaceTimeTable.deleteWhere { RaceTimeTable.raceId eq raceId }
+    suspend fun updateRaceTimes(rId: Long, times: List<RaceTime>) = dbQuery {
+        RaceTimeTable.deleteWhere { raceId eq rId}
         times.forEach { time ->
             RaceTimeTable.insert {
+                it[raceId] = rId
+                it[raceClassCategory] = time.raceClassCategory.id!!
                 it[startDate] = time.startDate
                 it[endDate] = time.endDate
                 it[correctionFactor] = time.correctionFactor

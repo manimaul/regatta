@@ -12,13 +12,13 @@ import utils.Complete
 import utils.Error
 import utils.Loading
 import utils.Uninitialized
-import viewmodel.CetegoryEditViewModel
+import viewmodel.CategoryEditViewModel
 import viewmodel.Operation
 
 @Composable
 fun CategoryEdit(
     id: Long?,
-    viewModel: CetegoryEditViewModel = remember { CetegoryEditViewModel(id ?: 0)}
+    viewModel: CategoryEditViewModel = remember { CategoryEditViewModel(id ?: 0)}
 ) {
     val state by viewModel.flow.collectAsState()
     when (val cat = state.category) {
@@ -42,7 +42,7 @@ fun CategoryEdit(
 @Composable
 fun CategoryEditor(
     category: RaceCategory,
-    viewModel: CetegoryEditViewModel,
+    viewModel: CategoryEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var updateCat by remember { mutableStateOf(category) }

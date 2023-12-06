@@ -4,12 +4,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.RaceClassCat
 import com.mxmariner.regatta.data.RaceClassCategory
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.OptGroup
 import org.jetbrains.compose.web.dom.Option
 import org.jetbrains.compose.web.dom.Select
 import org.jetbrains.compose.web.dom.Text
+
+
+@Composable
+fun RgClassCatDropDown(
+    categories: List<RaceClassCat>,
+    current: RaceClassCat?,
+    handler: (RaceClassCat) -> Unit,
+) {
+    Select(attrs = {
+        classes("form-select")
+        onChange { change ->
+            change.value?.toLongOrNull()?.let { id ->
+                categories.firstOrNull {
+                    it.id == id
+                }?.let { handler(it) }
+            }
+        }
+    }) {
+        Option("-1", attrs = {
+            if (current == null) {
+                selected()
+            }
+        }) {
+            Text("None")
+        }
+
+        categories.forEach { cat ->
+            Option(cat.id.toString(), attrs = {
+                    if (cat.id == current?.id) {
+                        selected()
+                    }
+            }) {
+                Text(cat.name)
+            }
+        }
+    }
+}
 
 @Composable
 fun RgClassDropdown(

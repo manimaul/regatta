@@ -1,7 +1,5 @@
 package com.mxmariner.regatta.db
 
-import com.mxmariner.regatta.db.BoatTable.nullable
-import com.mxmariner.regatta.db.BoatTable.references
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
@@ -27,14 +25,14 @@ object AuthTable : Table() {
     //hmac sha512 hash of user's password - hashed client side
     val hash = varchar("hash", 128)
     val userName = varchar("user_name", 128).uniqueIndex("user_name_idx")
-    override val primaryKey = PrimaryKey(PersonTable.id)
+    override val primaryKey = PrimaryKey(id)
 }
 
 object RaceClassCategoryTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val active = bool("active")
-    override val primaryKey = PrimaryKey(RaceClassCategoryTable.id)
+    override val primaryKey = PrimaryKey(id)
 }
 
 object RaceClassTable : Table() {
@@ -55,7 +53,7 @@ object RaceTable : Table() {
 }
 
 object RaceTimeTable: Table() {
-    val raceClass = (long("class_id") references RaceClassTable.id)
+    val raceClassCategory = (long("class_cat_id") references RaceClassCategoryTable.id)
     val raceId = (long("race_id") references RaceTable.id)
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")
