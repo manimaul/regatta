@@ -62,7 +62,7 @@ fun EditBoat(
     } else {
         H1 { Text("Edit") }
         RgForm {
-            RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
+            RgDiv(customizer = { set(RgSpace.m, RgSide.b, RgSz.s3) }) {
                 Fieldset {
                     P {
                         RgInput("Name", newBoat.name) {

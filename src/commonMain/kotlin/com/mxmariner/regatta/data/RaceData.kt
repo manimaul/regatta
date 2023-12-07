@@ -73,6 +73,7 @@ sealed interface Race {
     val raceTimes: List<RaceTime>
     val rcId: Long?
     val seriesId: Long?
+
 }
 
 fun Race.toPost(): RacePost {
@@ -101,6 +102,14 @@ data class RaceFull(
         get() = rc?.id
     override val seriesId: Long?
         get() = series?.id
+
+    val startTime by lazy {
+        raceTimes.minByOrNull { it.startDate }?.startDate
+    }
+
+    val endTime by lazy {
+        raceTimes.maxByOrNull { it.endDate }?.endDate
+    }
 }
 
 @Serializable

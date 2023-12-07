@@ -43,7 +43,6 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
                 RgTh { Text("Name") }
                 RgTh { Text("Race start") }
                 RgTh { Text("Race finish") }
-                RgTh { Text("Correction factor") }
                 RgTh { Text("Race committee") }
                 RgTh { Text("Action") }
             }
@@ -53,10 +52,9 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
                 RgTr {
                     RgTd { Text(rf.series?.name ?: "-") }
                     RgTd { Text(rf.name) }
-//                    RgTd { Text(rf.startDate?.display() ?: "-") }
-//                    RgTd { Text(rf.endDate?.display() ?: "-") }
-//                    RgTd { Text(rf.correctionFactor?.let { "$it" } ?: "-") }
-//                    RgTd { Text(rf.rc?.let { "${it.first} ${it.last}" } ?: "-") }
+                    RgTd { Text(rf.startTime?.display() ?: "-") }
+                    RgTd { Text(rf.endTime?.display() ?: "-") }
+                    RgTd { Text(rf.rc?.let { "${it.first} ${it.last}" } ?: "-") }
                     RgTd {
                         RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-start")) {
                             viewModel.editRace(rf)
@@ -200,7 +198,7 @@ fun RaceForm(
                 Br()
                 RgGrid(RgContainerType.container_fluid) {
                     raceTimes.forEachIndexed { index, raceTime ->
-                        RgRow {
+                        RgRow(customizer = { set(space = RgSpace.m, side = RgSide.y, size = RgSz.s4) }) {
                             RgCol {
                                 B { Text("Class Category") }
                                 state.categories.complete(viewModel) { categories ->
@@ -227,18 +225,33 @@ fun RaceForm(
                             }
                             RgCol {
                                 RgInput(
-                                    label = "Correction factor",
+                                    label = "Correction",
                                     raceTime.correctionFactor?.let { "$it" } ?: "") { cf ->
                                     raceTimes = raceTimes.toMutableList().apply {
                                         set(index, raceTime.copy(correctionFactor = cf.toIntOrNull()))
                                     }
                                 }
                             }
+                            RgCol {
+                                RgRow(customizer = { set(space = RgSpace.m, side = RgSide.x, size = RgSz.s3) }) {
+                                    B { Text("Action") }
+                                    RgButton("Remove", RgButtonStyle.Danger) {
+                                        raceTimes = raceTimes.toMutableList().apply {
+                                            removeAt(index)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                    state.categories.complete(viewModel) {
-                        RgAddRaceTime(it) {
-                            raceTimes = raceTimes.toMutableList().apply { add(it) }
+                    state.categories.complete(viewModel) { cats ->
+                        val ids = raceTimes.map { it.raceClassCategory.id }
+                        cats.filter { !ids.contains(it.id) }.takeIf { it.isNotEmpty() }?.let {
+                            val selected = it.firstOrNull()?.toCategory()
+                            println("remain $it, selected $selected")
+                            RgAddRaceTime(it, selected) {
+                                raceTimes = raceTimes.toMutableList().apply { add(it) }
+                            }
                         }
                     }
                 }
@@ -263,9 +276,10 @@ fun RaceForm(
 @Composable
 fun RgAddRaceTime(
     categories: List<RaceClassCategory>,
+    selected: RaceCategory?,
     added: (RaceTime) -> Unit
 ) {
-    var raceClassCat by remember { mutableStateOf<RaceCategory?>(null) }
+    var raceClassCat by mutableStateOf(selected)
     var startDate by remember { mutableStateOf<Instant?>(null) }
     var endDate by remember { mutableStateOf<Instant?>(null) }
     var cf by remember { mutableStateOf<Int?>(null) }
@@ -282,33 +296,32 @@ fun RgAddRaceTime(
             RgDate(label = "Race start", date = startDate, time = true) { st ->
                 if (endDate == null) {
                     endDate = st.plus(2.5.hours)
-                    println("enddate set by start = ${endDate?.display()}")
                 }
                 startDate = st
-                println("startDate= ${startDate?.display()}")
             }
         }
         RgCol {
             RgDate(label = "Race end", date = endDate, time = true) { et ->
                 endDate = et
-                println("enddate = ${endDate?.display()}")
             }
 
         }
         RgCol {
-            RgInput(label = "Correction factor", cf?.let { "$it" } ?: "") {
+            RgInput(label = "Correction", cf?.let { "$it" } ?: "") {
                 cf = it.toIntOrNull()
             }
         }
         RgCol {
-            RgButton(
-                "Add",
-                disabled = raceClassCat == null || startDate == null || endDate == null,
-                customClasses = listOf(AppStyle.marginAll)
-            ) {
-                added(RaceTime(raceClassCat!!, startDate!!, endDate!!, cf))
-                raceClassCat = null
-                startDate = startDate?.plus(5.minutes)
+            RgRow(customizer = { set(space = RgSpace.m, side = RgSide.x, size = RgSz.s3) }) {
+                B { Text("Action") }
+                RgButton(
+                    "Add",
+                    disabled = raceClassCat == null || startDate == null || endDate == null,
+                ) {
+                    added(RaceTime(raceClassCat!!, startDate!!, endDate!!, cf))
+                    raceClassCat = null
+                    startDate = startDate?.plus(5.minutes)
+                }
             }
         }
     }

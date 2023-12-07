@@ -32,9 +32,9 @@ class RacesViewModel(
     override fun reload() {
         setState {
             val allRaces = if (fetchRaces) Api.getAllRaces().toAsync()
-//                .map {
-//                it.sortedBy { it.startDate }
-//            }
+                .map {
+                it.sortedBy { it.startTime}
+            }
             else races
             val editRace: Async<Race> = allRaces.value?.firstOrNull { it.id == editRaceId }?.let { Complete(it) }
                 ?: editRaceId?.let { Api.getRace(it).toAsync() } ?: Complete(RacePost())

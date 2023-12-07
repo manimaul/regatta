@@ -64,7 +64,7 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
     Form(attrs = {
         onSubmit { it.preventDefault() }
     }) {
-        RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
+        RgDiv(customizer = { set(RgSpace.m, RgSide.b, RgSz.s3) }) {
             Label("username") {
                 Text("Username")
             }
@@ -78,7 +78,7 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
             }
 
         }
-        RgDiv(RgSpace.m, RgSide.b, RgSz.s3) {
+        RgDiv(customizer = { set(RgSpace.m, RgSide.b, RgSz.s3) }) {
             Label("password") {
                 Text("Password")
             }

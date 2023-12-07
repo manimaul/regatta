@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import components.*
 import components.routes.*
 import org.jetbrains.compose.web.css.Style
-import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
 import viewmodel.Route
@@ -19,7 +18,7 @@ fun Router(
     val state by viewModel.flow.collectAsState()
     Style(AppStyle)
     RgGrid(RgContainerType.container_fluid) {
-        RgDiv(RgSpace.m, size = RgSz.s2) {
+        RgDiv(customizer = { set(RgSpace.m, size = RgSz.s2) }) {
             Nav()
             when (state.current.route) {
                 Route.Home -> Home()
