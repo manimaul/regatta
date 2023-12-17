@@ -55,28 +55,58 @@ spec:
             - name: JAVA_OPTS
               value: "-Djdbcurl=jdbc:postgresql://regatta-postgres-service.regatta.svc.cluster.local:5432/regatta -Duser={REGATTA_PG_USER} -Dpassword={REGATTA_PG_PASS}"
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
-  name: regatta-ingress
-  namespace: regatta
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    haproxy.org/ssl-redirect: "true"
+  name: regatta-cert
+  #referenced Secret must exist in the namespace of the istio-ingressgateway
+  namespace: istio-system
 spec:
-  rules:
-    - host: regatta.willkamp.com
-      http:
-        paths:
-          - backend:
-              service:
-                name: regatta-service
-                port:
-                  number: 8888
-            path: /
-            pathType: Prefix
-  tls:
-    - hosts:
-        - regatta.willkamp.com
-      secretName: regatta-cert
+  secretName: regatta-cert
+  commonName: regatta.mxmariner.com
+  dnsNames:
+    - regatta.mxmariner.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: regatta-gateway
+  namespace: regatta
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - regatta.mxmariner.com
+      tls:
+        mode: SIMPLE
+        #referenced Secret must exist in the namespace of the istio-ingressgateway
+        credentialName: regatta-cert
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: regatta-virt-svc
+  namespace: regatta
+spec:
+  hosts:
+    - regatta.mxmariner.com
+  gateways:
+    - regatta-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: regatta-service
+            port:
+              number: 8888
 ---

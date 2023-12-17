@@ -8,14 +8,18 @@ function k8s_ghcr() {
     --docker-server=ghcr.io --docker-username=$GH_USER --docker-password=$GH_TOKEN --docker-email=$GH_EMAIL
 }
 
-print_token() {
+function print_token() {
   echo "user = $GH_USER"
   echo "token = $GH_TOKEN"
   echo "email = $GH_EMAIL"
 }
 
-docker_login() {
+function docker_login() {
   echo "$GH_TOKEN" | docker login ghcr.io -u manimaul --password-stdin
+}
+
+function istio_inject() {
+  kubectl label namespace regatta istio-injection=enable
 }
 
 help() {
@@ -24,7 +28,8 @@ help() {
    echo "arguments:"
    echo "print_token  Print the token"
    echo "docker_login Login to docker"
-   echo "k8s_ghcr    Add k8s container pull credential secret to the regatta namespace"
+   echo "k8s_ghcr     Add k8s container pull credential secret to the regatta namespace"
+   echo "istio_inject Inject the namespace"
    echo "help         Print this Help."
    echo
 }

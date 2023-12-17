@@ -5,8 +5,6 @@ import com.mxmariner.regatta.data.RaceFull
 import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.Series
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJSDate
 import utils.*
 
 data class ResultState(
@@ -22,14 +20,12 @@ data class ResultState(
     }
 
     private fun racesByYear(): List<RaceFull> {
-        return emptyList()
-//        return races.value?.sortedBy { it.startDate }?.filter { it.startDate?.year() == year } ?: emptyList()
+        return races.value?.sortedBy { it.startTime}?.filter { it.startTime?.year() == year } ?: emptyList()
     }
 
     fun years(): List<String> {
-        return emptyList()
-//        return races.value?.sortedByDescending { it.startDate }?.mapNotNull { it.startDate?.year() }?.distinct()
-//            ?: emptyList()
+        return races.value?.sortedByDescending { it.startTime }?.mapNotNull { it.startTime?.year() }?.distinct()
+            ?: emptyList()
     }
 }
 

@@ -18,9 +18,9 @@ fun RaceResultsEdit(
     val state = viewModel.flow.collectAsState()
     var addBoat by remember { mutableStateOf<Boat?>(null) }
     state.value.race.complete(viewModel) { race ->
-        var finish by remember { mutableStateOf(now())  /*race.endDate)*/ }
+        var finish by remember { mutableStateOf(race.endTime) }
         H1 {
-//            Text("${race.name} - ${race.startDate?.year() ?: ""} Results")
+            Text("${race.name} - ${race.startTime?.year() ?: ""} Results")
         }
         RgTable {
             RgThead {
@@ -63,8 +63,7 @@ fun RaceResultsEdit(
                         Text(addBoat?.boatType?: "")
                     }
                     RgTd {
-                        //todo: class starts?
-//                        Text(race.startDate?.display() ?: "")
+                        Text(race.startTime?.display() ?: "")
                     }
                     RgTd {
                         RgDate("Finish", finish, placeHolder = true, time = true) {
@@ -163,7 +162,7 @@ fun RaceResults(
                                 Text(rf.name)
                             }
                             RgTd {
-//                                Text(rf.startDate?.display() ?: "")
+                                Text(rf.startTime?.display() ?: "")
                             }
                             RgTd {
                                 RgButton("View Results") {

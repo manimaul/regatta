@@ -145,35 +145,39 @@ afterEvaluate {
 
 tasks.named("installDist") {
     dependsOn("jsBrowserProductionWebpack")
+    mustRunAfter("jsBrowserProductionWebpack")
 }
 
 task<Exec>("makeImg") {
     dependsOn( "installDist")
+    mustRunAfter( "installDist")
     commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
 }
 
 
 task<Exec>("pubImg") {
+    dependsOn(":makeImg")
     mustRunAfter(":makeImg")
     commandLine("bash", "-c", "docker push ghcr.io/manimaul/regatta:latest")
 }
 
 task<Exec>("k8sApplyServer") {
+    dependsOn(":pubImg")
     mustRunAfter(":pubImg")
-    commandLine("bash", "-c", "echo '${serverYaml()}' | kubectl apply -f -")
+    commandLine("bash", "-c", "istioctl kube-inject -f '${serverYaml().absolutePath}' | kubectl apply -f -")
 }
 
 task<Exec>("k8sDeleteServer") {
-    commandLine("bash", "-c", "echo '${serverYaml()}' | kubectl delete -f -")
+    commandLine("bash", "-c", "istioctl kube-inject -f '${serverYaml().absolutePath}' | kubectl delete -f -")
 }
 
 task<Exec>("k8sApplyDatabase") {
-    commandLine("bash", "-c", "echo '${dbYaml()}' | kubectl apply -f -")
+    commandLine("bash", "-c", "istioctl kube-inject -f '${dbYaml().absolutePath}' | kubectl apply -f -")
 }
 
 task<Exec>("k8sDeleteDatabase") {
     mustRunAfter(":pubImg")
-    commandLine("bash", "-c", "echo '${dbYaml()}' | kubectl delete -f -")
+    commandLine("bash", "-c", "istioctl kube-inject -f '${dbYaml().absolutePath}' | kubectl delete -f -")
 }
 
 task<Exec>("holdOn") {
@@ -198,22 +202,22 @@ fun getProperty(name: String) : String {
     }
 }
 
-fun dbYaml() : String {
+fun dbYaml() : File {
     val pgUser = getProperty("REGATTA_PG_USER")
     val pgPass = getProperty("REGATTA_PG_PASS")
     val root = File(rootProject.projectDir, "k8s_deploy/database.yaml")
     return deploymentYaml(root, pgUser, pgPass)
 }
 
-fun serverYaml() : String {
+fun serverYaml() : File {
     val pgUser = getProperty("REGATTA_PG_USER")
     val pgPass = getProperty("REGATTA_PG_PASS")
     val root = File(rootProject.projectDir, "k8s_deploy/server.yaml")
     return deploymentYaml(root, pgUser, pgPass)
 }
 
-fun deploymentYaml(root: File, pgUser: String, pgPass: String): String {
-    return root .inputStream()
+fun deploymentYaml(root: File, pgUser: String, pgPass: String): File {
+    val yaml = root.inputStream()
         .readBytes()
         .toString(Charsets.UTF_8)
         .replace(
@@ -224,5 +228,8 @@ fun deploymentYaml(root: File, pgUser: String, pgPass: String): String {
             "{REGATTA_PG_PASS}",
             "'$pgPass'"
         )
+    return File(root.parentFile, ".___${root.name}").also {
+        it.writeText(yaml)
+    }
 }
 
