@@ -43,6 +43,9 @@ object RegattaDatabase {
             exec(
                 "alter table race drop column if exists start_date, drop column if exists end_date, drop column if exists correction_factor"
             )
+            exec(
+                "alter table raceresults drop column if exists name"
+            )
         }
     }
 
@@ -585,28 +588,31 @@ object RegattaDatabase {
         }
     }
 
-    suspend fun upsertResult(result: RaceResult): RaceResultFull? = dbQuery {
-        val id = result.id
-        if (id != null) {
-            RaceResultsTable.update(where = { RaceResultsTable.id eq id }) {
-                it[raceId] = result.raceId
-                it[boatId] = result.boatId
-                it[raceClass] = result.raceClassId
-                it[finish] = result.finish
-                it[phrfRating] = result.phrfRating
-            }.takeIf { it > 0 }?.let {
-                getResult(id)
+    suspend fun upsertResult(result: RaceResult): RaceResultFull?  {
+        val resultId = dbQuery {
+            val id = result.id
+            if (id != null) {
+                RaceResultsTable.update(where = { RaceResultsTable.id eq id }) {
+                    it[raceId] = result.raceId
+                    it[boatId] = result.boatId
+                    it[raceClass] = result.raceClassId
+                    it[finish] = result.finish
+                    it[phrfRating] = result.phrfRating
+                }.takeIf { it > 0 }?.let { id }
+            } else {
+                RaceResultsTable.insert {
+                    it[raceId] = result.raceId
+                    it[boatId] = result.boatId
+                    it[raceClass] = result.raceClassId
+                    it[finish] = result.finish
+                    it[phrfRating] = result.phrfRating
+                }.resultedValues?.singleOrNull()?.let {
+                    it[RaceResultsTable.id]
+                }
             }
-        } else {
-            RaceResultsTable.insert {
-                it[raceId] = result.raceId
-                it[boatId] = result.boatId
-                it[raceClass] = result.raceClassId
-                it[finish] = result.finish
-                it[phrfRating] = result.phrfRating
-            }.resultedValues?.singleOrNull()?.let {
-                getResult(it[RaceResultsTable.id])
-            }
+        }
+        return resultId?.let {
+            getResult(it)
         }
     }
 }

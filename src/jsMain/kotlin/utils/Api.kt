@@ -84,4 +84,7 @@ object Api {
 
     suspend fun getResults(raceId: Long) =
         Network.get<List<RaceResultFull>>("results", mapOf("raceId" to "$raceId"))
+
+    suspend fun postResult(result: RaceResult) =
+        Network.post<RaceResult, RaceResultFull>("results", result)
 }

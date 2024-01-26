@@ -67,13 +67,16 @@ fun RaceResultsEdit(
                     RgTd { Text("-") }
                     RgTd {
                         RgButton("Add") {
-
+                            viewModel.addResult(addState.value)
                         }
                     }
                 }
                 state.value.result.complete(viewModel) { results ->
-                    results.keys.forEach { raceClass ->
-                        results[raceClass]?.forEachIndexed { i, result ->
+                    results.forEach { (raceClass, list) ->
+                        RgTr {
+                            RgTd(12) { H4 { Text(raceClass?.name ?: "") } }
+                        }
+                        list.forEachIndexed { i, result ->
                             RgTr {
                                 RgTd { Text(result.boatName) }
                                 RgTd { Text(result.skipper) }
@@ -87,6 +90,7 @@ fun RaceResultsEdit(
                                 RgTd { Text(result.correctionFactorDisplay) }
                                 RgTd { Text(result.correctedTime) }
                                 RgTd { Text("${i + 1}") }
+                                RgTd { Text(result.correctedTimeSeconds?.inWholeSeconds?.toString() ?: "") }
                             }
                         }
                     }

@@ -73,7 +73,6 @@ sealed interface Race {
     val raceTimes: List<RaceTime>
     val rcId: Long?
     val seriesId: Long?
-
 }
 
 fun Race.toPost(): RacePost {
