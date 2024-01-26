@@ -54,6 +54,7 @@ fun RgDate(
     date: Instant?,
     placeHolder: Boolean = false,
     time: Boolean = false,
+    seconds: Boolean = false,
     listener: (Instant) -> Unit
 ) {
     println("RgDate $label $date")
@@ -67,6 +68,9 @@ fun RgDate(
             placeholder(label)
         }
         classes("form-control")
+        if (seconds) {
+            attr("step", "1")
+        }
         date?.let {
             val ts = it.formattedDateString(time)
             value(ts)

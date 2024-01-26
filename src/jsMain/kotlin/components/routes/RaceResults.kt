@@ -6,9 +6,7 @@ import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import utils.*
-import viewmodel.RaceResultEditViewModel
-import viewmodel.ResultsViewModel
-import viewmodel.complete
+import viewmodel.*
 
 @Composable
 fun RaceResultsEdit(
@@ -16,9 +14,8 @@ fun RaceResultsEdit(
     viewModel: RaceResultEditViewModel = remember { RaceResultEditViewModel(raceId ?: 0) }
 ) {
     val state = viewModel.flow.collectAsState()
-    var addBoat by remember { mutableStateOf<Boat?>(null) }
+    val addState = viewModel.addViewModel.flow.collectAsState()
     state.value.race.complete(viewModel) { race ->
-        var finish by remember { mutableStateOf(race.endTime) }
         H1 {
             Text("${race.name} - ${race.startTime?.year() ?: ""} Results")
         }
@@ -45,43 +42,52 @@ fun RaceResultsEdit(
                 RgTr {
                     RgTd {
                         state.value.boats.complete(viewModel) {
-                            RgBoatDropdown(it, addBoat) { boat ->
-                                addBoat = boat
+                            RgBoatDropdown(it, addState.value.boat) { boat ->
+                                viewModel.addViewModel.addBoat(boat)
                             }
                         }
                     }
+                    RgTd { Text(addState.value.skipper) }
+                    RgTd { Text(addState.value.sail) }
+                    RgTd { Text(addState.value.boatType) }
+                    RgTd { Text(addState.value.phrfRating) }
+                    RgTd { Text(addState.value.startTime) }
                     RgTd {
-                        Text(addBoat?.skipper?.fullName() ?: "")
-                    }
-                    RgTd {
-                        Text(addBoat?.sailNumber ?: "")
-                    }
-                    RgTd {
-                        Text(addBoat?.boatType?: "")
-                    }
-                    RgTd {
-                        Text(addBoat?.boatType?: "")
-                    }
-                    RgTd {
-                        Text(race.startTime?.display() ?: "")
-                    }
-                    RgTd {
-                        RgDate("Finish", finish, placeHolder = true, time = true) {
-                            finish = it
+                        addState.value.raceTime?.endDate?.let { finish ->
+                            RgDate("Finish", finish, placeHolder = true, time = true, seconds = true) {
+                                viewModel.addViewModel.setFinish(it)
+                            }
                         }
                     }
-                    RgTd(6) {
-                    }
+                    RgTd { Text(addState.value.elapsedTime) }
+                    RgTd { Text(addState.value.elapsedTimeSec) }
+                    RgTd { Text(addState.value.correctionFactorDisplay) }
+                    RgTd { Text(addState.value.correctedTime) }
+                    RgTd { Text("-") }
+                    RgTd { Text("-") }
                     RgTd {
-                        RgButton("Save") {
+                        RgButton("Add") {
 
                         }
                     }
                 }
                 state.value.result.complete(viewModel) { results ->
-                    RgTr {
-                        RgTd(2) {
-                            Text("${results.size}")
+                    results.keys.forEach { raceClass ->
+                        results[raceClass]?.forEachIndexed { i, result ->
+                            RgTr {
+                                RgTd { Text(result.boatName) }
+                                RgTd { Text(result.skipper) }
+                                RgTd { Text(result.sail) }
+                                RgTd { Text(result.boatType) }
+                                RgTd { Text(result.phrfRating) }
+                                RgTd { Text(result.startTime) }
+                                RgTd { Text(result.finishTime) }
+                                RgTd { Text(result.elapsedTime) }
+                                RgTd { Text(result.elapsedTimeSec) }
+                                RgTd { Text(result.correctionFactorDisplay) }
+                                RgTd { Text(result.correctedTime) }
+                                RgTd { Text("${i + 1}") }
+                            }
                         }
                     }
                 }

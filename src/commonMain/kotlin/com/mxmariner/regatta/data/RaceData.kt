@@ -147,7 +147,7 @@ sealed interface RaceResult {
     val raceId: Long
     val boatId: Long
     val raceClassId: Long
-    val finish: Instant
+    val finish: Instant?
     val phrfRating: Int?
 }
 
@@ -167,7 +167,7 @@ data class RaceResultFull(
     val race: RaceFull,
     val boat: Boat,
     val raceClass: RaceClass,
-    override val finish: Instant,
+    override val finish: Instant?,
     override val phrfRating: Int? = null,
 ) : RaceResult {
     override val raceId: Long

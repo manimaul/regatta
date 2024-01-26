@@ -6,6 +6,8 @@ import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
 import kotlinx.datetime.toJSDate
 import kotlinx.datetime.toKotlinInstant
 import kotlin.js.Date
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 //https://js-joda.github.io/js-joda/manual/formatting.html
 fun Instant.formattedDateString(addTime: Boolean): String {
@@ -42,6 +44,16 @@ fun Instant.year(): String {
     return toJSDate().let {
         "${it.getFullYear()}"
     }
+}
+
+fun kotlin.time.Duration.display(): String {
+    var t = this
+    val hrs = t.inWholeHours
+    t -= hrs.toDuration(DurationUnit.HOURS)
+    val min = t.inWholeMinutes
+    t -= min.toDuration(DurationUnit.MINUTES)
+    val sec = t.inWholeSeconds
+    return "${hrs}h:${min}m:${sec}s"
 }
 
 fun String.datePickerInstant() : Instant {
