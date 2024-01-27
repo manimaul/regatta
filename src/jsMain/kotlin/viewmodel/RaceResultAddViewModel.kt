@@ -1,26 +1,30 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.data.RaceFull
-import com.mxmariner.regatta.data.RaceResultPost
-import com.mxmariner.regatta.data.RaceTime
+import com.mxmariner.regatta.data.*
 import kotlinx.datetime.Instant
+import utils.Api
+import utils.toAsync
 
 data class RaceResultAddState(
+    val id: Long? = null,
     val race: RaceFull? = null,
-    override val boat: Boat? = null,
-    override val raceTime: RaceTime? = null,
-    override val finish: Instant? = raceTime?.endDate
-) : VmState, RaceResultComputed {
+    val boat: Boat? = null,
+    val raceClassId: Long? = null,
+    val start: Instant? = null,
+    val finish: Instant? = null,
+    val hocPosition: Int? = null,
+) : VmState {
     fun asPost(): RaceResultPost? {
-        return if (boat != null && race != null && raceTime != null) {
+        return if (boat?.id != null && race?.id != null && boat.raceClass?.id != null) {
             RaceResultPost(
-                raceId = race.id!!,
-                boatId = boat.id!!,
-                raceClassId = boat.raceClass?.id!!,
-                finish = raceTime.endDate,
-                start = raceTime.startDate,
-                phrfRating = boat.phrfRating
+                id = id,
+                raceId = race.id,
+                boatId = boat.id,
+                raceClassId = boat.raceClass.id,
+                start = start,
+                finish = finish,
+                phrfRating = boat.phrfRating,
+                hocPosition = hocPosition,
             )
         } else {
             null
@@ -29,30 +33,47 @@ data class RaceResultAddState(
 }
 
 class RaceResultAddViewModel(
+    val raceId: Long
 ) : BaseViewModel<RaceResultAddState>(RaceResultAddState()) {
     override fun reload() {
-        setState { copy(boat = null, raceTime = null) }
+        setState {
+            val race = Api.getRace(raceId).toAsync()
+            RaceResultAddState(
+                boat = null,
+                race = race.value,
+                start = race.value?.startTime,
+                finish = race.value?.endTime
+            )
+        }
+    }
+
+    init {
+        reload()
     }
 
     fun addBoat(boat: Boat?) {
-        setState {
-            copy(
-                boat = boat,
-                raceTime = race?.let { boatRaceTime(it, boat) }
-            )
-        }
+        setState { copy(boat = boat) }
     }
 
-    fun setRace(value: RaceFull?) {
-        setState {
-            copy(
-                race = value,
-                raceTime = value?.let { boatRaceTime(it, boat) }
-            )
-        }
+    fun setFinish(it: Instant?) {
+        setState { copy(finish = it) }
     }
 
-    fun setFinish(it: Instant) {
-        setState { copy(raceTime = raceTime?.copy(endDate = it)) }
+    fun setStart(it: Instant?) {
+        setState { copy(start = it) }
+    }
+
+    fun setCard(card: RaceReportCard? = null) {
+        setState {
+            copy(
+                id = card?.resultRecord?.id,
+                boat = card?.resultRecord?.boat,
+                raceClassId = card?.resultRecord?.raceClassId,
+                race = if (card != null) card.resultRecord.race else race,
+                start = if (card != null) card.startTime else race?.startTime,
+                finish= if (card != null) card.finishTime else race?.endTime,
+                hocPosition = card?.hocPosition,
+            )
+        }
     }
 }

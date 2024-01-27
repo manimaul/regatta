@@ -1,3 +1,13 @@
+- race class tied to race (NOT boat)
+- race can have list of RCs
+- allRaces (specify year)
+- results show last edit date and user
+  - websockets?
+- UI edit/delete race entry
+  - edit DNS, DNF, HOC
+- Race check in page
+  - page to add boats to race
+  - websockets?
 - Add timeseries https://github.com/chartjs/Chart.js
 - Race editor and display table (show race duration)
 - Show next race on home screen with countdown
@@ -7,14 +17,11 @@
 - People show last race date
 - Boats show last race date
 - Deactivate vs delete
-- Race checkin / 
-- Websockets
 - Edit boat
 - Admin - add/ delete
 - Add edit / race classes
 - Add edit / races
 - Bootstrap
-- Race check in page
 - Raw (JSX like) component
 - Raw SQL & startup init & migrations 
 ```

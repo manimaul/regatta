@@ -2,9 +2,11 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.display
 import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 import utils.*
 import viewmodel.*
 
@@ -15,9 +17,9 @@ fun RaceResultsEdit(
 ) {
     val state = viewModel.flow.collectAsState()
     val addState = viewModel.addViewModel.flow.collectAsState()
-    state.value.race.complete(viewModel) { race ->
+    state.value.report.complete(viewModel) { report ->
         H1 {
-            Text("${race.name} - ${race.startTime?.year() ?: ""} Results")
+            Text("${report.race.name} - ${report.race.startTime?.year() ?: ""} Results")
         }
         RgTable {
             RgThead {
@@ -33,67 +35,130 @@ fun RaceResultsEdit(
                     RgTh { Text("Elapsed Seconds") }
                     RgTh { Text("Correction Factor") }
                     RgTh { Text("Corrected Time") }
-                    RgTh { Text("Place In Class") }
-                    RgTh { Text("Place Overall") }
                     RgTh { Text("Action") }
                 }
             }
             RgTbody {
-                RgTr {
-                    RgTd {
-                        state.value.boats.complete(viewModel) {
-                            RgBoatDropdown(it, addState.value.boat) { boat ->
-                                viewModel.addViewModel.addBoat(boat)
-                            }
-                        }
+                if (addState.value.id == null) {
+                    EditResultRow(viewModel, state.value, addState.value)
+                }
+                report.categories.forEach { category ->
+                    RgTr {
+                        RgTd(12) { H4 { Text(category.category.name) } }
                     }
-                    RgTd { Text(addState.value.skipper) }
-                    RgTd { Text(addState.value.sail) }
-                    RgTd { Text(addState.value.boatType) }
-                    RgTd { Text(addState.value.phrfRating) }
-                    RgTd { Text(addState.value.startTime) }
-                    RgTd {
-                        addState.value.raceTime?.endDate?.let { finish ->
-                            RgDate("Finish", finish, placeHolder = true, time = true, seconds = true) {
-                                viewModel.addViewModel.setFinish(it)
-                            }
+                    category.classes.forEach { raceClass ->
+                        RgTr {
+                            RgTd(12) { H6 { Text(raceClass.raceClass.name) } }
                         }
-                    }
-                    RgTd { Text(addState.value.elapsedTime) }
-                    RgTd { Text(addState.value.elapsedTimeSec) }
-                    RgTd { Text(addState.value.correctionFactorDisplay) }
-                    RgTd { Text(addState.value.correctedTime) }
-                    RgTd { Text("-") }
-                    RgTd { Text("-") }
-                    RgTd {
-                        RgButton("Add") {
-                            viewModel.addResult(addState.value)
+                        raceClass.cards.forEach { card ->
+                            if (card.resultRecord.id == addState.value.id) {
+                                EditResultRow(viewModel, state.value, addState.value)
+                            } else {
+                                RgTr {
+                                    RgTd { Text(card.boatName) }
+                                    RgTd { Text(card.skipper) }
+                                    RgTd { Text(card.sail) }
+                                    RgTd { Text(card.boatType) }
+                                    RgTd { Text(card.phrfRating?.toString() ?: "") }
+                                    RgTd { Text(card.startTime?.display() ?: "") }
+                                    RgTd { Text(card.finishTime?.display() ?: "") }
+                                    RgTd { Text(card.elapsedTime?.toString() ?: "") }
+                                    RgTd { Text(card.elapsedTime?.inWholeSeconds?.toString() ?: "") }
+                                    RgTd { Text("${card.correctionFactor.asDynamic().toFixed(3)}") }
+                                    RgTd { Text(card.correctedTime?.display() ?: "n/a") }
+                                    RgTd {
+                                        RgButton(label = "Edit") {
+                                            viewModel.addViewModel.setCard(card)
+                                        }
+                                    }
+                                }
+
+                            }
                         }
                     }
                 }
-                state.value.result.complete(viewModel) { results ->
-                    results.forEach { (raceClass, list) ->
-                        RgTr {
-                            RgTd(12) { H4 { Text(raceClass?.name ?: "") } }
-                        }
-                        list.forEachIndexed { i, result ->
-                            RgTr {
-                                RgTd { Text(result.boatName) }
-                                RgTd { Text(result.skipper) }
-                                RgTd { Text(result.sail) }
-                                RgTd { Text(result.boatType) }
-                                RgTd { Text(result.phrfRating) }
-                                RgTd { Text(result.startTime) }
-                                RgTd { Text(result.finishTime) }
-                                RgTd { Text(result.elapsedTime) }
-                                RgTd { Text(result.elapsedTimeSec) }
-                                RgTd { Text(result.correctionFactorDisplay) }
-                                RgTd { Text(result.correctedTime) }
-                                RgTd { Text("${i + 1}") }
-                                RgTd { Text(result.correctedTimeSeconds?.inWholeSeconds?.toString() ?: "") }
-                            }
-                        }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditResultRow(
+    viewModel: RaceResultEditViewModel,
+    state: RaceResultEditState,
+    addState: RaceResultAddState,
+) {
+    RgTr {
+        RgTd {
+            if (addState.id == null) {
+                state.boats.complete(viewModel) {
+                    RgBoatDropdown(it, addState.boat) { boat ->
+                        viewModel.addViewModel.addBoat(boat)
                     }
+                }
+            } else {
+                Text(addState.boat?.name ?: "")
+            }
+        }
+        RgTd { Text(addState.boat?.skipper?.fullName() ?: "") }
+        RgTd { Text(addState.boat?.sailNumber ?: "") }
+        RgTd { Text(addState.boat?.boatType ?: "") }
+        RgTd { Text(addState.boat?.phrfRating?.toString() ?: "") }
+        RgTd {
+            addState.start?.let { start ->
+                RgDate("Start", start, placeHolder = true, time = true, seconds = true) {
+                    viewModel.addViewModel.setStart(it)
+                }
+                RgButton(label = "DNS") {
+                    viewModel.addViewModel.setStart(null)
+                    viewModel.addViewModel.setFinish(null)
+                }
+            } ?: run {
+                P { Text("DNS") }
+                RgButton(label = "Reset") {
+                    viewModel.addViewModel.setStart(addState.race?.startTime)
+                }
+            }
+        }
+        RgTd {
+            addState.finish?.let { finish ->
+                RgDate("Finish", finish, placeHolder = true, time = true, seconds = true) {
+                    viewModel.addViewModel.setFinish(it)
+                }
+                RgButton(label = "DNF") {
+                    viewModel.addViewModel.setFinish(null)
+                }
+            } ?: run {
+                P { Text("DNF") }
+                RgButton(label = "Reset") {
+                    viewModel.addViewModel.setFinish(addState.race?.endTime)
+                }
+            }
+        }
+        RgTd(colSpan = 4) { }
+        RgTd {
+            if (addState.id != null) {
+                RgButton(
+                    label = "Cancel",
+                    customClasses = listOf(AppStyle.marginAll),
+                ) {
+                    viewModel.addViewModel.setCard()
+                }
+            }
+            RgButton(
+                label = "Save",
+                style = RgButtonStyle.Success,
+                customClasses = listOf(AppStyle.marginAll, AppStyle.marginAll),
+            ) {
+                viewModel.addResult(addState)
+            }
+            if (addState.id != null) {
+                RgButton(
+                    label = "Delete",
+                    style = RgButtonStyle.Danger,
+                    customClasses = listOf(AppStyle.marginAll),
+                ) {
+                    viewModel.delete(addState.id)
                 }
             }
         }

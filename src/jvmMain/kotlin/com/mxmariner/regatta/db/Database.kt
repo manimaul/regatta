@@ -602,16 +602,20 @@ object RegattaDatabase {
                     it[raceId] = result.raceId
                     it[boatId] = result.boatId
                     it[raceClass] = result.raceClassId
+                    it[start] = result.start
                     it[finish] = result.finish
                     it[phrfRating] = result.phrfRating
+                    it[hoc] = result.hocPosition
                 }.takeIf { it > 0 }?.let { id }
             } else {
                 RaceResultsTable.insert {
                     it[raceId] = result.raceId
                     it[boatId] = result.boatId
                     it[raceClass] = result.raceClassId
+                    it[start] = result.start
                     it[finish] = result.finish
                     it[phrfRating] = result.phrfRating
+                    it[hoc] = result.hocPosition
                 }.resultedValues?.singleOrNull()?.let {
                     it[RaceResultsTable.id]
                 }

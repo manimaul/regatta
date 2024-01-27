@@ -44,9 +44,9 @@ fun RaceResultsView(
             RgTbody {
                 report.categories.forEach {
                     RgTr {
-                        RgTd(colSpan = 15, classes = listOf("foo")) {
-                            "${it.category.name} CF ${1}"
+                        RgTd(colSpan = 15) {
                             H4 { Text(it.category.name) }
+                            Text("CF - ${it.correctionFactor}")
                         }
                     }
                     it.classes.forEach { classReport ->

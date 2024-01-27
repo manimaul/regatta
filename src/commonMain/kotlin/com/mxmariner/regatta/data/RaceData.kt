@@ -185,28 +185,6 @@ data class RaceResultFull(
         get() = raceClass.id!!
 }
 
-//todo
-// - race can have list of RCs
-// - races have default correction of 600
-// -- allRaces (specify year)
-
-//todo: calculate race results on backend
-// corrected time seconds
-// place overall
-// show last edit date and user
-
-//todo: support DNS, DNF, HOC
-//
-
-//todo: UI edit/delete race entry
-
-
-/*
-how to handle race class changes in reports?
-A: - allow classes to be active / inactive
-A: - attach list of classes to race record
- */
-
 @Serializable
 data class RaceReport(
     val race: RaceFull,
