@@ -19,6 +19,7 @@ data class RaceResultAddState(
                 boatId = boat.id!!,
                 raceClassId = boat.raceClass?.id!!,
                 finish = raceTime.endDate,
+                start = raceTime.startDate,
                 phrfRating = boat.phrfRating
             )
         } else {

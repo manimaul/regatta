@@ -31,45 +31,55 @@ object RaceResultReporter {
     }
 
     suspend fun getReport(raceId: Long): RaceReport? {
+        val reportCategories = mutableListOf<RaceReportCategory>()
         RegattaDatabase.findRace(raceId)?.let { raceFull ->
             val cards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
 
             //PHRF
-            cards.filter { it.phrfRating != null }
-                .sortedWith(cardCompare)
-                .forEachIndexed { i, card ->
-                    card.placeOverall = i + 1
-                }
+            cards.filter { it.phrfRating != null }.sortedWith(cardCompare).forEachIndexed { i, card ->
+                card.placeOverall = i + 1
+            }
 
             //Cruising
-            cards.filter { it.phrfRating == null }
-                .sortedWith(cardCompare)
-                .forEachIndexed { i, card ->
-                    card.placeOverall = i + 1
-                }
+            cards.filter { it.phrfRating == null }.sortedWith(cardCompare).forEachIndexed { i, card ->
+                card.placeOverall = i + 1
+            }
 
             //class category places
             raceFull.raceTimes.forEach { rt ->
                 val cat = rt.raceClassCategory
-                cards.filter { it.resultRecord.raceClass.category == cat.id }
+                val catCards = cards.filter { it.resultRecord.raceClass.category == cat.id }
                     .sortedWith(cardCompare)
-                    .forEachIndexed { i, card ->
-                        card.placeInClass = i + 1
-                    }
-            }
+                catCards.forEachIndexed { i, card ->
+                    card.placeInClass = i + 1
+                }
 
-            //class places
-            cards.distinctBy { it.resultRecord.raceClass.id }.map { it.resultRecord.raceClass.id }.forEach { classId ->
-                cards.filter { it.resultRecord.raceClass.id == classId }
-                    .sortedWith(cardCompare)
-                    .forEachIndexed { i, card ->
-                        card.placeInBracket = i + 1
-                    }
+                //class places
+                val categoryClasses =
+                    catCards.distinctBy { it.resultRecord.raceClass.id }.map { it.resultRecord.raceClass }
+                        .mapNotNull { raceClass ->
+                            RaceReportClass(
+                                raceClass = raceClass,
+                                cards = cards.filter { it.resultRecord.raceClass.id == raceClass.id }
+                                    .sortedWith(cardCompare).also {
+                                        it.forEachIndexed { i, card ->
+                                            card.placeInBracket = i + 1
+                                        }
+                                    }
+                            ).takeIf { it.cards.isNotEmpty() }
+                        }
+
+                RaceReportCategory(
+                    category = cat.toCategory(),
+                    classes = categoryClasses
+                ).takeIf { it.classes.isNotEmpty() }?.also {
+                    reportCategories.add(it)
+                }
             }
 
             return RaceReport(
                 race = raceFull,
-                cards = cards
+                categories = reportCategories
             )
         }
         return null
@@ -78,7 +88,7 @@ object RaceResultReporter {
     private fun reduceToCard(result: RaceResultFull): RaceReportCard {
         val raceTime = boatRaceTime(result.race, result.boat)
         val time = result.finish?.let { finish ->
-            raceTime?.startDate?.let { start ->
+            result.start?.let { start ->
                 finish - start
             }
         }
@@ -99,7 +109,7 @@ object RaceResultReporter {
                 result.start,
                 result.finish,
                 result.boat
-            ),
+            ).takeIf { result.start != null && result.finish != null },
             placeInBracket = 0,
             placeInClass = 0,
             placeOverall = 0,

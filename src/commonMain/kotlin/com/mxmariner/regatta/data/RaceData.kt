@@ -210,6 +210,17 @@ A: - attach list of classes to race record
 @Serializable
 data class RaceReport(
     val race: RaceFull,
+    val categories: List<RaceReportCategory>
+)
+
+@Serializable
+data class RaceReportCategory(
+    val category: RaceCategory,
+    val classes: List<RaceReportClass>,
+)
+@Serializable
+data class RaceReportClass(
+    val raceClass: RaceClass,
     val cards: List<RaceReportCard>,
 )
 
