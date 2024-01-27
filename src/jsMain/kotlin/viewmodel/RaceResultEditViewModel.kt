@@ -1,5 +1,6 @@
 package viewmodel
 
+import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.display
 import kotlinx.datetime.Instant
@@ -9,12 +10,10 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-fun correctionFactor(factor: Int?, boat: Boat?): Double {
-    return factor?.let { cf ->
-        boat?.phrfRating?.let { rating ->
-            650.0 / (cf.toDouble() + rating.toDouble())
-        }
-    } ?: 1.0
+fun correctionFactor(factor: Int, boat: Boat?): Double {
+    return boat?.phrfRating?.let { rating ->
+            650.0 / (factor.toDouble() + rating.toDouble())
+        } ?: 1.0
 }
 
 fun boatRaceTime(race: RaceFull, boat: Boat?): RaceTime? {
@@ -42,11 +41,11 @@ fun elapsedTimeSec(start: Instant?, end: Instant?): String {
     } ?: ""
 }
 
-fun boatCorrectedRaceTime(factor: Int?, start: Instant?, finish: Instant?, boat: Boat?): String {
+fun boatCorrectedRaceTime(factor: Int, start: Instant?, finish: Instant?, boat: Boat?): String {
     return boatCorrectedTime(factor, start, finish, boat)?.display() ?: ""
 }
 
-fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, boat: Boat?): Duration? {
+fun boatCorrectedTime(factor: Int, start: Instant?, finish: Instant?, boat: Boat?): Duration? {
     if (start != null && finish != null) {
         val cf = correctionFactor(factor, boat)
         val seconds = ((finish - start).inWholeSeconds.toDouble() * cf).roundToLong()
@@ -68,18 +67,18 @@ interface RaceResultComputed {
     val finishTime: String get() = finish?.display() ?: ""
     val elapsedTime: String get() = elapsedTime(raceTime?.startDate, finish)
     val elapsedTimeSec: String get() = elapsedTimeSec(raceTime?.startDate, finish)
-    private val correctionFactor: Double get() = correctionFactor(raceTime?.correctionFactor, boat)
+    private val correctionFactor: Double get() = correctionFactor(raceTime?.correctionFactor ?: correctionFactorDefault, boat)
     val correctionFactorDisplay: String get() = "${correctionFactor.asDynamic().toFixed(3)}"
     val correctedTime: String
         get() = boatCorrectedRaceTime(
-            raceTime?.correctionFactor,
+            raceTime?.correctionFactor ?: correctionFactorDefault,
             raceTime?.startDate,
             finish,
             boat
         )
     val correctedTimeSeconds: Duration?
         get() = boatCorrectedTime(
-            raceTime?.correctionFactor,
+            raceTime?.correctionFactor ?: correctionFactorDefault,
             raceTime?.startDate,
             finish,
             boat

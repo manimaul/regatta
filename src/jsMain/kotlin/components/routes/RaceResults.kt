@@ -159,13 +159,13 @@ fun RaceResults(
                 }
             }
             it.keys.forEach { series ->
-                Tr {
-                    RgTd(3) {
-                        H4 { Text(series.name) }
-                    }
-                }
                 val races = it[series]
                 RgTbody {
+                    Tr {
+                        RgTd(if (state.value.loggedIn) 4 else 3) {
+                            H4 { Text(series.name) }
+                        }
+                    }
                     races?.forEach { rf ->
                         RgTr {
                             RgTd {

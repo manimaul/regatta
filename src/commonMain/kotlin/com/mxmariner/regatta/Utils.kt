@@ -7,6 +7,8 @@ fun String.versionedApi(): String {
     return "/v1/api/$this"
 }
 
+const val correctionFactorDefault = 600
+
 fun String.versionedApi(version: Int = 1, params: Map<String, String>? = null): String {
     val paramString = params?.let {
         StringBuilder().apply {

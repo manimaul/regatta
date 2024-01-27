@@ -1,6 +1,7 @@
 package components.routes
 
 import androidx.compose.runtime.*
+import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import components.*
 import kotlinx.datetime.Instant
@@ -63,7 +64,7 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
                 }
             }
             RgTr {
-                RgTd(6) { }
+                RgTd(5) { }
                 RgTd {
                     RgButton("Create Race", RgButtonStyle.SuccessOutline, customClasses = listOf("float-start")) {
                         viewModel.createRace()
@@ -226,9 +227,9 @@ fun RaceForm(
                             RgCol {
                                 RgInput(
                                     label = "Correction",
-                                    raceTime.correctionFactor?.let { "$it" } ?: "") { cf ->
+                                    "${raceTime.correctionFactor}") { cf ->
                                     raceTimes = raceTimes.toMutableList().apply {
-                                        set(index, raceTime.copy(correctionFactor = cf.toIntOrNull()))
+                                        set(index, raceTime.copy(correctionFactor = cf.toIntOrNull() ?: correctionFactorDefault))
                                     }
                                 }
                             }
@@ -282,7 +283,7 @@ fun RgAddRaceTime(
     var raceClassCat by mutableStateOf(selected)
     var startDate by remember { mutableStateOf<Instant?>(null) }
     var endDate by remember { mutableStateOf<Instant?>(null) }
-    var cf by remember { mutableStateOf<Int?>(null) }
+    var cf by remember { mutableStateOf(correctionFactorDefault) }
 
     RgRow {
         RgCol {
@@ -307,8 +308,8 @@ fun RgAddRaceTime(
 
         }
         RgCol {
-            RgInput(label = "Correction", cf?.let { "$it" } ?: "") {
-                cf = it.toIntOrNull()
+            RgInput(label = "Correction", "$cf") {
+                cf = it.toIntOrNull() ?: correctionFactorDefault
             }
         }
         RgCol {

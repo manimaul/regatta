@@ -41,30 +41,41 @@ fun RaceResultsView(
                     RgTh { Text("Place Overall") }
                 }
             }
-            report.categories.forEach {
-                H5 { Text(it.category.name) }
-                it.classes.forEach { classReport ->
-                    H6 { Text("${classReport.raceClass.name} ${classReport.raceClass.description ?: ""}") }
-                    classReport.cards.forEach { card ->
+            RgTbody {
+                report.categories.forEach {
+                    RgTr {
+                        RgTd(colSpan = 15, classes = listOf("foo")) {
+                            "${it.category.name} CF ${1}"
+                            H4 { Text(it.category.name) }
+                        }
+                    }
+                    it.classes.forEach { classReport ->
                         RgTr {
-                            RgTd { Text(card.boatName) }
-                            RgTd { Text(card.skipper) }
-                            RgTd { Text(card.sail) }
-                            RgTd { Text(card.boatType) }
-                            RgTd { Text(card.phrfRating?.toString() ?: "n/a") }
-                            RgTd { Text(card.startTime?.display() ?: "DNS") }
-                            RgTd {
-                                Text(card.finishTime?.display()?.takeIf { card.startTime != null }
-                                    ?: "DNF".takeIf { card.startTime != null } ?: "")
+                            RgTd(colSpan = 15) {
+                                H6 { Text("${classReport.raceClass.name} ${classReport.raceClass.description ?: ""}") }
                             }
-                            RgTd { Text(card.elapsedTime?.display() ?: "n/a") }
-                            RgTd { Text(card.elapsedTime?.inWholeSeconds?.toString() ?: "n/a") }
-                            RgTd { Text("${card.correctionFactor.asDynamic().toFixed(3)}") }
-                            RgTd { Text(card.correctedTime?.display() ?: "n/a") }
-                            RgTd { Text(card.correctedTime?.inWholeSeconds?.toString() ?: "n/a") }
-                            RgTd { Text(card.placeInBracket.toString()) }
-                            RgTd { Text(card.placeInClass.toString()) }
-                            RgTd { Text(card.placeOverall.toString()) }
+                        }
+                        classReport.cards.forEach { card ->
+                            RgTr {
+                                RgTd { Text(card.boatName) }
+                                RgTd { Text(card.skipper) }
+                                RgTd { Text(card.sail) }
+                                RgTd { Text(card.boatType) }
+                                RgTd { Text(card.phrfRating?.toString() ?: "n/a") }
+                                RgTd { Text(card.startTime?.display() ?: "DNS") }
+                                RgTd {
+                                    Text(card.finishTime?.display()?.takeIf { card.startTime != null }
+                                        ?: "DNF".takeIf { card.startTime != null } ?: "")
+                                }
+                                RgTd { Text(card.elapsedTime?.display() ?: "n/a") }
+                                RgTd { Text(card.elapsedTime?.inWholeSeconds?.toString() ?: "n/a") }
+                                RgTd { Text("${card.correctionFactor.asDynamic().toFixed(3)}") }
+                                RgTd { Text(card.correctedTime?.display() ?: "n/a") }
+                                RgTd { Text(card.correctedTime?.inWholeSeconds?.toString() ?: "n/a") }
+                                RgTd { Text(card.placeInBracket.toString()) }
+                                RgTd { Text(card.placeInClass.toString()) }
+                                RgTd { Text(card.placeOverall.toString()) }
+                            }
                         }
                     }
                 }

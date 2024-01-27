@@ -127,7 +127,7 @@ data class RaceTime(
     val raceClassCategory: RaceClassCat,
     val startDate: Instant,
     val endDate: Instant,
-    val correctionFactor: Int? = null,
+    val correctionFactor: Int,
 )
 
 @Serializable
@@ -216,6 +216,7 @@ data class RaceReport(
 @Serializable
 data class RaceReportCategory(
     val category: RaceCategory,
+    val correctionFactor: Int,
     val classes: List<RaceReportClass>,
 )
 @Serializable

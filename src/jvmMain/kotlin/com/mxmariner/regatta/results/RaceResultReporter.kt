@@ -3,32 +3,12 @@ package com.mxmariner.regatta.results
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
-import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 object RaceResultReporter {
 
-    private val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
-        if (lhs.correctedTime != null && rhs.correctedTime != null) {
-            lhs.correctedTime.inWholeMilliseconds.compareTo(rhs.correctedTime.inWholeMilliseconds)
-        } else if (lhs.correctedTime != null) {
-            -1
-        } else if (rhs.correctedTime != null) {
-            1
-        } else {
-            if (lhs.hocPosition != null && rhs.hocPosition != null) {
-                lhs.hocPosition.compareTo(rhs.hocPosition)
-            } else if (lhs.hocPosition != null) {
-                -1
-            } else if (rhs.hocPosition != null) {
-                1
-            } else {
-                0
-            }
-        }
-    }
 
     suspend fun getReport(raceId: Long): RaceReport? {
         val reportCategories = mutableListOf<RaceReportCategory>()
@@ -36,23 +16,22 @@ object RaceResultReporter {
             val cards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
 
             //PHRF
-            cards.filter { it.phrfRating != null }.sortedWith(cardCompare).forEachIndexed { i, card ->
-                card.placeOverall = i + 1
+            cards.filter { it.phrfRating != null }.place { p, card ->
+                card.placeOverall = p
             }
 
             //Cruising
-            cards.filter { it.phrfRating == null }.sortedWith(cardCompare).forEachIndexed { i, card ->
-                card.placeOverall = i + 1
+            cards.filter { it.phrfRating == null }.place { p, card ->
+                card.placeOverall = p
             }
 
             //class category places
             raceFull.raceTimes.forEach { rt ->
                 val cat = rt.raceClassCategory
                 val catCards = cards.filter { it.resultRecord.raceClass.category == cat.id }
-                    .sortedWith(cardCompare)
-                catCards.forEachIndexed { i, card ->
-                    card.placeInClass = i + 1
-                }
+                    .place { p, card ->
+                        card.placeInClass = p
+                    }
 
                 //class places
                 val categoryClasses =
@@ -61,17 +40,16 @@ object RaceResultReporter {
                             RaceReportClass(
                                 raceClass = raceClass,
                                 cards = cards.filter { it.resultRecord.raceClass.id == raceClass.id }
-                                    .sortedWith(cardCompare).also {
-                                        it.forEachIndexed { i, card ->
-                                            card.placeInBracket = i + 1
-                                        }
+                                    .place { p, card ->
+                                        card.placeInBracket = p
                                     }
                             ).takeIf { it.cards.isNotEmpty() }
                         }
 
                 RaceReportCategory(
                     category = cat.toCategory(),
-                    classes = categoryClasses
+                    classes = categoryClasses,
+                    correctionFactor = rt.correctionFactor
                 ).takeIf { it.classes.isNotEmpty() }?.also {
                     reportCategories.add(it)
                 }
@@ -136,10 +114,48 @@ object RaceResultReporter {
     private fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, boat: Boat?): Duration? {
         if (start != null && finish != null) {
             val cf = correctionFactor(factor, boat)
-            val seconds = ((finish - start).inWholeSeconds.toDouble() * cf).roundToLong()
-            return seconds.toDuration(DurationUnit.SECONDS)
+            val ms = ((finish - start).inWholeMilliseconds) * cf
+            return ms.toDuration(DurationUnit.MILLISECONDS)
         }
         return null
     }
 }
 
+
+private val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
+    if (lhs.correctedTime != null && rhs.correctedTime != null) {
+        lhs.correctedTime.inWholeMilliseconds.compareTo(rhs.correctedTime.inWholeMilliseconds)
+    } else if (lhs.correctedTime != null) {
+        -1
+    } else if (rhs.correctedTime != null) {
+        1
+    } else {
+        if (lhs.hocPosition != null && rhs.hocPosition != null) {
+            lhs.hocPosition.compareTo(rhs.hocPosition)
+        } else if (lhs.hocPosition != null) {
+            -1
+        } else if (rhs.hocPosition != null) {
+            1
+        } else {
+            0
+        }
+    }
+}
+
+fun Iterable<RaceReportCard>.place(place: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
+    return this.sortedWith(cardCompare).also {
+        var last: RaceReportCard? = null
+        var position = 1
+        it.forEach { ea ->
+            last?.correctedTime?.let { lt ->
+                ea.correctedTime?.let { tt ->
+                    if (tt > lt) {
+                        position++
+                    }
+                }
+            }
+            place(position, ea)
+            last = ea
+        }
+    }
+}

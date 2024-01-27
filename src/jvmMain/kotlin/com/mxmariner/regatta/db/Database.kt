@@ -1,6 +1,7 @@
 package com.mxmariner.regatta.db
 
 
+import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
@@ -433,7 +434,7 @@ object RegattaDatabase {
                 raceClassCategory = findRaceCategory(it[RaceTimeTable.raceClassCategory])!!,
                 startDate = it[RaceTimeTable.startDate],
                 endDate = it[RaceTimeTable.endDate],
-                correctionFactor = it[RaceTimeTable.correctionFactor],
+                correctionFactor = it[RaceTimeTable.correctionFactor] ?: correctionFactorDefault,
             )
         }
     }
