@@ -46,16 +46,6 @@ fun Instant.year(): String {
     }
 }
 
-fun kotlin.time.Duration.display(): String {
-    var t = this
-    val hrs = t.inWholeHours
-    t -= hrs.toDuration(DurationUnit.HOURS)
-    val min = t.inWholeMinutes
-    t -= min.toDuration(DurationUnit.MINUTES)
-    val sec = t.inWholeSeconds
-    return "${hrs}h:${min}m:${sec}s"
-}
-
 fun String.datePickerInstant() : Instant {
     return Date(this).toKotlinInstant()
 }

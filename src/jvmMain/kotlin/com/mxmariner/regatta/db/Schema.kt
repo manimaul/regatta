@@ -83,7 +83,9 @@ object RaceResultsTable : Table() {
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
     val raceClass = (long("class_id") references RaceClassTable.id)
+    val start = timestamp("start_date").nullable()
     val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
+    val hoc = integer("hoc").nullable()
     override val primaryKey = PrimaryKey(id)
 }

@@ -134,3 +134,20 @@ suspend fun <A, B, C, R> combineAsync(
         Error.from(oneAsync.error, twoAsync.error, threeAsync.error)
     }
 }
+suspend fun <A, B, C, D, R> combineAsync(
+    one: NetworkResponse<A>,
+    two: NetworkResponse<B>,
+    three: NetworkResponse<C>,
+    four: NetworkResponse<D>,
+    reducer: suspend (A, B, C, D) -> R
+): Async<R> {
+    val oneAsync = one.toAsync()
+    val twoAsync = two.toAsync()
+    val threeAsync = three.toAsync()
+    val fourAsync = four.toAsync()
+    return if (oneAsync is Complete && twoAsync is Complete && threeAsync is Complete && fourAsync is Complete) {
+        Complete(reducer(oneAsync.value, twoAsync.value, threeAsync.value, fourAsync.value))
+    } else {
+        Error.from(oneAsync.error, twoAsync.error, threeAsync.error, fourAsync.error)
+    }
+}

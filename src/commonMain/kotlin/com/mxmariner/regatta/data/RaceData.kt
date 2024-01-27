@@ -7,6 +7,7 @@ import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration
 
 
 @Serializable
@@ -35,13 +36,14 @@ sealed interface RaceClassCat {
     val name: String
     val active: Boolean
 
-    fun toCategory() : RaceCategory {
-        return when(this) {
+    fun toCategory(): RaceCategory {
+        return when (this) {
             is RaceCategory -> this
             is RaceClassCategory -> RaceCategory(id, name, active)
         }
     }
 }
+
 @Serializable
 data class RaceClassCategory(
     override val id: Long? = null,
@@ -146,8 +148,10 @@ sealed interface RaceResult {
     val raceId: Long
     val boatId: Long
     val raceClassId: Long
+    val start: Instant?
     val finish: Instant?
     val phrfRating: Int?
+    val hocPosition: Int?
 }
 
 @Serializable
@@ -156,8 +160,10 @@ data class RaceResultPost(
     override val raceId: Long,
     override val boatId: Long,
     override val raceClassId: Long,
-    override val finish: Instant,
+    override val start: Instant?,
+    override val finish: Instant?,
     override val phrfRating: Int? = null,
+    override val hocPosition: Int? = null,
 ) : RaceResult
 
 @Serializable
@@ -166,8 +172,10 @@ data class RaceResultFull(
     val race: RaceFull,
     val boat: Boat,
     val raceClass: RaceClass,
+    override val start: Instant?,
     override val finish: Instant?,
     override val phrfRating: Int? = null,
+    override val hocPosition: Int? = null,
 ) : RaceResult {
     override val raceId: Long
         get() = race.id!!
@@ -176,3 +184,50 @@ data class RaceResultFull(
     override val raceClassId: Long
         get() = raceClass.id!!
 }
+
+//todo
+// - race can have list of RCs
+// - races have default correction of 600
+// -- allRaces (specify year)
+
+//todo: calculate race results on backend
+// corrected time seconds
+// place overall
+// show last edit date and user
+
+//todo: support DNS, DNF, HOC
+//
+
+//todo: UI edit/delete race entry
+
+
+/*
+how to handle race class changes in reports?
+A: - allow classes to be active / inactive
+A: - attach list of classes to race record
+ */
+
+@Serializable
+data class RaceReport(
+    val race: RaceFull,
+    val cards: List<RaceReportCard>,
+)
+
+@Serializable
+data class RaceReportCard(
+    val resultRecord: RaceResultFull,
+    val boatName: String,
+    val sail: String,
+    val skipper: String,
+    val boatType: String,
+    val phrfRating: Int?,
+    val startTime: Instant?,
+    val finishTime: Instant?,
+    val elapsedTime: Duration?,
+    val correctionFactor: Double,
+    val correctedTime: Duration?,
+    var placeInBracket: Int,
+    var placeInClass: Int,
+    var placeOverall: Int,
+    val hocPosition: Int?
+)

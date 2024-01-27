@@ -46,6 +46,9 @@ object RegattaDatabase {
             exec(
                 "alter table raceresults drop column if exists name"
             )
+            exec(
+                "alter table raceresults drop column if exists completion"
+            )
         }
     }
 
@@ -457,7 +460,7 @@ object RegattaDatabase {
         }
     }
 
-    suspend fun findRace(id: Long) = dbQuery {
+    suspend fun findRace(id: Long): RaceFull? = dbQuery {
         val races = RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).select {
             RaceTable.id eq id
         }.map {
@@ -538,8 +541,10 @@ object RegattaDatabase {
         race = race,
         boat = boat,
         raceClass = raceClass,
+        start = row[RaceResultsTable.start],
         finish = row[RaceResultsTable.finish],
         phrfRating = row[RaceResultsTable.phrfRating],
+        hocPosition = row[RaceResultsTable.hoc],
     )
 
     suspend fun getResults(year: Int) = dbQuery {
@@ -568,7 +573,7 @@ object RegattaDatabase {
         }.singleOrNull()
     }
 
-    suspend fun resultsByRaceId(raceId: Long) = dbQuery {
+    suspend fun resultsByRaceId(raceId: Long) : List<RaceResultFull> = dbQuery {
         RaceResultsTable.select {
             RaceResultsTable.raceId eq raceId
         }.map {

@@ -3,6 +3,7 @@ package com.mxmariner.regatta.plugins
 import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
+import com.mxmariner.regatta.results.RaceResultReporter
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -64,6 +65,14 @@ fun Application.configureRouting() {
                 RegattaDatabase.resultsByRaceId(it)
             } ?: RegattaDatabase.allResults()
             call.respond(results)
+        }
+        get("/report".versionedApi()) {
+            call.request.queryParameters["raceId"]?.toLong()?.let {
+               RaceResultReporter.getReport(it)?.let { report ->
+                   call.respond(report)
+               } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            call.respond(HttpStatusCode.NoContent)
         }
         authenticate(Token.Admin.name) {
             delete("/results".versionedApi()) {

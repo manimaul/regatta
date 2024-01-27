@@ -1,6 +1,7 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.*
+import com.mxmariner.regatta.display
 import kotlinx.datetime.Instant
 import utils.*
 import kotlin.math.roundToLong
@@ -93,6 +94,7 @@ data class RaceResultRecordComputed(
     override val finish: Instant? get() = record.finish ?: raceTime?.endDate
 }
 
+
 data class RaceResultEditState(
     val race: Async<RaceFull> = Loading(),
     val result: Async<Map<RaceClassCategory?, List<RaceResultRecordComputed>>> = Loading(),
@@ -110,13 +112,21 @@ class RaceResultEditViewModel(
 
     override fun reload() {
         setState {
+//            combineAsync(
+//                Api.getRace(raceId),
+//                Api.getAllCategories(),
+//                Api.getAllBoats(),
+//                Api.getResults(raceId),
+//            ) { r, c, b, e ->
+//                ""
+//            }
             val race = Api.getRace(raceId).toAsync()
             addViewModel.setRace(race.value)
             val categories = Api.getAllCategories().toAsync()
             copy(
                 race = race,
                 result = Api.getResults(raceId).toAsync().flatMap { xx -> categories.map { xx.reduce(it) } },
-                boats = Api.getAllBoats().toAsync(),
+                boats = Api.getAllBoats().toAsync().map { it.filter { it.raceClass != null } },
                 categories = categories
             )
         }
