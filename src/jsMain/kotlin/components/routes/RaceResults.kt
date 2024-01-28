@@ -109,7 +109,7 @@ fun EditResultRow(
                 RgDate("Start", start, placeHolder = true, time = true, seconds = true) {
                     viewModel.addViewModel.setStart(it)
                 }
-                RgButton(label = "DNS") {
+                RgButton(label = "DNS", customClasses = listOf(AppStyle.marginTop)) {
                     viewModel.addViewModel.setStart(null)
                     viewModel.addViewModel.setFinish(null)
                 }
@@ -121,12 +121,26 @@ fun EditResultRow(
             }
         }
         RgTd {
-            addState.finish?.let { finish ->
+            addState.hocPosition?.let {
+                P { Text("HOC $it") }
+                RgButton(label = "Reset") {
+                    viewModel.addViewModel.setFinish(addState.race?.endTime)
+                }
+                RgButton(label = "+") {
+                    viewModel.addViewModel.hoc(it + 1)
+                }
+                RgButton(label = "-") {
+                    viewModel.addViewModel.hoc(it - 1)
+                }
+            } ?: addState.finish?.let { finish ->
                 RgDate("Finish", finish, placeHolder = true, time = true, seconds = true) {
                     viewModel.addViewModel.setFinish(it)
                 }
-                RgButton(label = "DNF") {
+                RgButton(label = "DNF", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
                     viewModel.addViewModel.setFinish(null)
+                }
+                RgButton(label = "HOC", customClasses = listOf(AppStyle.marginTop)) {
+                    viewModel.addViewModel.hoc(state.maxHoc)
                 }
             } ?: run {
                 P { Text("DNF") }
@@ -246,7 +260,7 @@ fun RaceResults(
                             }
                             if (state.value.loggedIn) {
                                 Td {
-                                    RgButton("Add Results") {
+                                    RgButton("Edit Results") {
                                         viewModel.addResult(rf)
                                     }
                                 }

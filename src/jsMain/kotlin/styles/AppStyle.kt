@@ -13,6 +13,10 @@ object AppStyle : StyleSheet() {
         marginLeft(marginSize.px)
     }
 
+    val marginTop by style {
+        marginTop(marginSize.px)
+    }
+
     val marginEnd by style {
         marginRight(marginSize.px)
     }

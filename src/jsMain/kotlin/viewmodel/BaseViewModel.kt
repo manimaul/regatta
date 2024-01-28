@@ -36,9 +36,29 @@ abstract class BaseViewModel<T : VmState>(
         }
     }
 
+    protected fun <A, B> setState(
+        n1: suspend () -> Async<A>,
+        n2: suspend () -> Async<B>,
+        reducer: suspend T.(Async<A>, Async<B>) -> T
+    ) {
+        launch {
+            internalState.value = reducer(internalState.value, n1(), n2())
+        }
+    }
+
+    protected fun <A> setState(
+        n: suspend () -> Async<A>,
+        reducer: suspend T.(Async<A>) -> T
+    ) {
+        launch {
+            internalState.value = reducer(internalState.value, n())
+        }
+    }
+
     abstract fun reload()
 
 }
+
 @Composable
 fun <A> Async<A>.complete(viewModel: BaseViewModel<*>, handler: @Composable (A) -> Unit) {
     when (val event = this) {
@@ -46,6 +66,7 @@ fun <A> Async<A>.complete(viewModel: BaseViewModel<*>, handler: @Composable (A) 
         is Error -> ErrorDisplay(event) {
             viewModel.reload()
         }
+
         is Loading -> RgSpinner()
         Uninitialized -> Unit
     }

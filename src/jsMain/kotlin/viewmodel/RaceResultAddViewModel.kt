@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.*
 import kotlinx.datetime.Instant
 import utils.Api
 import utils.toAsync
+import kotlin.math.max
 
 data class RaceResultAddState(
     val id: Long? = null,
@@ -71,8 +72,17 @@ class RaceResultAddViewModel(
                 raceClassId = card?.resultRecord?.raceClassId,
                 race = if (card != null) card.resultRecord.race else race,
                 start = if (card != null) card.startTime else race?.startTime,
-                finish= if (card != null) card.finishTime else race?.endTime,
+                finish = if (card != null) card.finishTime else race?.endTime,
                 hocPosition = card?.hocPosition,
+            )
+        }
+    }
+
+    fun hoc(i: Int) {
+        setState {
+            copy(
+                hocPosition = max(0, i),
+                finish = null,
             )
         }
     }

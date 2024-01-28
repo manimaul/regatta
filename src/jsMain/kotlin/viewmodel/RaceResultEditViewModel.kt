@@ -3,10 +3,12 @@ package viewmodel
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.RaceReport
 import utils.*
+import kotlin.math.max
 
 data class RaceResultEditState(
     val report: Async<RaceReport> = Loading(),
     val boats: Async<List<Boat>> = Loading(),
+    val maxHoc: Int = 1,
 ) : VmState
 
 class RaceResultEditViewModel(
@@ -28,19 +30,41 @@ class RaceResultEditViewModel(
 
     fun addResult(value: RaceResultAddState) {
         addViewModel.setCard()
-        setState {
-            value.asPost()?.let { post ->
+        value.asPost()?.let { post ->
+            setState(
+                { Api.postResult(post).toAsync() },
+                { Api.getReport(raceId).toAsync() }
+            ) { _, report ->
                 copy(
-                    report = Api.postResult(post).toAsync().flatMap { Api.getReport(raceId).toAsync() }
+                    report = report,
+                    maxHoc = findMaxHoc(maxHoc, report.value),
                 )
-            } ?: this
+            }
         }
     }
 
+    private fun findMaxHoc(currentHoc: Int, value: RaceReport?): Int {
+        var hoc = currentHoc
+        value?.categories?.forEach { cat ->
+            cat.classes.forEach { cls ->
+                cls.cards.forEach { card ->
+                    card.hocPosition?.let {
+                        hoc = max(it, hoc)
+                    }
+                }
+            }
+        }
+        return hoc
+    }
+
     fun delete(id: Long) {
-        setState {
+        setState(
+            { Api.deleteResult(id).toAsync() },
+            { Api.getReport(raceId).toAsync() }
+        ) { _, report ->
             copy(
-                report = Api.deleteResult(id).toAsync().flatMap { Api.getReport(raceId).toAsync() }
+                report = report,
+                maxHoc = findMaxHoc(maxHoc, report.value),
             )
         }
         addViewModel.setCard()

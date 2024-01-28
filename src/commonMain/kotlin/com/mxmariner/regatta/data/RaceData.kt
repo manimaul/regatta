@@ -62,10 +62,10 @@ data class RaceCategory(
 @Serializable
 data class RaceClass(
     val id: Long? = null,
-    val name: String,
-    val description: String?,
+    val name: String = "",
+    val description: String? = null,
     @EncodeDefault(ALWAYS) val active: Boolean = true,
-    val category: Long,
+    val category: Long = -1L,
 )
 
 @Serializable
@@ -94,9 +94,9 @@ fun Race.toPost(): RacePost {
 @Serializable
 data class RaceFull(
     override val id: Long? = null,
-    override val name: String,
-    val series: Series?,
-    val rc: Person?,
+    override val name: String = "",
+    val series: Series? = null,
+    val rc: Person? = null,
     override val raceTimes: List<RaceTime> = emptyList(),
 ) : Race {
     override val rcId: Long?
@@ -169,11 +169,11 @@ data class RaceResultPost(
 @Serializable
 data class RaceResultFull(
     override val id: Long? = null,
-    val race: RaceFull,
-    val boat: Boat,
-    val raceClass: RaceClass,
-    override val start: Instant?,
-    override val finish: Instant?,
+    val race: RaceFull = RaceFull(),
+    val boat: Boat = Boat(),
+    val raceClass: RaceClass = RaceClass(),
+    override val start: Instant? = null,
+    override val finish: Instant? = null,
     override val phrfRating: Int? = null,
     override val hocPosition: Int? = null,
 ) : RaceResult {
@@ -205,19 +205,19 @@ data class RaceReportClass(
 
 @Serializable
 data class RaceReportCard(
-    val resultRecord: RaceResultFull,
-    val boatName: String,
-    val sail: String,
-    val skipper: String,
-    val boatType: String,
-    val phrfRating: Int?,
-    val startTime: Instant?,
-    val finishTime: Instant?,
-    val elapsedTime: Duration?,
-    val correctionFactor: Double,
-    val correctedTime: Duration?,
-    var placeInBracket: Int,
-    var placeInClass: Int,
-    var placeOverall: Int,
-    val hocPosition: Int?
+    val resultRecord: RaceResultFull = RaceResultFull(),
+    val boatName: String = "",
+    val sail: String = "",
+    val skipper: String = "",
+    val boatType: String = "",
+    val phrfRating: Int? = null,
+    val startTime: Instant? = null,
+    val finishTime: Instant? = null,
+    val elapsedTime: Duration? = null,
+    val correctionFactor: Double = 1.0,
+    val correctedTime: Duration? = null,
+    var placeInBracket: Int = 0,
+    var placeInClass: Int = 0,
+    var placeOverall: Int= 0,
+    val hocPosition: Int? = null,
 )
