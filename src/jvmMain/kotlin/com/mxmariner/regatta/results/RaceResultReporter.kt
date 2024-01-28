@@ -122,14 +122,20 @@ object RaceResultReporter {
 }
 
 
-private val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
-    if (lhs.correctedTime != null && rhs.correctedTime != null) {
+val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
+    compare(lhs, rhs)
+}
+
+fun compare(lhs: RaceReportCard, rhs: RaceReportCard) : Int {
+    // compare corrected time
+    return if (lhs.correctedTime != null && rhs.correctedTime != null) {
         lhs.correctedTime.inWholeMilliseconds.compareTo(rhs.correctedTime.inWholeMilliseconds)
     } else if (lhs.correctedTime != null) {
         -1
     } else if (rhs.correctedTime != null) {
         1
     } else {
+        // compare HOC
         if (lhs.hocPosition != null && rhs.hocPosition != null) {
             lhs.hocPosition.compareTo(rhs.hocPosition)
         } else if (lhs.hocPosition != null) {
@@ -137,21 +143,28 @@ private val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
         } else if (rhs.hocPosition != null) {
             1
         } else {
-            0
+            // compare DNS to DNF
+            if (lhs.startTime != null && rhs.startTime != null) {
+               0
+            } else if (lhs.startTime != null) {
+                -1
+            } else if (rhs.startTime != null) {
+                1
+            } else {
+                0
+            }
         }
     }
 }
 
 fun Iterable<RaceReportCard>.place(place: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
     return this.sortedWith(cardCompare).also {
-        var last: RaceReportCard? = null
+       var last: RaceReportCard? = null
         var position = 1
-        it.forEach { ea ->
-            last?.correctedTime?.let { lt ->
-                ea.correctedTime?.let { tt ->
-                    if (tt > lt) {
-                        position++
-                    }
+        it.forEach {  ea ->
+            last?.let {
+                if (compare(ea, it) == 1) {
+                    position++
                 }
             }
             place(position, ea)
