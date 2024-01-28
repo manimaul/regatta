@@ -1,10 +1,9 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.RaceReport
-import utils.Api
-import utils.Async
-import utils.Loading
-import utils.toAsync
+import com.mxmariner.regatta.data.RaceReportCard
+import com.mxmariner.regatta.display
+import utils.*
 
 data class RaceReportState(
     val report: Async<RaceReport> = Loading()
@@ -21,4 +20,37 @@ class RaceResultViewViewModel(
     init {
         setState { copy(report = Api.getReport(raceId).toAsync()) }
     }
+}
+
+fun RaceReportCard.startText(): String {
+    return startTime?.display() ?: "DNS"
+}
+
+fun RaceReportCard.finishText(): String {
+    return finishTime?.display()?.takeIf { startTime != null }
+        ?: "DNF".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
+}
+
+fun RaceReportCard.elapsedText(): String {
+    return elapsedTime?.display() ?: "n/a"
+}
+
+fun RaceReportCard.elapsedSecText(): String {
+    return elapsedTime?.inWholeSeconds?.toString() ?: "n/a"
+}
+
+fun RaceReportCard.cfText(): String {
+    return "${correctionFactor.asDynamic().toFixed(3)}"
+}
+
+fun RaceReportCard.corTimeText(): String {
+    return correctedTime?.display() ?: "n/a"
+}
+
+fun RaceReportCard.corTimeSecText(): String {
+    return correctedTime?.inWholeSeconds?.toString() ?: "n/a"
+}
+
+fun RaceReportCard.phrfText(): String {
+    return phrfRating?.toString() ?: "n/a"
 }

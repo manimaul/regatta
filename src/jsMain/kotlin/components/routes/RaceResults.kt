@@ -59,13 +59,13 @@ fun RaceResultsEdit(
                                     RgTd { Text(card.skipper) }
                                     RgTd { Text(card.sail) }
                                     RgTd { Text(card.boatType) }
-                                    RgTd { Text(card.phrfRating?.toString() ?: "") }
-                                    RgTd { Text(card.startTime?.display() ?: "") }
-                                    RgTd { Text(card.finishTime?.display() ?: "") }
-                                    RgTd { Text(card.elapsedTime?.toString() ?: "") }
-                                    RgTd { Text(card.elapsedTime?.inWholeSeconds?.toString() ?: "") }
-                                    RgTd { Text("${card.correctionFactor.asDynamic().toFixed(3)}") }
-                                    RgTd { Text(card.correctedTime?.display() ?: "n/a") }
+                                    RgTd { Text(card.phrfText()) }
+                                    RgTd { Text(card.startText()) }
+                                    RgTd { Text(card.finishText()) }
+                                    RgTd { Text(card.elapsedText()) }
+                                    RgTd { Text(card.elapsedSecText()) }
+                                    RgTd { Text(card.cfText()) }
+                                    RgTd { Text(card.corTimeText()) }
                                     RgTd {
                                         RgButton(label = "Edit") {
                                             viewModel.addViewModel.setCard(card)

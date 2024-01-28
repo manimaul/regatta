@@ -8,8 +8,7 @@ import com.mxmariner.regatta.display
 import components.*
 import org.jetbrains.compose.web.dom.*
 import utils.display
-import viewmodel.RaceResultViewViewModel
-import viewmodel.complete
+import viewmodel.*
 
 @Composable
 fun RaceResultsView(
@@ -61,17 +60,14 @@ fun RaceResultsView(
                                 RgTd { Text(card.skipper) }
                                 RgTd { Text(card.sail) }
                                 RgTd { Text(card.boatType) }
-                                RgTd { Text(card.phrfRating?.toString() ?: "n/a") }
-                                RgTd { Text(card.startTime?.display() ?: "DNS") }
-                                RgTd {
-                                    Text(card.finishTime?.display()?.takeIf { card.startTime != null }
-                                        ?: "DNF".takeIf { card.startTime != null } ?: "")
-                                }
-                                RgTd { Text(card.elapsedTime?.display() ?: "n/a") }
-                                RgTd { Text(card.elapsedTime?.inWholeSeconds?.toString() ?: "n/a") }
-                                RgTd { Text("${card.correctionFactor.asDynamic().toFixed(3)}") }
-                                RgTd { Text(card.correctedTime?.display() ?: "n/a") }
-                                RgTd { Text(card.correctedTime?.inWholeSeconds?.toString() ?: "n/a") }
+                                RgTd { Text(card.phrfText()) }
+                                RgTd { Text(card.startText()) }
+                                RgTd { Text(card.finishText()) }
+                                RgTd { Text(card.elapsedText()) }
+                                RgTd { Text(card.elapsedSecText()) }
+                                RgTd { Text(card.cfText()) }
+                                RgTd { Text(card.corTimeText()) }
+                                RgTd { Text(card.corTimeSecText()) }
                                 RgTd { Text(card.placeInBracket.toString()) }
                                 RgTd { Text(card.placeInClass.toString()) }
                                 RgTd { Text(card.placeOverall.toString()) }
