@@ -3,6 +3,7 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.mxmariner.regatta.data.Boat
 import components.*
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.onSubmit
@@ -14,13 +15,15 @@ import viewmodel.routeViewModel
 
 
 @Composable
-fun Admin(viewModel: LoginViewModel = loginViewModel) {
+fun Admin(
+    create: Boolean,
+    viewModel: LoginViewModel = loginViewModel) {
     val flowState by viewModel.flow.collectAsState()
     Div {
         when (flowState.loginStatus) {
             LoginStatus.Loading -> Progress { }
             LoginStatus.Ready -> {
-                Login()
+                Login(create)
             }
 
             LoginStatus.Complete -> {
@@ -33,9 +36,8 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
                 H4 {
                     Text("Logged in as ${flowState.auth.userName}")
                 }
-                val creator = routeViewModel.getQueryParam("create").isNotEmpty()
-                if (creator) {
-                    Login()
+                if (create) {
+                    Login(create)
                 }
             }
 
@@ -51,11 +53,12 @@ fun Admin(viewModel: LoginViewModel = loginViewModel) {
 }
 
 @Composable
-fun Login(viewModel: LoginViewModel = loginViewModel) {
-    val creator = routeViewModel.getQueryParam("create").isNotEmpty()
+fun Login(
+    create: Boolean,
+    viewModel: LoginViewModel = loginViewModel) {
     val flowState by viewModel.flow.collectAsState()
     H2 {
-        if (creator) {
+        if (create) {
             Text("Add Login")
         } else {
             Text("Login")
@@ -92,9 +95,9 @@ fun Login(viewModel: LoginViewModel = loginViewModel) {
             }
 
         }
-        val label = if (creator) "Add" else "Login"
+        val label = if (create) "Add" else "Login"
         RgButton(label, RgButtonStyle.Primary, flowState.pass.length < 4) {
-            if (creator) {
+            if (create) {
                 viewModel.submitNew()
             } else {
                 viewModel.login()

@@ -30,7 +30,6 @@ fun Nav(
                 Route.RaceResult,
             )
         } ?: arrayOf(
-            Route.Home,
             Route.RaceResult,
         )).forEach { route ->
             val style = if (state.current.route == route) {
