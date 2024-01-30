@@ -9,25 +9,10 @@ import utils.*
 
 data class ResultState(
     val loggedIn: Boolean = loginViewModel.flow.value.login?.isExpired() == false,
-    val results: Async<List<RaceResultFull>> = Uninitialized,
-    val races: Async<List<RaceFull>> = Uninitialized,
-    val year: String? = currentYear()
-) : VmState {
-
-    fun raceBySeries(): Map<Series, List<RaceFull>> {
-        val none = Series(name = "No series")
-        return racesByYear().groupBy { it.series ?: none }
-    }
-
-    private fun racesByYear(): List<RaceFull> {
-        return races.value?.sortedBy { it.startTime}?.filter { it.startTime?.year() == year } ?: emptyList()
-    }
-
-    fun years(): List<String> {
-        return races.value?.sortedByDescending { it.startTime }?.mapNotNull { it.startTime?.year() }?.distinct()
-            ?: emptyList()
-    }
-}
+    val results: Async<List<RaceResultFull>> = Loading(),
+    val races: Async<Map<Series, List<RaceFull>>> = Loading(),
+    val year: Int? = currentYear().toInt(),
+) : VmState
 
 class ResultsViewModel(
     val routeVm: RouteViewModel = routeViewModel,
@@ -43,17 +28,23 @@ class ResultsViewModel(
         }
         setState {
             copy(
-                races = Api.getAllRaces().toAsync()
+                races = year?.let { fetchRaces(it) } ?: races
             )
         }
     }
 
+    private val none = Series(name = "No series")
+    private suspend fun fetchRaces(year: Int) = Api.getAllRaces(year).toAsync().map { lst ->
+        lst.sortedBy { it.startTime }.groupBy { it.series ?: none }
+    }
+
     override fun reload() {
-        setState { ResultState() }
+        setState { ResultState(year = year) }
+
         setState {
-            copy(
-                races = Api.getAllRaces().toAsync()
-            )
+            year?.let {
+                copy( races = fetchRaces(year))
+            } ?: this
         }
     }
 
@@ -65,7 +56,15 @@ class ResultsViewModel(
         routeVm.pushRoute("/races/results/view/${race.id}")
     }
 
-    fun selectYear(year: String?) {
-        setState { copy(year = year) }
+    fun selectYear(year: Int?) {
+        year?.let { y ->
+            setState { copy(races = Loading()) }
+            setState {
+                copy(
+                    year = y,
+                    races = fetchRaces(y)
+                )
+            }
+        }
     }
 }

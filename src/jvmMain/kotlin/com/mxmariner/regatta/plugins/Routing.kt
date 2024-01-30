@@ -50,8 +50,13 @@ fun Application.configureRouting() {
                 call.respond(it)
             } ?: call.respond(HttpStatusCode.Unauthorized)
         }
+        get("/years".versionedApi()) {
+            call.respond(RegattaDatabase.allYears())
+        }
         get("/allRaces".versionedApi()) {
-            call.respond(RegattaDatabase.allRaces())
+            call.request.queryParameters["year"]?.toIntOrNull()?.let {year ->
+                call.respond(RegattaDatabase.allRaces(year))
+            } ?: call.respond(HttpStatusCode.BadRequest)
         }
         get("/races".versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {

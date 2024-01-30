@@ -221,11 +221,9 @@ fun RaceResults(
         Text("Race Results")
     }
     B { Text("Year") }
-    RgYearSelect(state.value.year, state.value.years()) {
-        viewModel.selectYear(it)
-    }
+    RgRaceYearSelector { viewModel.selectYear(it) }
     Br()
-    state.value.raceBySeries().let {
+    state.value.races.complete(viewModel) {
         RgTable {
             RgThead {
                 RgTr {

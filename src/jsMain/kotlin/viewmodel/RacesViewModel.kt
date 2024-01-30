@@ -1,7 +1,11 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.*
+import components.rgRaceYearViewModel
+import kotlinx.datetime.Instant
 import utils.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class EditRace(
     val race: Async<Race> = Uninitialized,
@@ -13,7 +17,9 @@ data class RacesState(
     val people: Async<List<Person>> = Loading(),
     val series: Async<List<Series>> = Loading(),
     val categories: Async<List<RaceClassCategory>> = Loading(),
-    val editRace: EditRace = EditRace()
+    val editRace: EditRace = EditRace(),
+    val year: Int? = currentYear().toInt(),
+    val years: Async<List<String>> = Loading()
 ) : VmState
 
 class RacesViewModel(
@@ -31,11 +37,8 @@ class RacesViewModel(
 
     override fun reload() {
         setState {
-            val allRaces = if (fetchRaces) Api.getAllRaces().toAsync()
-                .map {
-                it.sortedBy { it.startTime}
-            }
-            else races
+            val allRaces =  rgRaceYearViewModel.selectedYear()?.takeIf { fetchRaces }?.let { getAllRaces(it) } ?: races
+            println("reload year = ${rgRaceYearViewModel.selectedYear()}")
             val editRace: Async<Race> = allRaces.value?.firstOrNull { it.id == editRaceId }?.let { Complete(it) }
                 ?: editRaceId?.let { Api.getRace(it).toAsync() } ?: Complete(RacePost())
             copy(
@@ -48,13 +51,7 @@ class RacesViewModel(
         }
     }
 
-    fun reloadRaces() {
-        setState {
-            copy(
-                races = Api.getAllRaces().toAsync(),
-            )
-        }
-    }
+    private suspend fun getAllRaces(year: Int) = Api.getAllRaces(year).toAsync().map { it.sortedBy { it.startTime } }
 
     fun reloadSeries() {
         setState {
@@ -105,5 +102,12 @@ class RacesViewModel(
         setState {
             copy(editRace = editRace.copy(race = Api.postRace(race).toAsync()))
         }
+    }
+
+    fun selectYear(year: Int?) {
+       setState { copy(races = Loading()) }
+       year?.let {
+           setState { copy(races = getAllRaces(it)) }
+       }
     }
 }

@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.kotlin.datetime.KotlinInstantColumnType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.sql.ResultSet
 
 
 class DbConfig {
@@ -54,6 +56,18 @@ object RegattaDatabase {
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    private suspend fun <T> dbRawQuery(
+        sql: String,
+        args: Iterable<Pair<IColumnType, Any?>>? = null,
+        queryHandler: suspend (ResultSet) -> T,
+    ): T {
+        return newSuspendedTransaction(Dispatchers.IO) {
+
+            val statement = connection.prepareStatement(sql, false).apply { args?.let { fillParameters(args) } }
+            queryHandler(statement.executeQuery())
+        }
+    }
 
     private fun rowToRace(
         row: ResultRow,
@@ -439,25 +453,36 @@ object RegattaDatabase {
         }
     }
 
-    suspend fun allRaces() = dbQuery {
-        RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).selectAll().map {
-            val series = resultRowToSeries(it)
-            val person = resultRowToPerson(it)
-            rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.innerJoin(SeriesTable).select {
-            RaceTable.rcId eq null
-        }.map {
-            val series = resultRowToSeries(it)
-            rowToRace(it, series, null, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.innerJoin(PersonTable).select {
-            RaceTable.seriesId.eq(null)
-        }.map {
-            val person = resultRowToPerson(it)
-            rowToRace(it, null, person, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.select {
-            RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null))
-        }.map {
-            rowToRace(it, null, null, findRaceTimes(it[RaceTable.id]))
+    suspend fun allYears(): List<String> = dbQuery {
+        val years = mutableSetOf<Int>()
+        RaceTimeTable.selectAll().map {
+            val startDate = it[RaceTimeTable.startDate]
+            val endDate = it[RaceTimeTable.endDate]
+            startDate.toString().substring(0, 4).toIntOrNull()?.let {
+                years.add(it)
+            }
+            endDate.toString().substring(0, 4).toIntOrNull()?.let {
+                years.add(it)
+            }
+        }
+        years.sortedDescending().map { "$it" }
+    }
+
+    suspend fun allRaces(year: Int): List<RaceFull> {
+        val start = Instant.parse("$year-01-01T00:00:00Z")
+        val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
+        return dbRawQuery<List<Long>>(
+            sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date > ? AND start_date < ?;",
+            args = listOf(KotlinInstantColumnType() to start, KotlinInstantColumnType() to end)
+        ) {
+            val raceIds = mutableListOf<Long>()
+            while (it.next()) {
+                val raceId = it.getLong(1)
+                raceIds.add(raceId)
+            }
+            raceIds
+        }.mapNotNull {
+            findRace(it)
         }
     }
 

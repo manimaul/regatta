@@ -20,23 +20,15 @@ fun Races(
     viewModel: RacesViewModel = remember { RacesViewModel() }
 ) {
     val state = viewModel.flow.collectAsState()
-    H1 {
-        Text("Races")
-    }
-    when (val races = state.value.races) {
-        is Complete -> RaceList(races, viewModel)
-        is Error -> ErrorDisplay(races) {
-            viewModel.reloadRaces()
-        }
-
-        is Loading -> RgSpinner()
-        Uninitialized -> Unit
-    }
-
+    H1 { Text("Races") }
+    B { Text("Year") }
+    RgRaceYearSelector { viewModel.selectYear(it) }
+    Br()
+    state.value.races.complete(viewModel) { RaceList(it, viewModel) }
 }
 
 @Composable
-fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
+fun RaceList(races: List<RaceFull>, viewModel: RacesViewModel) {
     RgTable {
         RgThead {
             RgTr {
@@ -49,7 +41,7 @@ fun RaceList(races: Complete<List<RaceFull>>, viewModel: RacesViewModel) {
             }
         }
         RgTbody {
-            races.value.forEach { rf ->
+            races.forEach { rf ->
                 RgTr {
                     RgTd { Text(rf.series?.name ?: "-") }
                     RgTd { Text(rf.name) }
@@ -89,28 +81,18 @@ fun RaceEdit(
     }
 ) {
     val state by viewModel.flow.collectAsState()
-    when (val race = state.editRace.race) {
-        is Complete -> {
-            when (state.editRace.operation) {
-                Operation.None -> Unit
-                Operation.Fetched -> RaceForm(race.value, viewModel = viewModel)
-                Operation.Updated -> RgOk("Race", "${race.value.name} updated!") {
-                    viewModel.cancelCreate()
-                }
-
-                Operation.Deleted -> RgOk("Race", "${race.value.name} deleted!") {
-                    viewModel.cancelCreate()
-                }
+    state.editRace.race.complete(viewModel) {race ->
+        when (state.editRace.operation) {
+            Operation.None -> Unit
+            Operation.Fetched -> RaceForm(race, viewModel = viewModel)
+            Operation.Updated -> RgOk("Race", "${race.name} updated!") {
+                viewModel.cancelCreate()
             }
 
+            Operation.Deleted -> RgOk("Race", "${race.name} deleted!") {
+                viewModel.cancelCreate()
+            }
         }
-
-        is Error -> ErrorDisplay(race) {
-            viewModel.reload()
-        }
-
-        is Loading -> RgSpinner()
-        Uninitialized -> Unit
     }
 }
 

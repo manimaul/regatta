@@ -70,8 +70,8 @@ object Api {
     suspend fun getCategory(id: Long) =
         Network.get<RaceCategory>("raceCategory", mapOf("id" to "$id"))
 
-    suspend fun getAllRaces() =
-        Network.get<List<RaceFull>>("allRaces")
+    suspend fun getAllRaces(year: Int) =
+        Network.get<List<RaceFull>>("allRaces", mapOf("year" to "$year"))
 
     suspend fun postRace(race: Race) =
         Network.post<Race, RaceFull>("races", race)
@@ -92,4 +92,6 @@ object Api {
 
     suspend fun getReport(raceId: Long) =
         Network.get<RaceReport>("report", mapOf("raceId" to "$raceId"))
+
+    suspend fun getYears() = Network.get<List<String>>("years")
 }

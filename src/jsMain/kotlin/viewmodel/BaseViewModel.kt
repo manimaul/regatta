@@ -60,14 +60,19 @@ abstract class BaseViewModel<T : VmState>(
 }
 
 @Composable
-fun <A> Async<A>.complete(viewModel: BaseViewModel<*>, handler: @Composable (A) -> Unit) {
-    when (val event = this) {
-        is Complete -> handler(event.value)
-        is Error -> ErrorDisplay(event) {
-            viewModel.reload()
-        }
+fun <A> Async<A>.complete(viewModel: BaseViewModel<*>, handler: @Composable (A) -> Unit) =
+    this.complete(viewModel, { RgSpinner() }, handler)
 
-        is Loading -> RgSpinner()
+@Composable
+fun <A> Async<A>.complete(
+    viewModel: BaseViewModel<*>,
+    loading: @Composable () -> Unit,
+    complete: @Composable (A) -> Unit
+) {
+    when (val event = this) {
+        is Complete -> complete(event.value)
+        is Error -> ErrorDisplay(event) { viewModel.reload() }
+        is Loading -> loading()
         Uninitialized -> Unit
     }
 }
