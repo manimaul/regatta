@@ -71,6 +71,11 @@ fun Application.configureRouting() {
             } ?: RegattaDatabase.allResults()
             call.respond(results)
         }
+        get("/resultCount".versionedApi()) {
+            call.request.queryParameters["raceId"]?.toLong()?.let {
+                call.respond(RegattaDatabase.resultCount(it))
+            } ?: call.respond(HttpStatusCode.BadRequest)
+        }
         get("/report".versionedApi()) {
             call.request.queryParameters["raceId"]?.toLong()?.let {
                RaceResultReporter.getReport(it)?.let { report ->
@@ -93,9 +98,12 @@ fun Application.configureRouting() {
             }
             post("/races".versionedApi()) {
                 val race = call.receive<Race>()
-                RegattaDatabase.upsertRace(race)?.let {
-                    call.respond(it)
-                } ?: call.respond(HttpStatusCode.Conflict)
+                if (race.raceTimes.isEmpty()) {
+                   call.respond(HttpStatusCode.BadRequest)
+                } else {
+                    RegattaDatabase.upsertRace(race)?.let { call.respond(it) }
+                }
+                 ?: call.respond(HttpStatusCode.Conflict)
             }
             post("/auth".versionedApi()) {
                 val auth = call.receive<AuthRecord>()

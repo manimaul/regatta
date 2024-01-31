@@ -74,22 +74,21 @@ object RegattaDatabase {
         series: Series?,
         person: Person?,
         raceTimes: List<RaceTime>,
+        resultCount: Long,
     ) = RaceFull(
         id = row[RaceTable.id],
         name = row[RaceTable.name],
         series = series,
         raceTimes = raceTimes,
         rc = person,
+        resultCount = resultCount,
     )
 
     private fun rowToRacePost(row: ResultRow) = RacePost(
         id = row[RaceTable.id],
         name = row[RaceTable.name],
         seriesId = row[RaceTable.seriesId],
-//        startDate = row[RaceTable.startDate],
-//        endDate = row[RaceTable.endDate],
         rcId = row[RaceTable.rcId],
-//        correctionFactor = row[RaceTable.correctionFactor]
     )
 
     private fun resultRowToSeries(row: ResultRow) = Series(
@@ -487,32 +486,39 @@ object RegattaDatabase {
     }
 
     suspend fun findRace(id: Long): RaceFull? = dbQuery {
-        val races = RaceTable.innerJoin(SeriesTable).innerJoin(PersonTable).select {
-            RaceTable.id eq id
-        }.map {
-            val series = resultRowToSeries(it)
-            val person = resultRowToPerson(it)
-            rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.innerJoin(SeriesTable).select {
-            RaceTable.id.eq(id).and(RaceTable.rcId.eq(null))
-        }.map {
-            val series = resultRowToSeries(it)
-            rowToRace(it, series, null, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.innerJoin(PersonTable).select {
-            RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null))
-        }.map {
-            val person = resultRowToPerson(it)
-            rowToRace(it, null, person, findRaceTimes(it[RaceTable.id]))
-        } + RaceTable.select {
-            RaceTable.id.eq(id).and(RaceTable.seriesId.eq(null).and(RaceTable.rcId.eq(null)))
-        }.map {
-            rowToRace(it, null, null, findRaceTimes(it[RaceTable.id]))
-        }
-        races.singleOrNull()
+        RaceTable.select { RaceTable.id eq id }.map {raceRow ->
+            val series = raceRow[RaceTable.seriesId]?.let { seriesId ->
+                SeriesTable.select { SeriesTable.id eq seriesId }.map(::resultRowToSeries).singleOrNull()
+            }
+
+            val person = raceRow[RaceTable.rcId]?.let { personId ->
+                PersonTable.select { PersonTable.id eq personId }.map(::resultRowToPerson).singleOrNull()
+            }
+            val times = RaceTimeTable.select { RaceTimeTable.raceId eq id }.map { timeRow ->
+                val category = RaceClassCategoryTable.select {
+                    RaceClassCategoryTable.id eq timeRow[RaceTimeTable.raceClassCategory]
+                }.map {catRow ->
+                    RaceCategory(
+                        id = catRow[RaceClassCategoryTable.id],
+                        name = catRow[RaceClassCategoryTable.name],
+                        active = catRow[RaceClassCategoryTable.active],
+                    )
+                }.singleOrNull()
+                RaceTime(
+                    raceClassCategory = category!!,
+                    startDate = timeRow[RaceTimeTable.startDate],
+                    endDate = timeRow[RaceTimeTable.endDate],
+                    correctionFactor = timeRow[RaceTimeTable.correctionFactor] ?: correctionFactorDefault,
+                )
+            }
+
+            val count = RaceResultsTable.select { RaceResultsTable.raceId eq id }.count()
+            rowToRace(raceRow, series, person, times, count)
+        }.singleOrNull()
     }
 
     suspend fun updateRaceTimes(rId: Long, times: List<RaceTime>) = dbQuery {
-        RaceTimeTable.deleteWhere { raceId eq rId}
+        RaceTimeTable.deleteWhere { raceId eq rId }
         times.forEach { time ->
             RaceTimeTable.insert {
                 it[raceId] = rId
@@ -555,6 +561,7 @@ object RegattaDatabase {
     }
 
     suspend fun deleteRace(id: Long) = dbQuery {
+        RaceTimeTable.deleteWhere { RaceTimeTable.raceId eq id }
         RaceTable.deleteWhere { RaceTable.id eq id }
     }
 
@@ -582,7 +589,9 @@ object RegattaDatabase {
             val person = it[BoatTable.skipper]?.let { id -> findPerson(id) }
             val series = it[RaceTable.seriesId]?.let { id -> findSeries(id) }
             val raceClass = resultRowToClass(it)
-            val race = rowToRace(it, series, person, findRaceTimes(it[RaceTable.id]))
+            val raceId = it[RaceTable.id]
+            val count = RaceResultsTable.select { RaceResultsTable.raceId eq raceId }.count()
+            val race = rowToRace(it, series, person, findRaceTimes(raceId), count)
             val boat = resultRowToBoat(it, person, raceClass)
             rowToResult(it, race, boat, raceClass)
         }
@@ -599,7 +608,7 @@ object RegattaDatabase {
         }.singleOrNull()
     }
 
-    suspend fun resultsByRaceId(raceId: Long) : List<RaceResultFull> = dbQuery {
+    suspend fun resultsByRaceId(raceId: Long): List<RaceResultFull> = dbQuery {
         RaceResultsTable.select {
             RaceResultsTable.raceId eq raceId
         }.map {
@@ -619,7 +628,7 @@ object RegattaDatabase {
         }
     }
 
-    suspend fun upsertResult(result: RaceResult): RaceResultFull?  {
+    suspend fun upsertResult(result: RaceResult): RaceResultFull? {
         val resultId = dbQuery {
             val id = result.id
             if (id != null) {
@@ -649,5 +658,9 @@ object RegattaDatabase {
         return resultId?.let {
             getResult(it)
         }
+    }
+
+    suspend fun resultCount(id: Long) = dbQuery {
+        RaceResultsTable.select { RaceResultsTable.raceId eq id }.count()
     }
 }

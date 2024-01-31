@@ -244,11 +244,13 @@ fun RaceForm(
             RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
                 viewModel.cancelCreate()
             }
-            RgButton("Save", RgButtonStyle.Primary) {
+            val saveDisabled = raceTimes.isEmpty() || race.name.isBlank()
+            RgButton("Save", RgButtonStyle.Primary, disabled = saveDisabled) {
                 viewModel.saveRace(race.copy(raceTimes = raceTimes))
             }
             race.id?.let {
-                RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
+                val disabled = editRace?.resultCount?.let { it > 0 } ?: false
+                RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart), disabled = disabled) {
                     confirmDelete = true
                 }
             }

@@ -1,11 +1,8 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.*
-import components.rgRaceYearViewModel
-import kotlinx.datetime.Instant
+import components.selectedYear
 import utils.*
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 data class EditRace(
     val race: Async<Race> = Uninitialized,
@@ -37,8 +34,7 @@ class RacesViewModel(
 
     override fun reload() {
         setState {
-            val allRaces =  rgRaceYearViewModel.selectedYear()?.takeIf { fetchRaces }?.let { getAllRaces(it) } ?: races
-            println("reload year = ${rgRaceYearViewModel.selectedYear()}")
+            val allRaces =  selectedYear()?.takeIf { fetchRaces }?.let { getAllRaces(it) } ?: races
             val editRace: Async<Race> = allRaces.value?.firstOrNull { it.id == editRaceId }?.let { Complete(it) }
                 ?: editRaceId?.let { Api.getRace(it).toAsync() } ?: Complete(RacePost())
             copy(

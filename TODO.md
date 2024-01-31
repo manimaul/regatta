@@ -3,7 +3,6 @@
 - Bracket/classes have optional PHRF/Rating range
 - Windseekers needs multiple brackets (A, B, C etc)
 - Boats do not have class (PHRF or Windseekers)
-- Races page needs year dropdown
 - Check-In page - (assign boats to a race)
 - Race results - bracket/class selection
 

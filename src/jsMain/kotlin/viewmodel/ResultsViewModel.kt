@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.Race
 import com.mxmariner.regatta.data.RaceFull
 import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.Series
+import components.selectedYear
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -11,7 +12,6 @@ data class ResultState(
     val loggedIn: Boolean = loginViewModel.flow.value.login?.isExpired() == false,
     val results: Async<List<RaceResultFull>> = Loading(),
     val races: Async<Map<Series, List<RaceFull>>> = Loading(),
-    val year: Int? = currentYear().toInt(),
 ) : VmState
 
 class ResultsViewModel(
@@ -26,11 +26,7 @@ class ResultsViewModel(
                 setState { copy(loggedIn = isLoggedIn) }
             }
         }
-        setState {
-            copy(
-                races = year?.let { fetchRaces(it) } ?: races
-            )
-        }
+        setState { copy( races = selectedYear()?.let { fetchRaces(it) } ?: races ) }
     }
 
     private val none = Series(name = "No series")
@@ -39,13 +35,8 @@ class ResultsViewModel(
     }
 
     override fun reload() {
-        setState { ResultState(year = year) }
-
-        setState {
-            year?.let {
-                copy( races = fetchRaces(year))
-            } ?: this
-        }
+        setState { ResultState() }
+        setState { selectedYear()?.let { copy(races = fetchRaces(it)) } ?: this }
     }
 
     fun addResult(race: Race) {
@@ -60,10 +51,7 @@ class ResultsViewModel(
         year?.let { y ->
             setState { copy(races = Loading()) }
             setState {
-                copy(
-                    year = y,
-                    races = fetchRaces(y)
-                )
+                copy(races = fetchRaces(y))
             }
         }
     }

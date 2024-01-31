@@ -75,6 +75,7 @@ sealed interface Race {
     val raceTimes: List<RaceTime>
     val rcId: Long?
     val seriesId: Long?
+    val resultCount: Long
 }
 
 fun Race.toPost(): RacePost {
@@ -97,6 +98,7 @@ data class RaceFull(
     override val name: String = "",
     val series: Series? = null,
     val rc: Person? = null,
+    override val resultCount: Long = 0,
     override val raceTimes: List<RaceTime> = emptyList(),
 ) : Race {
     override val rcId: Long?
@@ -120,7 +122,10 @@ data class RacePost(
     override val seriesId: Long? = null,
     override val rcId: Long? = null,
     override val raceTimes: List<RaceTime> = emptyList(),
-) : Race
+) : Race {
+    override val resultCount: Long
+        get() = 0
+}
 
 @Serializable
 data class RaceTime(

@@ -43,7 +43,7 @@ fun RgInput(
         classes("form-control")
         value(value)
         onInput {
-            listener(it.value)
+            listener(it.value.trimStart())
         }
     }
 }

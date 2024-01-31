@@ -43,7 +43,9 @@ class RgRaceYearViewModel : BaseViewModel<RgRaceYearState>(RgRaceYearState()) {
     }
 }
 
-val rgRaceYearViewModel = RgRaceYearViewModel()
+private val rgRaceYearViewModel = RgRaceYearViewModel()
+
+fun selectedYear(): Int? = rgRaceYearViewModel.flow.value.year
 
 @Composable
 fun RgRaceYearSelector(
@@ -54,9 +56,11 @@ fun RgRaceYearSelector(
     state.value.years.complete(viewModel, loading = {
         Text("...")
     }) { yearList ->
-        RgYearSelect("${state.value.year}", yearList) {
-            val y = viewModel.selectYear(it)
-            onYearSelect?.invoke(y)
+        if (yearList.isNotEmpty()) {
+            RgYearSelect("${state.value.year}", yearList) {
+                val y = viewModel.selectYear(it)
+                onYearSelect?.invoke(y)
+            }
         }
     }
 }

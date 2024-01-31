@@ -283,13 +283,6 @@ fun RgYearSelect(
             handler(change.value)
         }
     }) {
-        Option("-1", attrs = {
-            if (year == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
         years.forEach {
             Option(it, attrs = {
                 if (it === year) {
