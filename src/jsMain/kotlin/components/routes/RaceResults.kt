@@ -19,7 +19,7 @@ fun RaceResultsEdit(
     val addState = viewModel.addViewModel.flow.collectAsState()
     state.value.report.complete(viewModel) { report ->
         H1 {
-            Text("${report.race.name} - ${report.race.startTime?.year() ?: ""} Results")
+            Text("${report.race.startTime?.year() ?: ""} - ${report.race.name} - Results Editor")
         }
         RgTable {
             RgThead {
@@ -252,8 +252,12 @@ fun RaceResults(
                                 Text(rf.startTime?.display() ?: "")
                             }
                             RgTd {
-                                RgButton("View Results") {
-                                    viewModel.viewResult(rf)
+                                if (rf.resultCount > 0) {
+                                    RgButton("View Results") {
+                                        viewModel.viewResult(rf)
+                                    }
+                                } else {
+                                    Text("Results not posted")
                                 }
                             }
                             if (state.value.loggedIn) {

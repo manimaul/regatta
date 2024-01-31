@@ -3,12 +3,29 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import com.mxmariner.regatta.data.RaceReportClass
-import com.mxmariner.regatta.display
 import components.*
+import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.dom.*
-import utils.display
+import utils.year
 import viewmodel.*
+
+val colums = listOf(
+    "Boat Name",
+    "Skipper",
+    "Sail Number",
+    "Boat Type",
+    "PHRF Rating",
+    "Start Time",
+    "Finish Time",
+    "Elapsed Time",
+    "Elapsed Seconds",
+    "Correction Factor",
+    "Corrected Time",
+    "Corrected Time Seconds",
+    "Place In Bracket",
+    "Place In Class",
+    "Place Overall"
+)
 
 @Composable
 fun RaceResultsView(
@@ -16,41 +33,29 @@ fun RaceResultsView(
     viewModel: RaceResultViewViewModel = remember { RaceResultViewViewModel(raceId ?: 0L) }
 ) {
     val state = viewModel.flow.collectAsState()
-    H1 {
-        Text("Race Results")
-    }
     state.value.report.complete(viewModel) { report ->
-        RgTable {
+        H1 {
+            Text("${report.race.startTime?.year() ?: ""} - ${report.race.name} - Results")
+        }
+        RgTable(stripeColumn = true, color = TableColor.light) {
             RgThead {
                 RgTr {
-                    RgTh { Text("Boat Name") }
-                    RgTh { Text("Skipper") }
-                    RgTh { Text("Sail Number") }
-                    RgTh { Text("Boat Type") }
-                    RgTh { Text("PHRF Rating") }
-                    RgTh { Text("Start Time") }
-                    RgTh { Text("Finish Time") }
-                    RgTh { Text("Elapsed Time") }
-                    RgTh { Text("Elapsed Seconds") }
-                    RgTh { Text("Correction Factor") }
-                    RgTh { Text("Corrected Time") }
-                    RgTh { Text("Corrected Time Seconds") }
-                    RgTh { Text("Place In Bracket") }
-                    RgTh { Text("Place In Class") }
-                    RgTh { Text("Place Overall") }
+                    colums.forEach {
+                        RgTh(scope = Scope.Colgroup) { Text(it) }
+                    }
                 }
             }
             RgTbody {
-                report.categories.forEach {
-                    RgTr {
-                        RgTd(colSpan = 15) {
-                            H4 { Text(it.category.name) }
-                            Text("CF - ${it.correctionFactor}")
+                report.categories.forEach { reportCategory ->
+                    RgTr(classes = listOf("table-light", "table-borderless")) {
+                        RgTdColor(colSpan = 15, color = TableColor.info) {
+                            H4 { Text(reportCategory.category.name) }
+                            Text("CF - ${reportCategory.correctionFactor}")
                         }
                     }
-                    it.classes.forEach { classReport ->
-                        RgTr {
-                            RgTd(colSpan = 15) {
+                    reportCategory.classes.forEach { classReport ->
+                        RgTr(classes = listOf("table-light", "table-borderless")) {
+                            RgTdColor(colSpan = 15, color = TableColor.warning) {
                                 H6 { Text("${classReport.raceClass.name} ${classReport.raceClass.description ?: ""}") }
                             }
                         }
