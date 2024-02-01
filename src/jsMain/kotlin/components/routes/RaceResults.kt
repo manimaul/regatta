@@ -279,10 +279,11 @@ fun RaceResults(
 fun RgYearSelect(
     year: String?,
     years: List<String>,
+    customClasses: List<String>? = null,
     handler: (String?) -> Unit,
 ) {
     Select(attrs = {
-        classes("form-select")
+        classes(listOf("form-select") + (customClasses ?: emptyList()))
         onChange { change ->
             handler(change.value)
         }

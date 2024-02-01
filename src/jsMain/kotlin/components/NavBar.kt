@@ -14,7 +14,6 @@ fun NavBar(
 ) {
     val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
-    val clockState by loginVm.clockFlow.collectAsState()
     Nav(attrs = {
         classes(
             "navbar",
@@ -22,6 +21,7 @@ fun NavBar(
             "bg-body-tertiary",
             "sticky-top",
             "border-body",
+            "border-bottom"
         )
         attr("data-bs-theme", "light")
     }) {
@@ -32,7 +32,6 @@ fun NavBar(
                     attr("height", "60")
                     alt("logo")
                 })
-                Text(" Regatta ${clockState.display}")
             }
             Button(attrs = {
                 classes("navbar-toggler")

@@ -3,6 +3,9 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import components.routes.RgYearSelect
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 import utils.*
 import viewmodel.BaseViewModel
@@ -24,7 +27,7 @@ class RgRaceYearViewModel : BaseViewModel<RgRaceYearState>(RgRaceYearState()) {
 
     fun selectedYear(): Int? = flow.value.year
 
-    fun selectYear(year: String?) : Int?{
+    fun selectYear(year: String?): Int? {
         return year?.toIntOrNull()?.let { y ->
             setState {
                 copy(
@@ -53,13 +56,15 @@ fun RgRaceYearSelector(
     onYearSelect: ((Int?) -> Unit)? = null,
 ) {
     val state = viewModel.flow.collectAsState()
-    state.value.years.complete(viewModel, loading = {
-        Text("...")
-    }) { yearList ->
-        if (yearList.isNotEmpty()) {
-            RgYearSelect("${state.value.year}", yearList) {
-                val y = viewModel.selectYear(it)
-                onYearSelect?.invoke(y)
+    Div(attrs = { style { property("width", "fit-content") } }) {
+        state.value.years.complete(viewModel, loading = {
+            Text("...")
+        }) { yearList ->
+            if (yearList.isNotEmpty()) {
+                RgYearSelect(year = "${state.value.year}", years = yearList) {
+                    val y = viewModel.selectYear(it)
+                    onYearSelect?.invoke(y)
+                }
             }
         }
     }
