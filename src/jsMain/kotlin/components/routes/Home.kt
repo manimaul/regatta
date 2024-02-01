@@ -6,17 +6,15 @@ import androidx.compose.runtime.getValue
 import components.RgButton
 import components.RgButtonStyle
 import kotlinx.browser.window
-import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import utils.token
-import viewmodel.LoginStatus
-import viewmodel.LoginViewModel
-import viewmodel.loginViewModel
+import viewmodel.*
 
 @Composable
 fun Home(
+    routeVm: RouteViewModel = routeViewModel,
     viewModel: LoginViewModel = loginViewModel,
 ) {
     val state by viewModel.flow.collectAsState()
@@ -33,6 +31,8 @@ fun Home(
             window.navigator.clipboard.writeText(token)
             window.alert("Auth token copied to clipboard\n\n$token")
         }
+    } else {
+        routeVm.pushRoute(Route.RaceResult)
     }
 }
 
