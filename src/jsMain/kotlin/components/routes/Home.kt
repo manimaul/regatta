@@ -8,6 +8,7 @@ import components.RgButtonStyle
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.H4
+import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import utils.token
 import viewmodel.LoginStatus
@@ -19,9 +20,13 @@ fun Home(
     viewModel: LoginViewModel = loginViewModel,
 ) {
     val state by viewModel.flow.collectAsState()
+    val clockState by viewModel.clockFlow.collectAsState()
     if (state.loginStatus == LoginStatus.LoggedIn) {
         H4 {
             Text("Logged in as ${state.auth.userName}")
+        }
+        P {
+            Text(" Login expires in ${clockState.expiresDisplay}")
         }
         RgButton("Copy auth token", RgButtonStyle.PrimaryOutline) {
             val token = token()

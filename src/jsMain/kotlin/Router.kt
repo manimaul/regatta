@@ -18,8 +18,8 @@ fun Router(
     val state by viewModel.flow.collectAsState()
     Style(AppStyle)
     RgGrid(RgContainerType.container_fluid) {
-        RgDiv(customizer = { set(RgSpace.m, size = RgSz.s2) }) {
-            Nav()
+        NavBar()
+        RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s2) }) {
             when (state.current.route) {
                 Route.Home -> Home()
                 Route.Series -> Series()

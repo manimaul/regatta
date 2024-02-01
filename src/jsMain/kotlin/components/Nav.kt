@@ -3,58 +3,105 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import org.jetbrains.compose.web.dom.H4
-import org.jetbrains.compose.web.dom.P
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.attributes.alt
+import org.jetbrains.compose.web.dom.*
 import viewmodel.*
 
 @Composable
-fun Nav(
+fun NavBar(
     viewModel: RouteViewModel = routeViewModel,
     loginVm: LoginViewModel = loginViewModel,
 ) {
     val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
     val clockState by loginVm.clockFlow.collectAsState()
-    H4 { Text("Regatta ${clockState.display}") }
-    P { Text("Login authorization expires in: ${clockState.expiresDisplay}") }
-    RgButtonGroup {
-        (loginFlowState.login?.let {
-            arrayOf(
-                Route.Home,
-                Route.People,
-                Route.Boats,
-                Route.Classes,
-                Route.Series,
-                Route.Races,
-                Route.RaceResult,
-            )
-        } ?: arrayOf(
-            Route.RaceResult,
-        )).forEach { route ->
-            val style = if (state.current.route == route) {
-                RgButtonStyle.Primary
-            } else {
-                RgButtonStyle.PrimaryOutline
+    Nav(attrs = {
+        classes(
+            "navbar",
+            "navbar-expand-lg",
+            "bg-body-tertiary",
+            "sticky-top",
+            "border-body",
+        )
+        attr("data-bs-theme", "light")
+    }) {
+        Div(attrs = { classes("container-fluid") }) {
+            A(attrs = { classes("navbar-brand") }, href = "#") {
+                Img(src = "/cyct_burgee.png", attrs = {
+                    classes("d-inline-block")
+                    attr("height", "60")
+                    alt("logo")
+                })
+                Text(" Regatta ${clockState.display}")
             }
-            RgButton(route.name, style) {
-                println("clicked $route")
-                viewModel.pushRoute(route)
+            Button(attrs = {
+                classes("navbar-toggler")
+                attr("data-bs-toggle", "collapse")
+                attr("data-bs-target", "#navbarNavDropdown")
+                attr("aria-controls", "navbarNavDropdown")
+                attr("aria-expanded", "false")
+                attr("aria-label", "Toggle navigation")
+            }) {
+                Span(attrs = { classes("navbar-toggler-icon") }) { }
             }
-        }
+            Div(attrs = {
+                id("navbarNavDropdown")
+                classes("collapse", "navbar-collapse")
+            }) {
+                Ul(attrs = { classes("navbar-nav") }) {
+                    (loginFlowState.login?.let {
+                        arrayOf(
+                            Route.Home,
+                            Route.People,
+                            Route.Boats,
+                            Route.Classes,
+                            Route.Series,
+                            Route.Races,
+                            Route.RaceResult,
+                        )
+                    } ?: arrayOf(
+                        Route.RaceResult,
+                    )).forEach { route ->
+                        Li(attrs = { classes("nav-item") }) {
+                            Button(attrs = {
+                                if (route == state.current.route) {
+                                    classes("nav-link", "active")
+                                } else {
+                                    classes("nav-link")
+                                }
+                                onClick {
+                                    viewModel.pushRoute(route)
+                                }
+                            }) {
+                                Text(route.name)
+                            }
+                        }
+                    }
 
-        val style = if (state.current.route == Route.Admin) {
-            RgButtonStyle.Success
-        } else {
-            RgButtonStyle.SuccessOutline
-        }
-        if (loginFlowState.loginStatus== LoginStatus.LoggedIn) {
-            RgButton("Logout", style) {
-                loginVm.logout()
-            }
-        } else {
-            RgButton("Admin", style) {
-                viewModel.pushRoute(Route.Admin)
+                    if (loginFlowState.loginStatus == LoginStatus.LoggedIn) {
+                        Li(attrs = { classes("nav-item") }) {
+                            Button(attrs = {
+                                classes("nav-link")
+                                onClick {
+                                    loginVm.logout()
+                                }
+                            }) {
+                                Text("Logout")
+                            }
+                        }
+                    } else {
+                        Li(attrs = { classes("nav-item") }) {
+                            Button(attrs = {
+                                classes("nav-link")
+                                onClick {
+                                    viewModel.pushRoute(Route.Admin)
+                                }
+                            }) {
+                                Text("Admin")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
