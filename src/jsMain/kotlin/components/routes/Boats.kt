@@ -3,7 +3,7 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClassFull
 import components.*
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
@@ -31,7 +31,7 @@ fun Boats(
 fun BoatList(
     boats: List<Boat>,
     people: List<Person>,
-    categories: List<RaceClassCategory>,
+    categories: List<RaceClassFull>,
     boatViewModel: BoatViewModel,
 ) {
     Div {
@@ -79,7 +79,7 @@ fun BoatList(
 
 @Composable
 fun AddBoat(
-    categories: List<RaceClassCategory>,
+    categories: List<RaceClassFull>,
     people: List<Person>,
     boatViewModel: BoatViewModel,
 ) {

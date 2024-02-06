@@ -1,7 +1,7 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.RaceCategory
+import com.mxmariner.regatta.data.RaceClass
 import components.*
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
@@ -41,7 +41,7 @@ fun CategoryEdit(
 
 @Composable
 fun CategoryEditor(
-    category: RaceCategory,
+    category: RaceClass,
     viewModel: CategoryEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }

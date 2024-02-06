@@ -47,7 +47,7 @@ object RaceResultReporter {
                         }
 
                 RaceReportCategory(
-                    category = cat.toCategory(),
+                    category = cat.toRaceClass(),
                     classes = categoryClasses,
                     correctionFactor = rt.correctionFactor
                 ).takeIf { it.classes.isNotEmpty() }?.also {

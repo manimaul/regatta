@@ -1,33 +1,33 @@
 package com.mxmariner.regatta.db
 
-import com.mxmariner.regatta.data.RaceCategory
-import com.mxmariner.regatta.data.RaceClassCat
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.RaceClassAble
+import com.mxmariner.regatta.data.RaceClassFull
 import com.mxmariner.regatta.db.BracketTable.resultRowToBracket
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
-object RaceClassCategoryTable : Table() {
+object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
-    fun allCategories(): List<RaceClassCategory> {
+    fun allCategories(): List<RaceClassFull> {
         return selectAll().map(::resultRowToClassCategory).map { cat ->
             cat.copy(brackets = BracketTable.select { BracketTable.category eq cat.id!! }.map(::resultRowToBracket))
         }
     }
 
-    fun upsertRaceCategory(item: RaceClassCat): RaceClassCat? {
+    fun upsertRaceCategory(item: RaceClassAble): RaceClassAble? {
         val id = item.id
         return if (id != null) {
-            RaceClassCategoryTable.update(where = { RaceClassCategoryTable.id eq id }) {
+            RaceClassTable.update(where = { RaceClassTable.id eq id }) {
                 it[name] = item.name.trim()
                 it[active] = item.active
             }.takeIf { it == 1 }?.let { item }
         } else {
-            RaceClassCategoryTable.insert {
+            RaceClassTable.insert {
                 it[name] = item.name.trim()
                 it[active] = item.active
             }.resultedValues?.singleOrNull()?.let(::resultRowToCategory)
@@ -35,39 +35,39 @@ object RaceClassCategoryTable : Table() {
     }
 
     fun deleteCategory(catId: Long): Int {
-        return RaceClassCategoryTable.deleteWhere { id eq catId }
+        return RaceClassTable.deleteWhere { id eq catId }
     }
 
-    private fun resultRowToClassCategory(row: ResultRow) = RaceClassCategory(
+    private fun resultRowToClassCategory(row: ResultRow) = RaceClassFull(
         id = row[id],
         name = row[name],
         active = row[active],
-        brackets = TODO()
+        brackets = BracketTable.selectBrackets(row[id])
     )
 
-    private fun resultRowToCategory(row: ResultRow) = RaceCategory(
+    private fun resultRowToCategory(row: ResultRow) = RaceClass(
         id = row[id],
         name = row[name],
         active = row[active],
     )
 
-    fun findRaceCategory(id: Long) : RaceCategory? {
-        return RaceClassCategoryTable.select {
-            RaceClassCategoryTable.id eq id
+    fun findRaceCategory(id: Long) : RaceClass? {
+        return RaceClassTable.select {
+            RaceClassTable.id eq id
         }.map {
-            RaceCategory(
-                id = it[RaceClassCategoryTable.id],
+            RaceClass(
+                id = it[RaceClassTable.id],
                 name = it[name],
                 active = it[active],
             )
         }.singleOrNull()
     }
-    fun selectById(id: Long): RaceCategory? {
+    fun selectById(id: Long): RaceClass? {
         return select {
-            RaceClassCategoryTable.id eq id
+            RaceClassTable.id eq id
         }.map {
-            RaceCategory(
-                id = it[RaceClassCategoryTable.id],
+            RaceClass(
+                id = it[RaceClassTable.id],
                 name = it[name],
                 active = it[active],
             )

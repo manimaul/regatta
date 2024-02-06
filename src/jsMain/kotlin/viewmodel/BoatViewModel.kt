@@ -2,7 +2,7 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClassFull
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -10,7 +10,7 @@ import utils.*
 data class BoatPeopleComposite(
     val boats: List<Boat>,
     val people: List<Person>,
-    val raceClass: List<RaceClassCategory>,
+    val raceClass: List<RaceClassFull>,
 )
 
 data class BoatState(

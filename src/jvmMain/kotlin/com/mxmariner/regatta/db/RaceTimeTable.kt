@@ -1,14 +1,13 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.correctionFactorDefault
-import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.RaceTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceTimeTable: Table() {
-    val raceClassCategory = (long("class_cat_id") references RaceClassCategoryTable.id)
+    val raceClassCategory = (long("class_cat_id") references RaceClassTable.id)
     val raceId = (long("race_id") references RaceTable.id)
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")
@@ -45,7 +44,7 @@ object RaceTimeTable: Table() {
     fun selectByRaceId(raceId: Long) : List<RaceTime> {
         return select { RaceTimeTable.raceId eq RaceTimeTable.raceId }.map {
             RaceTime(
-                raceClassCategory = RaceClassCategoryTable.selectById(it[raceClassCategory])!!,
+                raceClassCategory = RaceClassTable.selectById(it[raceClassCategory])!!,
                 startDate = it[startDate],
                 endDate = it[endDate],
                 correctionFactor = it[correctionFactor] ?: correctionFactorDefault,

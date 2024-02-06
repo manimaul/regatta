@@ -1,12 +1,10 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.RaceCategory
-import com.mxmariner.regatta.data.RaceClassCat
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClass
 import utils.*
 
 data class CategoryEditState(
-    val category: Async<RaceCategory> = Uninitialized,
+    val category: Async<RaceClass> = Uninitialized,
     val operation: Operation = Operation.None,
 ) : VmState
 
@@ -32,7 +30,7 @@ class CategoryEditViewModel(
         routeVm.goBackOrHome()
     }
 
-    fun delete(cat: RaceCategory) {
+    fun delete(cat: RaceClass) {
         cat.id?.let {
             setState {
                 copy(
@@ -49,7 +47,7 @@ class CategoryEditViewModel(
         }
     }
 
-    fun upsert(cat: RaceCategory) {
+    fun upsert(cat: RaceClass) {
         setState {
             copy(
                 category = category.loading(),
@@ -58,7 +56,7 @@ class CategoryEditViewModel(
         setState {
             copy(
                 category = Api.postCategory(cat).toAsync()
-                    .map { it.toCategory() }
+                    .map { it.toRaceClass() }
                     .mapErrorMessage { "failed to update'${cat.name}'!" },
                 operation = Operation.Updated,
             )

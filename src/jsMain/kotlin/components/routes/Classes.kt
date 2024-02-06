@@ -1,9 +1,9 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.RaceCategory
+import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.Bracket
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClassFull
 import components.*
 import org.jetbrains.compose.web.dom.*
 import utils.Complete
@@ -33,7 +33,7 @@ fun Classes(
 @Composable
 fun CategoryList(
     viewModel: ClassesViewModel,
-    list: List<RaceClassCategory>,
+    list: List<RaceClassFull>,
 ) {
     H1 { Text("Race Classes") }
     RgTable {
@@ -96,7 +96,7 @@ fun AddCategory(
         }
         RgTd {
             RgButton("Add Category", RgButtonStyle.Primary, name.isBlank(), listOf("float-end")) {
-                viewModel.upsertCategory(RaceCategory(name = name))
+                viewModel.upsertCategory(RaceClass(name = name))
                 name = ""
             }
         }
@@ -106,7 +106,7 @@ fun AddCategory(
 @Composable
 fun AddClass(
     viewModel: ClassesViewModel,
-    category: RaceClassCategory,
+    category: RaceClassFull,
 ) {
     var name by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }

@@ -13,7 +13,7 @@ data class RacesState(
     val races: Async<List<RaceFull>> = Loading(),
     val people: Async<List<Person>> = Loading(),
     val series: Async<List<Series>> = Loading(),
-    val categories: Async<List<RaceClassCategory>> = Loading(),
+    val categories: Async<List<RaceClassFull>> = Loading(),
     val editRace: EditRace = EditRace(),
     val year: Int? = currentYear().toInt(),
     val years: Async<List<String>> = Loading()

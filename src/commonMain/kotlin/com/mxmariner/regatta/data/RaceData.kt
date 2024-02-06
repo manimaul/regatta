@@ -31,33 +31,33 @@ data class Person(
 }
 
 @Serializable
-sealed interface RaceClassCat {
+sealed interface RaceClassAble {
     val id: Long?
     val name: String
     val active: Boolean
 
-    fun toCategory(): RaceCategory {
+    fun toRaceClass(): RaceClass {
         return when (this) {
-            is RaceCategory -> this
-            is RaceClassCategory -> RaceCategory(id, name, active)
+            is RaceClass -> this
+            is RaceClassFull -> RaceClass(id, name, active)
         }
     }
 }
 
 @Serializable
-data class RaceClassCategory(
+data class RaceClassFull(
     override val id: Long? = null,
     override val name: String,
     val brackets: List<Bracket>? = null,
     @EncodeDefault(ALWAYS) override val active: Boolean = true,
-) : RaceClassCat
+) : RaceClassAble
 
 @Serializable
-data class RaceCategory(
+data class RaceClass(
     override val id: Long? = null,
     override val name: String,
     @EncodeDefault(ALWAYS) override val active: Boolean = true,
-) : RaceClassCat
+) : RaceClassAble
 
 @Serializable
 data class Bracket(
@@ -129,7 +129,7 @@ data class RacePost(
 
 @Serializable
 data class RaceTime(
-    val raceClassCategory: RaceClassCat,
+    val raceClassCategory: RaceClassAble,
     val startDate: Instant,
     val endDate: Instant,
     val correctionFactor: Int,
@@ -213,7 +213,7 @@ data class RaceReport(
 
 @Serializable
 data class RaceReportCategory(
-    val category: RaceCategory,
+    val category: RaceClass,
     val correctionFactor: Int,
     val classes: List<RaceReportClass>,
 )

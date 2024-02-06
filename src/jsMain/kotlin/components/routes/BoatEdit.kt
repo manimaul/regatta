@@ -3,7 +3,7 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassCategory
+import com.mxmariner.regatta.data.RaceClassFull
 import components.*
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
@@ -42,7 +42,7 @@ fun BoatEdit(
 fun EditBoat(
     boat: Boat,
     people: List<Person>,
-    categories: List<RaceClassCategory>,
+    categories: List<RaceClassFull>,
     viewModel: EditBoatViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }

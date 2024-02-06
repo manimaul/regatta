@@ -2,14 +2,13 @@ package viewmodel
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassCategory
-import kotlinx.coroutines.launch
+import com.mxmariner.regatta.data.RaceClassFull
 import utils.*
 
 data class EditBoatComposite(
     val boat: Boat,
     val people: List<Person>,
-    val raceClass: List<RaceClassCategory>,
+    val raceClass: List<RaceClassFull>,
 )
 
 data class EditBoatState(

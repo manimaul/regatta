@@ -5,7 +5,6 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
 import com.mxmariner.regatta.db.SeriesTable.resultRowToSeries
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 object RaceTable : Table() {
     val id = long("id").autoIncrement()
@@ -67,13 +66,13 @@ object RaceTable : Table() {
                 PersonTable.select { PersonTable.id eq personId }.map(::resultRowToPerson).singleOrNull()
             }
             val times = RaceTimeTable.select { RaceTimeTable.raceId eq raceId }.map { timeRow ->
-                val category = RaceClassCategoryTable.select {
-                    RaceClassCategoryTable.id eq timeRow[RaceTimeTable.raceClassCategory]
+                val category = RaceClassTable.select {
+                    RaceClassTable.id eq timeRow[RaceTimeTable.raceClassCategory]
                 }.map { catRow ->
-                    RaceCategory(
-                        id = catRow[RaceClassCategoryTable.id],
-                        name = catRow[RaceClassCategoryTable.name],
-                        active = catRow[RaceClassCategoryTable.active],
+                    RaceClass(
+                        id = catRow[RaceClassTable.id],
+                        name = catRow[RaceClassTable.name],
+                        active = catRow[RaceClassTable.active],
                     )
                 }.singleOrNull()
                 RaceTime(

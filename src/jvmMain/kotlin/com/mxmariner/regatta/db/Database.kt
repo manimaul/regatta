@@ -10,7 +10,6 @@ import org.jetbrains.exposed.sql.kotlin.datetime.KotlinInstantColumnType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.ResultSet
-import kotlin.reflect.jvm.internal.impl.util.Check
 
 
 class DbConfig {
@@ -30,7 +29,7 @@ object RegattaDatabase {
         val tables = arrayOf(
             SeriesTable,
             PersonTable,
-            RaceClassCategoryTable,
+            RaceClassTable,
             BracketTable,
             RaceTable,
             BoatTable,
@@ -113,10 +112,10 @@ object RegattaDatabase {
     suspend fun deleteBracket(id: Long) = dbQuery { BracketTable.deleteBracket(id) }
 
     // Race Class ------------------------
-    suspend fun upsertRaceCategory(item: RaceClassCat) = dbQuery { RaceClassCategoryTable.upsertRaceCategory(item) }
-    suspend fun allCategories(): List<RaceClassCategory> = dbQuery { RaceClassCategoryTable.allCategories() }
-    suspend fun deleteCategory(id: Long): Int = dbQuery { RaceClassCategoryTable.deleteCategory(id) }
-    suspend fun findRaceCategory(id: Long): RaceCategory? = dbQuery { RaceClassCategoryTable.findRaceCategory(id) }
+    suspend fun upsertRaceCategory(item: RaceClassAble) = dbQuery { RaceClassTable.upsertRaceCategory(item) }
+    suspend fun allCategories(): List<RaceClassFull> = dbQuery { RaceClassTable.allCategories() }
+    suspend fun deleteCategory(id: Long): Int = dbQuery { RaceClassTable.deleteCategory(id) }
+    suspend fun findRaceCategory(id: Long): RaceClass? = dbQuery { RaceClassTable.findRaceCategory(id) }
 
     // Race ------------------------
 

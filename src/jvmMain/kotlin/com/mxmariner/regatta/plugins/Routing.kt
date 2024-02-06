@@ -149,7 +149,7 @@ fun Application.configureRouting() {
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             post("/raceCategory".versionedApi()) {
-                val body = call.receive<RaceClassCat>()
+                val body = call.receive<RaceClassAble>()
                 RegattaDatabase.upsertRaceCategory(body)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)

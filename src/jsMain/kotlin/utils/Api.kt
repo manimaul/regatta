@@ -44,13 +44,13 @@ object Api {
         Network.get<List<Bracket>>("allClasses")
 
     suspend fun getAllCategories() =
-        Network.get<List<RaceClassCategory>>("allCategories")
+        Network.get<List<RaceClassFull>>("allCategories")
 
     suspend fun postClass(bracket: Bracket) =
         Network.post<Bracket, Bracket>("raceClass", bracket)
 
-    suspend fun postCategory(raceClass: RaceClassCat) =
-        Network.post<RaceClassCat, RaceClassCat>("raceCategory", raceClass)
+    suspend fun postCategory(raceClass: RaceClassAble) =
+        Network.post<RaceClassAble, RaceClassAble>("raceCategory", raceClass)
 
     suspend fun getPerson(id: Long) =
         Network.get<Person>("person", mapOf("id" to "$id"))
@@ -68,7 +68,7 @@ object Api {
         Network.delete("category", mapOf("id" to "$id"))
 
     suspend fun getCategory(id: Long) =
-        Network.get<RaceCategory>("raceCategory", mapOf("id" to "$id"))
+        Network.get<RaceClass>("raceCategory", mapOf("id" to "$id"))
 
     suspend fun getAllRaces(year: Int) =
         Network.get<List<RaceFull>>("allRaces", mapOf("year" to "$year"))

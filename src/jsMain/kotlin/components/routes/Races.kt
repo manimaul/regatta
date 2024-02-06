@@ -187,7 +187,7 @@ fun RaceForm(
                                 state.categories.complete(viewModel) { categories ->
                                     RgClassCatDropDown(categories, raceTime.raceClassCategory) {
                                         raceTimes = raceTimes.toMutableList().apply {
-                                            set(index, raceTime.copy(raceClassCategory = it.toCategory()))
+                                            set(index, raceTime.copy(raceClassCategory = it.toRaceClass()))
                                         }
                                     }
                                 }
@@ -230,7 +230,7 @@ fun RaceForm(
                     state.categories.complete(viewModel) { cats ->
                         val ids = raceTimes.map { it.raceClassCategory.id }
                         cats.filter { !ids.contains(it.id) }.takeIf { it.isNotEmpty() }?.let {
-                            val selected = it.firstOrNull()?.toCategory()
+                            val selected = it.firstOrNull()?.toRaceClass()
                             println("remain $it, selected $selected")
                             RgAddRaceTime(it, selected) {
                                 raceTimes = raceTimes.toMutableList().apply { add(it) }
@@ -260,8 +260,8 @@ fun RaceForm(
 
 @Composable
 fun RgAddRaceTime(
-    categories: List<RaceClassCategory>,
-    selected: RaceCategory?,
+    categories: List<RaceClassFull>,
+    selected: RaceClass?,
     added: (RaceTime) -> Unit
 ) {
     var raceClassCat by mutableStateOf(selected)
@@ -273,7 +273,7 @@ fun RgAddRaceTime(
         RgCol {
             B { Text("Class Category") }
             RgClassCatDropDown(categories, raceClassCat) {
-                raceClassCat = it.toCategory()
+                raceClassCat = it.toRaceClass()
                 println("selected $raceClassCat")
             }
         }

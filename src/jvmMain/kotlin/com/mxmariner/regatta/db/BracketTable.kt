@@ -9,23 +9,27 @@ object BracketTable : Table() {
     val name = varchar("name", 128)
     val description = varchar("description", 1024).nullable()
     val active = bool("active")
-    val category = (long("category") references RaceClassCategoryTable.id)
+    val category = (long("category") references RaceClassTable.id)
     override val primaryKey = PrimaryKey(id)
 
     fun selectAllBrackets() : List<Bracket> {
-        return BracketTable.selectAll().map(::resultRowToBracket)
+        return selectAll().map(::resultRowToBracket)
+    }
+
+    fun selectBrackets(classId: Long) : List<Bracket> {
+        return select { category eq classId }.map(::resultRowToBracket)
     }
 
     fun upsertBracket(item: Bracket): Bracket? {
         return if (item.id != null) {
-            BracketTable.update(where = { id eq item.id }) {
+            update(where = { id eq item.id }) {
                 it[name] = item.name.trim()
                 it[description] = item.description?.trim()
                 it[active] = item.active
                 it[category] = item.category
             }.takeIf { it == 1 }?.let { item }
         } else {
-            BracketTable.insert {
+            insert {
                 it[name] = item.name.trim()
                 it[description] = item.description?.trim()
                 it[active] = item.active
@@ -35,10 +39,10 @@ object BracketTable : Table() {
     }
 
     fun deleteBracket(bracketId: Long) : Int {
-        return BracketTable.deleteWhere { id eq bracketId }
+        return deleteWhere { id eq bracketId }
     }
     fun findBracket(bracketId: Long): Bracket? {
-        return BracketTable.select { id.eq(bracketId) }.map(::resultRowToBracket).singleOrNull()
+        return select { id.eq(bracketId) }.map(::resultRowToBracket).singleOrNull()
     }
 
     fun resultRowToBracket(row: ResultRow) = Bracket(

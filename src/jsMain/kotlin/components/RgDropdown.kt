@@ -2,7 +2,7 @@ package components
 
 import androidx.compose.runtime.Composable
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassCat
+import com.mxmariner.regatta.data.RaceClassAble
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.OptGroup
 import org.jetbrains.compose.web.dom.Option
@@ -12,9 +12,9 @@ import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun RgClassCatDropDown(
-    categories: List<RaceClassCat>,
-    current: RaceClassCat?,
-    handler: (RaceClassCat) -> Unit,
+    categories: List<RaceClassAble>,
+    current: RaceClassAble?,
+    handler: (RaceClassAble) -> Unit,
 ) {
     Select(attrs = {
         classes("form-select")
