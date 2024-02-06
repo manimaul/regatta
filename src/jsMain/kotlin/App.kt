@@ -1,6 +1,7 @@
 import org.jetbrains.compose.web.renderComposable
 
 @JsExport
+@ExperimentalJsExport
 abstract class AppController {
     abstract fun notifyReady()
     abstract fun dispose()
@@ -13,6 +14,7 @@ abstract class AppController {
  * @return instance of [AppController] to control the composition in non-compose code.
  */
 @JsExport
+@ExperimentalJsExport
 fun ComposeApp(rootId: String): AppController {
     val composition = renderComposable(rootElementId = rootId) { Router() }
 

@@ -303,7 +303,7 @@ fun RgAddRaceTime(
                     "Add",
                     disabled = raceClassCat == null || startDate == null || endDate == null,
                 ) {
-                    added(RaceTime(raceClassCat!!, startDate!!, endDate!!, cf))
+                    added(RaceTime(raceClassCat!!, startDate!!, endDate!!, cf, TODO()))
                     raceClassCat = null
                     startDate = startDate?.plus(5.minutes)
                 }

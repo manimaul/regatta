@@ -40,7 +40,7 @@ fun BoatList(
             RgThead {
                 RgTr {
                     Th { Text("Boat Name") }
-                    Th { Text("Class") }
+//                    Th { Text("Class") }
                     Th { Text("Skipper") }
                     Th { Text("Sail Number") }
                     Th { Text("Type") }
@@ -53,7 +53,7 @@ fun BoatList(
                 boats.forEach { boat ->
                     RgTr {
                         RgTd { Text(boat.name) }
-                        RgTd { Text(boat.raceClass?.name ?: "None") }
+//                        RgTd { Text(boat.raceClass?.name ?: "None") }
                         RgTd {
                             boat.skipper?.let {
                                 Text(
@@ -95,9 +95,9 @@ fun AddBoat(
             }
         }
         RgTd {
-            RgClassDropdown(categories, addBoat.raceClass) {
-                addBoat = addBoat.copy(raceClass = it)
-            }
+//            RgClassDropdown(categories, addBoat.raceClass) {
+//                addBoat = addBoat.copy(raceClass = it)
+//            }
         }
         RgTd {
             RgSkipperDropdown(people, addBoat.skipper) {

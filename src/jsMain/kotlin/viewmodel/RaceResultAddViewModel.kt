@@ -6,6 +6,11 @@ import utils.Api
 import utils.toAsync
 import kotlin.math.max
 
+
+fun findBoatBracket(race: RaceFull?, boat: Boat?) : Long? {
+   TODO()
+}
+
 data class RaceResultAddState(
     val id: Long? = null,
     val race: RaceFull? = null,
@@ -16,12 +21,13 @@ data class RaceResultAddState(
     val hocPosition: Int? = null,
 ) : VmState {
     fun asPost(): RaceResultPost? {
-        return if (boat?.id != null && race?.id != null && boat.raceClass?.id != null) {
+        val bracketId = findBoatBracket(race, boat)
+        return if (boat?.id != null && race?.id != null && bracketId != null) {
             RaceResultPost(
                 id = id,
                 raceId = race.id,
                 boatId = boat.id,
-                raceClassId = boat.raceClass.id,
+                bracketId = bracketId,
                 start = start,
                 finish = finish,
                 phrfRating = boat.phrfRating,
@@ -69,7 +75,7 @@ class RaceResultAddViewModel(
             copy(
                 id = card?.resultRecord?.id,
                 boat = card?.resultRecord?.boat,
-                raceClassId = card?.resultRecord?.raceClassId,
+                raceClassId = card?.resultRecord?.bracketId,
                 race = if (card != null) card.resultRecord.race else race,
                 start = if (card != null) card.startTime else race?.startTime,
                 finish = if (card != null) card.finishTime else race?.endTime,

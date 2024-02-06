@@ -1,10 +1,10 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Bracket
 import utils.*
 
 data class ClassEditState(
-    val series: Async<RaceClass> = Uninitialized,
+    val series: Async<Bracket> = Uninitialized,
     val operation: Operation = Operation.None,
 ) : VmState
 
@@ -29,7 +29,7 @@ class ClassEditViewModel(
         routeVm.goBackOrHome()
     }
 
-    fun upsert(newClass: RaceClass) {
+    fun upsert(newClass: Bracket) {
         setState {
             copy(
                 series = Api.postClass(newClass).toAsync(),
@@ -38,11 +38,11 @@ class ClassEditViewModel(
         }
     }
 
-    fun delete(raceClass: RaceClass) {
-        raceClass.id?.let { id ->
+    fun delete(bracket: Bracket) {
+        bracket.id?.let { id ->
             setState {
                 copy(
-                    series = Api.deleteClass(id).toAsync().map { raceClass },
+                    series = Api.deleteClass(id).toAsync().map { bracket },
                     operation = Operation.Deleted
                 )
             }

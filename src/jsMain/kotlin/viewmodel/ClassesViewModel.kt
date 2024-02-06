@@ -1,7 +1,7 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.RaceCategory
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClassCategory
 import kotlinx.coroutines.launch
 import utils.*
@@ -27,7 +27,7 @@ class ClassesViewModel(
         }
     }
 
-    fun setEditClass(rc: RaceClass?) {
+    fun setEditClass(rc: Bracket?) {
         routeVm.pushRoute("/class/${rc?.id}")
     }
 
@@ -40,9 +40,9 @@ class ClassesViewModel(
         }
     }
 
-    fun upsertClass(raceClass: RaceClass) {
+    fun upsertClass(bracket: Bracket) {
         setState {
-            val list = Api.postClass(raceClass).toAsync().flatMap { Api.getAllCategories().toAsync() }
+            val list = Api.postClass(bracket).toAsync().flatMap { Api.getAllCategories().toAsync() }
             copy(
                 classList = list
             )

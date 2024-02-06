@@ -28,18 +28,18 @@ object RaceResultReporter {
             //class category places
             raceFull.raceTimes.forEach { rt ->
                 val cat = rt.raceClassCategory
-                val catCards = cards.filter { it.resultRecord.raceClass.category == cat.id }
+                val catCards = cards.filter { it.resultRecord.bracket.category == cat.id }
                     .place { p, card ->
                         card.placeInClass = p
                     }
 
                 //class places
                 val categoryClasses =
-                    catCards.distinctBy { it.resultRecord.raceClass.id }.map { it.resultRecord.raceClass }
+                    catCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
                         .mapNotNull { raceClass ->
                             RaceReportClass(
-                                raceClass = raceClass,
-                                cards = cards.filter { it.resultRecord.raceClass.id == raceClass.id }
+                                bracket = raceClass,
+                                cards = cards.filter { it.resultRecord.bracket.id == raceClass.id }
                                     .place { p, card ->
                                         card.placeInBracket = p
                                     }
@@ -104,11 +104,12 @@ object RaceResultReporter {
     }
 
     private fun boatRaceTime(race: RaceFull, boat: Boat?): RaceTime? {
-        return boat?.raceClass?.let { brc ->
-            race.raceTimes.firstOrNull { raceTime ->
-                raceTime.raceClassCategory.id == brc.category
-            }
-        }
+        TODO()
+//        return boat?.raceClass?.let { brc ->
+//            race.raceTimes.firstOrNull { raceTime ->
+//                raceTime.raceClassCategory.id == brc.category
+//            }
+//        }
     }
 
     private fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, boat: Boat?): Duration? {

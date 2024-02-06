@@ -1,7 +1,7 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Bracket
 import components.*
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
@@ -44,16 +44,16 @@ fun ClassEdit(
 
 @Composable
 fun ClassEditor(
-    raceClass: RaceClass,
+    bracket: Bracket,
     viewModel: ClassEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
-    var newClass by remember { mutableStateOf(raceClass) }
+    var newClass by remember { mutableStateOf(bracket) }
 
     if (confirmDelete) {
         RgConfirm("Delete '${newClass.name}'?") { delete ->
             if (delete) {
-                viewModel.delete(raceClass)
+                viewModel.delete(bracket)
             } else {
                 confirmDelete = false
             }

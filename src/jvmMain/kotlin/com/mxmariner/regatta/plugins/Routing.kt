@@ -24,11 +24,11 @@ fun Application.configureRouting() {
             call.respond(RegattaDatabase.allSeries())
         }
         get("/allClasses".versionedApi()) {
-            call.respond(RegattaDatabase.allRaceClasses())
+            call.respond(RegattaDatabase.allBrackets())
         }
         get("/raceClass".versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {
-                RegattaDatabase.findRaceClass(it)
+                RegattaDatabase.findBracket(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
         get("/allCategories".versionedApi()) {
@@ -145,7 +145,7 @@ fun Application.configureRouting() {
             }
             delete("/raceClass".versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
-                    RegattaDatabase.deleteRaceClass(it)
+                    RegattaDatabase.deleteBracket(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             post("/raceCategory".versionedApi()) {
@@ -155,8 +155,8 @@ fun Application.configureRouting() {
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
             post("/raceClass".versionedApi()) {
-                val body = call.receive<RaceClass>()
-                RegattaDatabase.upsertRaceClass(body)?.let {
+                val body = call.receive<Bracket>()
+                RegattaDatabase.upsertBracket(body)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }

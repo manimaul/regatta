@@ -85,10 +85,10 @@ fun EditBoat(
                         }
                     }
                     P {
-                        B { Text("Class") }
-                        RgClassDropdown(categories, newBoat.raceClass) {
-                            newBoat = newBoat.copy(raceClass = it)
-                        }
+//                        B { Text("Class") }
+//                        RgClassDropdown(categories, newBoat.raceClass) {
+//                            newBoat = newBoat.copy(raceClass = it)
+//                        }
                     }
                     P {
                         B { Text("Skipper") }

@@ -2,7 +2,6 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.display
 import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
@@ -48,7 +47,7 @@ fun RaceResultsEdit(
                     }
                     category.classes.forEach { raceClass ->
                         RgTr {
-                            RgTd(12) { H6 { Text(raceClass.raceClass.name) } }
+                            RgTd(12) { H6 { Text(raceClass.bracket.name) } }
                         }
                         raceClass.cards.forEach { card ->
                             if (card.resultRecord.id == addState.value.id) {

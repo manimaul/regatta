@@ -1,10 +1,11 @@
 # Go Live
-- Races have attached brackets/classes (selectable checkboxes)
+- Races have attached brackets (selectable checkboxes)
 - Bracket/classes have optional PHRF/Rating range
 - Windseekers needs multiple brackets (A, B, C etc)
 - Boats do not have class (PHRF or Windseekers)
 - Check-In page - (assign boats to a race)
 - Race results - bracket/class selection
+- Series overall
 
 
 - race class tied to race (NOT boat)

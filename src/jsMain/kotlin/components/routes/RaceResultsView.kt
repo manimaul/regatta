@@ -56,7 +56,7 @@ fun RaceResultsView(
                     reportCategory.classes.forEach { classReport ->
                         RgTr(classes = listOf("table-light", "table-borderless")) {
                             RgTdColor(colSpan = 15, color = TableColor.warning) {
-                                H6 { Text("${classReport.raceClass.name} ${classReport.raceClass.description ?: ""}") }
+                                H6 { Text("${classReport.bracket.name} ${classReport.bracket.description ?: ""}") }
                             }
                         }
                         classReport.cards.forEach { card ->

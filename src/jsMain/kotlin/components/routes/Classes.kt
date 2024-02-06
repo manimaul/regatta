@@ -2,7 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.RaceCategory
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClassCategory
 import components.*
 import org.jetbrains.compose.web.dom.*
@@ -57,7 +57,7 @@ fun CategoryList(
                         }
                     }
                 }
-                ClassRow(viewModel, cat.children ?: emptyList())
+                ClassRow(viewModel, cat.brackets ?: emptyList())
                 AddClass(viewModel, cat)
             }
         }
@@ -67,7 +67,7 @@ fun CategoryList(
 @Composable
 fun ClassRow(
     viewModel: ClassesViewModel,
-    list: List<RaceClass>,
+    list: List<Bracket>,
 ) {
 
     list.forEach { rc ->
@@ -123,7 +123,7 @@ fun AddClass(
         }
         RgTd {
             RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank(), listOf("float-end")) {
-                viewModel.upsertClass(RaceClass(name = name, description = desc, category = category.id!!))
+                viewModel.upsertClass(Bracket(name = name, description = desc, category = category.id!!))
                 name = ""
                 desc = ""
             }

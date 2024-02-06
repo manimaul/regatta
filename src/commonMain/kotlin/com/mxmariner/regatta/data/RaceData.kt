@@ -48,7 +48,7 @@ sealed interface RaceClassCat {
 data class RaceClassCategory(
     override val id: Long? = null,
     override val name: String,
-    val children: List<RaceClass>? = null,
+    val brackets: List<Bracket>? = null,
     @EncodeDefault(ALWAYS) override val active: Boolean = true,
 ) : RaceClassCat
 
@@ -60,7 +60,7 @@ data class RaceCategory(
 ) : RaceClassCat
 
 @Serializable
-data class RaceClass(
+data class Bracket(
     val id: Long? = null,
     val name: String = "",
     val description: String? = null,
@@ -133,6 +133,21 @@ data class RaceTime(
     val startDate: Instant,
     val endDate: Instant,
     val correctionFactor: Int,
+    val brackets: List<Bracket>,
+)
+
+@Serializable
+data class Windseeker(
+    val rating: Int? = null,
+    val flyingSails: Boolean = false,
+)
+
+@Serializable
+data class Checkin(
+    val boat: Boat,
+    val race: RaceFull,
+    val bracket: Bracket,
+    val checkedIn: Boolean,
 )
 
 @Serializable
@@ -143,7 +158,7 @@ data class Boat(
     val boatType: String = "",
     val phrfRating: Int? = null,
     val skipper: Person? = null,
-    val raceClass: RaceClass? = null,
+    val windseeker: Windseeker? = null,
     @EncodeDefault(ALWAYS) val active: Boolean = true
 )
 
@@ -152,7 +167,7 @@ sealed interface RaceResult {
     val id: Long?
     val raceId: Long
     val boatId: Long
-    val raceClassId: Long
+    val bracketId: Long
     val start: Instant?
     val finish: Instant?
     val phrfRating: Int?
@@ -164,7 +179,7 @@ data class RaceResultPost(
     override val id: Long? = null,
     override val raceId: Long,
     override val boatId: Long,
-    override val raceClassId: Long,
+    override val bracketId: Long,
     override val start: Instant?,
     override val finish: Instant?,
     override val phrfRating: Int? = null,
@@ -176,7 +191,7 @@ data class RaceResultFull(
     override val id: Long? = null,
     val race: RaceFull = RaceFull(),
     val boat: Boat = Boat(),
-    val raceClass: RaceClass = RaceClass(),
+    val bracket: Bracket = Bracket(),
     override val start: Instant? = null,
     override val finish: Instant? = null,
     override val phrfRating: Int? = null,
@@ -186,8 +201,8 @@ data class RaceResultFull(
         get() = race.id!!
     override val boatId: Long
         get() = boat.id!!
-    override val raceClassId: Long
-        get() = raceClass.id!!
+    override val bracketId: Long
+        get() = bracket.id!!
 }
 
 @Serializable
@@ -204,7 +219,7 @@ data class RaceReportCategory(
 )
 @Serializable
 data class RaceReportClass(
-    val raceClass: RaceClass,
+    val bracket: Bracket,
     val cards: List<RaceReportCard>,
 )
 
