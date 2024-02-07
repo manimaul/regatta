@@ -34,6 +34,7 @@ object PersonTable : Table() {
 
     fun upsertPerson(person: Person): Person? {
         return upsert {
+            if (person.id > 0) { it[id] = person.id }
             it[first] = person.first.trim()
             it[last] = person.last.trim()
             it[clubMember] = person.clubMember

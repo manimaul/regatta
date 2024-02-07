@@ -50,6 +50,7 @@ object BoatTable : Table() {
 
     fun upsertBoat(boat: Boat): Boat? {
         return upsert {
+            if (boat.id > 0) it[id] = boat.id
             it[name] = boat.name.trim()
             it[sailNumber] = boat.sailNumber.trim()
             it[boatType] = boat.boatType.trim()

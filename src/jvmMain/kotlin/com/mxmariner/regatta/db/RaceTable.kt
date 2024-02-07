@@ -22,6 +22,7 @@ object RaceTable : Table() {
 
     fun upsertRace(race: Race): Race? {
         return RaceTable.upsert {
+            if (race.id > 0) { it[id] = race.id }
             it[name] = race.name.trim()
             it[seriesId] = race.seriesId
             it[rcId] = race.rcId

@@ -28,6 +28,7 @@ object BracketTable : Table() {
 
     fun upsertBracket(item: Bracket): Bracket? {
         return upsert {
+            if (item.id > 0) { it[id] = item.id }
             it[name] = item.name.trim()
             it[description] = item.description?.trim()
             it[active] = item.active

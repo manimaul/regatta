@@ -48,6 +48,7 @@ data class RaceClassBrackets(
 data class RaceClass(
     val id: Long = 0,
     val name: String = "",
+    val sort: Int = 0,
     @EncodeDefault(ALWAYS) val active: Boolean = true,
 )
 

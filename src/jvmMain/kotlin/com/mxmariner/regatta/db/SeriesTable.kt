@@ -32,6 +32,7 @@ object SeriesTable : Table() {
 
     fun upsertSeries(series: Series): Series? {
         return upsert {
+            if (series.id > 0) { it[id] = series.id }
             it[name] = series.name.trim()
             it[active] = series.active
         }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)

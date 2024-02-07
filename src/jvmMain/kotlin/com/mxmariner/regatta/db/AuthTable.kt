@@ -22,6 +22,7 @@ object AuthTable : Table() {
 
     fun saveAuth(record: AuthRecord): AuthRecord? {
         return upsert {
+            if (record.id > 0) it[id] = record.id
             it[hash] = record.hash
             it[userName] = record.userName
         }.resultedValues?.singleOrNull()?.let(::resultRowToAuth)

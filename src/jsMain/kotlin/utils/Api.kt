@@ -49,7 +49,7 @@ object Api {
     suspend fun postBracket(bracket: Bracket) =
         Network.post<Bracket, Bracket>(ApiPaths.bracket, bracket)
 
-    suspend fun postCategory(raceClass: RaceClass) =
+    suspend fun postClass(raceClass: RaceClass) =
         Network.post<RaceClass, RaceClass>(ApiPaths.raceClass, raceClass)
 
     suspend fun getPerson(id: Long) =
@@ -64,7 +64,7 @@ object Api {
     suspend fun deleteBracket(id: Long) =
         Network.delete(ApiPaths.bracket, mapOf("id" to "$id"))
 
-    suspend fun deleteCategory(id: Long) =
+    suspend fun deleteClass(id: Long) =
         Network.delete(ApiPaths.raceClass, mapOf("id" to "$id"))
 
     suspend fun getCategory(id: Long) =

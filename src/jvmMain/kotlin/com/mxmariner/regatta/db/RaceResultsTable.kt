@@ -26,6 +26,7 @@ object RaceResultsTable : Table() {
 
     fun upsertResult(result: RaceResult): RaceResult? {
         return upsert {
+            if (result.id > 0) { it[id] = result.id }
             it[raceId] = result.raceId
             it[boatId] = result.boatId
             it[bracketId] = result.bracketId

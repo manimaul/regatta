@@ -6,6 +6,7 @@ import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClassBrackets
 import components.*
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 import utils.Complete
 import utils.Error
 import utils.Loading
@@ -36,6 +37,7 @@ fun CategoryList(
     viewModel: ClassesViewModel,
     list: List<RaceClassBrackets>,
 ) {
+    val state by viewModel.flow.collectAsState()
     H1 { Text("Race Classes") }
     RgTable {
         RgThead {
@@ -45,15 +47,19 @@ fun CategoryList(
             }
         }
         RgTbody {
-            AddClass(viewModel)
-            list.forEach { each ->
-                RgTr {
-                    RgTd(classes = listOf("table-info")) {
-                        H2 { Text(each.raceClass.name) }
-                    }
-                    RgTd(classes = listOf("table-info")) {
-                        RgButton("Edit Class", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
-                            viewModel.editClass(each.raceClass)
+            EditClass(RaceClass(), viewModel)
+            list.forEachIndexed { i, each ->
+                if (state.editClassId == each.raceClass.id) {
+                    EditClass(each.raceClass, viewModel, first = i == 0, last = i == (list.size - 1))
+                } else {
+                    RgTr {
+                        RgTd(classes = listOf("table-info")) {
+                            H2 { Text(each.raceClass.name) }
+                        }
+                        RgTd(classes = listOf("table-info")) {
+                            RgButton("Edit Class", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                                viewModel.editClass(each.raceClass)
+                            }
                         }
                     }
                 }
@@ -70,7 +76,7 @@ fun CategoryList(
                                 }
                             }
                             RgTbody {
-                                AddBracket(viewModel, each)
+                                EditBracket(Bracket(classId = each.raceClass.id), viewModel)
                                 BracketRow(viewModel, each.brackets)
                             }
                         }
@@ -87,15 +93,20 @@ fun BracketRow(
     viewModel: ClassesViewModel,
     list: List<Bracket>,
 ) {
-    list.forEach { rc ->
-        RgTr {
-            RgTd { Text(rc.name) }
-            RgTd { Text(rc.description ?: "") }
-            RgTd { Text(rc.minRating.toString()) }
-            RgTd { Text(rc.maxRating.toString()) }
-            RgTd {
-                RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
-                    viewModel.editBracket(rc)
+    val state by viewModel.flow.collectAsState()
+    list.forEach { bracket ->
+        if (bracket.id == state.editBracketId) {
+            EditBracket(bracket, viewModel)
+        } else {
+            RgTr {
+                RgTd { Text(bracket.name) }
+                RgTd { Text(bracket.description ?: "") }
+                RgTd { Text(bracket.minRating.toString()) }
+                RgTd { Text(bracket.maxRating.toString()) }
+                RgTd {
+                    RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                        viewModel.editBracket(bracket)
+                    }
                 }
             }
         }
@@ -103,31 +114,64 @@ fun BracketRow(
 }
 
 @Composable
-fun AddClass(
+fun EditClass(
+    editClass: RaceClass,
     viewModel: ClassesViewModel,
+    first: Boolean = true,
+    last: Boolean = true,
 ) {
-    var name by remember { mutableStateOf("") }
+    var raceClass by remember { mutableStateOf(editClass) }
+    if (editClass.id != raceClass.id) {
+        raceClass = editClass
+    }
     RgTr {
         RgTd {
-            RgInput("Name", name, true) {
-                name = it
+            RgInput("Name", raceClass.name, true) {
+                raceClass = raceClass.copy(name = it)
             }
         }
         RgTd {
-            RgButton("Add Class", RgButtonStyle.Primary, name.isBlank(), listOf("float-end")) {
-                viewModel.upsertCategory(RaceClass(name = name))
-                name = ""
+            val label = if (raceClass.id == 0L) {
+                "Add Class"
+            } else {
+                RgButton(
+                    "Cancel",
+                    RgButtonStyle.Primary,
+                    raceClass.name.isBlank(),
+                    listOf("float-end", AppStyle.marginStart)
+                ) {
+                    viewModel.editClass(null)
+                }
+                if (!first || !last) {
+                    if (!first) RgButton("Up",RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
+                        viewModel.moveUp(raceClass)
+                    }
+                    if (!last) RgButton("Down", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
+                        viewModel.moveDown(raceClass)
+                    }
+                }
+                RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
+                    viewModel.delete(raceClass)
+                }
+                "Save"
+            }
+            RgButton(label, RgButtonStyle.Success, raceClass.name.isBlank(), listOf(AppStyle.marginStart)) {
+                viewModel.upsertClass(raceClass)
+                raceClass = editClass
             }
         }
     }
 }
 
 @Composable
-fun AddBracket(
+fun EditBracket(
+    editBracket: Bracket,
     viewModel: ClassesViewModel,
-    classBrackets: RaceClassBrackets,
 ) {
-    var bracket by remember { mutableStateOf(Bracket(classId = classBrackets.raceClass.id)) }
+    var bracket by remember { mutableStateOf(editBracket) }
+    if (editBracket.id != bracket.id) {
+        bracket = editBracket
+    }
     RgTr {
         RgTd {
             RgInput("Name", bracket.name, true) {
@@ -150,9 +194,25 @@ fun AddBracket(
             }
         }
         RgTd {
-            RgButton("Add Bracket", RgButtonStyle.Primary, bracket.name.isBlank(), listOf("float-end")) {
+            val label = if (editBracket.id == 0L) {
+                "Add Bracket"
+            } else {
+                RgButton(
+                    "Cancel",
+                    RgButtonStyle.Primary,
+                    bracket.name.isBlank(),
+                    listOf("float-end", AppStyle.marginStart)
+                ) {
+                    viewModel.editBracket(null)
+                }
+                RgButton("Delete", RgButtonStyle.Danger, bracket.name.isBlank(), listOf(AppStyle.marginStart)) {
+                    viewModel.delete(bracket)
+                }
+                "Save"
+            }
+            RgButton(label, RgButtonStyle.Success, bracket.name.isBlank(), listOf(AppStyle.marginStart)) {
                 viewModel.upsertBracket(bracket)
-                bracket = Bracket(classId = classBrackets.raceClass.id)
+                bracket = editBracket
             }
         }
     }

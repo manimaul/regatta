@@ -46,8 +46,6 @@ enum class Route(val pathPattern: String) {
     Boats("/boats"),
     BoatEdit("/boat/:id"),
     Classes("/class"),
-    BracketEdit("/bracket/:id"),
-    ClassEdit("/class/:id"),
     RaceResult("/races/results"),
     RaceResultView("/races/results/view/:id"),
     RaceResultEdit("/races/results/:id"),

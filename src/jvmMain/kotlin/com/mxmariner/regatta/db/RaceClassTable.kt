@@ -9,11 +9,12 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
+    val sort = integer("sort")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
     fun allClasses(): List<RaceClassBrackets> {
-        return selectAll().map {
+        return selectAll().orderBy(sort).map {
             val c = resultRowToClass(it)
             RaceClassBrackets(
                 raceClass = c,
@@ -24,8 +25,12 @@ object RaceClassTable : Table() {
 
     fun upsertClass(item: RaceClass): RaceClass? {
         return upsert {
+            if (item.id > 0) {
+                it[id] = item.id
+            }
             it[name] = item.name.trim()
             it[active] = item.active
+            it[sort] = item.sort
         }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
     }
 
@@ -36,6 +41,7 @@ object RaceClassTable : Table() {
     private fun resultRowToClass(row: ResultRow) = RaceClass(
         id = row[id],
         name = row[name],
+        sort = row[sort],
         active = row[active],
     )
 
