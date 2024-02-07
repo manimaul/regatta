@@ -43,8 +43,8 @@ class EditBoatViewModel(
         setState {
             copy(
                 data = Api.postBoat(newBoat).toAsync().mapErrorMessage { "error updating boat id $id" }
-                    .flatMap { boatSkipper ->
-                        data.map { it.copy(boatSkipper = boatSkipper) }
+                    .flatMap { boat ->
+                        data.map { it.copy(boatSkipper = it.boatSkipper.copy(boat = boat)) }
                     },
                 operation = Operation.Updated
             )

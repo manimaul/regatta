@@ -5,7 +5,7 @@ import com.mxmariner.regatta.data.*
 object Api {
 
     suspend fun postBoat(boat: Boat) =
-        Network.post<Boat, BoatSkipper>(ApiPaths.boat, boat)
+        Network.post<Boat, Boat>(ApiPaths.boat, boat)
 
     suspend fun getAllPeople() =
         Network.get<List<Person>>(ApiPaths.allSkippers)
