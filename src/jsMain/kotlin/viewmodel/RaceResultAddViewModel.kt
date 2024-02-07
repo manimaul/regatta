@@ -7,25 +7,26 @@ import utils.toAsync
 import kotlin.math.max
 
 
-fun findBoatBracket(race: RaceFull?, boat: Boat?) : Long? {
+fun findBoatBracket(race: RaceSchedule?, boat: Boat?) : Long? {
    TODO()
 }
 
 data class RaceResultAddState(
-    val id: Long? = null,
-    val race: RaceFull? = null,
+    val id: Long = 0,
+    val raceSchedule: RaceSchedule? = null,
     val boat: Boat? = null,
+    val skipper: Person? = null,
     val raceClassId: Long? = null,
     val start: Instant? = null,
     val finish: Instant? = null,
     val hocPosition: Int? = null,
 ) : VmState {
-    fun asPost(): RaceResultPost? {
-        val bracketId = findBoatBracket(race, boat)
-        return if (boat?.id != null && race?.id != null && bracketId != null) {
-            RaceResultPost(
+    fun asPost(): RaceResult? {
+        val bracketId = findBoatBracket(raceSchedule, boat)
+        return if (boat?.id != null && raceSchedule?.race?.id != null && bracketId != null) {
+            RaceResult(
                 id = id,
-                raceId = race.id,
+                raceId = raceSchedule.race.id,
                 boatId = boat.id,
                 bracketId = bracketId,
                 start = start,
@@ -44,10 +45,10 @@ class RaceResultAddViewModel(
 ) : BaseViewModel<RaceResultAddState>(RaceResultAddState()) {
     override fun reload() {
         setState {
-            val race = Api.getRace(raceId).toAsync()
+            val race = Api.getRaceSchedule(raceId).toAsync()
             RaceResultAddState(
                 boat = null,
-                race = race.value,
+                raceSchedule = race.value,
                 start = race.value?.startTime,
                 finish = race.value?.endTime
             )
@@ -73,12 +74,12 @@ class RaceResultAddViewModel(
     fun setCard(card: RaceReportCard? = null) {
         setState {
             copy(
-                id = card?.resultRecord?.id,
-                boat = card?.resultRecord?.boat,
-                raceClassId = card?.resultRecord?.bracketId,
-                race = if (card != null) card.resultRecord.race else race,
-                start = if (card != null) card.startTime else race?.startTime,
-                finish = if (card != null) card.finishTime else race?.endTime,
+                id = card?.resultRecord?.result?.id ?: 0L,
+                boat = card?.resultRecord?.boatSkipper?.boat,
+                raceClassId = card?.resultRecord?.bracket?.id,
+                raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
+                start = if (card != null) card.startTime else raceSchedule?.startTime,
+                finish = if (card != null) card.finishTime else raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
             )
         }

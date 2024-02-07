@@ -1,16 +1,15 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassFull
 import kotlinx.coroutines.launch
 import utils.*
 
 
 data class BoatPeopleComposite(
-    val boats: List<Boat>,
+    val boats: List<BoatSkipper>,
     val people: List<Person>,
-    val raceClass: List<RaceClassFull>,
 )
 
 data class BoatState(
@@ -28,8 +27,8 @@ class BoatViewModel(
     private fun getAllBoatsAndPeople() {
         setState {
             copy(
-                response = combineAsync(Api.getAllBoats(), Api.getAllPeople(), Api.getAllCategories()) { boats, people, raceClasses ->
-                    BoatPeopleComposite(boats, people, raceClasses)
+                response = combineAsync(Api.getAllBoats(), Api.getAllPeople()) { boats, people ->
+                    BoatPeopleComposite(boats, people)
                 }
             )
         }
@@ -38,7 +37,7 @@ class BoatViewModel(
     fun findBoatName(person: Person, composite: BoatPeopleComposite): String {
         return composite.boats.firstOrNull {
             it.skipper?.id == person.id
-        }?.name ?: "-"
+        }?.boat?.name ?: "-"
     }
 
     fun upsertPerson(person: Person) {
@@ -79,5 +78,4 @@ class BoatViewModel(
        setState { BoatState() }
         getAllBoatsAndPeople()
     }
-
 }

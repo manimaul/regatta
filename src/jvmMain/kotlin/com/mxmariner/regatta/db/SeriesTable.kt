@@ -14,9 +14,10 @@ object SeriesTable : Table() {
         id = row[id], name = row[name], active = row[active]
     )
 
-    fun selectAllSeries() : List<Series> {
+    fun selectAllSeries(): List<Series> {
         return selectAll().map(::resultRowToSeries)
     }
+
     fun selectSeries(seriesId: Long): Series? {
         return select { id eq seriesId }.map(::resultRowToSeries).singleOrNull()
     }
@@ -30,17 +31,9 @@ object SeriesTable : Table() {
     }
 
     fun upsertSeries(series: Series): Series? {
-        return if (series.id != null) {
-            SeriesTable.update(where = { id eq series.id }) {
-                it[name] = series.name.trim()
-                it[active] = series.active
-            }.takeIf { it == 1 }?.let { series }
-        } else {
-            val statement = SeriesTable.insert {
-                it[name] = series.name.trim()
-                it[active] = series.active
-            }
-            statement.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
-        }
+        return upsert {
+            it[name] = series.name.trim()
+            it[active] = series.active
+        }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
     }
 }

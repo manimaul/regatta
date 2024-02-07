@@ -18,7 +18,7 @@ fun RaceResultsEdit(
     val addState = viewModel.addViewModel.flow.collectAsState()
     state.value.report.complete(viewModel) { report ->
         H1 {
-            Text("${report.race.startTime?.year() ?: ""} - ${report.race.name} - Results Editor")
+            Text("${report.raceSchedule.startTime?.year() ?: ""} - ${report.raceSchedule.race.name} - Results Editor")
         }
         RgTable {
             RgThead {
@@ -50,7 +50,7 @@ fun RaceResultsEdit(
                             RgTd(12) { H6 { Text(raceClass.bracket.name) } }
                         }
                         raceClass.cards.forEach { card ->
-                            if (card.resultRecord.id == addState.value.id) {
+                            if (card.resultRecord.result.id == addState.value.id) {
                                 EditResultRow(viewModel, state.value, addState.value)
                             } else {
                                 RgTr {
@@ -89,9 +89,9 @@ fun EditResultRow(
 ) {
     RgTr {
         RgTd {
-            if (addState.id == null) {
+            if (addState.id == 0L) {
                 state.boats.complete(viewModel) {
-                    RgBoatDropdown(it, addState.boat) { boat ->
+                    RgBoatDropdown(it.mapNotNull { it.boat }, addState.boat) { boat ->
                         viewModel.addViewModel.addBoat(boat)
                     }
                 }
@@ -99,7 +99,7 @@ fun EditResultRow(
                 Text(addState.boat?.name ?: "")
             }
         }
-        RgTd { Text(addState.boat?.skipper?.fullName() ?: "") }
+        RgTd { Text(addState.skipper?.fullName() ?: "") }
         RgTd { Text(addState.boat?.sailNumber ?: "") }
         RgTd { Text(addState.boat?.boatType ?: "") }
         RgTd { Text(addState.boat?.phrfRating?.toString() ?: "") }
@@ -115,7 +115,7 @@ fun EditResultRow(
             } ?: run {
                 P { Text("DNS") }
                 RgButton(label = "Reset") {
-                    viewModel.addViewModel.setStart(addState.race?.startTime)
+                    viewModel.addViewModel.setStart(addState.raceSchedule?.startTime)
                 }
             }
         }
@@ -123,7 +123,7 @@ fun EditResultRow(
             addState.hocPosition?.let {
                 P { Text("HOC $it") }
                 RgButton(label = "Reset") {
-                    viewModel.addViewModel.setFinish(addState.race?.endTime)
+                    viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
                 }
                 RgButton(label = "+") {
                     viewModel.addViewModel.hoc(it + 1)
@@ -144,7 +144,7 @@ fun EditResultRow(
             } ?: run {
                 P { Text("DNF") }
                 RgButton(label = "Reset") {
-                    viewModel.addViewModel.setFinish(addState.race?.endTime)
+                    viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
                 }
             }
         }
@@ -235,25 +235,25 @@ fun RaceResults(
                 }
             }
             it.keys.forEach { series ->
-                val races = it[series]
+                val raceSchedules = it[series]
                 RgTbody {
                     Tr {
                         RgTd(if (state.value.loggedIn) 4 else 3) {
                             H4 { Text(series.name) }
                         }
                     }
-                    races?.forEach { rf ->
+                    raceSchedules?.forEach { schedule ->
                         RgTr {
                             RgTd {
-                                Text(rf.name)
+                                Text(schedule.race.name)
                             }
                             RgTd {
-                                Text(rf.startTime?.display() ?: "")
+                                Text(schedule.startTime?.display() ?: "")
                             }
                             RgTd {
-                                if (rf.resultCount > 0) {
+                                if (schedule.resultCount > 0) {
                                     RgButton("View Results") {
-                                        viewModel.viewResult(rf)
+                                        viewModel.viewResult(schedule.race)
                                     }
                                 } else {
                                     Text("Results not posted")
@@ -262,7 +262,7 @@ fun RaceResults(
                             if (state.value.loggedIn) {
                                 Td {
                                     RgButton("Edit Results") {
-                                        viewModel.addResult(rf)
+                                        viewModel.addResult(schedule.race)
                                     }
                                 }
                             }

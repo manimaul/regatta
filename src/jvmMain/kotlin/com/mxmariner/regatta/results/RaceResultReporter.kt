@@ -12,7 +12,7 @@ object RaceResultReporter {
 
     suspend fun getReport(raceId: Long): RaceReport? {
         val reportCategories = mutableListOf<RaceReportCategory>()
-        RegattaDatabase.findRace(raceId)?.let { raceFull ->
+        RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
             val cards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
 
             //PHRF
@@ -26,45 +26,49 @@ object RaceResultReporter {
             }
 
             //class category places
-            raceFull.raceTimes.forEach { rt ->
-                val cat = rt.raceClassCategory
-                val catCards = cards.filter { it.resultRecord.bracket.category == cat.id }
-                    .place { p, card ->
-                        card.placeInClass = p
-                    }
-
-                //class places
-                val categoryClasses =
-                    catCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
-                        .mapNotNull { raceClass ->
-                            RaceReportClass(
-                                bracket = raceClass,
-                                cards = cards.filter { it.resultRecord.bracket.id == raceClass.id }
-                                    .place { p, card ->
-                                        card.placeInBracket = p
-                                    }
-                            ).takeIf { it.cards.isNotEmpty() }
+            raceSchedule.schedule.forEach { each ->
+                val raceClass = each.raceClass
+                each.bracketTimes.forEach { bt ->
+                    val catCards = cards.filter { it.resultRecord.bracket.id == bt.bracket.id }
+                        .place { p, card ->
+                            card.placeInClass = p
                         }
 
-                RaceReportCategory(
-                    category = cat.toRaceClass(),
-                    classes = categoryClasses,
-                    correctionFactor = rt.correctionFactor
-                ).takeIf { it.classes.isNotEmpty() }?.also {
-                    reportCategories.add(it)
+                    //class places
+                    val categoryClasses =
+                        catCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
+                            .mapNotNull { raceClass ->
+                                RaceReportClass(
+                                    bracket = raceClass,
+                                    cards = cards.filter { it.resultRecord.bracket.id == raceClass.id }
+                                        .place { p, card ->
+                                            card.placeInBracket = p
+                                        }
+                                ).takeIf { it.cards.isNotEmpty() }
+                            }
+
+                    RaceReportCategory(
+                        category = raceClass,
+                        classes = categoryClasses,
+                        correctionFactor = raceSchedule.race.correctionFactor
+                    ).takeIf { it.classes.isNotEmpty() }?.also {
+                        reportCategories.add(it)
+                    }
                 }
             }
 
             return RaceReport(
-                race = raceFull,
+                raceSchedule = raceSchedule,
                 categories = reportCategories
             )
         }
         return null
     }
 
-    private fun reduceToCard(result: RaceResultFull): RaceReportCard {
-        val raceTime = boatRaceTime(result.race, result.boat)
+    private fun reduceToCard(record: RaceResultBoatBracket): RaceReportCard {
+        val result = record.result
+        val boat = record.boatSkipper.boat
+        val skipper = record.boatSkipper.skipper
         val time = result.finish?.let { finish ->
             result.start?.let { start ->
                 finish - start
@@ -72,21 +76,21 @@ object RaceResultReporter {
         }
 
         return RaceReportCard(
-            resultRecord = result,
-            boatName = result.boat.name,
-            sail = result.boat.sailNumber,
-            skipper = result.boat.skipper?.fullName() ?: "",
-            boatType = result.boat.boatType,
+            resultRecord = record,
+            boatName = boat?.name ?: "",
+            sail = boat?.sailNumber ?: "",
+            skipper = skipper?.fullName() ?: "",
+            boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
             startTime = result.start,
             finishTime = result.finish,
             elapsedTime = time,
-            correctionFactor = correctionFactor(raceTime?.correctionFactor, result.boat),
+            correctionFactor = correctionFactor(record.raceSchedule.race.correctionFactor, result.phrfRating),
             correctedTime = boatCorrectedTime(
-                raceTime?.correctionFactor,
+                record.raceSchedule.race.correctionFactor,
                 result.start,
                 result.finish,
-                result.boat
+                result.phrfRating,
             ).takeIf { result.start != null && result.finish != null },
             placeInBracket = 0,
             placeInClass = 0,
@@ -95,26 +99,17 @@ object RaceResultReporter {
         )
     }
 
-    private fun correctionFactor(factor: Int?, boat: Boat?): Double {
+    private fun correctionFactor(factor: Int?, phrfRating: Int?): Double {
         return factor?.let { cf ->
-            boat?.phrfRating?.let { rating ->
+            phrfRating?.let { rating ->
                 650.0 / (cf.toDouble() + rating.toDouble())
             }
         } ?: 1.0
     }
 
-    private fun boatRaceTime(race: RaceFull, boat: Boat?): RaceTime? {
-        TODO()
-//        return boat?.raceClass?.let { brc ->
-//            race.raceTimes.firstOrNull { raceTime ->
-//                raceTime.raceClassCategory.id == brc.category
-//            }
-//        }
-    }
-
-    private fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, boat: Boat?): Duration? {
+    private fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, phrfRating: Int?): Duration? {
         if (start != null && finish != null) {
-            val cf = correctionFactor(factor, boat)
+            val cf = correctionFactor(factor, phrfRating)
             val ms = ((finish - start).inWholeMilliseconds) * cf
             return ms.toDuration(DurationUnit.MILLISECONDS)
         }

@@ -2,8 +2,8 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassFull
 import components.*
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.placeholder
@@ -17,10 +17,11 @@ fun Boats(
 ) {
     val flowState by viewModel.flow.collectAsState()
     when (val state = flowState.response) {
-        is Complete -> BoatList(state.value.boats, state.value.people, state.value.raceClass, viewModel)
+        is Complete -> BoatList(state.value.boats, state.value.people, viewModel)
         is Error -> ErrorDisplay(state) {
             viewModel.reload()
         }
+
         is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
@@ -29,9 +30,8 @@ fun Boats(
 
 @Composable
 fun BoatList(
-    boats: List<Boat>,
+    boats: List<BoatSkipper>,
     people: List<Person>,
-    categories: List<RaceClassFull>,
     boatViewModel: BoatViewModel,
 ) {
     Div {
@@ -40,7 +40,6 @@ fun BoatList(
             RgThead {
                 RgTr {
                     Th { Text("Boat Name") }
-//                    Th { Text("Class") }
                     Th { Text("Skipper") }
                     Th { Text("Sail Number") }
                     Th { Text("Type") }
@@ -49,24 +48,21 @@ fun BoatList(
                 }
             }
             RgTbody {
-                AddBoat(categories, people, boatViewModel)
+                AddBoat(people, boatViewModel)
                 boats.forEach { boat ->
                     RgTr {
-                        RgTd { Text(boat.name) }
-//                        RgTd { Text(boat.raceClass?.name ?: "None") }
+                        RgTd { Text(boat.boat?.name ?: "") }
                         RgTd {
                             boat.skipper?.let {
-                                Text(
-                                    "${boat.skipper.first} ${boat.skipper.last}"
-                                )
+                                Text(it.fullName())
                             }
                         }
-                        RgTd { Text(boat.sailNumber) }
-                        RgTd { Text(boat.boatType) }
-                        RgTd { Text(boat.phrfRating?.let { "$it" } ?: "None") }
+                        RgTd { Text(boat.boat?.sailNumber ?: "") }
+                        RgTd { Text(boat.boat?.boatType ?: "") }
+                        RgTd { Text(boat.boat?.phrfRating?.let { "$it" } ?: "None") }
                         RgTd {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
-                                boatViewModel.setEditBoat(boat)
+                                boatViewModel.setEditBoat(boat.boat)
                             }
                         }
                     }
@@ -79,11 +75,11 @@ fun BoatList(
 
 @Composable
 fun AddBoat(
-    categories: List<RaceClassFull>,
     people: List<Person>,
     boatViewModel: BoatViewModel,
 ) {
     var addBoat by remember { mutableStateOf(Boat()) }
+    var addSkipper by remember { mutableStateOf<Person?>(null) }
     var phrfRating by remember { mutableStateOf("") }
     RgTr {
         RgTd {
@@ -95,13 +91,8 @@ fun AddBoat(
             }
         }
         RgTd {
-//            RgClassDropdown(categories, addBoat.raceClass) {
-//                addBoat = addBoat.copy(raceClass = it)
-//            }
-        }
-        RgTd {
-            RgSkipperDropdown(people, addBoat.skipper) {
-                addBoat = addBoat.copy(skipper = it)
+            RgSkipperDropdown(people, addSkipper) {
+                addSkipper = it
             }
         }
         RgTd {
@@ -132,8 +123,12 @@ fun AddBoat(
         }
         RgTd {
             RgButton("Add", RgButtonStyle.Primary) {
-                boatViewModel.addBoat(addBoat.copy(phrfRating = phrfRating.toIntOrNull()))
+                boatViewModel.addBoat(addBoat.copy(
+                    phrfRating = phrfRating.toIntOrNull(),
+                    skipperId = addSkipper?.id
+                ))
                 addBoat = Boat()
+                addSkipper = null
                 phrfRating = ""
             }
         }

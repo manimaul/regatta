@@ -15,55 +15,57 @@ import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
     routing {
-        get("/series".versionedApi()) {
+        get(ApiPaths.series.versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {
                 RegattaDatabase.findSeries(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        get("/allSeries".versionedApi()) {
+        get(ApiPaths.allSeries.versionedApi()) {
             call.respond(RegattaDatabase.allSeries())
         }
-        get("/allClasses".versionedApi()) {
-            call.respond(RegattaDatabase.allBrackets())
-        }
-        get("/raceClass".versionedApi()) {
+        get(ApiPaths.bracket.versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {
                 RegattaDatabase.findBracket(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        get("/allCategories".versionedApi()) {
-            call.respond(RegattaDatabase.allCategories())
+        get(ApiPaths.allClasses.versionedApi()) {
+            call.respond(RegattaDatabase.allClasses())
         }
-        get("/find/series".versionedApi()) {
+        get(ApiPaths.findSeries.versionedApi()) {
             call.request.queryParameters["name"]?.let {
                 RegattaDatabase.findSeries(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        get("/raceCategory".versionedApi()) {
+        get(ApiPaths.raceClass.versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {
-                RegattaDatabase.findRaceCategory(it)
+                RegattaDatabase.findClass(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        post("/login".versionedApi()) {
+        post(ApiPaths.login.versionedApi()) {
             val login = call.receive<Login>()
             Token.createLoginResponse(login)?.let {
                 call.respond(it)
             } ?: call.respond(HttpStatusCode.Unauthorized)
         }
-        get("/years".versionedApi()) {
+        get(ApiPaths.years.versionedApi()) {
             call.respond(RegattaDatabase.allYears())
         }
-        get("/allRaces".versionedApi()) {
-            call.request.queryParameters["year"]?.toIntOrNull()?.let {year ->
+        get(ApiPaths.allRaces.versionedApi()) {
+            call.request.queryParameters["year"]?.toIntOrNull()?.let { year ->
                 call.respond(RegattaDatabase.allRaces(year))
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
-        get("/races".versionedApi()) {
+        get(ApiPaths.race.versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let {
                 RegattaDatabase.findRace(it)
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
-        get("/results".versionedApi()) {
+        get(ApiPaths.raceSchedule.versionedApi()) {
+            call.request.queryParameters["id"]?.toLong()?.let {
+                RegattaDatabase.findRaceSchedule(it)
+            }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+        }
+        get(ApiPaths.results.versionedApi()) {
             val results = call.request.queryParameters["year"]?.toIntOrNull()?.let {
                 RegattaDatabase.getResults(it)
             } ?: call.request.queryParameters["raceId"]?.toLong()?.let {
@@ -71,114 +73,109 @@ fun Application.configureRouting() {
             } ?: RegattaDatabase.allResults()
             call.respond(results)
         }
-        get("/resultCount".versionedApi()) {
+        get(ApiPaths.resultCount.versionedApi()) {
             call.request.queryParameters["raceId"]?.toLong()?.let {
                 call.respond(RegattaDatabase.resultCount(it))
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
-        get("/report".versionedApi()) {
+        get(ApiPaths.report.versionedApi()) {
             call.request.queryParameters["raceId"]?.toLong()?.let {
-               RaceResultReporter.getReport(it)?.let { report ->
-                   call.respond(report)
-               } ?: call.respond(HttpStatusCode.NoContent)
+                RaceResultReporter.getReport(it)?.let { report ->
+                    call.respond(report)
+                } ?: call.respond(HttpStatusCode.NoContent)
             }
             call.respond(HttpStatusCode.NoContent)
         }
         authenticate(Token.Admin.name) {
-            delete("/results".versionedApi()) {
+            delete(ApiPaths.results.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteResult(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            post("/results".versionedApi()) {
+            post(ApiPaths.results.versionedApi()) {
                 val result = call.receive<RaceResult>()
                 RegattaDatabase.upsertResult(result)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.Conflict)
             }
-            post("/races".versionedApi()) {
+            post(ApiPaths.race.versionedApi()) {
                 val race = call.receive<Race>()
-                if (race.raceTimes.isEmpty()) {
-                   call.respond(HttpStatusCode.BadRequest)
-                } else {
-                    RegattaDatabase.upsertRace(race)?.let { call.respond(it) }
-                }
-                 ?: call.respond(HttpStatusCode.Conflict)
+                RegattaDatabase.upsertRace(race)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.Conflict)
             }
-            post("/auth".versionedApi()) {
+            post(ApiPaths.auth.versionedApi()) {
                 val auth = call.receive<AuthRecord>()
                 RegattaDatabase.saveAuth(auth)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-            post("/person".versionedApi()) {
+            post(ApiPaths.skipper.versionedApi()) {
                 val person = call.receive<Person>()
                 RegattaDatabase.upsertPerson(person)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.Conflict)
             }
-            post("/series".versionedApi()) {
+            post(ApiPaths.series.versionedApi()) {
                 val series = call.receive<Series>()
                 RegattaDatabase.upsertSeries(series)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-            delete("/person".versionedApi()) {
+            delete(ApiPaths.skipper.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deletePerson(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            delete("/races".versionedApi()) {
+            delete(ApiPaths.race.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteRace(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            delete("/category".versionedApi()) {
+            delete(ApiPaths.raceClass.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
-                    RegattaDatabase.deleteCategory(it)
+                    RegattaDatabase.deleteClass(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            delete("/series".versionedApi()) {
+            delete(ApiPaths.series.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteSeries(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            delete("/raceClass".versionedApi()) {
+            delete(ApiPaths.bracket.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteBracket(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            post("/raceCategory".versionedApi()) {
-                val body = call.receive<RaceClassAble>()
-                RegattaDatabase.upsertRaceCategory(body)?.let {
+            post(ApiPaths.raceClass.versionedApi()) {
+                val body = call.receive<RaceClass>()
+                RegattaDatabase.upsertClass(body)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-            post("/raceClass".versionedApi()) {
+            post(ApiPaths.bracket.versionedApi()) {
                 val body = call.receive<Bracket>()
                 RegattaDatabase.upsertBracket(body)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-            get("/people".versionedApi()) {
+            get(ApiPaths.allSkippers.versionedApi()) {
                 call.respond(RegattaDatabase.allPeople())
             }
-            get("/person".versionedApi()) {
+            get(ApiPaths.skipper.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.findPerson(it)
                 }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            get("/find/person".versionedApi()) {
+            get(ApiPaths.findSkipper.versionedApi()) {
                 call.request.queryParameters["name"]?.let {
                     RegattaDatabase.findPerson(it)
                 }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
             }
-            get("/allBoats".versionedApi()) {
+            get(ApiPaths.allBoats.versionedApi()) {
                 call.respond(RegattaDatabase.allBoats())
             }
-            get("/boat".versionedApi()) {
+            get(ApiPaths.boat.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
-                    RegattaDatabase.findBoat(it)?.let {  boat ->
+                    RegattaDatabase.findBoat(it)?.let { boat ->
                         call.respond(boat)
                     }
                 } ?: call.request.queryParameters["person_id"]?.toLong()?.let {
@@ -187,13 +184,13 @@ fun Application.configureRouting() {
                     } ?: call.respond(HttpStatusCode.NoContent)
                 } ?: call.respond(HttpStatusCode.BadRequest)
             }
-            post("/boat".versionedApi()) {
+            post(ApiPaths.boat.versionedApi()) {
                 val boat = call.receive<Boat>()
                 RegattaDatabase.upsertBoat(boat)?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
-            delete("/boat".versionedApi()) {
+            delete(ApiPaths.boat.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteBoat(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)

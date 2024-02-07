@@ -1,7 +1,7 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.data.Person
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Windseeker
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
 import org.jetbrains.exposed.sql.*
@@ -27,46 +27,39 @@ object BoatTable : Table() {
         }
     }
 
-    fun findBoat(boatId: Long?): Boat? {
-        return boatId?.let {
-            innerJoin(PersonTable).select {
-                id eq boatId
-            }.map {
-                val person = resultRowToPerson(it)
-                resultRowToBoat(it, person)
-            }.singleOrNull() ?: select {
-                (id eq boatId) and (skipper eq null)
-            }.map {
-                resultRowToBoat(it, null)
-            }.singleOrNull()
+    fun findBoatSkipper(boatId: Long): BoatSkipper? {
+        return innerJoin(PersonTable).select { id eq boatId }.singleOrNull()?.let { row ->
+            BoatSkipper(
+                boat = resultRowToBoat(row),
+                skipper = resultRowToPerson(row)
+            )
+        } ?: select { id.eq(boatId) }.singleOrNull()?.let { row ->
+            BoatSkipper(
+                boat = resultRowToBoat(row),
+                skipper = null
+            )
         }
     }
 
-    fun upsertBoat(boat: Boat) : Boat? {
-        return if (boat.id != null) {
-            update(where = { id eq boat.id }) {
-                it[name] = boat.name.trim()
-                it[sailNumber] = boat.sailNumber.trim()
-                it[boatType] = boat.boatType.trim()
-                it[phrfRating] = boat.phrfRating
-                it[active] = boat.active
-                it[wsFlying] = boat.windseeker?.flyingSails
-                it[wsRating] = boat.windseeker?.rating
-                it[skipper] = boat.skipper?.id
-            }.takeIf { it == 1 }?.let { boat }
-        } else {
-            insert {
-                it[name] = boat.name.trim()
-                it[sailNumber] = boat.sailNumber.trim()
-                it[boatType] = boat.boatType.trim()
-                it[phrfRating] = boat.phrfRating
-                it[active] = boat.active
-                it[wsFlying] = boat.windseeker?.flyingSails
-                it[wsRating] = boat.windseeker?.rating
-                it[skipper] = boat.skipper?.id
-            }.resultedValues?.singleOrNull()?.let {
-                resultRowToBoat(it)
-            }
+    fun upsertBoatSkipper(boatSkipper: BoatSkipper): BoatSkipper {
+        return BoatSkipper(
+            boat = boatSkipper.boat?.let { upsertBoat(it) },
+            skipper = boatSkipper.skipper?.let { PersonTable.upsertPerson(it) },
+        )
+    }
+
+    fun upsertBoat(boat: Boat): Boat? {
+        return upsert {
+            it[name] = boat.name.trim()
+            it[sailNumber] = boat.sailNumber.trim()
+            it[boatType] = boat.boatType.trim()
+            it[phrfRating] = boat.phrfRating
+            it[skipper] = boat.skipperId
+            it[active] = boat.active
+            it[wsFlying] = boat.windseeker?.flyingSails
+            it[wsRating] = boat.windseeker?.rating
+        }.resultedValues?.singleOrNull()?.let { row ->
+            resultRowToBoat(row)
         }
     }
 
@@ -75,42 +68,52 @@ object BoatTable : Table() {
             id eq boatId
         }
     }
-    fun findBoatForPerson(personId: Long): Boat? {
-        return innerJoin(PersonTable).select { skipper eq personId }.singleOrNull()?.let {
-            val person = resultRowToPerson(it)
-            resultRowToBoat(it, person)
+
+    fun findBoatForSkipper(personId: Long): BoatSkipper? {
+        return innerJoin(PersonTable).select { skipper eq personId }.singleOrNull()?.let { row ->
+            BoatSkipper(
+                boat = resultRowToBoat(row),
+                skipper = resultRowToPerson(row)
+            )
         }
     }
-    fun selectAllBoats() : List<Boat> {
+
+    fun selectAllBoats(): List<BoatSkipper> {
         return innerJoin(PersonTable).selectAll().asSequence().map { row ->
-            val person = resultRowToPerson(row)
-            resultRowToBoat(row, person)
+            BoatSkipper(
+                boat = resultRowToBoat(row),
+                skipper = resultRowToPerson(row)
+            )
         }.plus(BoatTable.select {
-            (BoatTable.skipper eq null)
+            (skipper eq null)
         }.map {
-            resultRowToBoat(it, null)
+            BoatSkipper(
+                boat = resultRowToBoat(it),
+                skipper = null
+            )
         }).sortedWith { lhs, rhs ->
-            if (lhs.phrfRating != null && rhs.phrfRating != null) {
-                lhs.phrfRating.compareTo(rhs.phrfRating)
-            } else if (lhs.phrfRating != null) {
+            if (lhs.boat?.phrfRating != null && rhs.boat?.phrfRating != null) {
+                lhs.boat.phrfRating.compareTo(rhs.boat.phrfRating)
+            } else if (lhs.boat?.phrfRating != null) {
                 -1
-            } else if (rhs.phrfRating != null) {
+            } else if (rhs.boat?.phrfRating != null) {
                 1
-            } else if (lhs.windseeker?.flyingSails != null && rhs.windseeker?.flyingSails != null) {
-                (lhs.windseeker.rating ?: Int.MAX_VALUE).compareTo((rhs.windseeker.rating ?: Int.MAX_VALUE))
-            } else if (lhs.windseeker?.flyingSails != null) {
+            } else if (lhs.boat?.windseeker?.flyingSails != null && rhs.boat?.windseeker?.flyingSails != null) {
+                (lhs.boat.windseeker.rating ?: Int.MAX_VALUE).compareTo((rhs.boat.windseeker.rating ?: Int.MAX_VALUE))
+            } else if (lhs.boat?.windseeker?.flyingSails != null) {
                 -1
-            } else if (rhs.windseeker?.flyingSails != null) {
+            } else if (rhs.boat?.windseeker?.flyingSails != null) {
                 1
             } else {
-                (lhs.windseeker?.rating ?: Int.MAX_VALUE).compareTo((rhs.windseeker?.rating ?: Int.MAX_VALUE))
+                (lhs.boat?.windseeker?.rating ?: Int.MAX_VALUE).compareTo(
+                    (rhs.boat?.windseeker?.rating ?: Int.MAX_VALUE)
+                )
             }
         }.toList()
     }
 
     fun resultRowToBoat(
         row: ResultRow,
-        person: Person? = null,
     ): Boat {
         val phrfRating = row[BoatTable.phrfRating]
         val windseeker: Windseeker? = if (phrfRating == null) {
@@ -126,8 +129,6 @@ object BoatTable : Table() {
             boatType = row[boatType],
             phrfRating = phrfRating,
             windseeker = windseeker,
-            skipper = person,
-
-            )
+        )
     }
 }

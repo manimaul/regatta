@@ -33,21 +33,12 @@ object PersonTable : Table() {
     }
 
     fun upsertPerson(person: Person): Person? {
-        return if (person.id != null) {
-            update(where = { id eq person.id }) { stmt ->
-                stmt[first] = person.first.trim()
-                stmt[last] = person.last.trim()
-                stmt[clubMember] = person.clubMember
-                stmt[active] = person.active
-            }.takeIf { it == 1 }?.let { person }
-        } else {
-            insert { stmt ->
-                stmt[first] = person.first.trim()
-                stmt[last] = person.last.trim()
-                stmt[clubMember] = person.clubMember
-                stmt[active] = person.active
-            }.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
-        }
+        return upsert {
+            it[first] = person.first.trim()
+            it[last] = person.last.trim()
+            it[clubMember] = person.clubMember
+            it[active] = person.active
+        }.resultedValues?.singleOrNull()?.let(::resultRowToPerson)
     }
 
     fun selectAllPeople(): List<Person> {

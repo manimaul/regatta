@@ -35,7 +35,7 @@ fun RaceResultsView(
     val state = viewModel.flow.collectAsState()
     state.value.report.complete(viewModel) { report ->
         H1 {
-            Text("${report.race.startTime?.year() ?: ""} - ${report.race.name} - Results")
+            Text("${report.raceSchedule.startTime?.year() ?: ""} - ${report.raceSchedule.race.name} - Results")
         }
         RgTable(stripeColumn = true, color = TableColor.light) {
             RgThead {

@@ -12,38 +12,19 @@ object AuthTable : Table() {
     val userName = varchar("user_name", 128).uniqueIndex("user_name_idx")
     override val primaryKey = PrimaryKey(id)
 
-    fun getAuth(userName: String): AuthRecord? {
-        return AuthTable.select { AuthTable.userName eq userName }.singleOrNull()?.let(::resultRowToAuth)
+    fun getAuth(name: String): AuthRecord? {
+        return AuthTable.select { userName eq name }.singleOrNull()?.let(::resultRowToAuth)
     }
 
     fun getAuth(authId: Long): AuthRecord? {
-        return AuthTable.select { id eq authId }.singleOrNull()?.let {
-            AuthRecord(
-                id = it[id],
-                hash = it[hash],
-                userName = it[userName],
-            )
-        }
+        return AuthTable.select { id eq authId }.singleOrNull()?.let(::resultRowToAuth)
     }
 
     fun saveAuth(record: AuthRecord): AuthRecord? {
-        return record.id?.let { id ->
-            val statement = AuthTable.update(where = { AuthTable.id eq id }) {
-                it[hash] = record.hash
-                it[userName] = record.userName
-            }
-            if (statement > 0) {
-                record
-            } else {
-                null
-            }
-        } ?: run {
-            val statement = AuthTable.insert {
-                it[hash] = record.hash
-                it[userName] = record.userName
-            }
-            statement.resultedValues?.singleOrNull()?.let(::resultRowToAuth)
-        }
+        return upsert {
+            it[hash] = record.hash
+            it[userName] = record.userName
+        }.resultedValues?.singleOrNull()?.let(::resultRowToAuth)
     }
 
     private fun resultRowToAuth(row: ResultRow): AuthRecord {

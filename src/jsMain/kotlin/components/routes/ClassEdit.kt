@@ -12,13 +12,13 @@ import utils.Complete
 import utils.Error
 import utils.Loading
 import utils.Uninitialized
-import viewmodel.ClassEditViewModel
+import viewmodel.BracketEditViewModel
 import viewmodel.Operation
 
 @Composable
 fun ClassEdit(
     id: Long? = null,
-    viewModel: ClassEditViewModel = remember { ClassEditViewModel(id ?: 0) }
+    viewModel: BracketEditViewModel = remember { BracketEditViewModel(id ?: 0) }
 ) {
     val state by viewModel.flow.collectAsState()
     when (val rc = state.series) {
@@ -45,7 +45,7 @@ fun ClassEdit(
 @Composable
 fun ClassEditor(
     bracket: Bracket,
-    viewModel: ClassEditViewModel,
+    viewModel: BracketEditViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var newClass by remember { mutableStateOf(bracket) }

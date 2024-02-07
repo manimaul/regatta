@@ -8,6 +8,7 @@ fun String.versionedApi(): String {
 }
 
 const val correctionFactorDefault = 600
+const val ratingDefault = 200.0F
 
 fun String.versionedApi(version: Int = 1, params: Map<String, String>? = null): String {
     val paramString = params?.let {

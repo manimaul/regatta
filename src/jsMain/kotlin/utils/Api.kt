@@ -5,93 +5,95 @@ import com.mxmariner.regatta.data.*
 object Api {
 
     suspend fun postBoat(boat: Boat) =
-        Network.post<Boat, Boat>("boat", boat)
+        Network.post<Boat, BoatSkipper>(ApiPaths.boat, boat)
 
     suspend fun getAllPeople() =
-        Network.get<List<Person>>("people")
+        Network.get<List<Person>>(ApiPaths.allSkippers)
 
     suspend fun getAllBoats() =
-        Network.get<List<Boat>>("allBoats")
+        Network.get<List<BoatSkipper>>(ApiPaths.allBoats)
 
     suspend fun postPerson(person: Person) =
-        Network.post<Person, Person>("person", person)
+        Network.post<Person, Person>(ApiPaths.skipper, person)
 
     suspend fun deletePerson(id: Long) =
-        Network.delete("person", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.skipper, mapOf("id" to "$id"))
 
     suspend fun deleteSeries(id: Long) =
-        Network.delete("series", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.series, mapOf("id" to "$id"))
 
     suspend fun allSeries() =
-        Network.get<List<Series>>("allSeries")
+        Network.get<List<Series>>(ApiPaths.allSeries)
 
     suspend fun getSeries(id: Long) =
-        Network.get<Series>("series", mapOf("id" to "$id"))
+        Network.get<Series>(ApiPaths.series, mapOf("id" to "$id"))
 
     suspend fun postSeries(series: Series) =
-        Network.post<Series, Series>("series", series)
+        Network.post<Series, Series>(ApiPaths.series, series)
 
     suspend fun postAuth(auth: AuthRecord) =
-        Network.post<AuthRecord, AuthRecord>("auth", auth)
+        Network.post<AuthRecord, AuthRecord>(ApiPaths.auth, auth)
 
     suspend fun login(login: Login) =
-        Network.post<Login, LoginResponse>("login", login)
+        Network.post<Login, LoginResponse>(ApiPaths.login, login)
 
     suspend fun deleteBoat(id: Long) =
-        Network.delete("boat", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.boat, mapOf("id" to "$id"))
+
+//    suspend fun getAllClasses() =
+//        Network.get<List<Bracket>>(ApiPaths.allBrackets)
 
     suspend fun getAllClasses() =
-        Network.get<List<Bracket>>("allClasses")
+        Network.get<List<RaceClassBrackets>>(ApiPaths.allClasses)
 
-    suspend fun getAllCategories() =
-        Network.get<List<RaceClassFull>>("allCategories")
+    suspend fun postBracket(bracket: Bracket) =
+        Network.post<Bracket, Bracket>(ApiPaths.bracket, bracket)
 
-    suspend fun postClass(bracket: Bracket) =
-        Network.post<Bracket, Bracket>("raceClass", bracket)
-
-    suspend fun postCategory(raceClass: RaceClassAble) =
-        Network.post<RaceClassAble, RaceClassAble>("raceCategory", raceClass)
+    suspend fun postCategory(raceClass: RaceClass) =
+        Network.post<RaceClass, RaceClass>(ApiPaths.raceClass, raceClass)
 
     suspend fun getPerson(id: Long) =
-        Network.get<Person>("person", mapOf("id" to "$id"))
+        Network.get<Person>(ApiPaths.skipper, mapOf("id" to "$id"))
 
-    suspend fun getBoat(id: Long) =
-        Network.get<Boat>("boat", mapOf("id" to "$id"))
+    suspend fun getBoatSkipper(id: Long) =
+        Network.get<BoatSkipper>(ApiPaths.boat, mapOf("id" to "$id"))
 
     suspend fun getClass(id: Long) =
-        Network.get<Bracket>("raceClass", mapOf("id" to "$id"))
+        Network.get<Bracket>(ApiPaths.bracket, mapOf("id" to "$id"))
 
-    suspend fun deleteClass(id: Long) =
-        Network.delete("raceClass", mapOf("id" to "$id"))
+    suspend fun deleteBracket(id: Long) =
+        Network.delete(ApiPaths.bracket, mapOf("id" to "$id"))
 
     suspend fun deleteCategory(id: Long) =
-        Network.delete("category", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.raceClass, mapOf("id" to "$id"))
 
     suspend fun getCategory(id: Long) =
-        Network.get<RaceClass>("raceCategory", mapOf("id" to "$id"))
+        Network.get<RaceClass>(ApiPaths.raceClass, mapOf("id" to "$id"))
 
     suspend fun getAllRaces(year: Int) =
-        Network.get<List<RaceFull>>("allRaces", mapOf("year" to "$year"))
+        Network.get<List<RaceSchedule>>(ApiPaths.allRaces, mapOf("year" to "$year"))
 
     suspend fun postRace(race: Race) =
-        Network.post<Race, RaceFull>("races", race)
+        Network.post<Race, Race>(ApiPaths.race, race)
 
     suspend fun deleteRace(id: Long) =
-        Network.delete("races", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.race, mapOf("id" to "$id"))
 
+    suspend fun getRaceSchedule(id: Long) =
+        Network.get<RaceSchedule>(ApiPaths.raceSchedule, mapOf("id" to "$id"))
     suspend fun getRace(id: Long) =
-        Network.get<RaceFull>("races", mapOf("id" to "$id"))
+        Network.get<Race>(ApiPaths.race, mapOf("id" to "$id"))
 
     suspend fun getResults(raceId: Long) =
-        Network.get<List<RaceResultFull>>("results", mapOf("raceId" to "$raceId"))
+        Network.get<List<RaceResult>>(ApiPaths.results, mapOf("raceId" to "$raceId"))
     suspend fun deleteResult(id: Long) =
-        Network.delete("results", mapOf("id" to "$id"))
+        Network.delete(ApiPaths.results, mapOf("id" to "$id"))
 
     suspend fun postResult(result: RaceResult) =
-        Network.post<RaceResult, RaceResultFull>("results", result)
+        Network.post<RaceResult, RaceResult>(ApiPaths.results, result)
 
     suspend fun getReport(raceId: Long) =
-        Network.get<RaceReport>("report", mapOf("raceId" to "$raceId"))
+        Network.get<RaceReport>(ApiPaths.report, mapOf("raceId" to "$raceId"))
 
-    suspend fun getYears() = Network.get<List<String>>("years")
+    suspend fun getYears() = Network.get<List<String>>(ApiPaths.years)
 }

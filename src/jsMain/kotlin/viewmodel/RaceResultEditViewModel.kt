@@ -1,13 +1,13 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RaceReport
 import utils.*
 import kotlin.math.max
 
 data class RaceResultEditState(
     val report: Async<RaceReport> = Loading(),
-    val boats: Async<List<Boat>> = Loading(),
+    val boats: Async<List<BoatSkipper>> = Loading(),
     val maxHoc: Int = 1,
 ) : VmState
 

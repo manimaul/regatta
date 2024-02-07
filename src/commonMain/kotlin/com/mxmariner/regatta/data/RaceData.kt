@@ -2,6 +2,8 @@
 
 package com.mxmariner.regatta.data
 
+import com.mxmariner.regatta.correctionFactorDefault
+import com.mxmariner.regatta.ratingDefault
 import kotlinx.datetime.Instant
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
@@ -12,14 +14,14 @@ import kotlin.time.Duration
 
 @Serializable
 data class Series(
-    val id: Long? = null,
+    val id: Long = 0,
     val name: String = "",
     @EncodeDefault(ALWAYS) val active: Boolean = true
 )
 
 @Serializable
 data class Person(
-    val id: Long? = null,
+    val id: Long = 0,
     val first: String = "",
     val last: String = "",
     val clubMember: Boolean = false,
@@ -31,110 +33,83 @@ data class Person(
 }
 
 @Serializable
-sealed interface RaceClassAble {
-    val id: Long?
-    val name: String
-    val active: Boolean
-
-    fun toRaceClass(): RaceClass {
-        return when (this) {
-            is RaceClass -> this
-            is RaceClassFull -> RaceClass(id, name, active)
-        }
-    }
-}
+data class RaceClassBracketTimes(
+    val raceClass: RaceClass = RaceClass(),
+    val bracketTimes: List<BracketTime> = emptyList(),
+)
 
 @Serializable
-data class RaceClassFull(
-    override val id: Long? = null,
-    override val name: String,
-    val brackets: List<Bracket>? = null,
-    @EncodeDefault(ALWAYS) override val active: Boolean = true,
-) : RaceClassAble
+data class RaceClassBrackets(
+    val raceClass: RaceClass = RaceClass(),
+    val brackets: List<Bracket> = emptyList(),
+)
 
 @Serializable
 data class RaceClass(
-    override val id: Long? = null,
-    override val name: String,
-    @EncodeDefault(ALWAYS) override val active: Boolean = true,
-) : RaceClassAble
+    val id: Long = 0,
+    val name: String = "",
+    @EncodeDefault(ALWAYS) val active: Boolean = true,
+)
 
 @Serializable
 data class Bracket(
-    val id: Long? = null,
+    val id: Long = 0,
     val name: String = "",
     val description: String? = null,
     @EncodeDefault(ALWAYS) val active: Boolean = true,
-    val category: Long = -1L,
+    val minRating: Float = ratingDefault,
+    val maxRating: Float = ratingDefault,
+    val classId: Long = 0,
 )
 
 @Serializable
-sealed interface Race {
-    val id: Long?
-    val name: String
-    val raceTimes: List<RaceTime>
-    val rcId: Long?
-    val seriesId: Long?
-    val resultCount: Long
-}
+data class BracketTime(
+    val bracket: Bracket = Bracket(),
+    val time: RaceTime? = null,
+)
 
-fun Race.toPost(): RacePost {
-    return when (this) {
-        is RaceFull -> RacePost(
-            id = id,
-            name = name,
-            raceTimes = raceTimes,
-            rcId = rcId,
-            seriesId = seriesId,
-        )
-
-        is RacePost -> copy()
-    }
-}
 
 @Serializable
-data class RaceFull(
-    override val id: Long? = null,
-    override val name: String = "",
+data class RaceSchedule(
+    val race: Race = Race(),
+    val resultCount: Long = 0,
     val series: Series? = null,
     val rc: Person? = null,
-    override val resultCount: Long = 0,
-    override val raceTimes: List<RaceTime> = emptyList(),
-) : Race {
-    override val rcId: Long?
-        get() = rc?.id
-    override val seriesId: Long?
-        get() = series?.id
+    val schedule: List<RaceClassBracketTimes> = emptyList(),
+) {
 
     val startTime by lazy {
-        raceTimes.minByOrNull { it.startDate }?.startDate
+        schedule.map { it.bracketTimes.mapNotNull { it.time?.startDate } }.flatten().minByOrNull { it }
     }
 
     val endTime by lazy {
-        raceTimes.maxByOrNull { it.endDate }?.endDate
+        schedule.map { it.bracketTimes.mapNotNull { it.time?.endDate } }.flatten().maxByOrNull { it }
     }
 }
 
 @Serializable
-data class RacePost(
-    override val id: Long? = null,
-    override val name: String = "",
-    override val seriesId: Long? = null,
-    override val rcId: Long? = null,
-    override val raceTimes: List<RaceTime> = emptyList(),
-) : Race {
-    override val resultCount: Long
-        get() = 0
-}
+data class Race(
+    val id: Long = 0,
+    val name: String = "",
+    val seriesId: Long? = null,
+    val rcId: Long? = null,
+    val correctionFactor: Int = correctionFactorDefault,
+)
 
 @Serializable
 data class RaceTime(
-    val raceClassCategory: RaceClassAble,
     val startDate: Instant,
     val endDate: Instant,
-    val correctionFactor: Int,
-    val brackets: List<Bracket>,
+    val bracketId: Long,
+    val raceId: Long,
 )
+
+//@Serializable
+//data class RaceTimeFull(
+//    val startDate: Instant,
+//    val endDate: Instant,
+//    val bracket: Bracket,
+//)
 
 @Serializable
 data class Windseeker(
@@ -144,88 +119,72 @@ data class Windseeker(
 
 @Serializable
 data class Checkin(
-    val boat: Boat,
-    val race: RaceFull,
-    val bracket: Bracket,
-    val checkedIn: Boolean,
+    val boatId: Long = 0,
+    val raceId: Long = 0,
+    @EncodeDefault(ALWAYS)
+    val checkedIn: Boolean = false,
 )
 
 @Serializable
 data class Boat(
-    val id: Long? = null,
+    val id: Long = 0,
     val name: String = "",
     val sailNumber: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
-    val skipper: Person? = null,
+    val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
     @EncodeDefault(ALWAYS) val active: Boolean = true
 )
 
 @Serializable
-sealed interface RaceResult {
-    val id: Long?
-    val raceId: Long
-    val boatId: Long
-    val bracketId: Long
-    val start: Instant?
-    val finish: Instant?
-    val phrfRating: Int?
-    val hocPosition: Int?
-}
+data class BoatSkipper(
+    val skipper: Person? = null,
+    val boat: Boat? = null,
+)
 
 @Serializable
-data class RaceResultPost(
-    override val id: Long? = null,
-    override val raceId: Long,
-    override val boatId: Long,
-    override val bracketId: Long,
-    override val start: Instant?,
-    override val finish: Instant?,
-    override val phrfRating: Int? = null,
-    override val hocPosition: Int? = null,
-) : RaceResult
+data class RaceResult(
+    val id: Long = 0,
+    val raceId: Long = 0,
+    val boatId: Long = 0,
+    val bracketId: Long = 0,
+    val start: Instant? = null,
+    val finish: Instant? = null,
+    val phrfRating: Int? = null,
+    val hocPosition: Int? = null,
+)
 
 @Serializable
-data class RaceResultFull(
-    override val id: Long? = null,
-    val race: RaceFull = RaceFull(),
-    val boat: Boat = Boat(),
+data class RaceResultBoatBracket(
+    val result: RaceResult = RaceResult(),
+    val raceSchedule: RaceSchedule = RaceSchedule(),
+    val boatSkipper: BoatSkipper = BoatSkipper(),
     val bracket: Bracket = Bracket(),
-    override val start: Instant? = null,
-    override val finish: Instant? = null,
-    override val phrfRating: Int? = null,
-    override val hocPosition: Int? = null,
-) : RaceResult {
-    override val raceId: Long
-        get() = race.id!!
-    override val boatId: Long
-        get() = boat.id!!
-    override val bracketId: Long
-        get() = bracket.id!!
-}
+)
 
 @Serializable
 data class RaceReport(
-    val race: RaceFull,
-    val categories: List<RaceReportCategory>
+    val raceSchedule: RaceSchedule = RaceSchedule(),
+    val categories: List<RaceReportCategory> = emptyList()
 )
 
 @Serializable
 data class RaceReportCategory(
-    val category: RaceClass,
-    val correctionFactor: Int,
-    val classes: List<RaceReportClass>,
+    val category: RaceClass = RaceClass(),
+    val correctionFactor: Int = correctionFactorDefault,
+    val classes: List<RaceReportClass> = emptyList(),
 )
+
 @Serializable
 data class RaceReportClass(
-    val bracket: Bracket,
-    val cards: List<RaceReportCard>,
+    val bracket: Bracket = Bracket(),
+    val cards: List<RaceReportCard> = emptyList(),
 )
 
 @Serializable
 data class RaceReportCard(
-    val resultRecord: RaceResultFull = RaceResultFull(),
+    val resultRecord: RaceResultBoatBracket = RaceResultBoatBracket(),
     val boatName: String = "",
     val sail: String = "",
     val skipper: String = "",
@@ -238,6 +197,6 @@ data class RaceReportCard(
     val correctedTime: Duration? = null,
     var placeInBracket: Int = 0,
     var placeInClass: Int = 0,
-    var placeOverall: Int= 0,
+    var placeOverall: Int = 0,
     val hocPosition: Int? = null,
 )

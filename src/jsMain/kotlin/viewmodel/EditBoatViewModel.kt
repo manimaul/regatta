@@ -1,14 +1,14 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassFull
+import com.mxmariner.regatta.data.RaceClass
 import utils.*
 
 data class EditBoatComposite(
-    val boat: Boat,
+    val boatSkipper: BoatSkipper,
     val people: List<Person>,
-    val raceClass: List<RaceClassFull>,
 )
 
 data class EditBoatState(
@@ -29,11 +29,10 @@ class EditBoatViewModel(
         setState {
             EditBoatState(
                 data = combineAsync(
-                    Api.getBoat(id),
+                    Api.getBoatSkipper(id),
                     Api.getAllPeople(),
-                    Api.getAllCategories()
-                ) { boat, people, cat ->
-                    EditBoatComposite(boat, people, cat)
+                ) { boat, people ->
+                    EditBoatComposite(boat, people)
                 }.mapErrorMessage { "error fetching boat id $id" },
                 operation = Operation.Fetched
             )
@@ -43,24 +42,23 @@ class EditBoatViewModel(
     fun upsertBoat(newBoat: Boat) {
         setState {
             copy(
-                data = Api.postBoat(newBoat).toAsync().mapErrorMessage { "error updating boat id $id" }.map { boat ->
-                    EditBoatComposite(boat, emptyList(), emptyList())
-                },
+                data = Api.postBoat(newBoat).toAsync().mapErrorMessage { "error updating boat id $id" }
+                    .flatMap { boatSkipper ->
+                        data.map { it.copy(boatSkipper = boatSkipper) }
+                    },
                 operation = Operation.Updated
             )
         }
     }
 
     fun deleteBoat(boat: Boat) {
-        boat.id?.let { id ->
-            setState {
-                copy(
-                    data = Api.deleteBoat(id).toAsync().mapErrorMessage { "error deleting boat id $id" }.map {
-                        EditBoatComposite(boat, emptyList(), emptyList())
-                    },
-                    operation = Operation.Deleted
-                )
-            }
+        setState {
+            copy(
+                data = Api.deleteBoat(boat.id).toAsync().mapErrorMessage { "error deleting boat id $id" }.flatMap {
+                    data.map { it.copy(boatSkipper = it.boatSkipper.copy(boat = boat)) }
+                },
+                operation = Operation.Deleted
+            )
         }
     }
 

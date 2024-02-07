@@ -1,26 +1,27 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.Bracket
+import com.mxmariner.regatta.data.RaceClass
 import utils.*
 
 data class ClassEditState(
-    val series: Async<Bracket> = Uninitialized,
+    val category: Async<RaceClass> = Uninitialized,
     val operation: Operation = Operation.None,
 ) : VmState
 
 class ClassEditViewModel(
-    val id: Long,
+    private val id: Long,
     val routeVm: RouteViewModel = routeViewModel,
 ) : BaseViewModel<ClassEditState>(ClassEditState()) {
+
     init {
         reload()
     }
 
     override fun reload() {
         setState {
-            ClassEditState(
-                series = Api.getClass(id).toAsync(),
-                operation = Operation.Fetched
+            copy(
+                category = Api.getCategory(id).toAsync().mapErrorMessage { "foobar" },
+                operation = Operation.Fetched,
             )
         }
     }
@@ -29,23 +30,36 @@ class ClassEditViewModel(
         routeVm.goBackOrHome()
     }
 
-    fun upsert(newClass: Bracket) {
-        setState {
-            copy(
-                series = Api.postClass(newClass).toAsync(),
-                operation = Operation.Updated
-            )
-        }
-    }
-
-    fun delete(bracket: Bracket) {
-        bracket.id?.let { id ->
+    fun delete(cat: RaceClass) {
+        cat.id?.let {
             setState {
                 copy(
-                    series = Api.deleteClass(id).toAsync().map { bracket },
-                    operation = Operation.Deleted
+                    category = category.loading(),
+                )
+            }
+            setState {
+                copy(
+                    category = Api.deleteCategory(cat.id).toAsync().map { cat }
+                        .mapErrorMessage { "failed to delete '${cat.name}'!" },
+                    operation = Operation.Deleted,
                 )
             }
         }
+    }
+
+    fun upsert(cat: RaceClass) {
+        setState {
+            copy(
+                category = category.loading(),
+            )
+        }
+//        setState {
+//            copy(
+//                category = Api.postCategory(cat).toAsync()
+//                    .map { it.toRaceClass() }
+//                    .mapErrorMessage { "failed to update'${cat.name}'!" },
+//                operation = Operation.Updated,
+//            )
+//        }
     }
 }

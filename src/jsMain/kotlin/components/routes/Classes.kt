@@ -3,7 +3,7 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.Bracket
-import com.mxmariner.regatta.data.RaceClassFull
+import com.mxmariner.regatta.data.RaceClassBrackets
 import components.*
 import org.jetbrains.compose.web.dom.*
 import utils.Complete
@@ -24,6 +24,7 @@ fun Classes(
                 viewModel.reload()
             }
         }
+
         is Loading -> RgSpinner()
         Uninitialized -> Unit
     }
@@ -33,50 +34,48 @@ fun Classes(
 @Composable
 fun CategoryList(
     viewModel: ClassesViewModel,
-    list: List<RaceClassFull>,
+    list: List<RaceClassBrackets>,
 ) {
     H1 { Text("Race Classes") }
     RgTable {
         RgThead {
             RgTr {
                 RgTh { Text("Name") }
-                RgTh { Text("Description") }
                 RgTh { Text("Action") }
             }
         }
         RgTbody {
-            AddCategory(viewModel)
-            list.forEach { cat ->
+            AddClass(viewModel)
+            list.forEach { each ->
                 RgTr {
-                    RgTd(2) {
-                        H2 { Text(cat.name) }
+                    RgTd(classes = listOf("table-info")) {
+                        H2 { Text(each.raceClass.name) }
                     }
-                    RgTh {
-                        RgButton("Edit Category", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
-                            viewModel.editCategory(cat)
+                    RgTd(classes = listOf("table-info")) {
+                        RgButton("Edit Class", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                            viewModel.editClass(each.raceClass)
                         }
                     }
                 }
-                ClassRow(viewModel, cat.brackets ?: emptyList())
-                AddClass(viewModel, cat)
-            }
-        }
-    }
-}
+                RgTr {
+                    RgTd(colSpan = 2) {
+                        RgTable(caption = "brackets") {
+                            RgThead {
+                                RgTr {
+                                    RgTh { Text("Name") }
+                                    RgTh { Text("Description") }
+                                    RgTh { Text("Min Rating") }
+                                    RgTh { Text("Max Rating") }
+                                    RgTh { Text("Action") }
+                                }
+                            }
+                            RgTbody {
+                                AddBracket(viewModel, each)
+                                BracketRow(viewModel, each.brackets)
+                            }
+                        }
 
-@Composable
-fun ClassRow(
-    viewModel: ClassesViewModel,
-    list: List<Bracket>,
-) {
-
-    list.forEach { rc ->
-        RgTr {
-            RgTd { Text(rc.name) }
-            RgTd { Text(rc.description ?: "-") }
-            RgTd {
-                RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
-                    viewModel.setEditClass(rc)
+                    }
                 }
             }
         }
@@ -84,20 +83,20 @@ fun ClassRow(
 }
 
 @Composable
-fun AddCategory(
+fun BracketRow(
     viewModel: ClassesViewModel,
+    list: List<Bracket>,
 ) {
-    var name by remember { mutableStateOf("") }
-    RgTr {
-        RgTd(2) {
-            RgInput("Name", name, true) {
-                name = it
-            }
-        }
-        RgTd {
-            RgButton("Add Category", RgButtonStyle.Primary, name.isBlank(), listOf("float-end")) {
-                viewModel.upsertCategory(RaceClass(name = name))
-                name = ""
+    list.forEach { rc ->
+        RgTr {
+            RgTd { Text(rc.name) }
+            RgTd { Text(rc.description ?: "") }
+            RgTd { Text(rc.minRating.toString()) }
+            RgTd { Text(rc.maxRating.toString()) }
+            RgTd {
+                RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
+                    viewModel.editBracket(rc)
+                }
             }
         }
     }
@@ -106,10 +105,8 @@ fun AddCategory(
 @Composable
 fun AddClass(
     viewModel: ClassesViewModel,
-    category: RaceClassFull,
 ) {
     var name by remember { mutableStateOf("") }
-    var desc by remember { mutableStateOf("") }
     RgTr {
         RgTd {
             RgInput("Name", name, true) {
@@ -117,15 +114,45 @@ fun AddClass(
             }
         }
         RgTd {
-            RgInput("Description", desc, true) {
-                desc = it
+            RgButton("Add Class", RgButtonStyle.Primary, name.isBlank(), listOf("float-end")) {
+                viewModel.upsertCategory(RaceClass(name = name))
+                name = ""
+            }
+        }
+    }
+}
+
+@Composable
+fun AddBracket(
+    viewModel: ClassesViewModel,
+    classBrackets: RaceClassBrackets,
+) {
+    var bracket by remember { mutableStateOf(Bracket(classId = classBrackets.raceClass.id)) }
+    RgTr {
+        RgTd {
+            RgInput("Name", bracket.name, true) {
+                bracket = bracket.copy(name = it)
             }
         }
         RgTd {
-            RgButton("Add", RgButtonStyle.Primary, name.isBlank() || desc.isBlank(), listOf("float-end")) {
-                viewModel.upsertClass(Bracket(name = name, description = desc, category = category.id!!))
-                name = ""
-                desc = ""
+            RgInput("Description", bracket.description ?: "", true) {
+                bracket = bracket.copy(description = it)
+            }
+        }
+        RgTd {
+            RgInput("Min Rating", bracket.minRating.toString(), true) {
+                bracket = bracket.copy(minRating = it.toFloatOrNull() ?: 0f)
+            }
+        }
+        RgTd {
+            RgInput("Max Rating", bracket.maxRating.toString(), true) {
+                bracket = bracket.copy(maxRating = it.toFloatOrNull() ?: 0f)
+            }
+        }
+        RgTd {
+            RgButton("Add Bracket", RgButtonStyle.Primary, bracket.name.isBlank(), listOf("float-end")) {
+                viewModel.upsertBracket(bracket)
+                bracket = Bracket(classId = classBrackets.raceClass.id)
             }
         }
     }

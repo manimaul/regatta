@@ -2,8 +2,9 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClassFull
+import com.mxmariner.regatta.data.RaceClass
 import components.*
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
@@ -19,12 +20,18 @@ fun BoatEdit(
     when (val data = state.data) {
         is Complete -> {
             when (state.operation) {
-                Operation.Fetched -> EditBoat(data.value.boat, data.value.people, data.value.raceClass, viewModel)
-                Operation.Updated -> RgOk("Updated!", data.value.boat.name) {
+                Operation.Fetched -> EditBoat(
+                    data.value.boatSkipper.boat ?: Boat(),
+                    data.value.boatSkipper.skipper,
+                    data.value.people,
+                    viewModel
+                )
+
+                Operation.Updated -> RgOk("Updated!", data.value.boatSkipper.boat?.name) {
                     viewModel.routeVm.goBackOrHome()
                 }
 
-                Operation.Deleted -> RgOk("Deleted!", data.value.boat.name) {
+                Operation.Deleted -> RgOk("Deleted!", data.value.boatSkipper.boat?.name) {
                     viewModel.routeVm.goBackOrHome()
                 }
 
@@ -41,15 +48,16 @@ fun BoatEdit(
 @Composable
 fun EditBoat(
     boat: Boat,
+    skipper: Person?,
     people: List<Person>,
-    categories: List<RaceClassFull>,
     viewModel: EditBoatViewModel,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var newBoat by remember { mutableStateOf(boat) }
+    var newSkipper by remember { mutableStateOf(skipper) }
 
     if (confirmDelete) {
-        val msg = boat.skipper?.let {
+        val msg = skipper?.let {
             "Delete ${boat.name} owned by ${it.first} ${it.last}?"
         } ?: "Delete ${boat.name}?"
         RgConfirm(msg) { delete ->
@@ -85,16 +93,10 @@ fun EditBoat(
                         }
                     }
                     P {
-//                        B { Text("Class") }
-//                        RgClassDropdown(categories, newBoat.raceClass) {
-//                            newBoat = newBoat.copy(raceClass = it)
-//                        }
-                    }
-                    P {
                         B { Text("Skipper") }
-                        RgSkipperDropdown(people, newBoat.skipper) {
-                            newBoat = newBoat.copy(skipper = it)
-                            println("skipper selected ${it} ${newBoat.skipper}")
+                        RgSkipperDropdown(people, newSkipper) {
+                            newBoat = newBoat.copy(skipperId = it?.id)
+                            println("skipper selected ${it} ${newBoat.skipperId}")
                         }
                     }
                 }

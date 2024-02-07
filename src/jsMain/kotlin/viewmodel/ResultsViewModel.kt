@@ -1,17 +1,14 @@
 package viewmodel
 
-import com.mxmariner.regatta.data.Race
-import com.mxmariner.regatta.data.RaceFull
-import com.mxmariner.regatta.data.RaceResultFull
-import com.mxmariner.regatta.data.Series
+import com.mxmariner.regatta.data.*
 import components.selectedYear
 import kotlinx.coroutines.launch
 import utils.*
 
 data class ResultState(
     val loggedIn: Boolean = loginViewModel.flow.value.login?.isExpired() == false,
-    val results: Async<List<RaceResultFull>> = Loading(),
-    val races: Async<Map<Series, List<RaceFull>>> = Loading(),
+    val results: Async<List<RaceResult>> = Loading(),
+    val races: Async<Map<Series, List<RaceSchedule>>> = Loading(),
 ) : VmState
 
 class ResultsViewModel(
