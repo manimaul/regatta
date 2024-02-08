@@ -36,11 +36,10 @@ object RegattaDatabase {
             RaceResultsTable,
             AuthTable,
             RaceTimeTable,
-//            RaceBracketJunction,
             CheckinTable,
-            SkipperBoatJunction,
         )
         transaction(database) {
+            exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
             //nuke
             //raceresults, racetime, raceclasscategory, raceclass
             //alter table boat drop column if exists class_id

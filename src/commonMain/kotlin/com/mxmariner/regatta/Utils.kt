@@ -36,3 +36,19 @@ fun kotlin.time.Duration.display(): String {
     val sec = t.inWholeSeconds
     return "${hrs}h:${min}m:${sec}s"
 }
+inline fun <T> List<T>.moveItem(up: Boolean = false, predicate: (T) -> Boolean): List<T> {
+    val i = indexOfFirst { predicate(it) }
+    val lst = toMutableList()
+    if (up) {
+        if (i > 0) {
+            lst[i - 1] = this[i]
+            lst[i] = this[i - 1]
+        }
+    } else {
+        if (i >= 0 && i < size - 1) {
+            lst[i + 1] = this[i]
+            lst[i] = this[i + 1]
+        }
+    }
+    return lst
+}

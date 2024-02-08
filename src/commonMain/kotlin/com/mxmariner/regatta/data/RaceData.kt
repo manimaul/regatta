@@ -16,7 +16,8 @@ import kotlin.time.Duration
 data class Series(
     val id: Long = 0,
     val name: String = "",
-    @EncodeDefault(ALWAYS) val active: Boolean = true
+    val sort: Int = 0,
+    val active: Boolean = true
 )
 
 @Serializable
@@ -25,7 +26,7 @@ data class Person(
     val first: String = "",
     val last: String = "",
     val clubMember: Boolean = false,
-    @EncodeDefault(ALWAYS) val active: Boolean = true
+    val active: Boolean = true
 ) {
     fun fullName(): String {
         return "$first $last"
@@ -49,7 +50,7 @@ data class RaceClass(
     val id: Long = 0,
     val name: String = "",
     val sort: Int = 0,
-    @EncodeDefault(ALWAYS) val active: Boolean = true,
+    val active: Boolean = true,
 )
 
 @Serializable
@@ -57,7 +58,7 @@ data class Bracket(
     val id: Long = 0,
     val name: String = "",
     val description: String? = null,
-    @EncodeDefault(ALWAYS) val active: Boolean = true,
+    val active: Boolean = true,
     val minRating: Float = ratingDefault,
     val maxRating: Float = ratingDefault,
     val classId: Long = 0,
@@ -135,7 +136,7 @@ data class Boat(
     val phrfRating: Int? = null,
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
-    @EncodeDefault(ALWAYS) val active: Boolean = true
+    val active: Boolean = true
 )
 
 @Serializable

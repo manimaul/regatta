@@ -137,8 +137,7 @@ fun EditClass(
                 RgButton(
                     "Cancel",
                     RgButtonStyle.Primary,
-                    raceClass.name.isBlank(),
-                    listOf("float-end", AppStyle.marginStart)
+                    customClasses = listOf("float-end", AppStyle.marginStart)
                 ) {
                     viewModel.editClass(null)
                 }

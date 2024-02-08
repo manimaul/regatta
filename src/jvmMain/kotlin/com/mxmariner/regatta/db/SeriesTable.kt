@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 object SeriesTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 1024).uniqueIndex("nameIdx")
+    val sort = integer("sort")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
@@ -15,7 +16,7 @@ object SeriesTable : Table() {
     )
 
     fun selectAllSeries(): List<Series> {
-        return selectAll().map(::resultRowToSeries)
+        return selectAll().orderBy(sort).map(::resultRowToSeries)
     }
 
     fun selectSeries(seriesId: Long): Series? {
@@ -32,8 +33,11 @@ object SeriesTable : Table() {
 
     fun upsertSeries(series: Series): Series? {
         return upsert {
-            if (series.id > 0) { it[id] = series.id }
+            if (series.id > 0) {
+                it[id] = series.id
+            }
             it[name] = series.name.trim()
+            it[sort] = series.sort
             it[active] = series.active
         }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
     }

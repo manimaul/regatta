@@ -3,6 +3,7 @@ package viewmodel
 import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
+import com.mxmariner.regatta.moveItem
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -39,7 +40,7 @@ class ClassesViewModel(
 
     fun upsertClass(raceClass: RaceClass) {
         val rc = if (raceClass.id == 0L) {
-           raceClass.copy(sort = nextSort())
+            raceClass.copy(sort = nextSort())
         } else {
             raceClass
         }
@@ -85,46 +86,38 @@ class ClassesViewModel(
     }
 
     fun moveUp(raceClass: RaceClass) {
-        flow.value.classList.value?.map {
-            it.raceClass
-        }?.toMutableList()?.let { lst ->
-            val i = lst.indexOfFirst { it.id == raceClass.id }
-            if (i > 0) {
-                val b = lst[i - 1]
-                lst[i - 1] = raceClass
-                lst[i] = b
-            }
-            setState {
-                lst.forEachIndexed { index, raceClass ->
-                    Api.postClass(raceClass.copy(sort = index))
+        flow.value.classList.value
+            ?.map { it.raceClass }
+            ?.moveItem(up = true) { it.id == raceClass.id }
+            ?.let { lst ->
+                setState {
+                    lst.forEachIndexed { index, raceClass ->
+                        Api.postClass(raceClass.copy(sort = index))
+                    }
+                    copy(
+                        editClassId = null,
+                        classList = Api.getAllClasses().toAsync(),
+                    )
                 }
-                copy(
-                    editClassId = null,
-                    classList = Api.getAllClasses().toAsync(),
-                )
             }
-        }
     }
 
     fun moveDown(raceClass: RaceClass) {
-        flow.value.classList.value?.map {
-            it.raceClass
-        }?.toMutableList()?.let { lst ->
-            val i = lst.indexOfFirst { it.id == raceClass.id }
-            if (i >= 0 && i < lst.size - 1) {
-                val b = lst[i + 1]
-                lst[i + 1] = raceClass
-                lst[i] = b
-            }
-            setState {
-                lst.forEachIndexed { index, raceClass ->
-                    Api.postClass(raceClass.copy(sort = index))
+        flow.value.classList.value
+            ?.map { it.raceClass }
+            ?.moveItem(up = false) { it.id == raceClass.id }
+            ?.let { lst ->
+                setState {
+                    lst.forEachIndexed { index, raceClass ->
+                        Api.postClass(raceClass.copy(sort = index))
+                    }
+                    copy(
+                        editClassId = null,
+                        classList = Api.getAllClasses().toAsync(),
+                    )
                 }
-                copy(
-                    editClassId = null,
-                    classList = Api.getAllClasses().toAsync(),
-                )
             }
-        }
     }
+
+
 }

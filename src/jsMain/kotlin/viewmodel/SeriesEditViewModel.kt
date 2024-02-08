@@ -31,24 +31,4 @@ class SeriesEditViewModel(
     fun cancelEdit() {
         routeVm.goBackOrHome()
     }
-
-    fun upsert(newSeries: Series) {
-        setState {
-            copy(
-                series = Api.postSeries(newSeries).toAsync(),
-                operation = Operation.Updated
-            )
-        }
-    }
-
-    fun delete(series: Series) {
-        series.id?.let { id ->
-            setState {
-                copy(
-                    series = Api.deleteSeries(id).toAsync().map { series },
-                    operation = Operation.Deleted
-                )
-            }
-        }
-    }
 }
