@@ -75,17 +75,21 @@ class RacesEditViewModel(
                     it.copy(schedule = it.schedule.toMutableList().apply {
                         removeAll { it.raceClass.id == schedule.raceClass.id }
                         add(schedule)
-                    })
+                    }.sortedBy { it.raceClass.sort })
                 },
-//                classes = classes.map {
-//                    it.toMutableList().apply {
-//                        removeAll { it.raceClass.id == schedule.raceClass.id }
-//                    }
-//                }
             )
         }
-//        if (raceId != 0L) {
-//            setState { copy(race = Api.postSchedule(raceId, schedule).toAsync()) }
-//        }
+    }
+
+    fun removeSchedule(schedule: ClassSchedule) {
+        setState {
+            copy(
+                race = race.map {
+                    it.copy(schedule = it.schedule.toMutableList().apply {
+                        removeAll { it.raceClass.id == schedule.raceClass.id }
+                    })
+                },
+            )
+        }
     }
 }

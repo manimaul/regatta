@@ -37,7 +37,7 @@ fun RgAddTime(
             RgTd {
                 RgButton("Add", RgButtonStyle.Success, disabled = !state.value.isValid()) {
                     state.value.asSchedule()?.let {
-                        viewModel.add(it)
+                        viewModel.removeOption(it.raceClass.id)
                         handler(it)
                     }
                 }

@@ -30,6 +30,8 @@ data class RgAddTimeState(
 
 class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
 
+    private val removed = mutableListOf<RaceClassBrackets>()
+
     init {
         reload()
     }
@@ -89,9 +91,24 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
         }
     }
 
-    fun add(schedule: ClassSchedule) {
+    fun resetOption(classId: Long) {
+        removed.indexOfFirst { it.raceClass.id == classId }.takeIf { it >= 0 }?.let { i ->
+            val c = removed.removeAt(i)
+            setState {
+                copy(classes = classes.map { it.toMutableList().apply { add(c) }.sortedBy { it.raceClass.sort } })
+            }
+        }
+    }
+
+    fun removeOption(classId: Long) {
         setState {
-            val c = classes.map { it.filter { it.raceClass.id != schedule.raceClass.id } }
+            val c = classes.map {
+                it.toMutableList().apply {
+                    indexOfFirst { it.raceClass.id == classId }.takeIf { it >= 0 }?.let { i ->
+                        removed.add(removeAt(i))
+                    }
+                }
+            }
             c.value?.firstOrNull()?.let { selectClass(it.raceClass) }
             copy(classes = c)
         }

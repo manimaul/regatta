@@ -8,6 +8,7 @@ import styles.AppStyle
 import utils.display
 import viewmodel.Operation
 import viewmodel.RacesEditViewModel
+import viewmodel.RgAddTimeViewModel
 import viewmodel.complete
 
 @Composable
@@ -39,7 +40,8 @@ fun RaceEdit(
 @Composable
 fun RaceForm(
     editRace: RaceSchedule,
-    viewModel: RacesEditViewModel
+    viewModel: RacesEditViewModel,
+    addTimeViewModel: RgAddTimeViewModel = remember { RgAddTimeViewModel() },
 ) {
     val state = viewModel.flow.collectAsState()
     var rs by mutableStateOf(editRace)
@@ -99,24 +101,27 @@ fun RaceForm(
             }
         }
         RgTbody {
-//            state.value.classes.complete(viewModel) { classBrackets ->
-                state.value.race.complete(viewModel) { rs ->
-                    rs.schedule.forEach {
-                        RgTr {
-                            RgTd {
-                                H6 { Text(it.raceClass.name) }
-                                it.brackets.forEach {
-                                    P { Text("${it.name} ${it.maxRating}-${it.maxRating}") }
-                                }
+            state.value.race.complete(viewModel) { rs ->
+                rs.schedule.forEach { schedule ->
+                    RgTr {
+                        RgTd {
+                            H6 { Text(schedule.raceClass.name) }
+                            schedule.brackets.forEach {
+                                P { Text("${it.name} ${it.maxRating}-${it.maxRating}") }
                             }
-                            RgTd { Text(it.startDate.display()) }
-                            RgTd { Text(it.endDate.display()) }
-                            RgTd { }
+                        }
+                        RgTd { Text(schedule.startDate.display()) }
+                        RgTd { Text(schedule.endDate.display()) }
+                        RgTd {
+                            RgButton("Remove") {
+                                viewModel.removeSchedule(schedule)
+                                addTimeViewModel.resetOption(schedule.raceClass.id)
+                            }
                         }
                     }
                 }
-                RgAddTime { viewModel.addSchedule(it) }
-//            }
+            }
+            RgAddTime(addTimeViewModel) { viewModel.addSchedule(it) }
         }
     }
 }
