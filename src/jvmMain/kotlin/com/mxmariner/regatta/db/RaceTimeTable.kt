@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceTimeTable : Table() {
     val raceId = (long("race_id") references BracketTable.id)
-    val bracketId = (long("bracket_id") references BracketTable.id)
+    val classId = (long("class_id") references RaceClassTable.id)
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")
 
@@ -25,22 +25,20 @@ object RaceTimeTable : Table() {
         return years.sortedDescending().map { "$it" }
     }
 
-    fun updateRaceTimes(times: List<RaceTime>): List<RaceTime> {
-        return times.mapNotNull { time ->
-            upsert(raceId, bracketId, where = { raceId.eq(time.raceId).and(bracketId.eq(time.bracketId)) }) {
-                it[raceId] = time.raceId
-                it[bracketId] = time.bracketId
-                it[startDate] = time.startDate
-                it[endDate] = time.endDate
-            }.resultedValues?.map(::rowToTime)
-        }.flatten()
+    fun updateRaceTime(time: RaceTime): RaceTime? {
+        return upsert(raceId, classId) {
+            it[raceId] = time.raceId
+            it[classId] = time.classId
+            it[startDate] = time.startDate
+            it[endDate] = time.endDate
+        }.resultedValues?.map(::rowToTime)?.singleOrNull()
     }
 
     fun rowToTime(row: ResultRow): RaceTime {
         return RaceTime(
             startDate = row[startDate],
             endDate = row[endDate],
-            bracketId = row[bracketId],
+            classId = row[classId],
             raceId = row[raceId],
         )
     }
@@ -49,7 +47,7 @@ object RaceTimeTable : Table() {
         return select { RaceTimeTable.raceId eq raceId }.map(::rowToTime)
     }
 
-    fun findByRaceAndBracketId(rId: Long, bId: Long): RaceTime? {
-        return select { bracketId.eq(bId).and(raceId.eq(rId)) }.map(::rowToTime).singleOrNull()
+    fun findByRaceAndClassId(rId: Long, cId: Long): RaceTime? {
+        return select { classId.eq(cId).and(raceId.eq(rId)) }.map(::rowToTime).singleOrNull()
     }
 }

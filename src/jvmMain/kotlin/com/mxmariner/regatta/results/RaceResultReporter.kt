@@ -25,18 +25,18 @@ object RaceResultReporter {
                 card.placeOverall = p
             }
 
-            //class category places
+            //class places
             raceSchedule.schedule.forEach { each ->
                 val raceClass = each.raceClass
-                each.bracketTimes.forEach { bt ->
-                    val catCards = cards.filter { it.resultRecord.bracket.id == bt.bracket.id }
+                each.brackets.forEach { bt ->
+                    val classCards = cards.filter { it.resultRecord.bracket.classId == bt.classId }
                         .place { p, card ->
                             card.placeInClass = p
                         }
 
-                    //class places
-                    val categoryClasses =
-                        catCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
+                    //bracket places
+                    val brackets =
+                        classCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
                             .mapNotNull { raceClass ->
                                 RaceReportClass(
                                     bracket = raceClass,
@@ -49,9 +49,9 @@ object RaceResultReporter {
 
                     RaceReportCategory(
                         category = raceClass,
-                        classes = categoryClasses,
+                        brackets = brackets,
                         correctionFactor = raceSchedule.race.correctionFactor
-                    ).takeIf { it.classes.isNotEmpty() }?.also {
+                    ).takeIf { it.brackets.isNotEmpty() }?.also {
                         reportCategories.add(it)
                     }
                 }

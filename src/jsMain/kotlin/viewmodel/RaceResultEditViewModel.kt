@@ -46,7 +46,7 @@ class RaceResultEditViewModel(
     private fun findMaxHoc(currentHoc: Int, value: RaceReport?): Int {
         var hoc = currentHoc
         value?.categories?.forEach { cat ->
-            cat.classes.forEach { cls ->
+            cat.brackets.forEach { cls ->
                 cls.cards.forEach { card ->
                     card.hocPosition?.let {
                         hoc = max(it, hoc)

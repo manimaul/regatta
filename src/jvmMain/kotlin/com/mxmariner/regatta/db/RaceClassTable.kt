@@ -1,7 +1,6 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RaceClass
-import com.mxmariner.regatta.data.RaceClassBracketTimes
 import com.mxmariner.regatta.data.RaceClassBrackets
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

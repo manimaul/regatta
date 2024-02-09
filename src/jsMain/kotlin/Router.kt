@@ -26,7 +26,7 @@ fun Router(
                 Route.People -> People()
                 Route.Races -> Races()
                 Route.RaceCreate -> RaceEdit()
-                Route.RaceEdit -> RaceEdit(state.current.args?.get("id")?.toLongOrNull())
+                Route.RaceEdit -> RaceEdit(state.current.args?.get("id")?.toLongOrNull() ?: 0L)
                 Route.RaceResult -> RaceResults()
                 Route.RaceResultView -> RaceResultsView(state.current.args?.get("id")?.toLongOrNull())
                 Route.RaceResultEdit -> RaceResultsEdit(state.current.args?.get("id")?.toLongOrNull())

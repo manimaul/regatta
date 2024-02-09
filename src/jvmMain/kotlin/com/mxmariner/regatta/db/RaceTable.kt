@@ -22,7 +22,9 @@ object RaceTable : Table() {
 
     fun upsertRace(race: Race): Race? {
         return RaceTable.upsert {
-            if (race.id > 0) { it[id] = race.id }
+            if (race.id > 0) {
+                it[id] = race.id
+            }
             it[name] = race.name.trim()
             it[seriesId] = race.seriesId
             it[rcId] = race.rcId
@@ -32,19 +34,31 @@ object RaceTable : Table() {
         }?.singleOrNull()
     }
 
+    fun insertSchedule(raceId: Long, schedule: ClassSchedule): RaceSchedule? {
+        RaceTimeTable.updateRaceTime(
+            RaceTime(
+                startDate = schedule.startDate,
+                endDate = schedule.endDate,
+                classId = schedule.raceClass.id,
+                raceId = raceId
+            )
+        )?.let {
+            RaceBracketJunction.setBrackets(raceId, schedule.raceClass.id, schedule.brackets)
+        }
+        return findRaceSchedule(raceId)
+    }
+
     fun findRaceSchedule(raceId: Long): RaceSchedule? {
         val schedule = RaceBracketJunction.selectBrackets(raceId).groupBy { it.classId }.let {
-            it.keys.map { classId ->
-                RaceClassBracketTimes(
-                    raceClass = RaceClassTable.selectById(classId) ?: RaceClass(),
-                    bracketTimes = it[classId]?.map { bracket ->
-                        BracketTime(
-                            bracket = bracket,
-                            time = RaceTimeTable.findByRaceAndBracketId(raceId, bracket.id)
-                        )
-                    } ?: emptyList()
-                )
-
+            it.keys.mapNotNull { classId ->
+                RaceTimeTable.findByRaceAndClassId(raceId, classId)?.let { rt ->
+                    ClassSchedule(
+                        raceClass = RaceClassTable.selectById(classId) ?: RaceClass(),
+                        brackets = it[classId] ?: emptyList(),
+                        startDate = rt.startDate,
+                        endDate = rt.endDate
+                    )
+                }
             }
         }
 

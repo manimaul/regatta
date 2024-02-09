@@ -103,7 +103,8 @@ object RegattaDatabase {
 
     suspend fun findBracket(id: Long) = dbQuery { BracketTable.findBracket(id) }
     suspend fun upsertBracket(item: Bracket): Bracket? = dbQuery { BracketTable.upsertBracket(item) }
-//    suspend fun allBrackets() = dbQuery { BracketTable.selectAllBrackets() }
+
+    //    suspend fun allBrackets() = dbQuery { BracketTable.selectAllBrackets() }
     suspend fun deleteBracket(id: Long) = dbQuery { BracketTable.deleteBracket(id) }
 
     // Race Class ------------------------
@@ -152,11 +153,9 @@ object RegattaDatabase {
         dbQuery { RaceResultsTable.resultsByRaceId(raceId) }
 
     suspend fun allResults() = dbQuery { RaceResultsTable.allResults() }
-    suspend fun upsertResult(result: RaceResult): RaceResult? = dbQuery {
-        RaceResultsTable.upsertResult(result)
-    }
+    suspend fun upsertResult(result: RaceResult): RaceResult? = dbQuery { RaceResultsTable.upsertResult(result) }
 
-    suspend fun resultCount(raceId: Long) = dbQuery {
-        RaceResultsTable.count(raceId)
-    }
+    suspend fun resultCount(raceId: Long) = dbQuery { RaceResultsTable.count(raceId) }
+
+    suspend fun insertSchedule(raceId: Long, cs: ClassSchedule): RaceSchedule? = dbQuery { RaceTable.insertSchedule(raceId, cs) }
 }

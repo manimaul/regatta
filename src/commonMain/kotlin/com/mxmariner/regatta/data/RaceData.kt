@@ -4,6 +4,7 @@ package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.ratingDefault
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
@@ -33,11 +34,11 @@ data class Person(
     }
 }
 
-@Serializable
-data class RaceClassBracketTimes(
-    val raceClass: RaceClass = RaceClass(),
-    val bracketTimes: List<BracketTime> = emptyList(),
-)
+//@Serializable
+//data class RaceClassBracketTimes(
+//    val raceClass: RaceClass = RaceClass(),
+//    val bracketTimes: List<BracketTime> = emptyList(),
+//)
 
 @Serializable
 data class RaceClassBrackets(
@@ -65,11 +66,12 @@ data class Bracket(
 )
 
 @Serializable
-data class BracketTime(
-    val bracket: Bracket = Bracket(),
-    val time: RaceTime? = null,
+data class ClassSchedule(
+    val raceClass: RaceClass = RaceClass(),
+    val brackets: List<Bracket> = emptyList(),
+    val startDate: Instant = Instant.DISTANT_PAST,
+    val endDate: Instant = Instant.DISTANT_FUTURE,
 )
-
 
 @Serializable
 data class RaceSchedule(
@@ -77,15 +79,15 @@ data class RaceSchedule(
     val resultCount: Long = 0,
     val series: Series? = null,
     val rc: Person? = null,
-    val schedule: List<RaceClassBracketTimes> = emptyList(),
+    val schedule: List<ClassSchedule> = emptyList(),
 ) {
 
     val startTime by lazy {
-        schedule.map { it.bracketTimes.mapNotNull { it.time?.startDate } }.flatten().minByOrNull { it }
+        schedule.map { it.startDate }.minByOrNull { it }
     }
 
     val endTime by lazy {
-        schedule.map { it.bracketTimes.mapNotNull { it.time?.endDate } }.flatten().maxByOrNull { it }
+        schedule.map { it.endDate}.maxByOrNull { it }
     }
 }
 
@@ -102,7 +104,7 @@ data class Race(
 data class RaceTime(
     val startDate: Instant,
     val endDate: Instant,
-    val bracketId: Long,
+    val classId: Long,
     val raceId: Long,
 )
 
@@ -175,7 +177,7 @@ data class RaceReport(
 data class RaceReportCategory(
     val category: RaceClass = RaceClass(),
     val correctionFactor: Int = correctionFactorDefault,
-    val classes: List<RaceReportClass> = emptyList(),
+    val brackets: List<RaceReportClass> = emptyList(),
 )
 
 @Serializable

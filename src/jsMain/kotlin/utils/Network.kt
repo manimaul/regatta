@@ -54,9 +54,9 @@ object Network {
         return response.networkResponse()
     }
 
-    suspend inline fun <reified T, reified R> post(api: String, item: T): NetworkResponse<R> {
+    suspend inline fun <reified T, reified R> post(api: String, item: T, params: Map<String, String>? = null): NetworkResponse<R> {
         val response = window.fetch(
-            api.versionedApi(),
+            api.versionedApi(params = params),
             RequestInit(
                 method = "POST",
                 headers = json(

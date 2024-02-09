@@ -45,7 +45,7 @@ fun RaceResultsEdit(
                     RgTr {
                         RgTd(12) { H4 { Text(category.category.name) } }
                     }
-                    category.classes.forEach { raceClass ->
+                    category.brackets.forEach { raceClass ->
                         RgTr {
                             RgTd(12) { H6 { Text(raceClass.bracket.name) } }
                         }

@@ -23,6 +23,9 @@ abstract class BaseViewModel<T : VmState>(
     protected fun <A> withState(handler: (T) -> A): A {
         return handler(internalState.value)
     }
+    protected suspend fun <A> withStateAsync(handler: suspend (T) -> A): A {
+        return handler(internalState.value)
+    }
 
     protected fun <A> MutableStateFlow<A>.setState(reducer: suspend A.() -> A) {
         launch {

@@ -81,11 +81,13 @@ object Api {
 
     suspend fun getRaceSchedule(id: Long) =
         Network.get<RaceSchedule>(ApiPaths.raceSchedule, mapOf("id" to "$id"))
+
     suspend fun getRace(id: Long) =
         Network.get<Race>(ApiPaths.race, mapOf("id" to "$id"))
 
     suspend fun getResults(raceId: Long) =
         Network.get<List<RaceResult>>(ApiPaths.results, mapOf("raceId" to "$raceId"))
+
     suspend fun deleteResult(id: Long) =
         Network.delete(ApiPaths.results, mapOf("id" to "$id"))
 
@@ -96,4 +98,7 @@ object Api {
         Network.get<RaceReport>(ApiPaths.report, mapOf("raceId" to "$raceId"))
 
     suspend fun getYears() = Network.get<List<String>>(ApiPaths.years)
+
+    suspend fun postSchedule(raceId: Long, schedule: ClassSchedule) =
+        Network.post<ClassSchedule, RaceSchedule>(ApiPaths.raceSchedule, schedule, mapOf("id" to "$raceId"))
 }
