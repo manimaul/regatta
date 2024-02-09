@@ -86,7 +86,7 @@ fun RgSeriesDropdown(
 @Composable
 fun RgClassDropdown(
     items: List<RaceClassBrackets>,
-    current: RaceClassBrackets?,
+    current: RaceClass?,
     handler: (RaceClassBrackets?) -> Unit,
 ) {
     Select(attrs = {
@@ -111,7 +111,7 @@ fun RgClassDropdown(
         items.forEach { cat ->
             val rc = cat.raceClass
             Option(rc.id.toString(), attrs = {
-                if (rc.id == current?.raceClass?.id) {
+                if (rc.id == current?.id) {
                     selected()
                 }
             }) {

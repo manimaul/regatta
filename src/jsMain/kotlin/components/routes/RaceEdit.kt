@@ -1,19 +1,14 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.ClassSchedule
-import com.mxmariner.regatta.data.RaceClass
-import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.RaceSchedule
 import components.*
-import kotlinx.datetime.Instant
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.display
 import viewmodel.Operation
 import viewmodel.RacesEditViewModel
 import viewmodel.complete
-import kotlin.time.Duration.Companion.hours
 
 @Composable
 fun RaceEdit(
@@ -37,7 +32,7 @@ fun RaceEdit(
     }
 
     RgButton("Save", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginTop)) {
-//        viewModel.upsertPerson(newPerson)
+        TODO()
     }
 }
 
@@ -104,7 +99,7 @@ fun RaceForm(
             }
         }
         RgTbody {
-            state.value.classes.complete(viewModel) { classBrackets ->
+//            state.value.classes.complete(viewModel) { classBrackets ->
                 state.value.race.complete(viewModel) { rs ->
                     rs.schedule.forEach {
                         RgTr {
@@ -120,91 +115,12 @@ fun RaceForm(
                         }
                     }
                 }
-                RgAddTime(ClassSchedule(), classBrackets, viewModel)
-            }
+                RgAddTime { viewModel.addSchedule(it) }
+//            }
         }
     }
 }
 
-@Composable
-fun RgAddTime(
-    schedule: ClassSchedule,
-    classes: List<RaceClassBrackets>,
-    viewModel: RacesEditViewModel,
-) {
-    var raceClass by remember { mutableStateOf<RaceClass?>(schedule.raceClass) }
-    var brackets by remember { mutableStateOf(schedule.brackets) }
-    var startDate by remember { mutableStateOf(schedule.startDate.takeIf { it != Instant.DISTANT_PAST }) }
-    var endDate by remember { mutableStateOf(schedule.endDate.takeIf { it != Instant.DISTANT_FUTURE }) }
-
-    fun isValid(): Boolean {
-        val start = startDate
-        val end = endDate
-        return if (raceClass != null && brackets.isNotEmpty() && start != null && end != null) {
-            end > start
-        } else {
-            false
-        }
-    }
-
-    fun asSchedule(): ClassSchedule? {
-        return if (isValid()) {
-            ClassSchedule(
-                raceClass!!, brackets, startDate!!, endDate!!
-            )
-        } else {
-            null
-        }
-    }
-
-    RgTr {
-        RgTd {
-            RgClassDropdown(classes, RaceClassBrackets()) {
-                raceClass = it?.raceClass
-                brackets = emptyList()
-            }
-        }
-        RgTd {
-            RgDate(label = "Race start", placeHolder = true, date = startDate, time = true) { t ->
-                startDate = t
-                if (endDate == null) {
-                    endDate = t.plus(4.hours)
-                }
-            }
-        }
-        RgTd {
-            RgDate(label = "Race end", placeHolder = true, date = endDate, time = true) { t ->
-                endDate = t
-            }
-        }
-        RgTd {
-            RgButton("Add", RgButtonStyle.Success, disabled = !isValid()) {
-                asSchedule()?.let { viewModel.addSchedule(it) }
-            }
-        }
-    }
-    RgTr {
-        RgTd(colSpan = 4) {
-            P { Text("Brackets") }
-            classes.firstOrNull {
-                it.raceClass.id == raceClass?.id
-            }?.let { availableBrackets ->
-                RgSwitches(
-                    items = availableBrackets.brackets,
-                    label = { "${it.name} ${it.minRating}-${it.maxRating}" },
-                    check = { b ->
-                        brackets.firstOrNull { it.id == b.id } != null
-                    }) { b, on ->
-                    if (on) {
-                        brackets = brackets.toMutableList().apply { add(b) }
-                    } else {
-                        brackets = brackets.filter { it.id != b.id }
-                    }
-                }
-            }
-        }
-    }
-}
 
 //@Composable
 //fun RgAddRaceTime(

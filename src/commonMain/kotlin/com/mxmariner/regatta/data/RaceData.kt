@@ -71,7 +71,14 @@ data class ClassSchedule(
     val brackets: List<Bracket> = emptyList(),
     val startDate: Instant = Instant.DISTANT_PAST,
     val endDate: Instant = Instant.DISTANT_FUTURE,
-)
+) {
+    fun getStartDate() =
+        startDate.takeIf { it != Instant.DISTANT_PAST }
+
+    fun getEndDate() =
+        endDate.takeIf { it != Instant.DISTANT_FUTURE }
+
+}
 
 @Serializable
 data class RaceSchedule(
@@ -87,7 +94,7 @@ data class RaceSchedule(
     }
 
     val endTime by lazy {
-        schedule.map { it.endDate}.maxByOrNull { it }
+        schedule.map { it.endDate }.maxByOrNull { it }
     }
 }
 

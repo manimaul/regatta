@@ -8,7 +8,6 @@ data class RacesEditState(
     val race: Async<RaceSchedule> = Loading(),
     val skippers: Async<List<Person>> = Loading(),
     val series: Async<List<Series>> = Loading(),
-    val classes: Async<List<RaceClassBrackets>> = Loading(),
     val operation: Operation = Operation.None,
 ) : VmState
 
@@ -27,7 +26,6 @@ class RacesEditViewModel(
                 race = race.loading(),
                 skippers = skippers.loading(),
                 series = series.loading(),
-                classes = classes.loading(),
                 operation = Operation.Fetched
             )
         }
@@ -37,27 +35,17 @@ class RacesEditViewModel(
                     race = Complete(RaceSchedule()),
                     skippers = Api.getAllPeople().toAsync(),
                     series = Api.allSeries().toAsync(),
-                    classes = getRcb()
                 )
             } else {
                 copy(
                     race = Api.getRaceSchedule(raceId).toAsync(),
                     skippers = Api.getAllPeople().toAsync(),
                     series = Api.allSeries().toAsync(),
-                    classes = getRcb()
                 )
             }
         }
     }
 
-    private suspend fun getRcb(): Async<List<RaceClassBrackets>> {
-        return withStateAsync { state ->
-            val ids = state.classes.value?.map { it.raceClass.id } ?: emptySet()
-            Api.getAllClasses().toAsync().map { all ->
-                all.filter { rcb -> !ids.contains(rcb.raceClass.id) }
-            }
-        }
-    }
 
     private suspend fun getAllRaces(year: Int) = Api.getAllRaces(year).toAsync().map { it.sortedBy { it.startTime } }
 
@@ -82,12 +70,19 @@ class RacesEditViewModel(
 
     fun addSchedule(schedule: ClassSchedule) {
         setState {
-            copy(race = race.map {
-                it.copy(schedule = it.schedule.toMutableList().apply {
-                    removeAll { it.raceClass.id == schedule.raceClass.id }
-                    add(schedule)
-                })
-            })
+            copy(
+                race = race.map {
+                    it.copy(schedule = it.schedule.toMutableList().apply {
+                        removeAll { it.raceClass.id == schedule.raceClass.id }
+                        add(schedule)
+                    })
+                },
+//                classes = classes.map {
+//                    it.toMutableList().apply {
+//                        removeAll { it.raceClass.id == schedule.raceClass.id }
+//                    }
+//                }
+            )
         }
 //        if (raceId != 0L) {
 //            setState { copy(race = Api.postSchedule(raceId, schedule).toAsync()) }
