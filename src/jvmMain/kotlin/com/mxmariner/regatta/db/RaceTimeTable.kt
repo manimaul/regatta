@@ -2,10 +2,11 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RaceTime
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceTimeTable : Table() {
-    val raceId = (long("race_id") references BracketTable.id)
+    val raceId = (long("race_id") references RaceTable.id)
     val classId = (long("class_id") references RaceClassTable.id)
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")
@@ -26,7 +27,11 @@ object RaceTimeTable : Table() {
     }
 
     fun updateRaceTime(time: RaceTime): RaceTime? {
-        return upsert(raceId, classId) {
+        deleteWhere {
+            raceId.eq(time.raceId).and(classId.eq(time.classId))
+        }
+        //error here
+        return insert {
             it[raceId] = time.raceId
             it[classId] = time.classId
             it[startDate] = time.startDate

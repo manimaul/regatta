@@ -43,6 +43,7 @@ object RaceTable : Table() {
                 raceId = raceId
             )
         )?.let {
+            println("inserted race time $it")
             RaceBracketJunction.setBrackets(raceId, schedule.raceClass.id, schedule.brackets)
         } == schedule.brackets.size
     }

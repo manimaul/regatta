@@ -145,7 +145,7 @@ object RegattaDatabase {
 
     // Race Times ------------------------
     suspend fun allYears(): List<String> = dbQuery { RaceTimeTable.allYears() }
-    suspend fun findRaceTimes(raceId: Long) = dbQuery { RaceTimeTable.selectByRaceId(raceId) }
+    suspend fun findRaceTimes(raceId: Long): List<RaceTime> = dbQuery { RaceTimeTable.selectByRaceId(raceId) }
 
     // Results ------------------------
     suspend fun deleteResult(id: Long) = dbQuery { RaceResultsTable.deleteWhere { RaceResultsTable.id eq id } }
