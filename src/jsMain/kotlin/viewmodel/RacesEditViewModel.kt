@@ -1,7 +1,9 @@
 package viewmodel
 
+import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import components.selectedYear
+import kotlinx.coroutines.launch
 import utils.*
 
 data class RacesEditState(
@@ -10,6 +12,10 @@ data class RacesEditState(
     val series: Async<List<Series>> = Loading(),
     val operation: Operation = Operation.None,
 ) : VmState
+
+fun RaceSchedule.validate(): Boolean {
+    return race.name.isNotBlank() && schedule.isNotEmpty()
+}
 
 class RacesEditViewModel(
     val raceId: Long = 0,
@@ -46,24 +52,6 @@ class RacesEditViewModel(
         }
     }
 
-
-    private suspend fun getAllRaces(year: Int) = Api.getAllRaces(year).toAsync().map { it.sortedBy { it.startTime } }
-
-    fun createRace() {
-        routeVm.pushRoute(Route.RaceCreate)
-    }
-
-    fun editRace(race: Race) {
-        routeVm.pushRoute("/race/${race.id}")
-    }
-
-    fun selectYear(year: Int?) {
-//        setState { copy(races = Loading()) }
-//        year?.let {
-//            setState { copy(races = getAllRaces(it)) }
-//        }
-    }
-
     fun cancelCreate() {
         routeVm.goBackOrHome()
     }
@@ -90,6 +78,57 @@ class RacesEditViewModel(
                     })
                 },
             )
+        }
+    }
+
+
+    fun save(schedule: RaceSchedule) {
+        setState {
+            RacesEditState()
+        }
+        launch {
+            Api.postSchedule(schedule)
+            routeViewModel.pushRoute(Route.Races)
+        }
+    }
+
+    fun setRaceName(name: String) {
+        setState {
+            copy(race = race.map { it.copy(race = it.race.copy(name = name)) })
+        }
+    }
+
+    fun setSeries(series: Series) {
+        setState {
+            copy(
+                race = race.map {
+                    it.copy(
+                        series = series,
+                        race = it.race.copy(
+                            seriesId = series.id,
+                        )
+                    )
+                }
+            )
+        }
+    }
+
+    fun setRC(rc: Person?) {
+        setState {
+            copy(
+                race = race.map {
+                    it.copy(
+                        race = it.race.copy(rcId = rc?.id),
+                        rc = rc,
+                    )
+                }
+            )
+        }
+    }
+
+    fun setCF(cf: Int?) {
+        setState {
+            copy(race = race.map { it.copy(race = it.race.copy(correctionFactor = cf ?: correctionFactorDefault)) })
         }
     }
 }

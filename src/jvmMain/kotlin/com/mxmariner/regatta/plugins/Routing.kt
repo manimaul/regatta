@@ -88,10 +88,8 @@ fun Application.configureRouting() {
         }
         authenticate(Token.Admin.name) {
             post(ApiPaths.raceSchedule.versionedApi()) {
-                call.request.queryParameters["id"]?.toLong()?.let {
-                    val cs = call.receive<ClassSchedule>()
-                    RegattaDatabase.insertSchedule(it, cs)
-                }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest)
+                val cs = call.receive<RaceSchedule>()
+                RegattaDatabase.insertSchedule(cs)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest)
             }
             delete(ApiPaths.results.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {

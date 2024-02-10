@@ -34,8 +34,8 @@ object RaceTable : Table() {
         }?.singleOrNull()
     }
 
-    fun insertSchedule(raceId: Long, schedule: ClassSchedule): RaceSchedule? {
-        RaceTimeTable.updateRaceTime(
+    private fun insertClassSchedule(raceId: Long, schedule: ClassSchedule): Boolean {
+        return RaceTimeTable.updateRaceTime(
             RaceTime(
                 startDate = schedule.startDate,
                 endDate = schedule.endDate,
@@ -44,8 +44,16 @@ object RaceTable : Table() {
             )
         )?.let {
             RaceBracketJunction.setBrackets(raceId, schedule.raceClass.id, schedule.brackets)
+        } == schedule.brackets.size
+    }
+
+    fun insertSchedule(schedule: RaceSchedule): RaceSchedule? {
+        return upsertRace(schedule.race)?.let { race ->
+            schedule.schedule.forEach {
+                insertClassSchedule(race.id, it)
+            }
+            findRaceSchedule(race.id)
         }
-        return findRaceSchedule(raceId)
     }
 
     fun findRaceSchedule(raceId: Long): RaceSchedule? {

@@ -99,6 +99,6 @@ object Api {
 
     suspend fun getYears() = Network.get<List<String>>(ApiPaths.years)
 
-    suspend fun postSchedule(raceId: Long, schedule: ClassSchedule) =
-        Network.post<ClassSchedule, RaceSchedule>(ApiPaths.raceSchedule, schedule, mapOf("id" to "$raceId"))
+    suspend fun postSchedule(schedule: RaceSchedule) =
+        Network.post<RaceSchedule, RaceSchedule>(ApiPaths.raceSchedule, schedule)
 }

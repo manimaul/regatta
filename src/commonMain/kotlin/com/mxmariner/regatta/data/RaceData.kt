@@ -1,14 +1,8 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.ratingDefault
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
@@ -34,12 +28,6 @@ data class Person(
     }
 }
 
-//@Serializable
-//data class RaceClassBracketTimes(
-//    val raceClass: RaceClass = RaceClass(),
-//    val bracketTimes: List<BracketTime> = emptyList(),
-//)
-
 @Serializable
 data class RaceClassBrackets(
     val raceClass: RaceClass = RaceClass(),
@@ -63,7 +51,18 @@ data class Bracket(
     val minRating: Float = ratingDefault,
     val maxRating: Float = ratingDefault,
     val classId: Long = 0,
-)
+) {
+    fun label(): String {
+        if (minRating <= -1000 && maxRating >= 1000) {
+            return name
+        } else if (minRating <= -1000) {
+            return "$name up to $maxRating"
+        } else if (maxRating >= 1000) {
+            return "$name ${minRating}+"
+        }
+        return "$name $minRating to $maxRating"
+    }
+}
 
 @Serializable
 data class ClassSchedule(
@@ -72,10 +71,10 @@ data class ClassSchedule(
     val startDate: Instant = Instant.DISTANT_PAST,
     val endDate: Instant = Instant.DISTANT_FUTURE,
 ) {
-    fun getStartDate() =
+    fun raceStart() =
         startDate.takeIf { it != Instant.DISTANT_PAST }
 
-    fun getEndDate() =
+    fun raceEnd() =
         endDate.takeIf { it != Instant.DISTANT_FUTURE }
 
 }
@@ -115,13 +114,6 @@ data class RaceTime(
     val raceId: Long,
 )
 
-//@Serializable
-//data class RaceTimeFull(
-//    val startDate: Instant,
-//    val endDate: Instant,
-//    val bracket: Bracket,
-//)
-
 @Serializable
 data class Windseeker(
     val rating: Int? = null,
@@ -132,7 +124,6 @@ data class Windseeker(
 data class Checkin(
     val boatId: Long = 0,
     val raceId: Long = 0,
-    @EncodeDefault(ALWAYS)
     val checkedIn: Boolean = false,
 )
 

@@ -37,6 +37,7 @@ object RegattaDatabase {
             AuthTable,
             RaceTimeTable,
             CheckinTable,
+            RaceBracketJunction,
         )
         transaction(database) {
             exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
@@ -157,5 +158,5 @@ object RegattaDatabase {
 
     suspend fun resultCount(raceId: Long) = dbQuery { RaceResultsTable.count(raceId) }
 
-    suspend fun insertSchedule(raceId: Long, cs: ClassSchedule): RaceSchedule? = dbQuery { RaceTable.insertSchedule(raceId, cs) }
+    suspend fun insertSchedule(schedule: RaceSchedule): RaceSchedule? = dbQuery { RaceTable.insertSchedule(schedule) }
 }

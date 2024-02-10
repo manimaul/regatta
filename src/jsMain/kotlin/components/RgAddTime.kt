@@ -49,7 +49,7 @@ fun RgAddTime(
                     P { Text("Brackets") }
                     RgSwitches(
                         items = availableBrackets,
-                        label = { "${it.name} ${it.minRating}-${it.maxRating}" },
+                        label = { it.label() },
                         check = { b ->
                             state.value.brackets.firstOrNull { it.id == b.id } != null
                         }) { b, on ->

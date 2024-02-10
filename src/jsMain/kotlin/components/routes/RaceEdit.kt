@@ -6,10 +6,7 @@ import components.*
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.display
-import viewmodel.Operation
-import viewmodel.RacesEditViewModel
-import viewmodel.RgAddTimeViewModel
-import viewmodel.complete
+import viewmodel.*
 
 @Composable
 fun RaceEdit(
@@ -30,21 +27,20 @@ fun RaceEdit(
                 viewModel.cancelCreate()
             }
         }
+        RgButton(label = "Save", style = RgButtonStyle.Success, customClasses = listOf(AppStyle.marginTop), disabled = !schedule.validate()) {
+            viewModel.save(schedule)
+        }
     }
 
-    RgButton("Save", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginTop)) {
-        TODO()
-    }
 }
 
 @Composable
 fun RaceForm(
-    editRace: RaceSchedule,
+    raceSchedule: RaceSchedule,
     viewModel: RacesEditViewModel,
     addTimeViewModel: RgAddTimeViewModel = remember { RgAddTimeViewModel() },
 ) {
     val state = viewModel.flow.collectAsState()
-    var rs by mutableStateOf(editRace)
     H1 { Text("Edit Race") }
     RgTable {
         RgThead {
@@ -58,15 +54,15 @@ fun RaceForm(
         Tbody {
             RgTr {
                 RgTd {
-                    RgInput(label = "name", placeHolder = true, value = rs.race.name) {
-                        rs = rs.copy(race = rs.race.copy(name = it))
+                    RgInput(label = "name", placeHolder = true, value = raceSchedule.race.name) {
+                        viewModel.setRaceName(it)
                     }
                 }
                 RgTd {
                     state.value.skippers.complete(viewModel) { people ->
                         P {
-                            RgSkipperDropdown(people, rs.rc) {
-                                rs = rs.copy(rc = it)
+                            RgSkipperDropdown(people, raceSchedule.rc) {
+                                viewModel.setRC(it)
                             }
                         }
                     }
@@ -74,16 +70,15 @@ fun RaceForm(
                 RgTd {
                     state.value.series.complete(viewModel) { series ->
                         P {
-                            RgSeriesDropdown(series, rs.series) {
-                                rs = rs.copy(series = it, race = rs.race.copy(seriesId = it.id))
+                            RgSeriesDropdown(series, raceSchedule.series) {
+                                viewModel.setSeries(it)
                             }
                         }
                     }
                 }
                 RgTd {
-                    RgInput(label = "CF", placeHolder = true, value = rs.race.correctionFactor.toString()) {
-                        val cf = it.toIntOrNull() ?: 0
-                        rs = rs.copy(race = rs.race.copy(correctionFactor = cf))
+                    RgInput(label = "CF", placeHolder = true, value = raceSchedule.race.correctionFactor.toString()) {
+                        viewModel.setCF(it.toIntOrNull())
                     }
                 }
             }
@@ -110,8 +105,8 @@ fun RaceForm(
                                 P { Text("${it.name} ${it.maxRating}-${it.maxRating}") }
                             }
                         }
-                        RgTd { Text(schedule.startDate.display()) }
-                        RgTd { Text(schedule.endDate.display()) }
+                        RgTd { Text(schedule.raceStart()?.display() ?: "") }
+                        RgTd { Text(schedule.raceEnd()?.display() ?: "") }
                         RgTd {
                             RgButton("Remove") {
                                 viewModel.removeSchedule(schedule)
