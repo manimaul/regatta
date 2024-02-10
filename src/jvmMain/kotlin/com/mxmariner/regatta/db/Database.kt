@@ -119,7 +119,7 @@ object RegattaDatabase {
     suspend fun allRaces(year: Int): List<RaceSchedule> {
         val start = Instant.parse("$year-01-01T00:00:00Z")
         val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
-        return dbRawQuery<List<Long>>(
+        return dbRawQuery(
             sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date > ? AND start_date < ?;",
             args = listOf(KotlinInstantColumnType() to start, KotlinInstantColumnType() to end)
         ) {
@@ -128,9 +128,9 @@ object RegattaDatabase {
                 val raceId = it.getLong(1)
                 raceIds.add(raceId)
             }
-            raceIds
-        }.mapNotNull {
-            RaceTable.findRaceSchedule(it)
+            raceIds.mapNotNull {
+                RaceTable.findRaceSchedule(it)
+            }
         }
     }
 
