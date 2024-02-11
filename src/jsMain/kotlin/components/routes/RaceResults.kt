@@ -2,6 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
+import com.mxmariner.regatta.data.BoatSkipper
 import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
@@ -94,22 +95,24 @@ fun EditResultRow(
         RgTd {
             if (addState.id == 0L) {
                 state.boats.complete(viewModel) {
-                    RgBoatDropdown(it.mapNotNull { it.boat }, addState.boat) { boat ->
+                    RgBoatDropdown(it, addState.boatSkipper) { boat ->
                         viewModel.addViewModel.addBoat(boat)
+
+
                     }
                 }
             } else {
-                Text(addState.boat?.name ?: "")
+                Text(addState.boatSkipper?.boat?.name ?: "")
             }
         }
-        RgTd { Text(addState.skipper?.fullName() ?: "") }
-        RgTd { Text(addState.boat?.sailNumber ?: "") }
-        RgTd { Text(addState.boat?.boatType ?: "") }
-        RgTd { Text(addState.boat?.phrfRating?.toString() ?: "") }
+        RgTd { Text(addState.boatSkipper?.skipper?.fullName() ?: "") }
+        RgTd { Text(addState.boatSkipper?.boat?.sailNumber ?: "") }
+        RgTd { Text(addState.boatSkipper?.boat?.boatType ?: "") }
+        RgTd { Text(addState.boatSkipper?.boat?.phrfRating?.toString() ?: "") }
         RgTd {
             addState.start?.let { start ->
-                RgDate("Start", start, placeHolder = true, time = true, seconds = true) {
-                    viewModel.addViewModel.setStart(it)
+                P {
+                    Text(start.display())
                 }
                 RgButton(label = "DNS", customClasses = listOf(AppStyle.marginTop)) {
                     viewModel.addViewModel.setStart(null)
@@ -126,12 +129,13 @@ fun EditResultRow(
             addState.hocPosition?.let {
                 P { Text("HOC $it") }
                 RgButton(label = "Reset") {
+                    viewModel.addViewModel.hoc(null)
                     viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
                 }
-                RgButton(label = "+") {
+                RgButton(label = "+", customClasses = listOf(AppStyle.marginStart)) {
                     viewModel.addViewModel.hoc(it + 1)
                 }
-                RgButton(label = "-") {
+                RgButton(label = "-", customClasses = listOf(AppStyle.marginStart)) {
                     viewModel.addViewModel.hoc(it - 1)
                 }
             } ?: addState.finish?.let { finish ->
@@ -183,15 +187,15 @@ fun EditResultRow(
 
 @Composable
 fun RgBoatDropdown(
-    boats: List<Boat>,
-    selectedBoat: Boat?,
-    handler: (Boat?) -> Unit
+    boats: List<BoatSkipper>,
+    selectedBoat: BoatSkipper?,
+    handler: (BoatSkipper?) -> Unit
 ) {
     Select(attrs = {
         classes("form-select")
         onChange { change ->
             change.value?.toLongOrNull()?.let { id ->
-                handler(boats.firstOrNull { it.id == id })
+                handler(boats.firstOrNull { it.boat?.id == id })
             }
         }
     }) {
@@ -203,12 +207,12 @@ fun RgBoatDropdown(
             Text("None")
         }
         boats.forEach { boat ->
-            Option(boat.id.toString(), attrs = {
-                if (selectedBoat?.id == boat.id) {
+            Option(boat.boat?.id.toString(), attrs = {
+                if (selectedBoat?.boat?.id == boat.boat?.id) {
                     selected()
                 }
             }) {
-                Text(boat.name)
+                Text(boat.boat?.name ?: "")
             }
         }
     }

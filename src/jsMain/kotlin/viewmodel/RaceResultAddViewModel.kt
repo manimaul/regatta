@@ -7,26 +7,24 @@ import utils.toAsync
 import kotlin.math.max
 
 
-
 data class RaceResultAddState(
     val id: Long = 0,
     val raceSchedule: RaceSchedule? = null,
-    val boat: Boat? = null,
-    val skipper: Person? = null,
+    val boatSkipper: BoatSkipper? = null,
     val raceClassId: Long? = null,
     val start: Instant? = null,
     val finish: Instant? = null,
     val hocPosition: Int? = null,
 ) : VmState {
     fun asPost(): RaceResult? {
-        return if (boat?.id != null && raceSchedule?.race?.id != null) {
+        return if (boatSkipper?.boat?.id != null && raceSchedule?.race?.id != null) {
             RaceResult(
                 id = id,
                 raceId = raceSchedule.race.id,
-                boatId = boat.id,
+                boatId = boatSkipper.boat.id,
                 start = start,
                 finish = finish,
-                phrfRating = boat.phrfRating,
+                phrfRating = boatSkipper.boat.phrfRating,
                 hocPosition = hocPosition,
             )
         } else {
@@ -42,7 +40,7 @@ class RaceResultAddViewModel(
         setState {
             val race = Api.getRaceSchedule(raceId).toAsync()
             RaceResultAddState(
-                boat = null,
+                boatSkipper = null,
                 raceSchedule = race.value,
                 start = race.value?.startTime,
                 finish = race.value?.endTime
@@ -54,8 +52,8 @@ class RaceResultAddViewModel(
         reload()
     }
 
-    fun addBoat(boat: Boat?) {
-        setState { copy(boat = boat) }
+    fun addBoat(boatSkipper: BoatSkipper?) {
+        setState { copy(boatSkipper = boatSkipper) }
     }
 
     fun setFinish(it: Instant?) {
@@ -70,7 +68,7 @@ class RaceResultAddViewModel(
         setState {
             copy(
                 id = card?.resultRecord?.result?.id ?: 0L,
-                boat = card?.resultRecord?.boatSkipper?.boat,
+                boatSkipper = card?.resultRecord?.boatSkipper,
                 raceClassId = card?.resultRecord?.bracket?.id,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
                 start = if (card != null) card.startTime else raceSchedule?.startTime,
@@ -80,11 +78,11 @@ class RaceResultAddViewModel(
         }
     }
 
-    fun hoc(i: Int) {
+    fun hoc(i: Int?) {
         setState {
             copy(
-                hocPosition = max(0, i),
-                finish = null,
+                hocPosition = i?.let { max(0, i) },
+                finish = i?.let { null } ?: finish,
             )
         }
     }
