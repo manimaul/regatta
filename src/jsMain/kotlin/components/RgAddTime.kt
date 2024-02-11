@@ -3,10 +3,12 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.ClassSchedule
 import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import styles.AppStyle
 import viewmodel.RgAddTimeViewModel
 import viewmodel.complete
 
@@ -20,13 +22,8 @@ fun RgAddTime(
         RgTr {
             RgTd {
                 state.value.focus?.let { schedule ->
-                    RgTd {
-                        H6 { Text(schedule.raceClass.name) }
-//                        schedule.brackets.forEach {
-//                            P { Text(it.label()) }
-//                        }
-                    }
-                } ?: state.value.classes.complete(viewModel) {classes ->
+                    RgTd { H6 { Text(schedule.raceClass.name) } }
+                } ?: state.value.classes.complete(viewModel) { classes ->
                     RgClassDropdown(classes, state.value.raceClass) {
                         viewModel.selectClass(it?.raceClass)
                     }
@@ -43,7 +40,20 @@ fun RgAddTime(
                 }
             }
             RgTd {
-                RgButton("Add", RgButtonStyle.Success, disabled = !state.value.isValid()) {
+                if (state.value.focus != null) {
+                    RgButton(
+                        label = "Cancel",
+                        style = RgButtonStyle.Primary,
+                        customClasses = listOf(AppStyle.marginEnd),
+                    ) {
+                        viewModel.removeFocus()
+                    }
+                }
+                RgButton(
+                    label = "Add",
+                    style = RgButtonStyle.Success,
+                    disabled = !state.value.isValid(),
+                ) {
                     state.value.asSchedule()?.let {
                         viewModel.removeOption(it.raceClass.id)
                         handler(it)
@@ -59,7 +69,9 @@ fun RgAddTime(
                         items = availableBrackets,
                         label = { it.label() },
                         check = { b ->
-                            state.value.brackets.firstOrNull { it.id == b.id } != null
+                            val c = state.value.brackets.firstOrNull { it.id == b.id } != null
+                            println("check evaluated for bracket ${b.name} $c")
+                            c
                         }) { b, on ->
                         if (on) {
                             viewModel.addBracket(b)

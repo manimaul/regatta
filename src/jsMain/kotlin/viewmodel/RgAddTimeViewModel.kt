@@ -102,26 +102,44 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
 
     fun removeOption(classId: Long) {
         setState {
-            val c = classes.map {
-                it.toMutableList().apply {
-                    indexOfFirst { it.raceClass.id == classId }.takeIf { it >= 0 }?.let { i ->
-                        removed.add(removeAt(i))
-                    }
-                }
-            }
-            c.value?.firstOrNull()?.let { selectClass(it.raceClass) }
-            copy(classes = c)
+            copy(classes = classes.removeOption(classId).also {
+                it.value?.firstOrNull()?.let { selectClass(it.raceClass) }
+            })
         }
     }
 
-    fun editSchedule(schedule: ClassSchedule) {
-        resetOption(schedule.raceClass.id) //todo: add brackets
+    private suspend fun Async<List<RaceClassBrackets>>.removeOption(classId: Long?) = this.map {
+        it.toMutableList().apply {
+            indexOfFirst { it.raceClass.id == classId }.takeIf { it >= 0 }?.let { i ->
+                removed.add(removeAt(i))
+            }
+        }
+    }
+
+    fun focusSchedule(schedule: ClassSchedule) {
+        resetOption(schedule.raceClass.id)
         setState {
             copy(
-                focus = schedule
+                focus = schedule,
+                startDate = schedule.startDate,
+                endDate = schedule.endDate
             )
         }
-        schedule.brackets.forEach { addBracket(it) }
+        println("focusing schedule ${schedule.raceClass.name} ${schedule.brackets.size}")
         selectClass(schedule.raceClass)
+        schedule.brackets.forEach {
+            println("adding bracket for focus ${it.name}")
+            addBracket(it)
+        }
+    }
+
+    fun removeFocus() {
+        setState {
+            copy(
+                classes = classes.removeOption(focus?.raceClass?.id),
+                focus = null,
+            )
+        }
+        selectClass(null)
     }
 }

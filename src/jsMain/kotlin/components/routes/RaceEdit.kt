@@ -120,7 +120,7 @@ fun RaceForm(
                             RgTd { Text(schedule.raceEnd()?.display() ?: "") }
                             RgTd {
                                 RgButton(label = "Edit", customClasses = listOf(AppStyle.marginEnd)) {
-                                    viewModel.timeVm.editSchedule(schedule)
+                                    viewModel.timeVm.focusSchedule(schedule)
                                 }
                                 RgButton(
                                     label = "Remove",
@@ -135,7 +135,9 @@ fun RaceForm(
                     }
                 }
             }
-            RgAddTime(viewModel.timeVm) { viewModel.addSchedule(it) }
+            if (tState.value.focus == null) {
+                RgAddTime(viewModel.timeVm) { viewModel.addSchedule(it) }
+            }
         }
     }
 }
