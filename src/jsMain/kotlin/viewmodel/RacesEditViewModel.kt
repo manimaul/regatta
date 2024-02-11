@@ -140,4 +140,11 @@ class RacesEditViewModel(
         }
     }
 
+    fun delete() {
+        launch {
+            Api.deleteRace(raceId)
+            routeVm.goBackOrHome()
+        }
+    }
+
 }

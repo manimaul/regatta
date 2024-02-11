@@ -26,13 +26,11 @@ data class RaceResultAddState(
     val hocPosition: Int? = null,
 ) : VmState {
     fun asPost(): RaceResult? {
-        val bracketId = findBoatBracket(raceSchedule, boat)
-        return if (boat?.id != null && raceSchedule?.race?.id != null && bracketId != null) {
+        return if (boat?.id != null && raceSchedule?.race?.id != null) {
             RaceResult(
                 id = id,
                 raceId = raceSchedule.race.id,
                 boatId = boat.id,
-                bracketId = bracketId,
                 start = start,
                 finish = finish,
                 phrfRating = boat.phrfRating,

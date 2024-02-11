@@ -10,6 +10,7 @@ object RaceClassTable : Table() {
     val name = varchar("name", 128)
     val sort = integer("sort")
     val phrf = bool("phrf")
+    val wsFlying = bool("wsf")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
@@ -44,6 +45,7 @@ object RaceClassTable : Table() {
         name = row[name],
         sort = row[sort],
         isPHRF = row[phrf],
+        wsFlying = row[wsFlying],
         active = row[active],
     )
 

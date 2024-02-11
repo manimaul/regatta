@@ -40,6 +40,7 @@ data class RaceClass(
     val name: String = "",
     val sort: Int = 0,
     val isPHRF: Boolean = false,
+    val wsFlying: Boolean = false,
     val active: Boolean = true,
 )
 
@@ -117,7 +118,7 @@ data class RaceTime(
 
 @Serializable
 data class Windseeker(
-    val rating: Int? = null,
+    val rating: Int = ratingDefault.toInt(),
     val flyingSails: Boolean = false,
 )
 
@@ -151,7 +152,6 @@ data class RaceResult(
     val id: Long = 0,
     val raceId: Long = 0,
     val boatId: Long = 0,
-    val bracketId: Long = 0,
     val start: Instant? = null,
     val finish: Instant? = null,
     val phrfRating: Int? = null,

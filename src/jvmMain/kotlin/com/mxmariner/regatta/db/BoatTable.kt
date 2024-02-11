@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Windseeker
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
+import com.mxmariner.regatta.ratingDefault
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
@@ -100,7 +101,7 @@ object BoatTable : Table() {
             } else if (rhs.boat?.phrfRating != null) {
                 1
             } else if (lhs.boat?.windseeker?.flyingSails != null && rhs.boat?.windseeker?.flyingSails != null) {
-                (lhs.boat.windseeker.rating ?: Int.MAX_VALUE).compareTo((rhs.boat.windseeker.rating ?: Int.MAX_VALUE))
+                (lhs.boat.windseeker.rating).compareTo((rhs.boat.windseeker.rating))
             } else if (lhs.boat?.windseeker?.flyingSails != null) {
                 -1
             } else if (rhs.boat?.windseeker?.flyingSails != null) {
@@ -119,7 +120,7 @@ object BoatTable : Table() {
         val phrfRating = row[BoatTable.phrfRating]
         val windseeker: Windseeker? = if (phrfRating == null) {
             Windseeker(
-                rating = row[wsRating],
+                rating = row[wsRating] ?: ratingDefault.toInt(),
                 flyingSails = row[wsFlying] ?: false,
             )
         } else null

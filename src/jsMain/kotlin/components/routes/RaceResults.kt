@@ -150,7 +150,7 @@ fun EditResultRow(
         }
         RgTd(colSpan = 4) { }
         RgTd {
-            if (addState.id != null) {
+            if (addState.id != 0L) {
                 RgButton(
                     label = "Cancel",
                     customClasses = listOf(AppStyle.marginAll),
@@ -165,7 +165,7 @@ fun EditResultRow(
             ) {
                 viewModel.addResult(addState)
             }
-            if (addState.id != null) {
+            if (addState.id != 0L) {
                 RgButton(
                     label = "Delete",
                     style = RgButtonStyle.Danger,

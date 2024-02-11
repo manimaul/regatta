@@ -27,6 +27,9 @@ fun RaceEdit(
                 viewModel.cancelCreate()
             }
         }
+        RgButton(label = "Cancel", style = RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
+            routeViewModel.goBackOrHome()
+        }
         RgButton(
             label = "Save",
             style = RgButtonStyle.Success,
@@ -35,8 +38,14 @@ fun RaceEdit(
         ) {
             viewModel.save(schedule)
         }
-        RgButton(label = "Cancel", style = RgButtonStyle.Primary, customClasses = listOf(AppStyle.marginTop)) {
-            routeViewModel.goBackOrHome()
+        if (raceId != 0L) {
+            RgButton(
+                label = "Delete",
+                style = RgButtonStyle.Danger,
+                customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd),
+            ) {
+                viewModel.delete()
+            }
         }
     }
 
