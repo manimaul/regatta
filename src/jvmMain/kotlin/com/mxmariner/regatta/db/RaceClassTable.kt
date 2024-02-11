@@ -9,6 +9,7 @@ object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val sort = integer("sort")
+    val phrf = bool("phrf")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
@@ -29,6 +30,7 @@ object RaceClassTable : Table() {
             }
             it[name] = item.name.trim()
             it[active] = item.active
+            it[phrf] = item.isPHRF
             it[sort] = item.sort
         }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
     }
@@ -41,6 +43,7 @@ object RaceClassTable : Table() {
         id = row[id],
         name = row[name],
         sort = row[sort],
+        isPHRF = row[phrf],
         active = row[active],
     )
 

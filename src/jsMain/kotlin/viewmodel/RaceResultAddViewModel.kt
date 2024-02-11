@@ -8,7 +8,11 @@ import kotlin.math.max
 
 
 fun findBoatBracket(race: RaceSchedule?, boat: Boat?) : Long? {
-   TODO()
+//    race?.schedule?.forEach {
+//        it.raceClass.
+//
+//    }
+    return null
 }
 
 data class RaceResultAddState(

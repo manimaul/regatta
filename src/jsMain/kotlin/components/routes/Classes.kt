@@ -43,6 +43,7 @@ fun CategoryList(
         RgThead {
             RgTr {
                 RgTh { Text("Name") }
+                RgTh { Text("Rating") }
                 RgTh { Text("Action") }
             }
         }
@@ -57,6 +58,9 @@ fun CategoryList(
                             H2 { Text(each.raceClass.name) }
                         }
                         RgTd(classes = listOf("table-info")) {
+                             Text(if (each.raceClass.isPHRF) "PHRF" else "Cruising")
+                        }
+                        RgTd(classes = listOf("table-info")) {
                             RgButton("Edit Class", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
                                 viewModel.editClass(each.raceClass)
                             }
@@ -64,8 +68,8 @@ fun CategoryList(
                     }
                 }
                 RgTr {
-                    RgTd(colSpan = 2) {
-                        RgTable(caption = "brackets") {
+                    RgTd(colSpan = 3) {
+                        RgTable(caption = "Class Brackets") {
                             RgThead {
                                 RgTr {
                                     RgTh { Text("Name") }
@@ -128,6 +132,11 @@ fun EditClass(
         RgTd {
             RgInput("Name", raceClass.name, true) {
                 raceClass = raceClass.copy(name = it)
+            }
+        }
+        RgTd {
+            RgSwitch("phrf", 0, "PHRF", check = { raceClass.isPHRF }) {
+                raceClass = editClass.copy(isPHRF = it)
             }
         }
         RgTd {

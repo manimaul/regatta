@@ -39,6 +39,7 @@ data class RaceClass(
     val id: Long = 0,
     val name: String = "",
     val sort: Int = 0,
+    val isPHRF: Boolean = false,
     val active: Boolean = true,
 )
 

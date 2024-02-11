@@ -38,7 +38,7 @@ fun RaceResultsEdit(
                 }
             }
             RgTbody {
-                if (addState.value.id == null) {
+                if (addState.value.id <= 0) {
                     EditResultRow(viewModel, state.value, addState.value)
                 }
                 report.categories.forEach { category ->
