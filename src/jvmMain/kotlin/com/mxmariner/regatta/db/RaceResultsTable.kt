@@ -101,7 +101,7 @@ fun findBoatBracket(race: RaceSchedule?, boat: Boat?): Bracket? {
         }
     } else if (boat?.windseeker != null) {
         race?.schedule?.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { !schedule.raceClass.wsFlying }?.firstOrNull {
+            schedule.brackets.takeIf { !schedule.raceClass.isPHRF && !schedule.raceClass.wsFlying }?.firstOrNull {
                 boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
             }
         }

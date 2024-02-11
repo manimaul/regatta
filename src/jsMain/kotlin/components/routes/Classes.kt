@@ -58,7 +58,7 @@ fun CategoryList(
                             H2 { Text(each.raceClass.name) }
                         }
                         RgTd(classes = listOf("table-info")) {
-                             Text(if (each.raceClass.isPHRF) "PHRF" else "Cruising")
+                            Text(each.raceClass.ratingLabel())
                         }
                         RgTd(classes = listOf("table-info")) {
                             RgButton("Edit Class", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-end")) {
@@ -135,8 +135,17 @@ fun EditClass(
             }
         }
         RgTd {
-            RgSwitch("phrf", 0, "PHRF", check = { raceClass.isPHRF }) {
-                raceClass = editClass.copy(isPHRF = it)
+            RgSwitch("phrf${editClass.id}", 0, "PHRF", check = { raceClass.isPHRF }) {
+                raceClass = editClass.copy(
+                    isPHRF = it,
+                    wsFlying = if (it) false else editClass.wsFlying
+                )
+            }
+            RgSwitch("flying${editClass.id}", 1, "Cruising Flying Sails", check = { raceClass.wsFlying }) {
+                raceClass = editClass.copy(
+                    isPHRF = if (it) false else editClass.isPHRF,
+                    wsFlying = it
+                )
             }
         }
         RgTd {
@@ -151,7 +160,7 @@ fun EditClass(
                     viewModel.editClass(null)
                 }
                 if (!first || !last) {
-                    if (!first) RgButton("Up",RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
+                    if (!first) RgButton("Up", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
                         viewModel.moveUp(raceClass)
                     }
                     if (!last) RgButton("Down", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {

@@ -42,7 +42,17 @@ data class RaceClass(
     val isPHRF: Boolean = false,
     val wsFlying: Boolean = false,
     val active: Boolean = true,
-)
+) {
+    fun ratingLabel() : String {
+       if (isPHRF) {
+           return "PHRF"
+       } else if (wsFlying) {
+           return "Cruising - Flying Sails"
+       } else {
+           return "Cruising - Non Flying Sails"
+       }
+    }
+}
 
 @Serializable
 data class Bracket(
@@ -139,7 +149,17 @@ data class Boat(
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
     val active: Boolean = true
-)
+) {
+    fun ratingLabel() : String {
+        return phrfRating?.let {
+            "PHRF ($it)"
+        } ?: if (windseeker?.flyingSails == true) {
+            return "Cruising - Flying Sails (${windseeker.rating})"
+        } else {
+            return "Cruising - Non Flying Sails (${windseeker?.rating ?: ratingDefault.toInt()})"
+        }
+    }
+}
 
 @Serializable
 data class BoatSkipper(

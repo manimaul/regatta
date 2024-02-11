@@ -1,10 +1,8 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.*
+import com.mxmariner.regatta.ratingDefault
 import components.*
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
@@ -87,9 +85,21 @@ fun EditBoat(
                             newBoat = newBoat.copy(boatType = it)
                         }
                     }
+
+                    RgSwitch("Flying Sails", 0, "Flying Sails", { newBoat.phrfRating == null && newBoat.windseeker?.flyingSails == true }) {
+                            newBoat = newBoat.copy(
+                                phrfRating = null,
+                                windseeker = Windseeker(flyingSails = it, rating = newBoat.windseeker?.rating ?: ratingDefault.toInt()),
+                            )
+
+                    }
                     P {
                         RgInput("PHRF Rating", newBoat.phrfRating?.toString() ?: "") {
-                            newBoat = newBoat.copy(phrfRating = it.digits(3).toIntOrNull())
+                            val phrfRating = it.digits(3).toIntOrNull()
+                            newBoat = newBoat.copy(
+                                phrfRating = phrfRating,
+                                windseeker = if (phrfRating != null) null else newBoat.windseeker ?: Windseeker(),
+                            )
                         }
                     }
                     P {

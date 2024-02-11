@@ -31,6 +31,7 @@ object RaceClassTable : Table() {
             }
             it[name] = item.name.trim()
             it[active] = item.active
+            it[wsFlying] = item.wsFlying
             it[phrf] = item.isPHRF
             it[sort] = item.sort
         }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
