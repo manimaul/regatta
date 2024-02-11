@@ -52,12 +52,33 @@ object RaceResultReporter {
 
                 }
                 ClassReportCards(
-                    category = raceClass,
+                    raceClass = raceClass,
                     bracketReport = bracketCards,
                     correctionFactor = raceSchedule.race.correctionFactor
                 ).takeIf { it.bracketReport.isNotEmpty() }?.also {
                     classReportList.add(it)
                 }
+            }
+
+            //Orphan results
+            val orphans = boatCards.filter { it.resultRecord.bracket.id == 0L }
+            orphans.place { i, it ->
+                it.placeInBracket = i
+                it.placeOverall = i
+                it.placeInClass = i
+            }
+            if (orphans.isNotEmpty()) {
+                val orphanCards = BracketReportCards(
+                    bracket = Bracket(name = "Everyone"),
+                    cards = orphans
+                )
+                classReportList.add(
+                    ClassReportCards(
+                        raceClass = RaceClass(name = "Other"),
+                        bracketReport = listOf(orphanCards),
+                        correctionFactor = raceSchedule.race.correctionFactor
+                    )
+                )
             }
 
             return RaceReport(

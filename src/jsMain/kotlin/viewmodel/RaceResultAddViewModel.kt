@@ -11,6 +11,8 @@ data class RaceResultAddState(
     val id: Long = 0,
     val raceSchedule: RaceSchedule? = null,
     val boatSkipper: BoatSkipper? = null,
+    val phrfRating: Int? = null,
+    val windseeker: Windseeker? = null,
     val raceClassId: Long? = null,
     val start: Instant? = null,
     val finish: Instant? = null,
@@ -24,7 +26,8 @@ data class RaceResultAddState(
                 boatId = boatSkipper.boat.id,
                 start = start,
                 finish = finish,
-                phrfRating = boatSkipper.boat.phrfRating,
+                phrfRating = phrfRating,
+                windseeker = windseeker,
                 hocPosition = hocPosition,
             )
         } else {
@@ -53,7 +56,13 @@ class RaceResultAddViewModel(
     }
 
     fun addBoat(boatSkipper: BoatSkipper?) {
-        setState { copy(boatSkipper = boatSkipper) }
+        setState {
+            copy(
+                boatSkipper = boatSkipper,
+                phrfRating = boatSkipper?.boat?.phrfRating,
+                windseeker = boatSkipper?.boat?.windseeker,
+            )
+        }
     }
 
     fun setFinish(it: Instant?) {
@@ -69,6 +78,8 @@ class RaceResultAddViewModel(
             copy(
                 id = card?.resultRecord?.result?.id ?: 0L,
                 boatSkipper = card?.resultRecord?.boatSkipper,
+                phrfRating = card?.resultRecord?.result?.phrfRating,
+                windseeker = card?.resultRecord?.result?.windseeker,
                 raceClassId = card?.resultRecord?.bracket?.id,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
                 start = if (card != null) card.startTime else raceSchedule?.startTime,

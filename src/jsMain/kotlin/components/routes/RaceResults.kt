@@ -1,7 +1,6 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import components.*
 import org.jetbrains.compose.web.attributes.selected
@@ -31,7 +30,7 @@ fun RaceResultsEdit(
                     RgTh { Text("Skipper") }
                     RgTh { Text("Sail Number") }
                     RgTh { Text("Boat Type") }
-                    RgTh { Text("PHRF Rating") }
+                    RgTh { Text("Rating") }
                     RgTh { Text("Start Time") }
                     RgTh { Text("Finish Time") }
                     RgTh { Text("Elapsed Time") }
@@ -47,7 +46,7 @@ fun RaceResultsEdit(
                 }
                 report.classReports.forEach { category ->
                     RgTr {
-                        RgTd(12) { H4 { Text(category.category.name) } }
+                        RgTd(12) { H4 { Text(category.raceClass.name) } }
                     }
                     category.bracketReport.forEach { raceClass ->
                         RgTr {
@@ -97,8 +96,6 @@ fun EditResultRow(
                 state.boats.complete(viewModel) {
                     RgBoatDropdown(it, addState.boatSkipper) { boat ->
                         viewModel.addViewModel.addBoat(boat)
-
-
                     }
                 }
             } else {

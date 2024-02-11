@@ -176,6 +176,7 @@ data class RaceResult(
     val finish: Instant? = null,
     val phrfRating: Int? = null,
     val hocPosition: Int? = null,
+    val windseeker: Windseeker? = null,
 )
 
 @Serializable
@@ -194,7 +195,7 @@ data class RaceReport(
 
 @Serializable
 data class ClassReportCards(
-    val category: RaceClass = RaceClass(),
+    val raceClass: RaceClass = RaceClass(),
     val correctionFactor: Int = correctionFactorDefault,
     val bracketReport: List<BracketReportCards> = emptyList(),
 )

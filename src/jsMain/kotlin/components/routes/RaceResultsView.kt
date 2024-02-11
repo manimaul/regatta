@@ -56,7 +56,7 @@ fun RaceResultsView(
                 report.classReports.forEach { reportCategory ->
                     RgTr(classes = listOf("table-light", "table-borderless")) {
                         RgTdColor(colSpan = 15, color = TableColor.info) {
-                            H4 { Text(reportCategory.category.name) }
+                            H4 { Text(reportCategory.raceClass.name) }
                             Text("CF - ${reportCategory.correctionFactor}")
                         }
                     }

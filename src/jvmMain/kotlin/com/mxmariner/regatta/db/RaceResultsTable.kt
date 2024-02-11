@@ -2,7 +2,6 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.BoatTable.resultRowToBoat
-import com.mxmariner.regatta.db.BracketTable.resultRowToBracket
 import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
 import com.mxmariner.regatta.db.RaceTable.rowToRace
 import kotlinx.datetime.Instant
@@ -17,6 +16,8 @@ object RaceResultsTable : Table() {
     val start = timestamp("start_date").nullable()
     val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
+    val wsRating = integer("ws_rating").nullable()
+    val wsFlying = bool("ws_flying").nullable()
     val hoc = integer("hoc").nullable()
     override val primaryKey = PrimaryKey(id)
 
@@ -34,7 +35,12 @@ object RaceResultsTable : Table() {
             it[boatId] = result.boatId
             it[start] = result.start
             it[finish] = result.finish
-            it[phrfRating] = result.phrfRating
+            result.windseeker?.let { ws ->
+                it[wsRating] = ws.rating
+                it[wsFlying] = ws.flyingSails
+            } ?: run {
+                it[phrfRating] = result.phrfRating
+            }
             it[hoc] = result.hocPosition
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
@@ -59,13 +65,14 @@ object RaceResultsTable : Table() {
     }
 
     fun rowToRaceResultBoatBracket(row: ResultRow): RaceResultBoatBracket {
-        val boat = resultRowToBoat(row)
         val raceSchedule = rowToRace(row).let {
             findRaceSchedule(it.id) ?: RaceSchedule()
         }
-        val bracket = findBoatBracket(raceSchedule, boat)
+
+        val result = rowToResult(row)
+        val bracket = findBoatBracket(raceSchedule, result)
         return RaceResultBoatBracket(
-            result = rowToResult(row),
+            result = result,
             raceSchedule = raceSchedule,
             boatSkipper = BoatSkipper(
                 boat = resultRowToBoat(row),
@@ -82,27 +89,30 @@ object RaceResultsTable : Table() {
         start = row[start],
         finish = row[finish],
         phrfRating = row[phrfRating],
+        windseeker = row[wsRating]?.let { r ->
+            Windseeker(r, row[wsFlying] ?: false)
+        },
         hocPosition = row[hoc],
     )
 }
 
-fun findBoatBracket(race: RaceSchedule?, boat: Boat?): Bracket? {
-    return if (boat?.phrfRating != null) {
-        race?.schedule?.firstNotNullOfOrNull { sch ->
+fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
+    return if (result.phrfRating != null) {
+        race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
-                boat.phrfRating >= it.minRating && boat.phrfRating <= it.maxRating
+                result.phrfRating >= it.minRating && result.phrfRating <= it.maxRating
             }
         }
-    } else if (boat?.windseeker?.flyingSails == true) {
-        race?.schedule?.firstNotNullOfOrNull { schedule ->
+    } else if (result.windseeker?.flyingSails == true) {
+        race.schedule.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
-                boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
+                result.windseeker.rating >= it.minRating && result.windseeker.rating <= it.maxRating
             }
         }
-    } else if (boat?.windseeker != null) {
-        race?.schedule?.firstNotNullOfOrNull { schedule ->
+    } else if (result.windseeker != null) {
+        race.schedule.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { !schedule.raceClass.isPHRF && !schedule.raceClass.wsFlying }?.firstOrNull {
-                boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
+                result.windseeker.rating >= it.minRating && result.windseeker.rating <= it.maxRating
             }
         }
     } else {
