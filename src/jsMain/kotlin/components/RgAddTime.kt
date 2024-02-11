@@ -55,7 +55,7 @@ fun RgAddTime(
                     disabled = !state.value.isValid(),
                 ) {
                     state.value.asSchedule()?.let {
-                        viewModel.removeOption(it.raceClass.id)
+                        viewModel.removeOption(it.raceClass.id, true)
                         handler(it)
                     }
                 }

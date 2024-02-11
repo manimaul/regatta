@@ -49,7 +49,7 @@ class RacesEditViewModel(
                 copy(
                     race = Api.getRaceSchedule(raceId).toAsync().map {
                         it.schedule.forEach {
-                            timeVm.removeOption(it.raceClass.id)
+                            timeVm.removeOption(it.raceClass.id, false)
                         }
                         it
                     },

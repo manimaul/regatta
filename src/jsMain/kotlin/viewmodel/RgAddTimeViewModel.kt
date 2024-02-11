@@ -40,7 +40,7 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
     override fun reload() {
         setState {
             copy(
-                classes = getRcb()
+                classes = getRcb(),
             )
         }
     }
@@ -100,10 +100,10 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
         }
     }
 
-    fun removeOption(classId: Long) {
+    fun removeOption(classId: Long, selectNext: Boolean) {
         setState {
             copy(classes = classes.removeOption(classId).also {
-                it.value?.firstOrNull()?.let { selectClass(it.raceClass) }
+                if (selectNext) it.value?.firstOrNull()?.let { selectClass(it.raceClass) }
             })
         }
     }
