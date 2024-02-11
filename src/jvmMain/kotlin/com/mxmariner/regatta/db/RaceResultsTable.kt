@@ -88,19 +88,19 @@ object RaceResultsTable : Table() {
 
 fun findBoatBracket(race: RaceSchedule?, boat: Boat?): Bracket? {
     return if (boat?.phrfRating != null) {
-        race?.schedule?.firstNotNullOf { sch ->
+        race?.schedule?.firstNotNullOfOrNull { sch ->
             sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
                 boat.phrfRating >= it.minRating && boat.phrfRating <= it.maxRating
             }
         }
     } else if (boat?.windseeker?.flyingSails == true) {
-        race?.schedule?.firstNotNullOf { schedule ->
+        race?.schedule?.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
                 boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
             }
         }
     } else if (boat?.windseeker != null) {
-        race?.schedule?.firstNotNullOf { schedule ->
+        race?.schedule?.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { !schedule.raceClass.wsFlying }?.firstOrNull {
                 boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
             }

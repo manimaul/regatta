@@ -29,5 +29,9 @@ object RaceBracketJunction : Table() {
             BracketTable.findBracket(bracketId)
         }
     }
+
+    fun deleteRace(raceId: Long) {
+        deleteWhere { race.eq(raceId) }
+    }
 }
 

@@ -49,6 +49,8 @@ object RaceTable : Table() {
     }
 
     fun insertSchedule(schedule: RaceSchedule): RaceSchedule? {
+        RaceTimeTable.deleteRace(schedule.race.id)
+        RaceBracketJunction.deleteRace(schedule.race.id)
         return upsertRace(schedule.race)?.let { race ->
             schedule.schedule.forEach {
                 insertClassSchedule(race.id, it)

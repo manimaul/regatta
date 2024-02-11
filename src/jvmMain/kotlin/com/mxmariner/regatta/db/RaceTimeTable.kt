@@ -26,6 +26,11 @@ object RaceTimeTable : Table() {
         return years.sortedDescending().map { "$it" }
     }
 
+    fun deleteRace(raceId: Long) {
+        deleteWhere {
+            RaceTimeTable.raceId.eq(raceId)
+        }
+    }
     fun updateRaceTime(time: RaceTime): RaceTime? {
         deleteWhere {
             raceId.eq(time.raceId).and(classId.eq(time.classId))
