@@ -44,11 +44,11 @@ fun RaceResultsEdit(
                 if (addState.value.id <= 0) {
                     EditResultRow(viewModel, state.value, addState.value)
                 }
-                report.categories.forEach { category ->
+                report.classReports.forEach { category ->
                     RgTr {
                         RgTd(12) { H4 { Text(category.category.name) } }
                     }
-                    category.brackets.forEach { raceClass ->
+                    category.bracketReport.forEach { raceClass ->
                         RgTr {
                             RgTd(12) { H6 { Text(raceClass.bracket.name) } }
                         }

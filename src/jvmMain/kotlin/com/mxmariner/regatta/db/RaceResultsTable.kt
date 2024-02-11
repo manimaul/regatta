@@ -94,14 +94,14 @@ fun findBoatBracket(race: RaceSchedule?, boat: Boat?): Bracket? {
             }
         }
     } else if (boat?.windseeker?.flyingSails == true) {
-        race?.schedule?.firstOrNull { it.raceClass.wsFlying }?.let { schedule ->
-            schedule.brackets.firstOrNull {
+        race?.schedule?.firstNotNullOf { schedule ->
+            schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
                 boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
             }
         }
     } else if (boat?.windseeker != null) {
-        race?.schedule?.firstOrNull { !it.raceClass.wsFlying }?.let { schedule ->
-            schedule.brackets.firstOrNull {
+        race?.schedule?.firstNotNullOf { schedule ->
+            schedule.brackets.takeIf { !schedule.raceClass.wsFlying }?.firstOrNull {
                 boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
             }
         }

@@ -11,55 +11,58 @@ object RaceResultReporter {
 
 
     suspend fun getReport(raceId: Long): RaceReport? {
-        val reportCategories = mutableListOf<RaceReportCategory>()
+        val classReportList = mutableListOf<ClassReportCards>()
         RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
-            val cards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
+            val boatCards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
 
-            //PHRF
-            cards.filter { it.phrfRating != null }.place { p, card ->
+            //PHRF Overall Places
+            boatCards.filter { it.phrfRating != null }.place { p, card ->
                 card.placeOverall = p
             }
 
-            //Cruising
-            cards.filter { it.phrfRating == null }.place { p, card ->
+            //Cruising Overall Places
+            boatCards.filter { it.phrfRating == null }.place { p, card ->
                 card.placeOverall = p
             }
 
-            //class places
-            raceSchedule.schedule.forEach { each ->
-                val raceClass = each.raceClass
-                each.brackets.forEach { bt ->
-                    val classCards = cards.filter { it.resultRecord.bracket.classId == bt.classId }
+            raceSchedule.schedule.forEach { classSchedule ->
+                val raceClass = classSchedule.raceClass
+
+                //Class Places
+                val classCards = boatCards.filter { it.resultRecord.bracket.classId == raceClass.id }
+                    .place { p, card ->
+                        card.placeInClass = p
+                    }
+
+                val bracketCards = classSchedule.brackets.mapNotNull { bracket ->
+
+                    val bracketCards = classCards.filter { it.resultRecord.bracket.id == bracket.id }
                         .place { p, card ->
-                            card.placeInClass = p
+                            card.placeInBracket = p
                         }
 
-                    //bracket places
-                    val brackets =
-                        classCards.distinctBy { it.resultRecord.bracket.id }.map { it.resultRecord.bracket }
-                            .mapNotNull { raceClass ->
-                                RaceReportClass(
-                                    bracket = raceClass,
-                                    cards = cards.filter { it.resultRecord.bracket.id == raceClass.id }
-                                        .place { p, card ->
-                                            card.placeInBracket = p
-                                        }
-                                ).takeIf { it.cards.isNotEmpty() }
-                            }
-
-                    RaceReportCategory(
-                        category = raceClass,
-                        brackets = brackets,
-                        correctionFactor = raceSchedule.race.correctionFactor
-                    ).takeIf { it.brackets.isNotEmpty() }?.also {
-                        reportCategories.add(it)
+                    if (bracketCards.isNotEmpty()) {
+                        BracketReportCards(
+                            bracket = bracket,
+                            cards = bracketCards
+                        )
+                    } else {
+                        null
                     }
+
+                }
+                ClassReportCards(
+                    category = raceClass,
+                    bracketReport = bracketCards,
+                    correctionFactor = raceSchedule.race.correctionFactor
+                ).takeIf { it.bracketReport.isNotEmpty() }?.also {
+                    classReportList.add(it)
                 }
             }
 
             return RaceReport(
                 raceSchedule = raceSchedule,
-                categories = reportCategories
+                classReports = classReportList
             )
         }
         return null
@@ -122,7 +125,7 @@ val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
     compare(lhs, rhs)
 }
 
-fun compare(lhs: RaceReportCard, rhs: RaceReportCard) : Int {
+fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
     // compare corrected time
     return if (lhs.correctedTime != null && rhs.correctedTime != null) {
         lhs.correctedTime.inWholeMilliseconds.compareTo(rhs.correctedTime.inWholeMilliseconds)
@@ -141,7 +144,7 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard) : Int {
         } else {
             // compare DNS to DNF
             if (lhs.startTime != null && rhs.startTime != null) {
-               0
+                0
             } else if (lhs.startTime != null) {
                 -1
             } else if (rhs.startTime != null) {
@@ -155,9 +158,9 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard) : Int {
 
 fun Iterable<RaceReportCard>.place(place: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
     return this.sortedWith(cardCompare).also {
-       var last: RaceReportCard? = null
+        var last: RaceReportCard? = null
         var position = 1
-        it.forEach {  ea ->
+        it.forEach { ea ->
             last?.let {
                 if (compare(ea, it) == 1) {
                     position++

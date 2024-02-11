@@ -169,18 +169,18 @@ data class RaceResultBoatBracket(
 @Serializable
 data class RaceReport(
     val raceSchedule: RaceSchedule = RaceSchedule(),
-    val categories: List<RaceReportCategory> = emptyList()
+    val classReports: List<ClassReportCards> = emptyList()
 )
 
 @Serializable
-data class RaceReportCategory(
+data class ClassReportCards(
     val category: RaceClass = RaceClass(),
     val correctionFactor: Int = correctionFactorDefault,
-    val brackets: List<RaceReportClass> = emptyList(),
+    val bracketReport: List<BracketReportCards> = emptyList(),
 )
 
 @Serializable
-data class RaceReportClass(
+data class BracketReportCards(
     val bracket: Bracket = Bracket(),
     val cards: List<RaceReportCard> = emptyList(),
 )

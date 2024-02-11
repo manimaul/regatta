@@ -53,14 +53,14 @@ fun RaceResultsView(
                 }
             }
             RgTbody {
-                report.categories.forEach { reportCategory ->
+                report.classReports.forEach { reportCategory ->
                     RgTr(classes = listOf("table-light", "table-borderless")) {
                         RgTdColor(colSpan = 15, color = TableColor.info) {
                             H4 { Text(reportCategory.category.name) }
                             Text("CF - ${reportCategory.correctionFactor}")
                         }
                     }
-                    reportCategory.brackets.forEach { classReport ->
+                    reportCategory.bracketReport.forEach { classReport ->
                         RgTr(classes = listOf("table-light", "table-borderless")) {
                             RgTdColor(colSpan = 15, color = TableColor.warning) {
                                 H6 { Text("${classReport.bracket.name} ${classReport.bracket.description ?: ""}") }
