@@ -120,7 +120,7 @@ object RegattaDatabase {
         val start = Instant.parse("$year-01-01T00:00:00Z")
         val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
         return dbRawQuery(
-            sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date > ? AND start_date < ?;",
+            sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date >= ? AND start_date < ?;",
             args = listOf(KotlinInstantColumnType() to start, KotlinInstantColumnType() to end)
         ) {
             val raceIds = mutableListOf<Long>()
@@ -130,7 +130,7 @@ object RegattaDatabase {
             }
             raceIds.mapNotNull {
                 RaceTable.findRaceSchedule(it)
-            }
+            }.sortedBy { it.startTime }
         }
     }
 

@@ -12,6 +12,7 @@ data class RgAddTimeState(
     val brackets: List<Bracket> = emptyList(),
     val startDate: Instant? = null,
     val endDate: Instant? = null,
+    val focus: ClassSchedule? = null,
 ) : VmState {
 
     fun isValid(): Boolean {
@@ -68,7 +69,6 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
                 endDate = endDate ?: t?.plus(4.hours)
             )
         }
-
     }
 
     fun endTime(t: Instant) {
@@ -112,5 +112,16 @@ class RgAddTimeViewModel : BaseViewModel<RgAddTimeState>(RgAddTimeState()) {
             c.value?.firstOrNull()?.let { selectClass(it.raceClass) }
             copy(classes = c)
         }
+    }
+
+    fun editSchedule(schedule: ClassSchedule) {
+        resetOption(schedule.raceClass.id) //todo: add brackets
+        setState {
+            copy(
+                focus = schedule
+            )
+        }
+        schedule.brackets.forEach { addBracket(it) }
+        selectClass(schedule.raceClass)
     }
 }

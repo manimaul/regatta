@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.ClassSchedule
+import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import viewmodel.RgAddTimeViewModel
@@ -18,7 +19,14 @@ fun RgAddTime(
     if (state.value.classes.value?.isEmpty() != true) {
         RgTr {
             RgTd {
-                state.value.classes.complete(viewModel) {classes ->
+                state.value.focus?.let { schedule ->
+                    RgTd {
+                        H6 { Text(schedule.raceClass.name) }
+//                        schedule.brackets.forEach {
+//                            P { Text(it.label()) }
+//                        }
+                    }
+                } ?: state.value.classes.complete(viewModel) {classes ->
                     RgClassDropdown(classes, state.value.raceClass) {
                         viewModel.selectClass(it?.raceClass)
                     }

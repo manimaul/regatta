@@ -3,6 +3,8 @@ package viewmodel
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import components.selectedYear
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -19,7 +21,8 @@ fun RaceSchedule.validate(): Boolean {
 
 class RacesEditViewModel(
     val raceId: Long = 0,
-    val routeVm: RouteViewModel = routeViewModel
+    val routeVm: RouteViewModel = routeViewModel,
+    val timeVm: RgAddTimeViewModel = RgAddTimeViewModel()
 ) : BaseViewModel<RacesEditState>(RacesEditState()) {
 
     init {
@@ -44,7 +47,12 @@ class RacesEditViewModel(
                 )
             } else {
                 copy(
-                    race = Api.getRaceSchedule(raceId).toAsync(),
+                    race = Api.getRaceSchedule(raceId).toAsync().map {
+                        it.schedule.forEach {
+                            timeVm.removeOption(it.raceClass.id)
+                        }
+                        it
+                    },
                     skippers = Api.getAllPeople().toAsync(),
                     series = Api.allSeries().toAsync(),
                 )
@@ -131,4 +139,5 @@ class RacesEditViewModel(
             copy(race = race.map { it.copy(race = it.race.copy(correctionFactor = cf ?: correctionFactorDefault)) })
         }
     }
+
 }

@@ -27,8 +27,16 @@ fun RaceEdit(
                 viewModel.cancelCreate()
             }
         }
-        RgButton(label = "Save", style = RgButtonStyle.Success, customClasses = listOf(AppStyle.marginTop), disabled = !schedule.validate()) {
+        RgButton(
+            label = "Save",
+            style = RgButtonStyle.Success,
+            customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd),
+            disabled = !schedule.validate()
+        ) {
             viewModel.save(schedule)
+        }
+        RgButton(label = "Cancel", style = RgButtonStyle.Primary, customClasses = listOf(AppStyle.marginTop)) {
+            routeViewModel.goBackOrHome()
         }
     }
 
@@ -37,10 +45,10 @@ fun RaceEdit(
 @Composable
 fun RaceForm(
     raceSchedule: RaceSchedule,
-    viewModel: RacesEditViewModel,
-    addTimeViewModel: RgAddTimeViewModel = remember { RgAddTimeViewModel() },
+    viewModel: RacesEditViewModel
 ) {
     val state = viewModel.flow.collectAsState()
+    val tState = viewModel.timeVm.flow.collectAsState()
     H1 { Text("Edit Race") }
     RgTable {
         RgThead {
@@ -98,115 +106,36 @@ fun RaceForm(
         RgTbody {
             state.value.race.complete(viewModel) { rs ->
                 rs.schedule.forEach { schedule ->
-                    RgTr {
-                        RgTd {
-                            H6 { Text(schedule.raceClass.name) }
-                            schedule.brackets.forEach {
-                                P { Text("${it.name} ${it.maxRating}-${it.maxRating}") }
+                    if (schedule.raceClass.id == tState.value.focus?.raceClass?.id) {
+                        RgAddTime(viewModel.timeVm) { viewModel.addSchedule(it) }
+                    } else {
+                        RgTr {
+                            RgTd {
+                                H6 { Text(schedule.raceClass.name) }
+                                schedule.brackets.forEach {
+                                    P { Text(it.label()) }
+                                }
                             }
-                        }
-                        RgTd { Text(schedule.raceStart()?.display() ?: "") }
-                        RgTd { Text(schedule.raceEnd()?.display() ?: "") }
-                        RgTd {
-                            RgButton("Remove") {
-                                viewModel.removeSchedule(schedule)
-                                addTimeViewModel.resetOption(schedule.raceClass.id)
+                            RgTd { Text(schedule.raceStart()?.display() ?: "") }
+                            RgTd { Text(schedule.raceEnd()?.display() ?: "") }
+                            RgTd {
+                                RgButton(label = "Edit", customClasses = listOf(AppStyle.marginEnd)) {
+                                    viewModel.timeVm.editSchedule(schedule)
+                                }
+                                RgButton(
+                                    label = "Remove",
+                                    style = RgButtonStyle.Danger,
+                                    customClasses = listOf(AppStyle.marginEnd)
+                                ) {
+                                    viewModel.removeSchedule(schedule)
+                                    viewModel.timeVm.resetOption(schedule.raceClass.id)
+                                }
                             }
                         }
                     }
                 }
             }
-            RgAddTime(addTimeViewModel) { viewModel.addSchedule(it) }
+            RgAddTime(viewModel.timeVm) { viewModel.addSchedule(it) }
         }
     }
 }
-
-
-//@Composable
-//fun RgAddRaceTime(
-//    categories: List<RaceClassFull>,
-//    selected: RaceClass?,
-//    added: (RaceTime) -> Unit
-//) {
-//    var raceClassCat by mutableStateOf(selected)
-//    var startDate by remember { mutableStateOf<Instant?>(null) }
-//    var endDate by remember { mutableStateOf<Instant?>(null) }
-//    var cf by remember { mutableStateOf(correctionFactorDefault) }
-//
-//    RgRow {
-//        RgCol {
-//            B { Text("Class Category") }
-//            RgClassCatDropDown(categories, raceClassCat) {
-//                raceClassCat = it.toRaceClass()
-//                println("selected $raceClassCat")
-//            }
-//        }
-//        RgCol {
-//            RgDate(label = "Race start", date = startDate, time = true) { st ->
-//                if (endDate == null) {
-//                    endDate = st.plus(2.5.hours)
-//                }
-//                startDate = st
-//            }
-//        }
-//        RgCol {
-//            RgDate(label = "Race end", date = endDate, time = true) { et ->
-//                endDate = et
-//            }
-//
-//        }
-//        RgCol {
-//            RgInput(label = "Correction", "$cf") {
-//                cf = it.toIntOrNull() ?: correctionFactorDefault
-//            }
-//        }
-//        RgCol {
-//            RgRow(customizer = { set(space = RgSpace.m, side = RgSide.x, size = RgSz.s3) }) {
-//                B { Text("Action") }
-//                RgButton(
-//                    "Add",
-//                    disabled = raceClassCat == null || startDate == null || endDate == null,
-//                ) {
-//                    added(RaceTime(raceClassCat!!, startDate!!, endDate!!, cf, TODO()))
-//                    raceClassCat = null
-//                    startDate = startDate?.plus(5.minutes)
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun RgSeriesSelect(
-//    allSeries: List<Series>,
-//    series: Series?,
-//    handler: (Series?) -> Unit
-//) {
-//    Select(attrs = {
-//        classes("form-select")
-//        onChange { change ->
-//            change.value?.toLongOrNull()?.let { id ->
-//                handler(allSeries.firstOrNull {
-//                    it.id == id
-//                })
-//            }
-//        }
-//    }) {
-//        Option("-1", attrs = {
-//            if (series == null) {
-//                selected()
-//            }
-//        }) {
-//            Text("None")
-//        }
-//        allSeries.forEach {
-//            Option(it.id.toString(), attrs = {
-//                if (it.id == series?.id) {
-//                    selected()
-//                }
-//            }) {
-//                Text(it.name)
-//            }
-//        }
-//    }
-//}
