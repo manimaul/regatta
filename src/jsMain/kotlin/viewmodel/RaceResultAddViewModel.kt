@@ -82,8 +82,9 @@ class RaceResultAddViewModel(
         setState {
             copy(
                 hocPosition = i?.let { max(0, i) },
-                finish = i?.let { null } ?: finish,
+                finish = if (i != null) null else finish,
             )
         }
+        println(flow.value.finish)
     }
 }
