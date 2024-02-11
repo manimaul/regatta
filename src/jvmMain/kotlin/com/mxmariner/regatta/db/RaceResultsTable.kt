@@ -7,6 +7,7 @@ import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
 import com.mxmariner.regatta.db.RaceTable.rowToRace
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceResultsTable : Table() {
@@ -24,8 +25,11 @@ object RaceResultsTable : Table() {
     }
 
     fun upsertResult(result: RaceResult): RaceResult? {
-        return upsert {
-            if (result.id > 0) { it[id] = result.id }
+        deleteWhere { raceId.eq(result.raceId).and(boatId.eq(result.boatId)) }
+        return insert {
+            if (result.id > 0) {
+                it[id] = result.id
+            }
             it[raceId] = result.raceId
             it[boatId] = result.boatId
             it[start] = result.start
@@ -40,7 +44,7 @@ object RaceResultsTable : Table() {
     }
 
     fun resultsByRaceId(rId: Long): List<RaceResultBoatBracket> {
-        return innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(BracketTable).select {
+        return innerJoin(RaceTable).innerJoin(BoatTable).select {
             raceId.eq(rId)
         }.map(::rowToRaceResultBoatBracket)
     }
@@ -49,22 +53,27 @@ object RaceResultsTable : Table() {
     fun getResults(year: Int): List<RaceResultBoatBracket> {
         val start = Instant.parse("$year-01-01")
         val end = Instant.parse("${year + 1}-01-01")
-        return innerJoin(RaceTable).innerJoin(BoatTable).innerJoin(BracketTable).select {
+        return innerJoin(RaceTable).innerJoin(BoatTable).select {
             finish.greaterEq(start) and finish.less(end)
         }.map(::rowToRaceResultBoatBracket)
     }
 
-    fun rowToRaceResultBoatBracket(row: ResultRow) = RaceResultBoatBracket(
-        result = rowToResult(row),
-        raceSchedule = rowToRace(row).let {
+    fun rowToRaceResultBoatBracket(row: ResultRow): RaceResultBoatBracket {
+        val boat = resultRowToBoat(row)
+        val raceSchedule = rowToRace(row).let {
             findRaceSchedule(it.id) ?: RaceSchedule()
-        },
-        boatSkipper = BoatSkipper(
-            boat = resultRowToBoat(row),
-            skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
-        ),
-        bracket = resultRowToBracket(row),
-    )
+        }
+        val bracket = findBoatBracket(raceSchedule, boat)
+        return RaceResultBoatBracket(
+            result = rowToResult(row),
+            raceSchedule = raceSchedule,
+            boatSkipper = BoatSkipper(
+                boat = resultRowToBoat(row),
+                skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
+            ),
+            bracket = bracket ?: Bracket(),
+        )
+    }
 
     fun rowToResult(row: ResultRow) = RaceResult(
         id = row[id],
@@ -75,4 +84,28 @@ object RaceResultsTable : Table() {
         phrfRating = row[phrfRating],
         hocPosition = row[hoc],
     )
+}
+
+fun findBoatBracket(race: RaceSchedule?, boat: Boat?): Bracket? {
+    return if (boat?.phrfRating != null) {
+        race?.schedule?.firstNotNullOf { sch ->
+            sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
+                boat.phrfRating >= it.minRating && boat.phrfRating <= it.maxRating
+            }
+        }
+    } else if (boat?.windseeker?.flyingSails == true) {
+        race?.schedule?.firstOrNull { it.raceClass.wsFlying }?.let { schedule ->
+            schedule.brackets.firstOrNull {
+                boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
+            }
+        }
+    } else if (boat?.windseeker != null) {
+        race?.schedule?.firstOrNull { !it.raceClass.wsFlying }?.let { schedule ->
+            schedule.brackets.firstOrNull {
+                boat.windseeker.rating >= it.minRating && boat.windseeker.rating <= it.maxRating
+            }
+        }
+    } else {
+        null
+    }
 }

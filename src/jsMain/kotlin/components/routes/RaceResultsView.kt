@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 import utils.year
 import viewmodel.*
 
@@ -33,9 +34,15 @@ fun RaceResultsView(
     viewModel: RaceResultViewViewModel = remember { RaceResultViewViewModel(raceId ?: 0L) }
 ) {
     val state = viewModel.flow.collectAsState()
+    val loginState = loginViewModel.flow.collectAsState()
     state.value.report.complete(viewModel) { report ->
         H1 {
             Text("${report.raceSchedule.startTime?.year() ?: ""} - ${report.raceSchedule.race.name} - Results")
+        }
+        if (loginState.value.loginStatus == LoginStatus.LoggedIn) {
+            RgButton("Editor", customClasses = listOf(AppStyle.marginVert)) {
+                routeViewModel.pushRoute("/races/results/${raceId}")
+            }
         }
         RgTable(stripeColumn = true, color = TableColor.light) {
             RgThead {

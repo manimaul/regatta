@@ -7,13 +7,6 @@ import utils.toAsync
 import kotlin.math.max
 
 
-fun findBoatBracket(race: RaceSchedule?, boat: Boat?) : Long? {
-//    race?.schedule?.forEach {
-//        it.raceClass.
-//
-//    }
-    return null
-}
 
 data class RaceResultAddState(
     val id: Long = 0,

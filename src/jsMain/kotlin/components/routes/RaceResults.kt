@@ -20,6 +20,9 @@ fun RaceResultsEdit(
         H1 {
             Text("${report.raceSchedule.startTime?.year() ?: ""} - ${report.raceSchedule.race.name} - Results Editor")
         }
+        RgButton("Viewer", customClasses = listOf(AppStyle.marginVert)) {
+            routeViewModel.pushRoute("/races/results/view/${raceId}")
+        }
         RgTable {
             RgThead {
                 RgTr {
