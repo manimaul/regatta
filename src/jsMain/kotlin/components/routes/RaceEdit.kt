@@ -116,7 +116,9 @@ fun RaceForm(
             state.value.race.complete(viewModel) { rs ->
                 rs.schedule.forEach { schedule ->
                     if (schedule.raceClass.id == tState.value.focus?.raceClass?.id) {
-                        RgAddTime(viewModel.timeVm) { viewModel.addSchedule(it) }
+                        RgAddTime(viewModel.timeVm) {
+                            viewModel.addSchedule(it)
+                        }
                     } else {
                         RgTr {
                             RgTd {

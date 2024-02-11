@@ -48,15 +48,27 @@ fun RgAddTime(
                     ) {
                         viewModel.removeFocus()
                     }
-                }
-                RgButton(
-                    label = "Add",
-                    style = RgButtonStyle.Success,
-                    disabled = !state.value.isValid(),
-                ) {
-                    state.value.asSchedule()?.let {
-                        viewModel.removeOption(it.raceClass.id, true)
-                        handler(it)
+                    RgButton(
+                        label = "Update",
+                        style = RgButtonStyle.Success,
+                        disabled = !state.value.isValid(),
+                    ) {
+                        viewModel.removeFocus()
+                        state.value.asSchedule()?.let {
+                            viewModel.removeOption(it.raceClass.id, true)
+                            handler(it)
+                        }
+                    }
+                } else {
+                    RgButton(
+                        label = "Add",
+                        style = RgButtonStyle.Success,
+                        disabled = !state.value.isValid(),
+                    ) {
+                        state.value.asSchedule()?.let {
+                            viewModel.removeOption(it.raceClass.id, true)
+                            handler(it)
+                        }
                     }
                 }
             }
