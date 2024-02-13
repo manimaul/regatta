@@ -5,6 +5,7 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.selected
+import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
@@ -107,34 +108,13 @@ fun EditResultRow(
         RgTd { Text(addState.boatSkipper?.boat?.sailNumber ?: "") }
         RgTd { Text(addState.boatSkipper?.boat?.boatType ?: "") }
         RgTd {
-            RgDropdown(BoatType.entries, addState.boatType, { it.name }) {
-                viewModel.addViewModel.setType(it)
-            }
-            when (addState.boatType) {
-                BoatType.PHRF -> {
-                    RgInput(
-                        label = "PHRF Rating",
-                        value = addState.phrfRating,
-                        placeHolder = false,
-                    ) {
-                        viewModel.addViewModel.setPhrfRating(it.digits(4))
-                    }
-                }
-
-                BoatType.Windseeker -> {
-                    RgInput(
-                        label = "WindSeeker Rating",
-                        value = addState.wsRating,
-                        placeHolder = false,
-                        customClasses = listOf(AppStyle.marginBot),
-                    ) {
-                        viewModel.addViewModel.setWsRating(it.digits(4))
-                    }
-                    RgSwitch("wsflying", 0, "Flying Sails", check = { addState.wsFlying }) {
-                        viewModel.addViewModel.setWsFlying(it)
-                    }
-                }
-            }
+            RatingSelections(
+                addState.boatType, addState.phrfRating, addState.wsRating, addState.wsFlying,
+                { viewModel.addViewModel.setType(it) },
+                { viewModel.addViewModel.setPhrfRating(it) },
+                { viewModel.addViewModel.setWsRating(it) },
+                { viewModel.addViewModel.setWsFlying(it) },
+            )
         }
         RgTd {
             addState.start?.let { start ->

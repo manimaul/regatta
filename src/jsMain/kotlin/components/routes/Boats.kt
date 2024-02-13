@@ -4,10 +4,13 @@ import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
+import com.mxmariner.regatta.data.Windseeker
+import com.mxmariner.regatta.ratingDefault
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.dom.*
 import utils.*
+import viewmodel.BoatType
 import viewmodel.BoatViewModel
 
 @Composable
@@ -77,9 +80,12 @@ fun AddBoat(
     people: List<Person>,
     boatViewModel: BoatViewModel,
 ) {
+    var boatType: BoatType by remember { mutableStateOf(BoatType.PHRF) }
     var addBoat by remember { mutableStateOf(Boat()) }
     var addSkipper by remember { mutableStateOf<Person?>(null) }
-    var phrfRating by remember { mutableStateOf("") }
+    var phrfRating by remember { mutableStateOf("${ratingDefault.toInt()}") }
+    var wsRating by remember { mutableStateOf("${ratingDefault.toInt()}") }
+    var wsFlying by remember { mutableStateOf(false) }
     RgTr {
         RgTd {
             RgInput(label = "Name", value = addBoat.name, placeHolder = true) {
@@ -102,19 +108,37 @@ fun AddBoat(
             }
         }
         RgTd {
-            RgInput(label = "PHRF Rating", value = phrfRating, placeHolder = true) {
-                phrfRating = it.digits(3)
-            }
+            RatingSelections(
+                boatType, phrfRating, wsRating, wsFlying,
+                { boatType = it },
+                { phrfRating = it },
+                { wsRating = it },
+                { wsFlying = it },
+            )
         }
         RgTd {
-            RgButton("Add", RgButtonStyle.Primary) {
-                boatViewModel.addBoat(addBoat.copy(
-                    phrfRating = phrfRating.toIntOrNull(),
-                    skipperId = addSkipper?.id
-                ))
+            RgButton("Add", RgButtonStyle.Primary, disabled = addBoat.name.isBlank() || (boatType == BoatType.PHRF && phrfRating.isBlank())) {
+                var pr: Int? = null
+                var windseeker: Windseeker? = null
+                when (boatType) {
+                    BoatType.PHRF -> pr = phrfRating.toIntOrNull()
+                    BoatType.Windseeker -> windseeker = Windseeker(
+                        rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(),
+                        flyingSails = wsFlying
+                    )
+                }
+                boatViewModel.addBoat(
+                    addBoat.copy(
+                        phrfRating = pr,
+                        windseeker = windseeker,
+                        skipperId = addSkipper?.id
+                    )
+                )
                 addBoat = Boat()
                 addSkipper = null
-                phrfRating = ""
+                phrfRating = "${ratingDefault.toInt()}"
+                wsRating = "${ratingDefault.toInt()}"
+                wsFlying = false
             }
         }
     }

@@ -1,16 +1,16 @@
 package components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.Series
+import kotlinx.coroutines.selects.select
 import org.jetbrains.compose.web.attributes.selected
-import org.jetbrains.compose.web.dom.OptGroup
-import org.jetbrains.compose.web.dom.Option
-import org.jetbrains.compose.web.dom.Select
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.*
 
+private var num = 0
 
 @Composable
 fun <T> RgDropdownNone(
@@ -19,7 +19,9 @@ fun <T> RgDropdownNone(
     name: (T) -> String,
     handler: (T?) -> Unit
 ) {
+    val id = remember { "${++num}_drop" }
     Select(attrs = {
+        id(id)
         classes("form-select")
         onChange { change ->
             change.value?.toIntOrNull()?.let { i ->
@@ -51,6 +53,7 @@ fun <T> RgDropdownNone(
         }
     }
 }
+
 @Composable
 fun <T> RgDropdown(
     items: List<T>,
@@ -58,60 +61,23 @@ fun <T> RgDropdown(
     name: (T) -> String,
     handler: (T) -> Unit
 ) {
-    Select(attrs = {
-        classes("form-select")
-        onChange { change ->
-            change.value?.toIntOrNull()?.let { i ->
-                if (i >= 0) {
-                    handler(items[i])
+    Div(attrs = { classes("dropdown") }) {
+        Button(attrs = {
+            classes("btn", "btn-primary", "dropdown-toggle")
+            attr("data-bs-toggle", "dropdown")
+        }) { Text(name(selectedItem)) }
+        Ul(attrs = { classes("dropdown-menu") }) {
+            items.forEach { item ->
+                Li {
+                    Button(attrs = {
+                        classes("dropdown-item")
+                        onClick {
+                            handler(item)
+                        }
+                    }) {
+                        Text(name(item))
+                    }
                 }
-            }
-        }
-    }) {
-        val si = items.indexOf(selectedItem)
-        items.forEachIndexed { i, each ->
-            Option(i.toString(), attrs = {
-                if (i == si) {
-                    selected()
-                }
-            }) {
-                Text(name(each))
-            }
-        }
-    }
-}
-
-@Composable
-fun RgClassDropDown(
-    categories: List<RaceClass>,
-    current: RaceClass?,
-    handler: (RaceClass) -> Unit,
-) {
-    Select(attrs = {
-        classes("form-select")
-        onChange { change ->
-            change.value?.toLongOrNull()?.let { id ->
-                categories.firstOrNull {
-                    it.id == id
-                }?.let { handler(it) }
-            }
-        }
-    }) {
-        Option("-1", attrs = {
-            if (current == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
-
-        categories.forEach { cat ->
-            Option(cat.id.toString(), attrs = {
-                if (cat.id == current?.id) {
-                    selected()
-                }
-            }) {
-                Text(cat.name)
             }
         }
     }
@@ -123,7 +89,9 @@ fun RgSeriesDropdown(
     series: Series?,
     handler: (Series) -> Unit,
 ) {
+    val id = remember { "${++num}_drop" }
     Select(attrs = {
+        id(id)
         classes("form-select")
         onChange { change ->
             change.value?.toLongOrNull()?.let { id ->
@@ -158,7 +126,9 @@ fun RgClassDropdown(
     current: RaceClass?,
     handler: (RaceClassBrackets?) -> Unit,
 ) {
+    val id = remember { "${++num}_drop" }
     Select(attrs = {
+        id(id)
         classes("form-select")
         onChange { change ->
             change.value?.toLongOrNull()?.let { id ->
@@ -196,7 +166,9 @@ fun RgSkipperDropdown(
     person: Person?,
     handler: (Person?) -> Unit
 ) {
+    val id = remember { "${++num}_drop" }
     Select(attrs = {
+        id(id)
         classes("form-select")
         onChange { change ->
             change.value?.toLongOrNull()?.let { id ->
