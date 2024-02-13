@@ -43,14 +43,14 @@ data class RaceClass(
     val wsFlying: Boolean = false,
     val active: Boolean = true,
 ) {
-    fun ratingLabel() : String {
-       if (isPHRF) {
-           return "PHRF"
-       } else if (wsFlying) {
-           return "Cruising - Flying Sails"
-       } else {
-           return "Cruising - Non Flying Sails"
-       }
+    fun ratingLabel(): String {
+        if (isPHRF) {
+            return "PHRF"
+        } else if (wsFlying) {
+            return "Cruising - Flying Sails"
+        } else {
+            return "Cruising - Non Flying Sails"
+        }
     }
 }
 
@@ -139,6 +139,11 @@ data class Checkin(
     val checkedIn: Boolean = false,
 )
 
+enum class RatingType {
+    PHRF,
+    Windseeker
+}
+
 @Serializable
 data class Boat(
     val id: Long = 0,
@@ -149,7 +154,11 @@ data class Boat(
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
     val active: Boolean = true
-)
+) {
+    fun ratingType(): RatingType {
+        return windseeker?.let { RatingType.Windseeker } ?: RatingType.PHRF
+    }
+}
 
 @Serializable
 data class BoatSkipper(
@@ -214,4 +223,8 @@ data class RaceReportCard(
     var placeInClass: Int = 0,
     var placeOverall: Int = 0,
     val hocPosition: Int? = null,
-)
+) {
+    fun ratingType(): RatingType {
+        return windseeker?.let { RatingType.Windseeker } ?: RatingType.PHRF
+    }
+}

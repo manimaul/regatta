@@ -7,10 +7,6 @@ import utils.Api
 import utils.toAsync
 import kotlin.math.max
 
-enum class BoatType {
-    PHRF,
-    Windseeker
-}
 
 data class RaceResultAddState(
     val id: Long = 0,
@@ -19,7 +15,7 @@ data class RaceResultAddState(
     val phrfRating: String = ratingDefault.toInt().toString(),
     val wsRating: String = ratingDefault.toInt().toString(),
     val wsFlying: Boolean = false,
-    val boatType: BoatType = BoatType.PHRF,
+    val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
     val start: Instant? = null,
     val finish: Instant? = null,
@@ -30,12 +26,12 @@ data class RaceResultAddState(
         var windseeker = wsRating.toIntOrNull()?.let {
             Windseeker(it, wsFlying)
         }
-        val valid = when (boatType) {
-            BoatType.PHRF -> {
+        val valid = when (ratingType) {
+            RatingType.PHRF -> {
                 windseeker = null
                 phrfRating != null
             }
-            BoatType.Windseeker -> {
+            RatingType.Windseeker -> {
                 phrfRating = null
                 windseeker != null
             }
@@ -78,16 +74,14 @@ class RaceResultAddViewModel(
 
     fun addBoat(boatSkipper: BoatSkipper?) {
 
-        val type = boatSkipper?.boat?.windseeker?.let {
-            BoatType.Windseeker
-        } ?: BoatType.PHRF
+        val type = boatSkipper?.boat?.ratingType() ?: RatingType.PHRF
         setState {
             copy(
                 boatSkipper = boatSkipper,
                 phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
                 wsRating = boatSkipper?.boat?.windseeker?.rating?.toString() ?: "",
                 wsFlying = boatSkipper?.boat?.windseeker?.flyingSails == true,
-                boatType = type,
+                ratingType = type,
             )
         }
     }
@@ -101,10 +95,7 @@ class RaceResultAddViewModel(
     }
 
     fun setCard(card: RaceReportCard? = null) {
-
-        val type = card?.phrfRating?.let {
-            BoatType.PHRF
-        } ?: BoatType.Windseeker
+        val type = card?.ratingType() ?: RatingType.Windseeker
         setState {
             copy(
                 id = card?.resultRecord?.result?.id ?: 0L,
@@ -112,7 +103,7 @@ class RaceResultAddViewModel(
                 phrfRating = card?.resultRecord?.result?.phrfRating?.toString() ?: "",
                 wsRating = card?.resultRecord?.result?.windseeker?.rating?.toString() ?: "",
                 wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
-                boatType = type,
+                ratingType = type,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
                 start = if (card != null) card.startTime else raceSchedule?.startTime,
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
@@ -139,8 +130,8 @@ class RaceResultAddViewModel(
         }
     }
 
-    fun setType(type: BoatType) {
-       setState { copy(boatType = type) }
+    fun setType(type: RatingType) {
+       setState { copy(ratingType = type) }
     }
 
     fun setWsRating(rating: String) {

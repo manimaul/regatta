@@ -1,26 +1,26 @@
 package components
 
 import androidx.compose.runtime.Composable
+import com.mxmariner.regatta.data.RatingType
 import styles.AppStyle
 import utils.digits
-import viewmodel.BoatType
 
 @Composable
 fun RatingSelections(
-    boatType: BoatType,
+    boatType: RatingType,
     phrfRating: String,
     wsRating: String,
     wsFlying: Boolean,
-    typeChagne: (BoatType) -> Unit,
+    typeChagne: (RatingType) -> Unit,
     phrfChange: (String) -> Unit,
     wsRatingChange: (String) -> Unit,
     wsFlyingChange: (Boolean) -> Unit,
 ) {
-    RgDropdown(BoatType.entries, boatType, { it.name }) {
+    RgDropdown(RatingType.entries, boatType, { it.name }) {
         typeChagne(it)
     }
     when (boatType) {
-        BoatType.PHRF -> {
+        RatingType.PHRF -> {
             RgInput(
                 label = "PHRF Rating",
                 value = phrfRating,
@@ -30,7 +30,7 @@ fun RatingSelections(
             }
         }
 
-        BoatType.Windseeker -> {
+        RatingType.Windseeker -> {
             RgInput(
                 label = "WindSeeker Rating",
                 value = wsRating,

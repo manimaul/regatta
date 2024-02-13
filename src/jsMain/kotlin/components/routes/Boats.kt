@@ -1,16 +1,12 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.Boat
-import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.Windseeker
+import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.ratingDefault
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.dom.*
 import utils.*
-import viewmodel.BoatType
 import viewmodel.BoatViewModel
 
 @Composable
@@ -60,8 +56,8 @@ fun BoatList(
                             }
                         }
                         RgTd { Text(boat.boat?.sailNumber ?: "") }
-                        RgTd { Text(boat.boat?.boatType ?: "") }
-                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker, false)) }
+                        RgTd { Text(boat.boat?.boatType?: "") }
+                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker, true)) }
                         RgTd {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
                                 boatViewModel.setEditBoat(boat.boat)
@@ -80,7 +76,7 @@ fun AddBoat(
     people: List<Person>,
     boatViewModel: BoatViewModel,
 ) {
-    var boatType: BoatType by remember { mutableStateOf(BoatType.PHRF) }
+    var boatType: RatingType by remember { mutableStateOf(RatingType.PHRF) }
     var addBoat by remember { mutableStateOf(Boat()) }
     var addSkipper by remember { mutableStateOf<Person?>(null) }
     var phrfRating by remember { mutableStateOf("${ratingDefault.toInt()}") }
@@ -117,12 +113,16 @@ fun AddBoat(
             )
         }
         RgTd {
-            RgButton("Add", RgButtonStyle.Primary, disabled = addBoat.name.isBlank() || (boatType == BoatType.PHRF && phrfRating.isBlank())) {
+            RgButton(
+                "Add",
+                RgButtonStyle.Primary,
+                disabled = addBoat.name.isBlank() || (boatType == RatingType.PHRF && phrfRating.isBlank())
+            ) {
                 var pr: Int? = null
                 var windseeker: Windseeker? = null
                 when (boatType) {
-                    BoatType.PHRF -> pr = phrfRating.toIntOrNull()
-                    BoatType.Windseeker -> windseeker = Windseeker(
+                    RatingType.PHRF -> pr = phrfRating.toIntOrNull()
+                    RatingType.Windseeker -> windseeker = Windseeker(
                         rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(),
                         flyingSails = wsFlying
                     )

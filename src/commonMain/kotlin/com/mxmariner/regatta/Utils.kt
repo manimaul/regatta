@@ -60,9 +60,14 @@ fun ratingLabel(phrfRating: Int?, windseeker: Windseeker?, showWsRating: Boolean
     } ?: if (windseeker?.flyingSails == true) {
         if (showWsRating) {
             return "Cruising - Flying Sails (${windseeker.rating})"
+        } else {
+            return "Cruising - Flying Sails"
         }
-        return "Cruising - Flying Sails"
     } else {
-        return "Cruising - Non Flying Sails"
+        if (showWsRating) {
+            return "Cruising - Non Flying Sails (${windseeker?.rating}}"
+        } else {
+            return "Cruising - Non Flying Sails"
+        }
     }
 }

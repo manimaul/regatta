@@ -5,7 +5,6 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.selected
-import org.jetbrains.compose.web.css.CSSUnit
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
@@ -109,7 +108,7 @@ fun EditResultRow(
         RgTd { Text(addState.boatSkipper?.boat?.boatType ?: "") }
         RgTd {
             RatingSelections(
-                addState.boatType, addState.phrfRating, addState.wsRating, addState.wsFlying,
+                addState.ratingType, addState.phrfRating, addState.wsRating, addState.wsFlying,
                 { viewModel.addViewModel.setType(it) },
                 { viewModel.addViewModel.setPhrfRating(it) },
                 { viewModel.addViewModel.setWsRating(it) },

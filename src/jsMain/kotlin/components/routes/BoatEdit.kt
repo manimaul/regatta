@@ -54,6 +54,11 @@ fun EditBoat(
     var newBoat by remember { mutableStateOf(boat) }
     var newSkipper by remember { mutableStateOf(skipper) }
 
+    var ratingType by remember { mutableStateOf(boat.ratingType()) }
+    var phrfRating by remember { mutableStateOf(boat.phrfRating?.toString() ?: "") }
+    var wsRating by remember { mutableStateOf(boat.windseeker?.rating?.toString() ?: "") }
+    var wsFlying by remember { mutableStateOf(boat.windseeker?.flyingSails == true) }
+
     if (confirmDelete) {
         val msg = skipper?.let {
             "Delete ${boat.name} owned by ${it.first} ${it.last}?"
@@ -68,55 +73,68 @@ fun EditBoat(
     } else {
         H1 { Text("Edit") }
         RgForm {
-            RgDiv(customizer = { set(RgSpace.m, RgSide.b, RgSz.s3) }) {
-                Fieldset {
-                    P {
-                        RgInput("Name", newBoat.name) {
-                            newBoat = newBoat.copy(name = it)
-                        }
+            RgTable {
+                RgThead {
+                    RgTr {
+                        RgTh { Text("Boat Name") }
+                        RgTh { Text("Skipper") }
+                        RgTh { Text("Sail Number") }
+                        RgTh { Text("Boat Type") }
                     }
-                    P {
-                        RgInput("Sail Number", newBoat.sailNumber) {
-                            newBoat = newBoat.copy(sailNumber = it)
+                }
+                RgTbody {
+                    RgTr {
+                        RgTd {
+                            RgInput("Name", newBoat.name, true) {
+                                newBoat = newBoat.copy(name = it)
+                            }
                         }
-                    }
-                    P {
-                        RgInput("Boat Type", newBoat.boatType) {
-                            newBoat = newBoat.copy(boatType = it)
+                        RgTd {
+                            RgSkipperDropdown(people, newSkipper) {
+                                newBoat = newBoat.copy(skipperId = it?.id)
+                                println("skipper selected ${it} ${newBoat.skipperId}")
+                            }
+                        }
+                        RgTd {
+                            RgInput("Sail Number", newBoat.sailNumber, true) {
+                                newBoat = newBoat.copy(sailNumber = it)
+                            }
+                        }
+                        RgTd {
+                            RgInput("Boat Type", newBoat.boatType, true) {
+                                newBoat = newBoat.copy(boatType = it)
+                            }
                         }
                     }
 
-                    RgSwitch(
-                        "Flying Sails",
-                        0,
-                        "Flying Sails",
-                        { newBoat.phrfRating == null && newBoat.windseeker?.flyingSails == true }) {
-                        newBoat = newBoat.copy(
-                            phrfRating = null,
-                            windseeker = Windseeker(
-                                flyingSails = it,
-                                rating = newBoat.windseeker?.rating ?: ratingDefault.toInt()
-                            ),
-                        )
+                }
+                Div(attrs = { classes(AppStyle.marginTop) }) { }
+                RatingSelections(
+                    ratingType, phrfRating, wsRating, wsFlying,
+                    { ratingType = it },
+                    { phrfRating = it },
+                    { wsRating = it },
+                    { wsFlying = it },
+                )
+                Div(attrs = { classes(AppStyle.marginVert) }) { }
+            }
+            RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
+                viewModel.cancelEdit()
+            }
+            RgButton("Save", RgButtonStyle.Primary) {
 
-                    }
-                    P {
-                        B { Text("Skipper") }
-                        RgSkipperDropdown(people, newSkipper) {
-                            newBoat = newBoat.copy(skipperId = it?.id)
-                            println("skipper selected ${it} ${newBoat.skipperId}")
-                        }
-                    }
+                newBoat = when (ratingType) {
+                    RatingType.PHRF -> newBoat.copy(windseeker = null, phrfRating = phrfRating.toIntOrNull())
+                    RatingType.Windseeker -> newBoat.copy(
+                        windseeker = Windseeker(
+                            rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(), flyingSails = wsFlying
+                        ), phrfRating = null
+                    )
                 }
-                RgButton("Cancel", RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginEnd)) {
-                    viewModel.cancelEdit()
-                }
-                RgButton("Save", RgButtonStyle.Primary) {
-                    viewModel.upsertBoat(newBoat)
-                }
-                RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
-                    confirmDelete = true
-                }
+                viewModel.upsertBoat(newBoat)
+            }
+            RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
+                confirmDelete = true
             }
         }
     }
