@@ -58,7 +58,7 @@ fun BoatList(
                         }
                         RgTd { Text(boat.boat?.sailNumber ?: "") }
                         RgTd { Text(boat.boat?.boatType ?: "") }
-                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker)) }
+                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker, false)) }
                         RgTd {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
                                 boatViewModel.setEditBoat(boat.boat)

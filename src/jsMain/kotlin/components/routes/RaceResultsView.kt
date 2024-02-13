@@ -73,7 +73,7 @@ fun RaceResultsView(
                                 RgTd { Text(card.skipper) }
                                 RgTd { Text(card.sail) }
                                 RgTd { Text(card.boatType) }
-                                RgTd { Text(ratingLabel(card.phrfRating, card.windseeker)) }
+                                RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
                                 RgTd { Text(card.startText()) }
                                 RgTd { Text(card.finishText()) }
                                 RgTd { Text(card.elapsedText()) }

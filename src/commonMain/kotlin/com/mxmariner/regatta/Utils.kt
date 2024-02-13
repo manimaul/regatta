@@ -54,10 +54,13 @@ inline fun <T> List<T>.moveItem(up: Boolean = false, predicate: (T) -> Boolean):
     return lst
 }
 
-fun ratingLabel(phrfRating: Int?, windseeker: Windseeker?) : String {
+fun ratingLabel(phrfRating: Int?, windseeker: Windseeker?, showWsRating: Boolean) : String {
     return phrfRating?.let {
         "PHRF ($it)"
     } ?: if (windseeker?.flyingSails == true) {
+        if (showWsRating) {
+            return "Cruising - Flying Sails (${windseeker.rating})"
+        }
         return "Cruising - Flying Sails"
     } else {
         return "Cruising - Non Flying Sails"

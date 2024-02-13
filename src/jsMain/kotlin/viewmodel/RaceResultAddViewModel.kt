@@ -77,12 +77,17 @@ class RaceResultAddViewModel(
     }
 
     fun addBoat(boatSkipper: BoatSkipper?) {
+
+        val type = boatSkipper?.boat?.windseeker?.let {
+            BoatType.Windseeker
+        } ?: BoatType.PHRF
         setState {
             copy(
                 boatSkipper = boatSkipper,
                 phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
                 wsRating = boatSkipper?.boat?.windseeker?.rating?.toString() ?: "",
                 wsFlying = boatSkipper?.boat?.windseeker?.flyingSails == true,
+                boatType = type,
             )
         }
     }
@@ -96,6 +101,10 @@ class RaceResultAddViewModel(
     }
 
     fun setCard(card: RaceReportCard? = null) {
+
+        val type = card?.phrfRating?.let {
+            BoatType.PHRF
+        } ?: BoatType.Windseeker
         setState {
             copy(
                 id = card?.resultRecord?.result?.id ?: 0L,
@@ -103,6 +112,7 @@ class RaceResultAddViewModel(
                 phrfRating = card?.resultRecord?.result?.phrfRating?.toString() ?: "",
                 wsRating = card?.resultRecord?.result?.windseeker?.rating?.toString() ?: "",
                 wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
+                boatType = type,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
                 start = if (card != null) card.startTime else raceSchedule?.startTime,
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
