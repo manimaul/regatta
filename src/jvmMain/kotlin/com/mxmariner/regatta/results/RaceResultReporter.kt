@@ -106,6 +106,7 @@ object RaceResultReporter {
             skipper = skipper?.fullName() ?: "",
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
+            windseeker = result.windseeker,
             startTime = result.start,
             finishTime = result.finish,
             elapsedTime = time,

@@ -1,7 +1,6 @@
 package components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import kotlinx.datetime.Instant
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.onSubmit
@@ -29,6 +28,7 @@ fun RgInput(
     label: String,
     value: String,
     placeHolder: Boolean = false,
+    customClasses: List<String>? = null,
     listener: (String) -> Unit
 ) {
     val id = remember { "${++num}_input" }
@@ -37,6 +37,7 @@ fun RgInput(
     }
     Input(InputType.Text) {
         id(id)
+        customClasses?.let { classes(it) }
         if (placeHolder) {
             placeholder(label)
         }

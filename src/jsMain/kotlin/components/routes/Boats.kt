@@ -4,9 +4,8 @@ import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
+import com.mxmariner.regatta.ratingLabel
 import components.*
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import utils.*
 import viewmodel.BoatViewModel
@@ -59,7 +58,7 @@ fun BoatList(
                         }
                         RgTd { Text(boat.boat?.sailNumber ?: "") }
                         RgTd { Text(boat.boat?.boatType ?: "") }
-                        RgTd { Text(boat.boat?.ratingLabel() ?: "None") }
+                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker)) }
                         RgTd {
                             RgButton("Edit", RgButtonStyle.PrimaryOutline) {
                                 boatViewModel.setEditBoat(boat.boat)
@@ -83,11 +82,8 @@ fun AddBoat(
     var phrfRating by remember { mutableStateOf("") }
     RgTr {
         RgTd {
-            Input(type = InputType.Text) {
-                placeholder("Name")
-                classes("form-control")
-                onInput { addBoat = addBoat.copy(name = it.value) }
-                value(addBoat.name)
+            RgInput(label = "Name", value = addBoat.name, placeHolder = true) {
+                addBoat = addBoat.copy(name = it)
             }
         }
         RgTd {
@@ -96,29 +92,18 @@ fun AddBoat(
             }
         }
         RgTd {
-            Input(type = InputType.Text) {
-                placeholder("Sail number")
-                classes("form-control")
-                onInput { addBoat = addBoat.copy(sailNumber = it.value) }
-                value(addBoat.sailNumber)
+            RgInput(label = "Sail number", value = addBoat.sailNumber, placeHolder = true) {
+                addBoat = addBoat.copy(sailNumber = it)
             }
         }
         RgTd {
-            Input(type = InputType.Text) {
-                placeholder("Type")
-                classes("form-control")
-                onInput { addBoat = addBoat.copy(boatType = it.value) }
-                value(addBoat.boatType)
+            RgInput(label = "Type", value = addBoat.boatType, placeHolder = true) {
+                addBoat = addBoat.copy(boatType = it)
             }
         }
         RgTd {
-            Input(type = InputType.Text) {
-                placeholder("Rating")
-                classes("form-control")
-                onInput {
-                    phrfRating = it.value.digits(3)
-                }
-                value(phrfRating)
+            RgInput(label = "PHRF Rating", value = phrfRating, placeHolder = true) {
+                phrfRating = it.digits(3)
             }
         }
         RgTd {

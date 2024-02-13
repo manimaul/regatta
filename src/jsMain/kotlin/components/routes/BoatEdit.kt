@@ -86,21 +86,19 @@ fun EditBoat(
                         }
                     }
 
-                    RgSwitch("Flying Sails", 0, "Flying Sails", { newBoat.phrfRating == null && newBoat.windseeker?.flyingSails == true }) {
-                            newBoat = newBoat.copy(
-                                phrfRating = null,
-                                windseeker = Windseeker(flyingSails = it, rating = newBoat.windseeker?.rating ?: ratingDefault.toInt()),
-                            )
+                    RgSwitch(
+                        "Flying Sails",
+                        0,
+                        "Flying Sails",
+                        { newBoat.phrfRating == null && newBoat.windseeker?.flyingSails == true }) {
+                        newBoat = newBoat.copy(
+                            phrfRating = null,
+                            windseeker = Windseeker(
+                                flyingSails = it,
+                                rating = newBoat.windseeker?.rating ?: ratingDefault.toInt()
+                            ),
+                        )
 
-                    }
-                    P {
-                        RgInput("PHRF Rating", newBoat.phrfRating?.toString() ?: "") {
-                            val phrfRating = it.digits(3).toIntOrNull()
-                            newBoat = newBoat.copy(
-                                phrfRating = phrfRating,
-                                windseeker = if (phrfRating != null) null else newBoat.windseeker ?: Windseeker(),
-                            )
-                        }
                     }
                     P {
                         B { Text("Skipper") }

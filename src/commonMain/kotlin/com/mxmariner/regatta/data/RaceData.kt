@@ -149,17 +149,7 @@ data class Boat(
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
     val active: Boolean = true
-) {
-    fun ratingLabel() : String {
-        return phrfRating?.let {
-            "PHRF ($it)"
-        } ?: if (windseeker?.flyingSails == true) {
-            return "Cruising - Flying Sails (${windseeker.rating})"
-        } else {
-            return "Cruising - Non Flying Sails (${windseeker?.rating ?: ratingDefault.toInt()})"
-        }
-    }
-}
+)
 
 @Serializable
 data class BoatSkipper(
@@ -214,6 +204,7 @@ data class RaceReportCard(
     val skipper: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
+    val windseeker: Windseeker? = null,
     val startTime: Instant? = null,
     val finishTime: Instant? = null,
     val elapsedTime: Duration? = null,

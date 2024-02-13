@@ -13,6 +13,75 @@ import org.jetbrains.compose.web.dom.Text
 
 
 @Composable
+fun <T> RgDropdownNone(
+    items: List<T>,
+    selectedItem: T?,
+    name: (T) -> String,
+    handler: (T?) -> Unit
+) {
+    Select(attrs = {
+        classes("form-select")
+        onChange { change ->
+            change.value?.toIntOrNull()?.let { i ->
+                if (i >= 0) {
+                    handler(items[i])
+                } else {
+                    handler(null)
+                }
+            }
+        }
+    }) {
+        Option("-1", attrs = {
+            if (selectedItem == null) {
+                selected()
+            }
+        }) {
+            Text("None")
+        }
+
+        val si = items.indexOf(selectedItem)
+        items.forEachIndexed { i, each ->
+            Option(i.toString(), attrs = {
+                if (i == si) {
+                    selected()
+                }
+            }) {
+                Text(name(each))
+            }
+        }
+    }
+}
+@Composable
+fun <T> RgDropdown(
+    items: List<T>,
+    selectedItem: T,
+    name: (T) -> String,
+    handler: (T) -> Unit
+) {
+    Select(attrs = {
+        classes("form-select")
+        onChange { change ->
+            change.value?.toIntOrNull()?.let { i ->
+                if (i >= 0) {
+                    handler(items[i])
+                }
+            }
+        }
+    }) {
+        val si = items.indexOf(selectedItem)
+        items.forEachIndexed { i, each ->
+            Option(i.toString(), attrs = {
+                if (i == si) {
+                    selected()
+                }
+            }) {
+                Text(name(each))
+            }
+        }
+    }
+}
+
+@Composable
 fun RgClassDropDown(
     categories: List<RaceClass>,
     current: RaceClass?,

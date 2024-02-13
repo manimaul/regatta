@@ -6,6 +6,7 @@
 - Check-In page - (assign boats to a race)
 - Race results - bracket/class selection
 - Series overall
+- Backup, export CSV/Excel function
 
 
 - race class tied to race (NOT boat)

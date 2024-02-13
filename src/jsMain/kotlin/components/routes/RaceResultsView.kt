@@ -3,6 +3,7 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.dom.*
@@ -10,12 +11,12 @@ import styles.AppStyle
 import utils.year
 import viewmodel.*
 
-val colums = listOf(
+val columns = listOf(
     "Boat Name",
     "Skipper",
     "Sail Number",
     "Boat Type",
-    "PHRF Rating",
+    "Rating",
     "Start Time",
     "Finish Time",
     "Elapsed Time",
@@ -47,7 +48,7 @@ fun RaceResultsView(
         RgTable(stripeColumn = true, color = TableColor.light) {
             RgThead {
                 RgTr {
-                    colums.forEach {
+                    columns.forEach {
                         RgTh(scope = Scope.Colgroup) { Text(it) }
                     }
                 }
@@ -72,7 +73,7 @@ fun RaceResultsView(
                                 RgTd { Text(card.skipper) }
                                 RgTd { Text(card.sail) }
                                 RgTd { Text(card.boatType) }
-                                RgTd { Text(card.phrfText()) }
+                                RgTd { Text(ratingLabel(card.phrfRating, card.windseeker)) }
                                 RgTd { Text(card.startText()) }
                                 RgTd { Text(card.finishText()) }
                                 RgTd { Text(card.elapsedText()) }

@@ -2,6 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
@@ -61,7 +62,7 @@ fun RaceResultsEdit(
                                     RgTd { Text(card.skipper) }
                                     RgTd { Text(card.sail) }
                                     RgTd { Text(card.boatType) }
-                                    RgTd { Text(card.phrfText()) }
+                                    RgTd { Text(ratingLabel(card.phrfRating, card.windseeker)) }
                                     RgTd { Text(card.startText()) }
                                     RgTd { Text(card.finishText()) }
                                     RgTd { Text(card.elapsedText()) }
@@ -105,7 +106,36 @@ fun EditResultRow(
         RgTd { Text(addState.boatSkipper?.skipper?.fullName() ?: "") }
         RgTd { Text(addState.boatSkipper?.boat?.sailNumber ?: "") }
         RgTd { Text(addState.boatSkipper?.boat?.boatType ?: "") }
-        RgTd { Text(addState.boatSkipper?.boat?.phrfRating?.toString() ?: "") }
+        RgTd {
+            RgDropdown(BoatType.entries, addState.boatType, { it.name }) {
+                viewModel.addViewModel.setType(it)
+            }
+            when (addState.boatType) {
+                BoatType.PHRF -> {
+                    RgInput(
+                        label = "PHRF Rating",
+                        value = addState.phrfRating,
+                        placeHolder = false,
+                    ) {
+                        viewModel.addViewModel.setPhrfRating(it.digits(4))
+                    }
+                }
+
+                BoatType.Windseeker -> {
+                    RgInput(
+                        label = "WindSeeker Rating",
+                        value = addState.wsRating,
+                        placeHolder = false,
+                        customClasses = listOf(AppStyle.marginBot),
+                    ) {
+                        viewModel.addViewModel.setWsRating(it.digits(4))
+                    }
+                    RgSwitch("wsflying", 0, "Flying Sails", check = { addState.wsFlying }) {
+                        viewModel.addViewModel.setWsFlying(it)
+                    }
+                }
+            }
+        }
         RgTd {
             addState.start?.let { start ->
                 P {

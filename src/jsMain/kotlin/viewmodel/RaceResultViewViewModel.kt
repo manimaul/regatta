@@ -50,7 +50,3 @@ fun RaceReportCard.corTimeText(): String {
 fun RaceReportCard.corTimeSecText(): String {
     return correctedTime?.inWholeSeconds?.toString() ?: "n/a"
 }
-
-fun RaceReportCard.phrfText(): String {
-    return phrfRating?.toString() ?: "n/a"
-}
