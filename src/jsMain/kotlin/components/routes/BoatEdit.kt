@@ -91,8 +91,7 @@ fun EditBoat(
                         }
                         RgTd {
                             RgSkipperDropdown(people, newSkipper) {
-                                newBoat = newBoat.copy(skipperId = it?.id)
-                                println("skipper selected ${it} ${newBoat.skipperId}")
+                                newSkipper = it
                             }
                         }
                         RgTd {
@@ -124,11 +123,20 @@ fun EditBoat(
             RgButton("Save", RgButtonStyle.Primary) {
 
                 newBoat = when (ratingType) {
-                    RatingType.PHRF -> newBoat.copy(windseeker = null, phrfRating = phrfRating.toIntOrNull())
+
+                    RatingType.PHRF -> newBoat.copy(
+                        windseeker = null,
+                        phrfRating = phrfRating.toIntOrNull(),
+                        skipperId = newSkipper?.id
+                    )
+
                     RatingType.Windseeker -> newBoat.copy(
                         windseeker = Windseeker(
-                            rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(), flyingSails = wsFlying
-                        ), phrfRating = null
+                            rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(),
+                            flyingSails = wsFlying
+                        ),
+                        phrfRating = null,
+                        skipperId = newSkipper?.id
                     )
                 }
                 viewModel.upsertBoat(newBoat)

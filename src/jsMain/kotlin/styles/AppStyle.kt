@@ -25,10 +25,15 @@ object AppStyle : StyleSheet() {
         marginRight(marginSize.px)
     }
 
-    val marginHrz by style {
-        marginRight(marginSize.px)
-        marginLeft(marginSize.px)
-    }
+//    val marginHrz by style {
+//        marginRight(marginSize.px)
+//        marginLeft(marginSize.px)
+//    }
+
+//    val padHrz by style {
+//        paddingRight(marginSize.px)
+//        paddingLeft(marginSize.px)
+//    }
 
     val marginVert by style {
         marginTop(marginSize.px)

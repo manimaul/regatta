@@ -1,4 +1,3 @@
-# Go Live
 - Check-In page - (assign boats to a race)
 - Series overall
 - Backup, export CSV/Excel function

@@ -1,16 +1,13 @@
 package components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.Series
-import kotlinx.coroutines.selects.select
-import org.jetbrains.compose.web.attributes.selected
+import org.jetbrains.compose.web.css.Position
+import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.dom.*
-
-private var num = 0
 
 @Composable
 fun <T> RgDropdownNone(
@@ -19,36 +16,54 @@ fun <T> RgDropdownNone(
     name: (T) -> String,
     handler: (T?) -> Unit
 ) {
-    val id = remember { "${++num}_drop" }
-    Select(attrs = {
-        id(id)
-        classes("form-select")
-        onChange { change ->
-            change.value?.toIntOrNull()?.let { i ->
-                if (i >= 0) {
-                    handler(items[i])
-                } else {
-                    handler(null)
-                }
-            }
-        }
-    }) {
-        Option("-1", attrs = {
-            if (selectedItem == null) {
-                selected()
+    var filter by remember { mutableStateOf("") }
+    var toggle by remember { mutableStateOf(false) }
+    val selected = selectedItem?.let(name) ?: "None"
+    Div {
+        Button(attrs = {
+            classes("btn", "btn-primary", "dropdown-toggle")
+            onClick { toggle = !toggle }
+        }) { Text(selectedItem?.let(name) ?: "None") }
+
+        if (toggle) Div(attrs = {
+            classes("dropdown-menu", "show")
+            style {
+                position(Position.Absolute)
+                property("z-index", "1000")
             }
         }) {
-            Text("None")
-        }
-
-        val si = items.indexOf(selectedItem)
-        items.forEachIndexed { i, each ->
-            Option(i.toString(), attrs = {
-                if (i == si) {
-                    selected()
+            RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-3", "my-2")) {
+                filter = it
+            }
+            Hr { }
+            Button(attrs = {
+                classes("dropdown-item")
+                onClick {
+                    toggle = false
+                    filter = ""
+                    handler(null)
                 }
             }) {
-                Text(name(each))
+                Text("None")
+            }
+            items.forEach { item ->
+                val itemName = name(item)
+                if (filter.isBlank() || itemName.contains(filter, true)) {
+                    Button(attrs = {
+                        classes("dropdown-item")
+                        onClick {
+                            toggle = false
+                            filter = ""
+                            handler(item)
+                        }
+                    }) {
+                        if (selected == itemName) {
+                            B { Text(itemName) }
+                        } else {
+                            Text(itemName)
+                        }
+                    }
+                }
             }
         }
     }
@@ -61,21 +76,35 @@ fun <T> RgDropdown(
     name: (T) -> String,
     handler: (T) -> Unit
 ) {
-    Div(attrs = { classes("dropdown") }) {
+
+    var toggle by remember { mutableStateOf(false) }
+    val selected = selectedItem?.let(name) ?: "None"
+    Div {
         Button(attrs = {
             classes("btn", "btn-primary", "dropdown-toggle")
-            attr("data-bs-toggle", "dropdown")
-        }) { Text(name(selectedItem)) }
-        Ul(attrs = { classes("dropdown-menu") }) {
+            onClick { toggle = !toggle }
+        }) { Text(selected) }
+
+        if (toggle) Div(attrs = {
+            classes("dropdown-menu", "show")
+            style {
+                position(Position.Absolute)
+                property("z-index", "1000")
+            }
+        }) {
             items.forEach { item ->
-                Li {
-                    Button(attrs = {
-                        classes("dropdown-item")
-                        onClick {
-                            handler(item)
-                        }
-                    }) {
-                        Text(name(item))
+                val itemName = name(item)
+                Button(attrs = {
+                    classes("dropdown-item")
+                    onClick {
+                        toggle = false
+                        handler(item)
+                    }
+                }) {
+                    if (selected == itemName) {
+                        B { Text(itemName) }
+                    } else {
+                        Text(itemName)
                     }
                 }
             }
@@ -89,35 +118,7 @@ fun RgSeriesDropdown(
     series: Series?,
     handler: (Series) -> Unit,
 ) {
-    val id = remember { "${++num}_drop" }
-    Select(attrs = {
-        id(id)
-        classes("form-select")
-        onChange { change ->
-            change.value?.toLongOrNull()?.let { id ->
-                seriesList.firstOrNull {
-                    it.id == id
-                }?.let { handler(it) }
-            }
-        }
-    }) {
-        Option("-1", attrs = {
-            if (series == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
-        seriesList.forEach { s ->
-            Option(s.id.toString(), attrs = {
-                if (s.id == series?.id) {
-                    selected()
-                }
-            }) {
-                Text(s.name)
-            }
-        }
-    }
+    RgDropdownNone(seriesList, series, { it.name }) { it?.let(handler) }
 }
 
 @Composable
@@ -126,38 +127,8 @@ fun RgClassDropdown(
     current: RaceClass?,
     handler: (RaceClassBrackets?) -> Unit,
 ) {
-    val id = remember { "${++num}_drop" }
-    Select(attrs = {
-        id(id)
-        classes("form-select")
-        onChange { change ->
-            change.value?.toLongOrNull()?.let { id ->
-                handler(
-                    items.firstOrNull {
-                        it.raceClass.id == id
-                    }
-                )
-            }
-        }
-    }) {
-        Option("-1", attrs = {
-            if (current == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
-        items.forEach { cat ->
-            val rc = cat.raceClass
-            Option(rc.id.toString(), attrs = {
-                if (rc.id == current?.id) {
-                    selected()
-                }
-            }) {
-                Text(rc.name)
-            }
-        }
-    }
+    val cb = items.firstOrNull { it.raceClass.id == current?.id }
+    RgDropdownNone(items, cb, { it.raceClass.name }) { it?.let(handler) }
 }
 
 @Composable
@@ -166,44 +137,7 @@ fun RgSkipperDropdown(
     person: Person?,
     handler: (Person?) -> Unit
 ) {
-    val id = remember { "${++num}_drop" }
-    Select(attrs = {
-        id(id)
-        classes("form-select")
-        onChange { change ->
-            change.value?.toLongOrNull()?.let { id ->
-                handler(people.firstOrNull {
-                    it.id == id
-                })
-            }
-        }
-    }) {
-        OptGroup("Club Members")
-        Option("-1", attrs = {
-            if (person == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
-        people.filter { it.clubMember }.forEach {
-            Option(it.id.toString(), attrs = {
-                if (it.id == person?.id) {
-                    selected()
-                }
-            }) {
-                Text("${it.first} ${it.last}")
-            }
-        }
-        OptGroup("Non Members")
-        people.filter { !it.clubMember }.forEach {
-            Option(it.id.toString(), attrs = {
-                if (it.id == person?.id) {
-                    selected()
-                }
-            }) {
-                Text("${it.first} ${it.last}")
-            }
-        }
+    RgDropdownNone(people.sortedBy { it.fullName() }, person, { it.fullName() }) {
+        handler(it)
     }
 }
