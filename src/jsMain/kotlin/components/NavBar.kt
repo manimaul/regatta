@@ -14,6 +14,7 @@ fun NavBar(
 ) {
     val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
+    if (state.current.params?.values?.containsKey("nonav") != true)
     Nav(attrs = {
         classes(
             "navbar",

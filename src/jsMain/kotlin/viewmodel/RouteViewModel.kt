@@ -5,12 +5,44 @@ import kotlinx.coroutines.launch
 import org.w3c.dom.url.URL
 import utils.RouteMatcher
 
+data class QueryParams(
+    val queryString: String? = queryString()
+) {
+   val values: Map<String, String?>? by lazy {
+       println("url = $queryString")
+       queryString?.let { qs ->
+           val retVal = mutableMapOf<String, String?>()
+           queryString.split('&').forEach { qp ->
+               val pair = qp.split('=')
+               if (pair.size == 1) {
+                   retVal[pair[0]] = null
+               } else if (pair.size == 2) {
+                   retVal[pair[0]] = pair[1]
+               }
+           }
+           retVal
+       }
+   }
+}
+fun queryString(): String? {
+    val url = window.location.href
+    return url.lastIndexOf('?').takeIf { it > 0 }?.let { qs ->
+        url.substring(qs + 1)
+    }
+}
 
 data class Routing(
     val route: Route,
     val path: String,
     val args: Map<String, String>? = null,
+    val params: QueryParams? = null,
 ) {
+
+    fun pathAndParams() : String {
+        return params?.queryString?.let {
+          "$path?$it"
+        } ?: path
+    }
 
     companion object {
 
@@ -18,16 +50,18 @@ data class Routing(
             Route.entries.map { RouteMatcher.build(it) }
         }
 
-        fun from(path: String): Routing {
+        fun from(path: String, params: QueryParams? = null): Routing {
+            val queryParams = params ?: QueryParams()
             return matchers.firstOrNull {
                 it.matches(path)
             }?.let {
-                Routing(it.route, path, it.groups(path))
-            } ?: Routing(Route.NotFound, path, null)
+                Routing(it.route, path, it.groups(path), queryParams)
+            } ?: Routing(Route.NotFound, path, null, queryParams)
         }
 
-        fun from(route: Route): Routing {
-            return Routing(route, route.pathPattern)
+        fun from(route: Route, params: QueryParams? = null): Routing {
+            val queryParams = params ?: QueryParams()
+            return Routing(route, route.pathPattern, null, queryParams)
         }
     }
 }
@@ -73,10 +107,10 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
                 println("state = $it")
                 if (it.replace) {
                     println("replacing history state ${it.current.path}")
-                    window.history.replaceState(null, it.current.route.name, it.current.path)
+                    window.history.replaceState(null, it.current.route.name, it.current.pathAndParams())
                 } else {
                     println("pushing history state ${it.current.path}")
-                    window.history.pushState(null, it.current.route.name, it.current.path)
+                    window.history.pushState(null, it.current.route.name, it.current.pathAndParams())
                 }
             }
         }
@@ -87,11 +121,11 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
 
     fun goBackOrHome() {
         withState {
-           if (it.canGoback)  {
-               window.history.back()
-           } else {
-               pushRoute(Route.Home)
-           }
+            if (it.canGoback) {
+                window.history.back()
+            } else {
+                pushRoute(Route.Home)
+            }
         }
     }
 
@@ -103,6 +137,7 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
             )
         }
     }
+
     fun pushRoute(path: String) {
         if (path != flow.value.current.path) {
             setState {
@@ -121,7 +156,7 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
         if (route.pathPattern != flow.value.current.route.pathPattern) {
             setState {
                 copy(
-                    current = Routing(route, route.pathPattern, null),
+                    current = Routing(route, route.pathPattern, null, QueryParams()),
                     canGoback = true,
                     replace = false,
                 )

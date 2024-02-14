@@ -40,10 +40,15 @@ object RegattaDatabase {
             RaceBracketJunction,
         )
         transaction(database) {
-            exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
-            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS phrf BOOLEAN DEFAULT false NOT NULL;")
-            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS wsf BOOLEAN DEFAULT false NOT NULL;")
-            exec("ALTER TABLE IF EXISTS raceResults DROP COLUMN IF EXISTS bracket_id;")
+//            exec("ALTER TABLE IF EXISTS boat DROP COLUMN IF EXISTS class_id;")
+//            exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS race_class BIGINT DEFAULT 1 NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS min_r FLOAT DEFAULT 0 NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS max_r FLOAT DEFAULT 0 NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS phrf BOOLEAN DEFAULT false NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS wsf BOOLEAN DEFAULT false NOT NULL;")
+//            exec("ALTER TABLE IF EXISTS raceresults DROP COLUMN IF EXISTS bracket_id;")
             //nuke
             //raceresults, racetime, raceclasscategory, raceclass
             //alter table boat drop column if exists class_id
