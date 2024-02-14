@@ -70,6 +70,21 @@ spec:
     kind: ClusterIssuer
     name: letsencrypt-prod
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cyct-cert
+  #referenced Secret must exist in the namespace of the istio-ingressgateway
+  namespace: istio-system
+spec:
+  secretName: cyct-cert
+  commonName: racing.cyct.com
+  dnsNames:
+    - racing.cyct.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-nonprod
+---
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
@@ -91,6 +106,26 @@ spec:
         credentialName: regatta-cert
 ---
 apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: cyct-gateway
+  namespace: regatta
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - racing.cyct.com
+      tls:
+        mode: SIMPLE
+        #referenced Secret must exist in the namespace of the istio-ingressgateway
+        credentialName: cyct-cert
+---
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: regatta-virt-svc
@@ -98,8 +133,10 @@ metadata:
 spec:
   hosts:
     - regatta.mxmariner.com
+    - racing.cyct.com
   gateways:
     - regatta-gateway
+    - cyct-gateway
   http:
     - match:
         - uri:
