@@ -13,8 +13,6 @@ object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    //todo(DEPRECATED)
-    val start = timestamp("start_date").nullable()
     val startCode = integer("start_code").nullable()
     val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
@@ -25,12 +23,6 @@ object RaceResultsTable : Table() {
 
     fun count(raceId: Long): Long {
         return RaceResultsTable.select { RaceResultsTable.raceId eq raceId }.count()
-    }
-
-    fun updateStartCodes() {
-        update(where = { start.isNull() }) {
-            it[startCode] = StartCode.DNS.code
-        }
     }
 
     fun upsertResult(result: RaceResult): RaceResult? {

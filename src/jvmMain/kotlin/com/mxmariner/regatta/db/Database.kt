@@ -40,7 +40,7 @@ object RegattaDatabase {
             RaceBracketJunction,
         )
         transaction(database) {
-//            exec("ALTER TABLE IF EXISTS boat DROP COLUMN IF EXISTS class_id;")
+            exec("ALTER TABLE IF EXISTS raceresults DROP COLUMN IF EXISTS start_date;")
 //            exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
 //            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS race_class BIGINT DEFAULT 1 NOT NULL;")
 //            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS min_r FLOAT DEFAULT 0 NOT NULL;")
@@ -57,7 +57,6 @@ object RegattaDatabase {
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
-            RaceResultsTable.updateStartCodes()
 //            exec(
 //                "alter table raceresults drop column if exists name"
 //            )

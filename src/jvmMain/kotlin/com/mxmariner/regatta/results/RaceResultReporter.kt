@@ -167,12 +167,12 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
             1
         } else {
             // compare DNS to DNF
-            if (lhs.startTime != null && rhs.startTime != null) {
+            if (lhs.resultRecord.result.startCode != null && rhs.resultRecord.result.startCode != null) {
                 0
-            } else if (lhs.startTime != null) {
-                -1
-            } else if (rhs.startTime != null) {
+            } else if (lhs.resultRecord.result.startCode != null) {
                 1
+            } else if (rhs.resultRecord.result.startCode != null) {
+                -1
             } else {
                 0
             }
