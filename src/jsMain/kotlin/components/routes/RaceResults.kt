@@ -29,9 +29,6 @@ fun RaceResultsEdit(
             RgThead {
                 RgTr {
                     RgTh { Text("Boat Name") }
-                    RgTh { Text("Skipper") }
-                    RgTh { Text("Sail Number") }
-                    RgTh { Text("Boat Type") }
                     RgTh { Text("Rating") }
                     RgTh { Text("Start Time") }
                     RgTh { Text("Finish Time") }
@@ -60,9 +57,6 @@ fun RaceResultsEdit(
                             } else {
                                 RgTr {
                                     RgTd { Text(card.boatName) }
-                                    RgTd { Text(card.skipper) }
-                                    RgTd { Text(card.sail) }
-                                    RgTd { Text(card.boatType) }
                                     RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, true)) }
                                     RgTd { Text(card.startText()) }
                                     RgTd { Text(card.finishText()) }
@@ -101,12 +95,9 @@ fun EditResultRow(
                     }
                 }
             } else {
-                Text(addState.boatSkipper?.boat?.name ?: "")
+                Text(addState.boatSkipper?.label() ?: "")
             }
         }
-        RgTd { Text(addState.boatSkipper?.skipper?.fullName() ?: "") }
-        RgTd { Text(addState.boatSkipper?.boat?.sailNumber ?: "") }
-        RgTd { Text(addState.boatSkipper?.boat?.boatType ?: "") }
         RgTd {
             RatingSelections(
                 addState.ratingType, addState.phrfRating, addState.wsRating, addState.wsFlying,
@@ -195,31 +186,7 @@ fun RgBoatDropdown(
     selectedBoat: BoatSkipper?,
     handler: (BoatSkipper?) -> Unit
 ) {
-    Select(attrs = {
-        classes("form-select")
-        onChange { change ->
-            change.value?.toLongOrNull()?.let { id ->
-                handler(boats.firstOrNull { it.boat?.id == id })
-            }
-        }
-    }) {
-        Option("-1", attrs = {
-            if (selectedBoat == null) {
-                selected()
-            }
-        }) {
-            Text("None")
-        }
-        boats.forEach { boat ->
-            Option(boat.boat?.id.toString(), attrs = {
-                if (selectedBoat?.boat?.id == boat.boat?.id) {
-                    selected()
-                }
-            }) {
-                Text(boat.boat?.name ?: "")
-            }
-        }
-    }
+    RgDropdownNone(boats, selectedBoat, { it.label()}, handler)
 }
 
 @Composable

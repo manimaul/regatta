@@ -164,7 +164,19 @@ data class Boat(
 data class BoatSkipper(
     val skipper: Person? = null,
     val boat: Boat? = null,
-)
+) {
+    fun label() : String {
+        if (boat != null && skipper != null) {
+            return "${boat.name} - ${skipper.fullName()}"
+        } else if (boat != null) {
+           return boat.name
+        } else if (skipper != null) {
+            return skipper.fullName()
+        }
+        return ""
+    }
+}
+
 
 
 @Serializable
