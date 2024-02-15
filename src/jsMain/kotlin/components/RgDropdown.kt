@@ -9,6 +9,13 @@ import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.dom.*
 
+
+fun itemNameContainsFilter(itemName: String, filter: String) :Boolean{
+   return filter.trim().takeIf { it.isNotBlank() }?.split(' ')?.let {list ->
+       list.any { itemName.contains(it, true) }
+   } ?: true
+}
+
 @Composable
 fun <T> RgDropdownNone(
     items: List<T>,
@@ -48,7 +55,7 @@ fun <T> RgDropdownNone(
             }
             items.forEach { item ->
                 val itemName = name(item)
-                if (filter.isBlank() || itemName.contains(filter, true)) {
+                if (itemNameContainsFilter(itemName, filter)) {
                     Button(attrs = {
                         classes("dropdown-item")
                         onClick {

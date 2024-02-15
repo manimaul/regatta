@@ -115,7 +115,7 @@ fun EditResultRow(
                 }
             } ?: run {
                 P { Text("Normal start") }
-                RgButton(label = "DNS", customClasses = listOf(AppStyle.marginTop)) {
+                RgButton(label = "DNS") {
                     viewModel.addViewModel.setFinish(null, StartCode.DNS)
                 }
             }
@@ -137,14 +137,14 @@ fun EditResultRow(
                 RgDate("Finish", finish, placeHolder = true, time = true, seconds = true) {
                     viewModel.addViewModel.setFinish(it)
                 }
-                RgButton(label = "DNF", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
+                RgButton(label = "RET", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
                     viewModel.addViewModel.setFinish(null)
                 }
                 RgButton(label = "HOC", customClasses = listOf(AppStyle.marginTop)) {
                     viewModel.addViewModel.hoc(state.maxHoc)
                 }
             } ?: run {
-                P { Text("DNF") }
+                P { Text(addState.startCode?.name ?: "RET") }
                 RgButton(label = "Reset") {
                     viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
                 }
@@ -186,7 +186,7 @@ fun RgBoatDropdown(
     selectedBoat: BoatSkipper?,
     handler: (BoatSkipper?) -> Unit
 ) {
-    RgDropdownNone(boats, selectedBoat, { it.label()}, handler)
+    RgDropdownNone(boats, selectedBoat, { it.dropLabel() }, handler)
 }
 
 @Composable

@@ -2,6 +2,7 @@ package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.ratingDefault
+import com.mxmariner.regatta.ratingLabel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
@@ -174,6 +175,11 @@ data class BoatSkipper(
             return skipper.fullName()
         }
         return ""
+    }
+
+    fun dropLabel() :String {
+        val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
+        return "${label()}$sail ${ratingLabel(boat?.phrfRating, boat?.windseeker, true)}"
     }
 }
 
