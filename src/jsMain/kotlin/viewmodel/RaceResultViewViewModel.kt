@@ -27,7 +27,7 @@ fun RaceReportCard.startText(): String {
 }
 
 fun RaceReportCard.finishText(): String {
-    return resultRecord.result.startCode?.name ?: finishTime?.display()?.takeIf { startTime != null }
+    return resultRecord.result.startCode?.name ?: finishTime?.displayTime()?.takeIf { startTime != null }
         ?: "RET".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
 }
 

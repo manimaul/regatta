@@ -34,6 +34,11 @@ fun currentYear() : String {
     return now().year()
 }
 
+fun Instant.displayTime(): String {
+    return display().let{
+        it.substring(it.indexOf(' '))
+    }
+}
 fun Instant.display(): String {
     return toJSDate().let {
         "${it.toLocaleDateString()} ${it.toLocaleTimeString()}"

@@ -53,12 +53,9 @@ fun RaceResultsView(
                     RgTr(classes = listOf("table-light", "table-borderless")) {
                         RgTdColor(colSpan = 15, color = TableColor.info) {
                             H4 { Text(reportCategory.raceClass.name) }
-                            P {
-                                Text("CF - ${reportCategory.correctionFactor}")
-                            }
-                            P {
-                                Text(report.classStart(reportCategory.raceClass.id).displayTime())
-                            }
+                            Text("CF - ${reportCategory.correctionFactor}")
+                            Br()
+                            Text("Start time - ${report.classStart(reportCategory.raceClass.id).displayTime()}")
                         }
                     }
                     reportCategory.bracketReport.forEach { classReport ->
