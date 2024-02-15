@@ -2,6 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.StartCode
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.selected
@@ -116,18 +117,15 @@ fun EditResultRow(
             )
         }
         RgTd {
-            addState.start?.let { start ->
-                P {
-                    Text(start.display())
-                }
-                RgButton(label = "DNS", customClasses = listOf(AppStyle.marginTop)) {
-                    viewModel.addViewModel.setStart(null)
-                    viewModel.addViewModel.setFinish(null)
+            addState.startCode?.let { start ->
+                P { Text(start.name) }
+                RgButton(label = "Reset") {
+                    viewModel.addViewModel.setStartCode(null)
                 }
             } ?: run {
-                P { Text("DNS") }
-                RgButton(label = "Reset") {
-                    viewModel.addViewModel.setStart(addState.raceSchedule?.startTime)
+                P { Text("Normal start") }
+                RgButton(label = "DNS", customClasses = listOf(AppStyle.marginTop)) {
+                    viewModel.addViewModel.setFinish(null, StartCode.DNS)
                 }
             }
         }

@@ -16,7 +16,7 @@ class DbConfig {
     val jdbcURL: String
         get() = System.getProperty("jdbcurl") ?: "jdbc:postgresql://localhost:5432/regatta"
     val user: String
-        get() = System.getProperty("user") ?: "admin"
+        get() = System.getProperty("user") ?: "regatta_admin"
     val password: String
         get() = System.getProperty("password") ?: "mysecretpassword"
 }
@@ -57,6 +57,7 @@ object RegattaDatabase {
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
+            RaceResultsTable.updateStartCodes()
 //            exec(
 //                "alter table raceresults drop column if exists name"
 //            )

@@ -166,13 +166,38 @@ data class BoatSkipper(
     val boat: Boat? = null,
 )
 
+
+@Serializable
+enum class StartCode(val code: Int) {
+    DNS(1);
+
+    companion object {
+        fun from(code: Int?): StartCode? {
+            return code?.let { entries.first { it.code == code } }
+        }
+    }
+}
+
+//@Serializable
+//enum class FinishCode(val code: Int) {
+//    HOC(1),
+//    RET(2),
+//    DNF(3);
+//
+//    companion object {
+//        fun from(code: Int?): FinishCode? {
+//            return code?.let { entries.first { it.code == code } }
+//        }
+//    }
+//}
+
 @Serializable
 data class RaceResult(
     val id: Long = 0,
     val raceId: Long = 0,
     val boatId: Long = 0,
-    val start: Instant? = null,
     val finish: Instant? = null,
+    val startCode: StartCode? = null,
     val phrfRating: Int? = null,
     val hocPosition: Int? = null,
     val windseeker: Windseeker? = null,
@@ -190,13 +215,18 @@ data class RaceResultBoatBracket(
 data class RaceReport(
     val raceSchedule: RaceSchedule = RaceSchedule(),
     val classReports: List<ClassReportCards> = emptyList()
-)
+) {
+    fun classStart(classId: Long): Instant {
+        return raceSchedule.schedule.first { it.raceClass.id == classId }.startDate
+    }
+}
 
 @Serializable
 data class ClassReportCards(
     val raceClass: RaceClass = RaceClass(),
     val correctionFactor: Int = correctionFactorDefault,
     val bracketReport: List<BracketReportCards> = emptyList(),
+//    val classStart: Instant = Instant.DISTANT_PAST,
 )
 
 @Serializable
@@ -224,6 +254,18 @@ data class RaceReportCard(
     var placeOverall: Int = 0,
     val hocPosition: Int? = null,
 ) {
+
+    fun boatLabel(): String {
+        return StringBuilder()
+            .apply {
+                append(boatName)
+                sail.takeIf { it.isNotBlank() }?.let {
+                    append(" ($it)")
+                }
+            }
+            .toString()
+    }
+
     fun ratingType(): RatingType {
         return windseeker?.let { RatingType.Windseeker } ?: RatingType.PHRF
     }

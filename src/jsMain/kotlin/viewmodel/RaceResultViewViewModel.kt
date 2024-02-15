@@ -23,12 +23,12 @@ class RaceResultViewViewModel(
 }
 
 fun RaceReportCard.startText(): String {
-    return startTime?.display() ?: "DNS"
+    return resultRecord.result.startCode?.name ?: startTime?.display() ?: "error"
 }
 
 fun RaceReportCard.finishText(): String {
-    return finishTime?.display()?.takeIf { startTime != null }
-        ?: "DNF".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
+    return resultRecord.result.startCode?.name ?: finishTime?.display()?.takeIf { startTime != null }
+        ?: "RET".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
 }
 
 fun RaceReportCard.elapsedText(): String {
@@ -44,7 +44,7 @@ fun RaceReportCard.cfText(): String {
 }
 
 fun RaceReportCard.corTimeText(): String {
-    return correctedTime?.display() ?: "n/a"
+    return correctedTime?.display()?.let { "$it (${cfText()})" } ?: "n/a"
 }
 
 fun RaceReportCard.corTimeSecText(): String {

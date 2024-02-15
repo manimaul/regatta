@@ -8,22 +8,17 @@ import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
+import utils.displayTime
 import utils.year
 import viewmodel.*
 
 val columns = listOf(
-    "Boat Name",
+    "Boat",
     "Skipper",
-    "Sail Number",
-    "Boat Type",
     "Rating",
-    "Start Time",
-    "Finish Time",
+    "Finish",
     "Elapsed Time",
-    "Elapsed Seconds",
-    "Correction Factor",
     "Corrected Time",
-    "Corrected Time Seconds",
     "Place In Bracket",
     "Place In Class",
     "Place Overall"
@@ -58,7 +53,12 @@ fun RaceResultsView(
                     RgTr(classes = listOf("table-light", "table-borderless")) {
                         RgTdColor(colSpan = 15, color = TableColor.info) {
                             H4 { Text(reportCategory.raceClass.name) }
-                            Text("CF - ${reportCategory.correctionFactor}")
+                            P {
+                                Text("CF - ${reportCategory.correctionFactor}")
+                            }
+                            P {
+                                Text(report.classStart(reportCategory.raceClass.id).displayTime())
+                            }
                         }
                     }
                     reportCategory.bracketReport.forEach { classReport ->
@@ -69,18 +69,12 @@ fun RaceResultsView(
                         }
                         classReport.cards.forEach { card ->
                             RgTr {
-                                RgTd { Text(card.boatName) }
+                                RgTd { Text(card.boatLabel()) }
                                 RgTd { Text(card.skipper) }
-                                RgTd { Text(card.sail) }
-                                RgTd { Text(card.boatType) }
                                 RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
-                                RgTd { Text(card.startText()) }
                                 RgTd { Text(card.finishText()) }
                                 RgTd { Text(card.elapsedText()) }
-                                RgTd { Text(card.elapsedSecText()) }
-                                RgTd { Text(card.cfText()) }
                                 RgTd { Text(card.corTimeText()) }
-                                RgTd { Text(card.corTimeSecText()) }
                                 RgTd { Text(card.placeInBracket.toString()) }
                                 RgTd { Text(card.placeInClass.toString()) }
                                 RgTd { Text(card.placeOverall.toString()) }

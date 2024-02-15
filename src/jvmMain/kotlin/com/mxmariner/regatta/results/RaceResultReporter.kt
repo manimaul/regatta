@@ -13,7 +13,8 @@ object RaceResultReporter {
     suspend fun getReport(raceId: Long): RaceReport? {
         val classReportList = mutableListOf<ClassReportCards>()
         RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
-            val boatCards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it) }
+            val schedules = raceSchedule.schedule.associateBy { it.raceClass.id }
+            val boatCards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it, schedules) }
 
             //PHRF Overall Places
             boatCards.filter { it.phrfRating != null }.place { p, card ->
@@ -89,12 +90,13 @@ object RaceResultReporter {
         return null
     }
 
-    private fun reduceToCard(record: RaceResultBoatBracket): RaceReportCard {
+    private fun reduceToCard(record: RaceResultBoatBracket, classSchedules: Map<Long, ClassSchedule>): RaceReportCard {
+        val schedule = classSchedules[record.bracket.classId]
         val result = record.result
         val boat = record.boatSkipper.boat
         val skipper = record.boatSkipper.skipper
         val time = result.finish?.let { finish ->
-            result.start?.let { start ->
+            schedule?.startDate?.let { start ->
                 finish - start
             }
         }
@@ -107,16 +109,16 @@ object RaceResultReporter {
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
             windseeker = result.windseeker,
-            startTime = result.start,
+            startTime = schedule?.startDate,
             finishTime = result.finish,
             elapsedTime = time,
             correctionFactor = correctionFactor(record.raceSchedule.race.correctionFactor, result.phrfRating),
             correctedTime = boatCorrectedTime(
                 record.raceSchedule.race.correctionFactor,
-                result.start,
+                schedule?.startDate,
                 result.finish,
                 result.phrfRating,
-            ).takeIf { result.start != null && result.finish != null },
+            ).takeIf { result.finish != null },
             placeInBracket = 0,
             placeInClass = 0,
             placeOverall = 0,

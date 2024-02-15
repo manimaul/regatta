@@ -17,8 +17,8 @@ data class RaceResultAddState(
     val wsFlying: Boolean = false,
     val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
-    val start: Instant? = null,
     val finish: Instant? = null,
+    val startCode: StartCode? = null,
     val hocPosition: Int? = null,
 ) : VmState {
     fun asPost(): RaceResult? {
@@ -31,6 +31,7 @@ data class RaceResultAddState(
                 windseeker = null
                 phrfRating != null
             }
+
             RatingType.Windseeker -> {
                 phrfRating = null
                 windseeker != null
@@ -41,7 +42,7 @@ data class RaceResultAddState(
                 id = id,
                 raceId = raceSchedule.race.id,
                 boatId = boatSkipper.boat.id,
-                start = start,
+                startCode = startCode,
                 finish = finish,
                 phrfRating = phrfRating,
                 windseeker = windseeker,
@@ -62,7 +63,6 @@ class RaceResultAddViewModel(
             RaceResultAddState(
                 boatSkipper = null,
                 raceSchedule = race.value,
-                start = race.value?.startTime,
                 finish = race.value?.endTime
             )
         }
@@ -86,12 +86,12 @@ class RaceResultAddViewModel(
         }
     }
 
-    fun setFinish(it: Instant?) {
-        setState { copy(finish = it) }
+    fun setFinish(it: Instant?, startCode: StartCode? = null) {
+        setState { copy(finish = it, startCode = startCode) }
     }
 
-    fun setStart(it: Instant?) {
-        setState { copy(start = it) }
+    fun setStartCode(code: StartCode?) {
+        setState { copy(startCode = code) }
     }
 
     fun setCard(card: RaceReportCard? = null) {
@@ -105,7 +105,7 @@ class RaceResultAddViewModel(
                 wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
                 ratingType = type,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
-                start = if (card != null) card.startTime else raceSchedule?.startTime,
+                startCode = card?.resultRecord?.result?.startCode,
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
             )
@@ -131,7 +131,7 @@ class RaceResultAddViewModel(
     }
 
     fun setType(type: RatingType) {
-       setState { copy(ratingType = type) }
+        setState { copy(ratingType = type) }
     }
 
     fun setWsRating(rating: String) {

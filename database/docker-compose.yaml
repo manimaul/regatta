@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 5
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: regatta_admin
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: regatta
 
