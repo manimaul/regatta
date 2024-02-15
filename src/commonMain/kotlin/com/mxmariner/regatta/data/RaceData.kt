@@ -271,6 +271,9 @@ data class RaceReportCard(
         return StringBuilder()
             .apply {
                 append(boatName)
+                boatType.takeIf { it.isNotBlank() }?.let {
+                    append("  - $it")
+                }
                 sail.takeIf { it.isNotBlank() }?.let {
                     append(" ($it)")
                 }
