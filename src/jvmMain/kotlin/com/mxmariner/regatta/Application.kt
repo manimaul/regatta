@@ -9,6 +9,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
@@ -20,6 +21,7 @@ fun main() {
 
 fun Application.module() {
     RegattaDatabase.init()
+    install(Compression)
     install(Authentication) {
         bearer(Token.Admin.name) {
             realm = Token.Admin.realm
