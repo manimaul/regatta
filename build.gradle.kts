@@ -49,6 +49,7 @@ kotlin {
                 implementation(compose.html.core)
                 implementation(compose.runtime)
                 implementation(compose.html.svg)
+                implementation(npm("sortablejs", "1.15.2"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }

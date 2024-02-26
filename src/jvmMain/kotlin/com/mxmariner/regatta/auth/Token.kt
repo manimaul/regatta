@@ -60,7 +60,7 @@ object Token {
                 val salt = salt()
                 val hash = timeStampHash(expires, salt, it.hash)
                 LoginResponse(
-                    id = it.id!!,
+                    id = it.id,
                     hashOfHash = hash,
                     salt,
                     expires

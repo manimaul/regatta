@@ -27,14 +27,12 @@ class PeopleEditViewModel(
     }
 
     fun delete(person: Person) {
-        person.id?.let {
-            setState {
-                copy(
-                    person = Api.deletePerson(person.id).toAsync().map { person }
-                        .mapErrorMessage { "error deleting ${person.first}, ${person.last}" },
-                    operation = Operation.Deleted
-                )
-            }
+        setState {
+            copy(
+                person = Api.deletePerson(person.id).toAsync().map { person }
+                    .mapErrorMessage { "error deleting ${person.first}, ${person.last}" },
+                operation = Operation.Deleted
+            )
         }
     }
 
