@@ -31,6 +31,15 @@ fun Application.configureRouting() {
         get(ApiPaths.allClasses.versionedApi()) {
             call.respond(RegattaDatabase.allClasses())
         }
+        get(ApiPaths.standings.versionedApi()) {
+            call.request.queryParameters["id"]?.toLong()?.let { id ->
+                call.request.queryParameters["year"]?.toInt()?.let { year ->
+                    RaceResultReporter.getStandingsReport(id, year)?.let {
+                        call.respond(it)
+                    }
+                }
+            } ?: call.respond(HttpStatusCode.NoContent)
+        }
         get(ApiPaths.findSeries.versionedApi()) {
             call.request.queryParameters["name"]?.let {
                 RegattaDatabase.findSeries(it)
@@ -119,10 +128,8 @@ fun Application.configureRouting() {
                 } ?: call.respond(HttpStatusCode.Conflict)
             }
             post(ApiPaths.series.versionedApi()) {
-                val series = call.receive<Series>()
-                RegattaDatabase.upsertSeries(series)?.let {
-                    call.respond(it)
-                } ?: call.respond(HttpStatusCode.InternalServerError)
+                val series = call.receive<List<Series>>()
+                call.respond(RegattaDatabase.upsertSeries(series))
             }
             delete(ApiPaths.skipper.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
@@ -150,10 +157,10 @@ fun Application.configureRouting() {
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             post(ApiPaths.raceClass.versionedApi()) {
-                val body = call.receive<RaceClass>()
-                RegattaDatabase.upsertClass(body)?.let {
+                val body = call.receive<List<RaceClass>>()
+                RegattaDatabase.upsertClass(body).let {
                     call.respond(it)
-                } ?: call.respond(HttpStatusCode.InternalServerError)
+                }
             }
             post(ApiPaths.bracket.versionedApi()) {
                 val body = call.receive<Bracket>()

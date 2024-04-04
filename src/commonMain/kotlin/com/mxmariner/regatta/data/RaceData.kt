@@ -196,19 +196,6 @@ enum class StartCode(val code: Int) {
     }
 }
 
-//@Serializable
-//enum class FinishCode(val code: Int) {
-//    HOC(1),
-//    RET(2),
-//    DNF(3);
-//
-//    companion object {
-//        fun from(code: Int?): FinishCode? {
-//            return code?.let { entries.first { it.code == code } }
-//        }
-//    }
-//}
-
 @Serializable
 data class RaceResult(
     val id: Long = 0,
@@ -230,6 +217,46 @@ data class RaceResultBoatBracket(
 )
 
 @Serializable
+data class StandingsSeries(
+    val year: Int = 0,
+    val series: Series = Series(),
+    val standings: List<StandingsClass> = emptyList(),
+    val races: List<Race> = emptyList(),
+)
+
+@Serializable
+data class StandingsClass(
+    val raceClass: RaceClass = RaceClass(),
+    val standings: List<StandingsBracket> = emptyList(),
+)
+
+@Serializable
+data class StandingsBracket(
+    val bracket: Bracket = Bracket(),
+    val standings: List<StandingsBoatSkipper> = emptyList(),
+)
+
+@Serializable
+data class StandingsBoatSkipper(
+    val boatSkipper: BoatSkipper = BoatSkipper(),
+    val raceStandings: List<StandingsRace> = emptyList(),
+    val totalScoreBracket: Int = 0,
+    val totalScoreClass: Int = 0,
+    val totalScoreOverall: Int = 0,
+    var placeInBracket: Int = 0,
+    var placeInClass: Int = 0,
+    var placeOverall: Int = 0,
+)
+
+@Serializable
+data class StandingsRace(
+    val placeInBracket: Int = 0,
+    val placeInClass: Int = 0,
+    var placeOverall: Int = 0,
+    var throwOut: Boolean = false,
+)
+
+@Serializable
 data class RaceReport(
     val raceSchedule: RaceSchedule = RaceSchedule(),
     val classReports: List<ClassReportCards> = emptyList()
@@ -244,7 +271,6 @@ data class ClassReportCards(
     val raceClass: RaceClass = RaceClass(),
     val correctionFactor: Int = correctionFactorDefault,
     val bracketReport: List<BracketReportCards> = emptyList(),
-//    val classStart: Instant = Instant.DISTANT_PAST,
 )
 
 @Serializable

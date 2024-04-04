@@ -3,12 +3,184 @@ package com.mxmariner.regatta.results
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
+import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 object RaceResultReporter {
 
+
+    suspend fun getStandingsReport(seriesId: Long, year: Int): StandingsSeries? {
+        val reports = RegattaDatabase.seriesRaces(seriesId, year).mapNotNull { raceId ->
+            getReport(raceId)
+        }.asSequence()
+
+        val races = reports.map { it.raceSchedule }.sortedBy { it.startTime }.map { it.race }.toList()
+
+        val windseekerRecords = reports.map { it.classReports }.flatten()
+            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker != null }
+
+        val phrfRecords = reports.map { it.classReports }.flatten()
+            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker == null }
+
+        val standings = RegattaDatabase.findSeries(seriesId)?.let { series ->
+            StandingsSeries(
+                year = year,
+                series = series,
+                standings = getStandingsClass(races, reports, windseekerRecords, phrfRecords),
+                races = races
+            )
+        }
+
+        standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
+            ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { ratingType, standings ->
+            var place = 0
+            var previousScore = 0
+            standings.sortedBy { it.totalScoreOverall }.forEach {
+                if (it.totalScoreOverall > previousScore) {
+                    it.placeOverall = ++place
+                } else {
+                    it.placeOverall = place
+                }
+                previousScore = it.totalScoreOverall
+            }
+        }
+        return standings
+    }
+
+    private fun getStandingsClass(
+        races: List<Race>,
+        reports: Sequence<RaceReport>,
+        windseekerRecords: Sequence<RaceReportCard>,
+        phrfRecords: Sequence<RaceReportCard>,
+    ): List<StandingsClass> {
+        val classes = reports.map { it.classReports }.flatten().map {
+            it.raceClass
+        }.distinctBy { it.id }.sortedBy { it.sort }.toList()
+
+        return classes.map { raceClass ->
+            StandingsClass(
+                raceClass = raceClass,
+                standings = getStandingsBracket(raceClass, races, reports, windseekerRecords, phrfRecords)
+            )
+        }
+    }
+
+    private fun getStandingsBracket(
+        raceClass: RaceClass,
+        races: List<Race>,
+        raceReports: Sequence<RaceReport>,
+        windseekerRecords: Sequence<RaceReportCard>,
+        phrfRecords: Sequence<RaceReportCard>,
+    ): List<StandingsBracket> {
+        val brackets =
+            raceReports.map { it.classReports }.flatten().filter { it.raceClass.id == raceClass.id }
+                .map { it.bracketReport }.flatten().map { it.bracket }.distinctBy { it.id }
+        return brackets.map {
+            StandingsBracket(
+                bracket = it,
+                standings = getStandingsBoatBracket(raceClass, it, races, raceReports, windseekerRecords, phrfRecords)
+            )
+        }.toList()
+    }
+
+    private fun getStandingsBoatBracket(
+        raceClass: RaceClass,
+        bracket: Bracket,
+        races: List<Race>,
+        raceReports: Sequence<RaceReport>,
+        windseekerRecords: Sequence<RaceReportCard>,
+        phrfRecords: Sequence<RaceReportCard>,
+    ): List<StandingsBoatSkipper> {
+
+        val classRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
+            .map { it.bracketReport }.flatten().map { it.cards }.flatten()
+
+        val bracketRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
+            .map { it.bracketReport }.flatten().filter { it.bracket.id == bracket.id }
+            .map { it.cards }.flatten()
+
+
+        val result = bracketRecords.groupBy { it.resultRecord.boatSkipper }.map {
+            val boatSkipper = it.key
+            val raceReportCards = it.value
+            val standings = races.map { race ->
+                val overallRecords = if (boatSkipper.boat?.windseeker != null) {
+                    windseekerRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+                } else {
+                    phrfRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+                }
+                raceReportCards.find { it.resultRecord.raceSchedule.race.id == race.id }?.let {
+                    StandingsRace(
+                        placeInBracket = it.placeInBracket,
+                        placeInClass = it.placeInClass,
+                        placeOverall = it.placeOverall,
+                        throwOut = false
+                    )
+                } ?: lastPlace(race, bracketRecords, classRecords, overallRecords)
+            }.toList()
+
+            if (standings.size >= 5) {
+                standings.sortedBy { it.placeInBracket }.last().let { it.throwOut = true }
+            }
+
+            StandingsBoatSkipper(
+                boatSkipper = boatSkipper,
+                raceStandings = standings,
+                totalScoreBracket = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInBracket },
+                totalScoreClass = standings.fold(0) { a, s -> a + s.placeInClass },
+                totalScoreOverall = standings.fold(0) { a, s -> a + s.placeOverall },
+                placeInBracket = 0,
+                placeInClass = 0,
+                placeOverall = 0,
+            )
+        }
+
+        var place = 0
+        var previousScore = 0
+        result.sortedBy { it.totalScoreBracket }.forEach {
+            if (it.totalScoreBracket > previousScore) {
+                it.placeInBracket = ++place
+            } else {
+                it.placeInBracket = place
+            }
+            previousScore = it.totalScoreBracket
+        }
+        place = 0
+        previousScore = 0
+        result.sortedBy { it.totalScoreClass }.forEach {
+            if (it.totalScoreClass > previousScore) {
+                it.placeInClass = ++place
+            } else {
+                it.placeInClass = place
+            }
+            previousScore = it.totalScoreClass
+        }
+        return result
+    }
+
+    private fun lastPlace(
+        race: Race,
+        bracketRecords: Sequence<RaceReportCard>,
+        classRecords: Sequence<RaceReportCard>,
+        overAllRecords: Sequence<RaceReportCard>,
+    ): StandingsRace {
+        val pb = bracketRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeInBracket }
+            .ifEmpty { sequenceOf(0) }
+            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
+        val pc = classRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeInClass }
+            .ifEmpty { sequenceOf(0) }
+            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
+        val po = overAllRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeOverall }
+            .ifEmpty { sequenceOf(0) }
+            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
+        return StandingsRace(
+            placeInBracket = pb,
+            placeInClass = pc,
+            placeOverall = po,
+        )
+    }
 
     suspend fun getReport(raceId: Long): RaceReport? {
         val classReportList = mutableListOf<ClassReportCards>()

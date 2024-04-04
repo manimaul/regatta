@@ -75,7 +75,11 @@ object RaceResultsTable : Table() {
             result = result,
             raceSchedule = raceSchedule,
             boatSkipper = BoatSkipper(
-                boat = resultRowToBoat(row),
+                boat = resultRowToBoat(row)
+                    .copy(
+                        windseeker = result.windseeker,
+                        phrfRating = result.phrfRating,
+                    ),
                 skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
             ),
             bracket = bracket ?: Bracket(),

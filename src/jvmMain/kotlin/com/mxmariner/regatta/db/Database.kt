@@ -82,7 +82,7 @@ object RegattaDatabase {
     suspend fun findSeries(id: Long): Series? = dbQuery { SeriesTable.selectSeries(id) }
     suspend fun deleteSeries(id: Long): Int = dbQuery { SeriesTable.deleteSeries(id) }
     suspend fun findSeries(name: String): List<Series> = dbQuery { SeriesTable.selectByName(name) }
-    suspend fun upsertSeries(series: Series): Series? = dbQuery { SeriesTable.upsertSeries(series) }
+    suspend fun upsertSeries(series: List<Series>): List<Series> = dbQuery { SeriesTable.upsertSeries(series) }
 
     // Person ------------------------
     suspend fun findPerson(id: Long?): Person? = dbQuery { id?.let { PersonTable.selectPerson(it) } }
@@ -117,7 +117,7 @@ object RegattaDatabase {
     suspend fun deleteBracket(id: Long) = dbQuery { BracketTable.deleteBracket(id) }
 
     // Race Class ------------------------
-    suspend fun upsertClass(item: RaceClass) = dbQuery { RaceClassTable.upsertClass(item) }
+    suspend fun upsertClass(item: List<RaceClass>) = dbQuery { RaceClassTable.upsertClass(item) }
     suspend fun allClasses(): List<RaceClassBrackets> = dbQuery { RaceClassTable.allClasses() }
     suspend fun deleteClass(id: Long): Int = dbQuery { RaceClassTable.deleteClass(id) }
     suspend fun findClass(id: Long): RaceClass? = dbQuery { RaceClassTable.selectById(id) }
@@ -139,6 +139,26 @@ object RegattaDatabase {
             raceIds.mapNotNull {
                 RaceTable.findRaceSchedule(it)
             }.sortedBy { it.startTime }
+        }
+    }
+
+    suspend fun seriesRaces(seriesId: Long, year: Int): List<Long> {
+        val start = Instant.parse("$year-01-01T00:00:00Z")
+        val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
+        return dbRawQuery(
+            sql = "SELECT DISTINCT race_id FROM racetime JOIN race r on r.id = racetime.race_id WHERE r.series_id = ? AND start_date >= ? AND start_date < ?;",
+            args = listOf(
+                LongColumnType() to seriesId,
+                KotlinInstantColumnType() to start,
+                KotlinInstantColumnType() to end,
+            )
+        ) {
+            val raceIds = mutableListOf<Long>()
+            while (it.next()) {
+                val raceId = it.getLong(1)
+                raceIds.add(raceId)
+            }
+            raceIds
         }
     }
 

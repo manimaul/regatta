@@ -14,14 +14,12 @@ object NoopDER : DisposableEffectResult {
 }
 
 
-
 @Composable
 fun <T> RgSortable(
     items: List<T>,
     name: (T) -> String,
     onSort: (List<T>) -> Unit,
 ) {
-    H6 { Text("sortable") }
     var arranged by remember { mutableStateOf(items) }
     Ul(attrs = {
         classes("list-group")

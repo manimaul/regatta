@@ -30,6 +30,10 @@ fun Router(
                 Route.RaceResult -> RaceResults()
                 Route.RaceResultView -> RaceResultsView(state.current.args?.get("id")?.toLongOrNull())
                 Route.RaceResultEdit -> RaceResultsEdit(state.current.args?.get("id")?.toLongOrNull())
+                Route.SeriesStandingsView -> SeriesStandings(
+                    state.current.args?.get("id")?.toLongOrNull(),
+                    state.current.args?.get("year")?.toIntOrNull()
+                )
                 Route.Boats -> Boats()
                 Route.Classes -> Classes()
                 Route.Admin -> Admin(create = false)

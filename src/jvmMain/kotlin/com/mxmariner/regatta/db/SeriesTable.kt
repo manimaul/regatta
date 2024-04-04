@@ -31,14 +31,16 @@ object SeriesTable : Table() {
         return select { SeriesTable.name ilike LikePattern("%$name%") }.map(::resultRowToSeries)
     }
 
-    fun upsertSeries(series: Series): Series? {
-        return upsert {
-            if (series.id > 0) {
-                it[id] = series.id
-            }
-            it[name] = series.name.trim()
-            it[sort] = series.sort
-            it[active] = series.active
-        }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
+    fun upsertSeries(seriesList: List<Series>): List<Series> {
+        return seriesList.mapNotNull { series ->
+            upsert {
+                if (series.id > 0) {
+                    it[id] = series.id
+                }
+                it[name] = series.name.trim()
+                it[sort] = series.sort
+                it[active] = series.active
+            }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
+        }
     }
 }

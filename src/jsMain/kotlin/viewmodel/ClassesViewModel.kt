@@ -11,6 +11,7 @@ data class ClassesState(
     val editBracketId: Long? = 0L,
     val editClassId: Long? = 0L,
     val classList: Async<List<RaceClassBrackets>> = Loading(),
+    val sortMode: Boolean = false,
 ) : VmState
 
 class ClassesViewModel(
@@ -47,7 +48,7 @@ class ClassesViewModel(
 
         setState {
             val list =
-                Api.postClass(rc).toAsync().flatMap { Api.getAllClasses().toAsync() }
+                Api.postClass(listOf(rc)).toAsync().flatMap { Api.getAllClasses().toAsync() }
             copy(
                 editClassId = 0L,
                 classList = list,
@@ -85,39 +86,21 @@ class ClassesViewModel(
         }
     }
 
-    fun moveUp(raceClass: RaceClass) {
-        flow.value.classList.value
-            ?.map { it.raceClass }
-            ?.moveItem(up = true) { it.id == raceClass.id }
-            ?.let { lst ->
-                setState {
-                    lst.forEachIndexed { index, raceClass ->
-                        Api.postClass(raceClass.copy(sort = index))
-                    }
-                    copy(
-                        editClassId = null,
-                        classList = Api.getAllClasses().toAsync(),
-                    )
-                }
-            }
+    fun sortMode(b: Boolean) {
+        setState { copy(sortMode = b) }
     }
 
-    fun moveDown(raceClass: RaceClass) {
-        flow.value.classList.value
-            ?.map { it.raceClass }
-            ?.moveItem(up = false) { it.id == raceClass.id }
-            ?.let { lst ->
-                setState {
-                    lst.forEachIndexed { index, raceClass ->
-                        Api.postClass(raceClass.copy(sort = index))
-                    }
-                    copy(
-                        editClassId = null,
-                        classList = Api.getAllClasses().toAsync(),
-                    )
-                }
-            }
+    fun saveClassOrder(order: List<RaceClass>) {
+        setState {
+            copy(
+                classList = classList.loading(),
+                sortMode = false,
+            )
+        }
+        setState {
+            copy(
+                classList = Api.postClass(order).toAsync()
+            )
+        }
     }
-
-
 }

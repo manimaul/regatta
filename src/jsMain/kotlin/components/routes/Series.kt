@@ -17,13 +17,37 @@ fun Series(
 ) {
     val flowState by viewModel.flow.collectAsState()
     when (val series = flowState.series) {
-        is Complete -> AllSeries(series.value, viewModel)
+        is Complete -> {
+            if (flowState.sortMode) {
+                SortSeries(series.value, viewModel)
+            } else {
+                AllSeries(series.value, viewModel)
+            }
+        }
         is Error -> ErrorDisplay(series) {
             viewModel.reload()
         }
 
         is Loading -> RgSpinner()
         Uninitialized -> Unit
+    }
+}
+
+@Composable
+fun SortSeries(
+    allSeries: List<Series>,
+    viewModel: SeriesViewModel,
+) {
+    H1 { Text("Series Sort Order") }
+    var order by remember { mutableStateOf(allSeries) }
+    RgSortable(allSeries, { it.name }) {
+        order = it.mapIndexed{ i, s -> s.copy(sort = i) }
+    }
+    RgButton("Cancel", customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
+        viewModel.sortMode(false)
+    }
+    RgButton("Save", style = RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
+        viewModel.saveOrder(order)
     }
 }
 
@@ -42,9 +66,9 @@ fun AllSeries(
             }
         }
         RgTbody {
-            allSeries.forEachIndexed { i, series ->
+            allSeries.forEach{ series ->
                 if (state.editId == series.id) {
-                    EditSeries(series, viewModel, i == 0, i == allSeries.size - 1)
+                    EditSeries(series, viewModel)
                 } else {
                     RgTr {
                         RgTd { Text(series.name) }
@@ -59,14 +83,15 @@ fun AllSeries(
             EditSeries(Series(), viewModel)
         }
     }
+    RgButton("Change Sort Order") {
+        viewModel.sortMode(true)
+    }
 }
 
 @Composable
 fun EditSeries(
     edit: Series,
     viewModel: SeriesViewModel,
-    first: Boolean = true,
-    last: Boolean = true,
 ) {
 
     var series by remember { mutableStateOf(edit) }
@@ -107,22 +132,6 @@ fun EditSeries(
                 viewModel.upsert(series)
                 viewModel.editSeries(null)
                 series = Series()
-            }
-            if (!first || !last) {
-                if (!first) RgButton(
-                    "Up",
-                    RgButtonStyle.Success,
-                    customClasses = listOf("float-end", AppStyle.marginStart),
-                ) {
-                    viewModel.moveUp(series)
-                }
-                if (!last) RgButton(
-                    "Down",
-                    RgButtonStyle.Success,
-                    customClasses = listOf("float-end", AppStyle.marginStart),
-                ) {
-                    viewModel.moveDown(series)
-                }
             }
         }
     }

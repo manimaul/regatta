@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceTimeTable : Table() {
     val raceId = (long("race_id") references RaceTable.id)
+//    val seriesId = (long("series_id") references SeriesTable.id).nullable()
     val classId = (long("class_id") references RaceClassTable.id)
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")

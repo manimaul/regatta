@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClassBrackets
+import com.mxmariner.regatta.data.Series
 import components.*
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
@@ -12,6 +13,7 @@ import utils.Error
 import utils.Loading
 import utils.Uninitialized
 import viewmodel.ClassesViewModel
+import viewmodel.SeriesViewModel
 
 @Composable
 fun Classes(
@@ -19,7 +21,13 @@ fun Classes(
 ) {
     val flowState by viewModel.flow.collectAsState()
     when (val list = flowState.classList) {
-        is Complete -> CategoryList(viewModel, list.value)
+        is Complete -> {
+            if (flowState.sortMode) {
+                SortClasses(list.value.map { it.raceClass }, viewModel)
+            } else {
+                ClassList(viewModel, list.value)
+            }
+        }
         is Error -> {
             ErrorDisplay(list) {
                 viewModel.reload()
@@ -31,9 +39,26 @@ fun Classes(
     }
 }
 
+@Composable
+fun SortClasses(
+    list: List<RaceClass>,
+    viewModel: ClassesViewModel,
+) {
+    H1 { Text("Series Sort Order") }
+    var order by remember { mutableStateOf(list) }
+    RgSortable(list, { it.name}) {
+        order = it.mapIndexed{ i, s -> s.copy(sort = i) }
+    }
+    RgButton("Cancel", customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
+        viewModel.sortMode(false)
+    }
+    RgButton("Save", style = RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
+        viewModel.saveClassOrder(order)
+    }
+}
 
 @Composable
-fun CategoryList(
+fun ClassList(
     viewModel: ClassesViewModel,
     list: List<RaceClassBrackets>,
 ) {
@@ -51,7 +76,7 @@ fun CategoryList(
             EditClass(RaceClass(), viewModel)
             list.forEachIndexed { i, each ->
                 if (state.editClassId == each.raceClass.id) {
-                    EditClass(each.raceClass, viewModel, first = i == 0, last = i == (list.size - 1))
+                    EditClass(each.raceClass, viewModel)
                 } else {
                     RgTr {
                         RgTd(classes = listOf("table-info")) {
@@ -90,6 +115,9 @@ fun CategoryList(
             }
         }
     }
+    RgButton("Change Sort Order") {
+        viewModel.sortMode(true)
+    }
 }
 
 @Composable
@@ -121,8 +149,6 @@ fun BracketRow(
 fun EditClass(
     editClass: RaceClass,
     viewModel: ClassesViewModel,
-    first: Boolean = true,
-    last: Boolean = true,
 ) {
     var raceClass by remember { mutableStateOf(editClass) }
     if (editClass.id != raceClass.id) {
@@ -158,14 +184,6 @@ fun EditClass(
                     customClasses = listOf("float-end", AppStyle.marginStart)
                 ) {
                     viewModel.editClass(null)
-                }
-                if (!first || !last) {
-                    if (!first) RgButton("Up", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
-                        viewModel.moveUp(raceClass)
-                    }
-                    if (!last) RgButton("Down", RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart)) {
-                        viewModel.moveDown(raceClass)
-                    }
                 }
                 RgButton("Delete", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginStart)) {
                     viewModel.delete(raceClass)

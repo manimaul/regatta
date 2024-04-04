@@ -82,6 +82,7 @@ enum class Route(val pathPattern: String) {
     RaceResult("/races/results"),
     RaceResultView("/races/results/view/:id"),
     RaceResultEdit("/races/results/:id"),
+    SeriesStandingsView("/series/standings/view/:id/:year"),
     NotFound("/404")
 }
 

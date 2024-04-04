@@ -26,9 +26,8 @@ class ResultsViewModel(
         setState { copy( races = selectedYear()?.let { fetchRaces(it) } ?: races ) }
     }
 
-    private val none = Series(name = "No series")
     private suspend fun fetchRaces(year: Int) = Api.getAllRaces(year).toAsync().map { lst ->
-        lst.sortedBy { it.startTime }.groupBy { it.series ?: none }
+        lst.sortedBy { it.startTime }.groupBy { it.series ?: Series(name = it.race.name)}
     }
 
     override fun reload() {
@@ -51,5 +50,9 @@ class ResultsViewModel(
                 copy(races = fetchRaces(y))
             }
         }
+    }
+
+    fun viewStandings(series: Series) {
+        routeVm.pushRoute("/series/standings/view/${series.id}/${selectedYear()}")
     }
 }

@@ -28,8 +28,8 @@ object Api {
     suspend fun getSeries(id: Long) =
         Network.get<Series>(ApiPaths.series, mapOf("id" to "$id"))
 
-    suspend fun postSeries(series: Series) =
-        Network.post<Series, Series>(ApiPaths.series, series)
+    suspend fun postSeries(series: List<Series>) =
+        Network.post<List<Series>, List<Series>>(ApiPaths.series, series)
 
     suspend fun postAuth(auth: AuthRecord) =
         Network.post<AuthRecord, AuthRecord>(ApiPaths.auth, auth)
@@ -40,17 +40,14 @@ object Api {
     suspend fun deleteBoat(id: Long) =
         Network.delete(ApiPaths.boat, mapOf("id" to "$id"))
 
-//    suspend fun getAllClasses() =
-//        Network.get<List<Bracket>>(ApiPaths.allBrackets)
-
     suspend fun getAllClasses() =
         Network.get<List<RaceClassBrackets>>(ApiPaths.allClasses)
 
     suspend fun postBracket(bracket: Bracket) =
         Network.post<Bracket, Bracket>(ApiPaths.bracket, bracket)
 
-    suspend fun postClass(raceClass: RaceClass) =
-        Network.post<RaceClass, RaceClass>(ApiPaths.raceClass, raceClass)
+    suspend fun postClass(classList: List<RaceClass>) =
+        Network.post<List<RaceClass>, List<RaceClassBrackets>>(ApiPaths.raceClass, classList)
 
     suspend fun getPerson(id: Long) =
         Network.get<Person>(ApiPaths.skipper, mapOf("id" to "$id"))
@@ -101,4 +98,8 @@ object Api {
 
     suspend fun postSchedule(schedule: RaceSchedule) =
         Network.post<RaceSchedule, RaceSchedule>(ApiPaths.raceSchedule, schedule)
+
+    suspend fun getSeriesStanding(seriesId: Long, year: Int) =
+        Network.get<StandingsSeries>(ApiPaths.standings, mapOf("id" to "$seriesId", "year" to "$year"))
+
 }

@@ -1,13 +1,12 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.Series
-import com.mxmariner.regatta.moveItem
-import kotlinx.coroutines.launch
 import utils.*
 
 data class SeriesState(
     val editId: Long? = null,
     val series: Async<List<Series>> = Loading(),
+    val sortMode: Boolean = false,
 ) : VmState
 
 class SeriesViewModel(
@@ -42,7 +41,7 @@ class SeriesViewModel(
         }
         setState {
             copy(
-                series = Api.postSeries(s).toAsync().flatMap { Api.allSeries().toAsync() },
+                series = Api.postSeries(listOf(s)).toAsync().flatMap { Api.allSeries().toAsync() },
             )
         }
     }
@@ -55,25 +54,19 @@ class SeriesViewModel(
         }
     }
 
-    fun moveUp(series: Series) {
-        flow.value.series.value?.moveItem(up = true) { it.id == series.id }?.let { lst ->
-            setState {
-                lst.forEachIndexed { i, s ->
-                    Api.postSeries(s.copy(sort = i))
-                }
-                copy(series = Api.allSeries().toAsync())
-            }
-        }
+    fun sortMode(b: Boolean) {
+        setState { copy(sortMode = b) }
     }
 
-    fun moveDown(series: Series) {
-        flow.value.series.value?.moveItem(up = false) { it.id == series.id }?.let { lst ->
-            setState {
-                lst.forEachIndexed { i, s ->
-                    Api.postSeries(s.copy(sort = i))
-                }
-                copy(series = Api.allSeries().toAsync())
-            }
+    fun saveOrder(order: List<Series>) {
+        setState { copy(
+            series = series.loading(),
+            sortMode = false,
+        ) }
+        setState {
+            copy(
+                series = Api.postSeries(order).toAsync().flatMap { Api.allSeries().toAsync() },
+            )
         }
     }
 }

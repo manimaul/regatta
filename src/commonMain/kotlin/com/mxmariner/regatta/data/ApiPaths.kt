@@ -6,6 +6,7 @@ object ApiPaths {
     val series = "/series"
     val allSeries = "/allSeries"
     val findSeries = "/find/series"
+    val standings = "series/standings"
 
     val raceClass = "/raceClass"
     val allClasses = "/allClasses"

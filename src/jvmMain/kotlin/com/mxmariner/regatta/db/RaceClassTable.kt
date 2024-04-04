@@ -24,17 +24,24 @@ object RaceClassTable : Table() {
         }
     }
 
-    fun upsertClass(item: RaceClass): RaceClass? {
-        return upsert {
-            if (item.id > 0) {
-                it[id] = item.id
-            }
-            it[name] = item.name.trim()
-            it[active] = item.active
-            it[wsFlying] = item.wsFlying
-            it[phrf] = item.isPHRF
-            it[sort] = item.sort
-        }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
+    fun upsertClass(list: List<RaceClass>): List<RaceClassBrackets> {
+        return list.mapNotNull{ item ->
+            upsert {
+                if (item.id > 0) {
+                    it[id] = item.id
+                }
+                it[name] = item.name.trim()
+                it[active] = item.active
+                it[wsFlying] = item.wsFlying
+                it[phrf] = item.isPHRF
+                it[sort] = item.sort
+            }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
+        }.map { c ->
+            RaceClassBrackets(
+                raceClass = c,
+                brackets = BracketTable.findClassBrackets(c.id)
+            )
+        }.sortedBy { it.raceClass.sort }
     }
 
     fun deleteClass(catId: Long): Int {

@@ -2,6 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.RaceSchedule
 import com.mxmariner.regatta.data.StartCode
 import com.mxmariner.regatta.ratingLabel
 import components.*
@@ -246,10 +247,36 @@ fun RaceResults(
                             }
                         }
                     }
+                    if (series.id != 0L) {
+                        RgTr {
+                            RgTd(colSpan = 2) {
+                                Text("${series.name} Standings")
+                            }
+                            RgTd {
+                                if (raceSchedules.resultCount() > 0) {
+                                    RgButton("View Standings") {
+                                        viewModel.viewStandings(series)
+                                    }
+                                } else {
+                                    Text("Results not posted")
+                                }
+                            }
+
+                            if (state.value.loggedIn) {
+                                Td { }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+fun List<RaceSchedule>?.resultCount() : Long {
+    return this?.fold(0L) { c, r ->
+        c + r.resultCount
+    } ?: 0L
 }
 
 @Composable
