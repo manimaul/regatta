@@ -3,7 +3,10 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.browser.window
+import org.jetbrains.compose.web.attributes.ATarget
 import org.jetbrains.compose.web.attributes.alt
+import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.dom.*
 import viewmodel.*
 
@@ -14,7 +17,14 @@ fun NavBar(
 ) {
     val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
-    if (state.current.params?.values?.containsKey("nonav") != true)
+    if (state.current.params?.values?.containsKey("nonav") == true) {
+        RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s2) }) {
+            A(href = state.href.replace("nonav", "nav"), attrs = {
+                target(ATarget.Blank)
+                classes("nav-link")
+            }) { Text("Full Regatta Results") }
+        }
+    } else
     Nav(attrs = {
         classes(
             "navbar",

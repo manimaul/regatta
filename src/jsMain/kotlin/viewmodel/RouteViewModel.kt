@@ -88,6 +88,7 @@ enum class Route(val pathPattern: String) {
 
 data class RouteState(
     val current: Routing = Routing.from(window.location.pathname),
+    val href: String = window.location.href,
     val canGoback: Boolean = false,
     val replace: Boolean = true,
 ) : VmState
@@ -134,6 +135,7 @@ class RouteViewModel : BaseViewModel<RouteState>(RouteState()) {
         setState {
             copy(
                 current = Routing.from(path),
+                href = window.location.href,
                 replace = true,
             )
         }
