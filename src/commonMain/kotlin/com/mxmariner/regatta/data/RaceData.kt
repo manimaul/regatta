@@ -183,26 +183,12 @@ data class BoatSkipper(
     }
 }
 
-
-
-@Serializable
-enum class StartCode(val code: Int) {
-    DNS(1);
-
-    companion object {
-        fun from(code: Int?): StartCode? {
-            return code?.let { entries.first { it.code == code } }
-        }
-    }
-}
-
 @Serializable
 data class RaceResult(
     val id: Long = 0,
     val raceId: Long = 0,
     val boatId: Long = 0,
     val finish: Instant? = null,
-    val startCode: StartCode? = null,
     val phrfRating: Int? = null,
     val hocPosition: Int? = null,
     val windseeker: Windseeker? = null,
@@ -250,6 +236,9 @@ data class StandingsBoatSkipper(
 
 @Serializable
 data class StandingsRace(
+    val nonStarter: Boolean = false,
+    val hocPosition: Int? = null,
+    val finish: Boolean,
     val placeInBracket: Int = 0,
     val placeInClass: Int = 0,
     var placeOverall: Int = 0,

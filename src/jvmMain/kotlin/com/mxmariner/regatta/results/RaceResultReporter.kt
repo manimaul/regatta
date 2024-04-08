@@ -3,7 +3,6 @@ package com.mxmariner.regatta.results
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
-import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -34,7 +33,7 @@ object RaceResultReporter {
         }
 
         standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
-            ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { ratingType, standings ->
+            ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
             var place = 0
             var previousScore = 0
             standings.sortedBy { it.totalScoreOverall }.forEach {
@@ -113,12 +112,15 @@ object RaceResultReporter {
                 }
                 raceReportCards.find { it.resultRecord.raceSchedule.race.id == race.id }?.let {
                     StandingsRace(
+                        nonStarter = false,
                         placeInBracket = it.placeInBracket,
                         placeInClass = it.placeInClass,
                         placeOverall = it.placeOverall,
-                        throwOut = false
+                        throwOut = false,
+                        finish = it.finishTime != null,
+                        hocPosition = it.hocPosition,
                     )
-                } ?: lastPlace(race, bracketRecords, classRecords, overallRecords)
+                } ?: nonStarterPlace(race, bracketRecords, classRecords, overallRecords)
             }.toList()
 
             if (standings.size >= 5) {
@@ -157,28 +159,32 @@ object RaceResultReporter {
             }
             previousScore = it.totalScoreClass
         }
-        return result
+        return result.sortedBy { it.placeInBracket }
     }
 
-    private fun lastPlace(
+    private fun nonStarterPlace(
         race: Race,
         bracketRecords: Sequence<RaceReportCard>,
         classRecords: Sequence<RaceReportCard>,
         overAllRecords: Sequence<RaceReportCard>,
     ): StandingsRace {
-        val pb = bracketRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeInBracket }
-            .ifEmpty { sequenceOf(0) }
-            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
-        val pc = classRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeInClass }
-            .ifEmpty { sequenceOf(0) }
-            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
-        val po = overAllRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }.map { it.placeOverall }
-            .ifEmpty { sequenceOf(0) }
-            .reduce { acc, i -> max(acc, i) }.takeIf { it > 0 }?.let { it + 1 } ?: 0
+        val bracketStarters = bracketRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+            .map { it.placeInBracket }
+            .count()
+        val classStarters = classRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+            .map { it.placeInBracket }
+            .count()
+        val overallStarters = overAllRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+            .map { it.placeInBracket }
+            .count()
+
         return StandingsRace(
-            placeInBracket = pb,
-            placeInClass = pc,
-            placeOverall = po,
+            nonStarter = true,
+            finish = false,
+            placeInBracket = bracketStarters + 1,
+            placeInClass = classStarters + 1,
+            placeOverall = overallStarters + 1,
+            hocPosition = null,
         )
     }
 
@@ -338,16 +344,8 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
         } else if (rhs.hocPosition != null) {
             1
         } else {
-            // compare DNS to DNF
-            if (lhs.resultRecord.result.startCode != null && rhs.resultRecord.result.startCode != null) {
-                0
-            } else if (lhs.resultRecord.result.startCode != null) {
-                1
-            } else if (rhs.resultRecord.result.startCode != null) {
-                -1
-            } else {
-                0
-            }
+            // RET
+            0
         }
     }
 }

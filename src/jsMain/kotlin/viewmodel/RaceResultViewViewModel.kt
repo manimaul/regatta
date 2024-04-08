@@ -23,11 +23,11 @@ class RaceResultViewViewModel(
 }
 
 fun RaceReportCard.startText(): String {
-    return resultRecord.result.startCode?.name ?: startTime?.display() ?: "error"
+    return startTime?.display() ?: "error"
 }
 
 fun RaceReportCard.finishText(): String {
-    return resultRecord.result.startCode?.name ?: finishTime?.displayTime()?.takeIf { startTime != null }
+    return finishTime?.displayTime()?.takeIf { startTime != null }
         ?: "RET".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
 }
 

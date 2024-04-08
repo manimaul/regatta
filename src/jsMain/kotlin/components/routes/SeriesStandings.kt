@@ -3,14 +3,12 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import com.mxmariner.regatta.data.RaceReportCard
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
 import org.jetbrains.compose.web.dom.*
-import utils.displayTime
 import viewmodel.SeriesStandingsViewModel
 import viewmodel.complete
 
@@ -23,7 +21,7 @@ private val col1 = listOf(
 private val col2 = listOf(
     "Place in bracket",
     "Place in class",
-    "Place in overall",
+    "Place overall",
 )
 @Composable
 fun SeriesStandings(
@@ -87,6 +85,15 @@ fun SeriesStandings(
                                         }) {   Text("${it.placeInBracket}, ") }
                                         Text("${it.placeInClass}, ")
                                         I { Text("${it.placeOverall}") }
+                                        if (it.nonStarter) {
+                                            Text(" DNS")
+                                        } else if (!it.finish) {
+                                            if (it.hocPosition != null) {
+                                                Text(" HOC${it.hocPosition}")
+                                            } else {
+                                                Text(" RET")
+                                            }
+                                        }
                                     }
                                 }
                                 RgTd {

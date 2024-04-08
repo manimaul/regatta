@@ -3,7 +3,6 @@ package components.routes
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RaceSchedule
-import com.mxmariner.regatta.data.StartCode
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.selected
@@ -109,17 +108,7 @@ fun EditResultRow(
             )
         }
         RgTd {
-            addState.startCode?.let { start ->
-                P { Text(start.name) }
-                RgButton(label = "Reset") {
-                    viewModel.addViewModel.setStartCode(null)
-                }
-            } ?: run {
-                P { Text("Normal start") }
-                RgButton(label = "DNS") {
-                    viewModel.addViewModel.setFinish(null, StartCode.DNS)
-                }
-            }
+            P { Text("Normal start") }
         }
         RgTd {
             addState.hocPosition?.let {
@@ -145,7 +134,7 @@ fun EditResultRow(
                     viewModel.addViewModel.hoc(state.maxHoc)
                 }
             } ?: run {
-                P { Text(addState.startCode?.name ?: "RET") }
+                P { Text("RET") }
                 RgButton(label = "Reset") {
                     viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
                 }

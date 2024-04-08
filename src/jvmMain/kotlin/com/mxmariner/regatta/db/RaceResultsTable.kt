@@ -13,7 +13,7 @@ object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    val startCode = integer("start_code").nullable()
+    //val startCode = integer("start_code").nullable()
     val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
     val wsRating = integer("ws_rating").nullable()
@@ -33,7 +33,6 @@ object RaceResultsTable : Table() {
             }
             it[raceId] = result.raceId
             it[boatId] = result.boatId
-            it[startCode] = result.startCode?.code
             it[finish] = result.finish
             result.windseeker?.let { ws ->
                 it[wsRating] = ws.rating
@@ -91,7 +90,6 @@ object RaceResultsTable : Table() {
         raceId = row[raceId],
         boatId = row[boatId],
         finish = row[finish],
-        startCode = StartCode.from(row[startCode]),
         phrfRating = row[phrfRating],
         windseeker = row[wsRating]?.let { r ->
             Windseeker(r, row[wsFlying] ?: false)

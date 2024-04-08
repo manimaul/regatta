@@ -18,7 +18,6 @@ data class RaceResultAddState(
     val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
     val finish: Instant? = null,
-    val startCode: StartCode? = null,
     val hocPosition: Int? = null,
 ) : VmState {
     fun asPost(): RaceResult? {
@@ -42,7 +41,6 @@ data class RaceResultAddState(
                 id = id,
                 raceId = raceSchedule.race.id,
                 boatId = boatSkipper.boat.id,
-                startCode = startCode,
                 finish = finish,
                 phrfRating = phrfRating,
                 windseeker = windseeker,
@@ -86,12 +84,8 @@ class RaceResultAddViewModel(
         }
     }
 
-    fun setFinish(it: Instant?, startCode: StartCode? = null) {
-        setState { copy(finish = it, startCode = startCode) }
-    }
-
-    fun setStartCode(code: StartCode?) {
-        setState { copy(startCode = code) }
+    fun setFinish(it: Instant?) {
+        setState { copy(finish = it) }
     }
 
     fun setCard(card: RaceReportCard? = null) {
@@ -105,7 +99,6 @@ class RaceResultAddViewModel(
                 wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
                 ratingType = type,
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
-                startCode = card?.resultRecord?.result?.startCode,
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
             )
