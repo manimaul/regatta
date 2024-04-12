@@ -32,14 +32,16 @@ fun Router(
                 Route.RaceResultEdit -> RaceResultsEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.SeriesStandingsView -> SeriesStandings(
                     state.current.args?.get("id")?.toLongOrNull(),
-                    state.current.args?.get("year")?.toIntOrNull()
+                    state.current.args?.get("year")?.toIntOrNull(),
                 )
+                Route.Rc -> Rc()
                 Route.Boats -> Boats()
                 Route.Classes -> Classes()
                 Route.Admin -> Admin(create = false)
                 Route.AdminCreate -> Admin(create = true)
                 Route.PeopleEdit -> PeopleEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.BoatEdit -> BoatEdit(state.current.args?.get("id")?.toLongOrNull())
+                Route.BoatAdd-> BoatAdd()
                 Route.NotFound -> Text("womp womp, something's missing")
             }
         }

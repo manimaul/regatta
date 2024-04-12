@@ -67,6 +67,7 @@ fun NavBar(
                             Route.Classes,
                             Route.Series,
                             Route.Races,
+                            Route.Rc,
                             Route.RaceResult,
                         )
                     } ?: arrayOf(
@@ -74,6 +75,8 @@ fun NavBar(
                     )).forEach { route ->
                         Li(attrs = { classes("nav-item") }) {
                             Button(attrs = {
+                                attr("data-bs-toggle", "collapse")
+                                attr("data-bs-target", "#navbarNavDropdown")
                                 if (route == state.current.route) {
                                     classes("nav-link", "active")
                                 } else {

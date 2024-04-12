@@ -21,6 +21,7 @@ fun <T> RgDropdownNone(
     items: List<T>,
     selectedItem: T?,
     name: (T) -> String,
+    shorName: ((T) -> String)? = null,
     handler: (T?) -> Unit
 ) {
     var filter by remember { mutableStateOf("") }
@@ -30,7 +31,7 @@ fun <T> RgDropdownNone(
         Button(attrs = {
             classes("btn", "btn-primary", "dropdown-toggle")
             onClick { toggle = !toggle }
-        }) { Text(selectedItem?.let(name) ?: "None") }
+        }) { Text(selectedItem?.let { shorName?.invoke(it) ?: name(it)} ?: "None") }
 
         if (toggle) Div(attrs = {
             classes("dropdown-menu", "show")
@@ -125,7 +126,7 @@ fun RgSeriesDropdown(
     series: Series?,
     handler: (Series) -> Unit,
 ) {
-    RgDropdownNone(seriesList, series, { it.name }) { it?.let(handler) }
+    RgDropdownNone(seriesList, series, { it.name }, { it.name }) { it?.let(handler) }
 }
 
 @Composable

@@ -15,10 +15,3 @@ fun sortableArgs(
     onSort?.let { obj["onSort"] = it }
     return obj
 }
-
-//fun keys(json: dynamic) = js("Object").keys(json).unsafeCast<Array<String>>()
-//fun showKeys(item: dynamic) {
-//    keys(item).forEach {
-//        println("$it : ${item[it]}")
-//    }
-//}

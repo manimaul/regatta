@@ -49,12 +49,15 @@ object RaceResultsTable : Table() {
         return RaceResultsTable.selectAll().map(::rowToResult)
     }
 
-    fun resultsByRaceId(rId: Long): List<RaceResultBoatBracket> {
+    fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
         return innerJoin(RaceTable).innerJoin(BoatTable).select {
             raceId.eq(rId)
         }.map(::rowToRaceResultBoatBracket)
     }
 
+    fun resultsByRaceId(rId: Long): List<RaceResult> {
+        return RaceResultsTable.select { raceId.eq(rId) }.map(::rowToResult)
+    }
 
     fun getResults(year: Int): List<RaceResultBoatBracket> {
         val start = Instant.parse("$year-01-01")

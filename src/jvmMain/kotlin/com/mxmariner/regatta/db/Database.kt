@@ -36,8 +36,8 @@ object RegattaDatabase {
             RaceResultsTable,
             AuthTable,
             RaceTimeTable,
-            CheckinTable,
             RaceBracketJunction,
+            ImageTable,
         )
         transaction(database) {
             exec("ALTER TABLE IF EXISTS raceresults DROP COLUMN IF EXISTS start_date;")
@@ -78,6 +78,7 @@ object RegattaDatabase {
     }
 
     // Series ------------------------
+
     suspend fun allSeries(): List<Series> = dbQuery { SeriesTable.selectAllSeries() }
     suspend fun findSeries(id: Long): Series? = dbQuery { SeriesTable.selectSeries(id) }
     suspend fun deleteSeries(id: Long): Int = dbQuery { SeriesTable.deleteSeries(id) }
@@ -85,6 +86,7 @@ object RegattaDatabase {
     suspend fun upsertSeries(series: List<Series>): List<Series> = dbQuery { SeriesTable.upsertSeries(series) }
 
     // Person ------------------------
+
     suspend fun findPerson(id: Long?): Person? = dbQuery { id?.let { PersonTable.selectPerson(it) } }
     suspend fun findPerson(name: String): List<Person> = dbQuery { PersonTable.findPerson(name) }
     suspend fun upsertPerson(person: Person): Person? = dbQuery { PersonTable.upsertPerson(person) }
@@ -95,6 +97,7 @@ object RegattaDatabase {
     }
 
     // Boat ------------------------
+
     suspend fun findBoat(id: Long?): BoatSkipper? = dbQuery { id?.let { BoatTable.findBoatSkipper(id) } }
     suspend fun upsertBoat(boat: Boat): Boat? = dbQuery { BoatTable.upsertBoat(boat) }
     suspend fun allBoats(): List<BoatSkipper> = dbQuery { BoatTable.selectAllBoats() }
@@ -113,10 +116,10 @@ object RegattaDatabase {
     suspend fun findBracket(id: Long) = dbQuery { BracketTable.findBracket(id) }
     suspend fun upsertBracket(item: Bracket): Bracket? = dbQuery { BracketTable.upsertBracket(item) }
 
-    //    suspend fun allBrackets() = dbQuery { BracketTable.selectAllBrackets() }
     suspend fun deleteBracket(id: Long) = dbQuery { BracketTable.deleteBracket(id) }
 
     // Race Class ------------------------
+
     suspend fun upsertClass(item: List<RaceClass>) = dbQuery { RaceClassTable.upsertClass(item) }
     suspend fun allClasses(): List<RaceClassBrackets> = dbQuery { RaceClassTable.allClasses() }
     suspend fun deleteClass(id: Long): Int = dbQuery { RaceClassTable.deleteClass(id) }
@@ -172,15 +175,28 @@ object RegattaDatabase {
         RaceTable.deleteWhere { RaceTable.id eq id }
     }
 
+    suspend fun saveRaceReportImage(raceId: Long, fileName: String, fileBytes: ByteArray) = dbQuery {
+        ImageTable.saveRaceReportImage(raceId, fileName, fileBytes)
+    }
+
+    suspend fun getRaceReportImage(fileName: String) = dbQuery {
+        ImageTable.getImage(fileName)
+    }
+
     // Race Times ------------------------
+
     suspend fun allYears(): List<String> = dbQuery { RaceTimeTable.allYears() }
     suspend fun findRaceTimes(raceId: Long): List<RaceTime> = dbQuery { RaceTimeTable.selectByRaceId(raceId) }
 
     // Results ------------------------
+
     suspend fun deleteResult(id: Long) = dbQuery { RaceResultsTable.deleteWhere { RaceResultsTable.id eq id } }
     suspend fun getResults(year: Int) = dbQuery { RaceResultsTable.getResults(year) }
-    suspend fun resultsByRaceId(raceId: Long): List<RaceResultBoatBracket> =
+    suspend fun resultsByRaceId(raceId: Long): List<RaceResult> =
         dbQuery { RaceResultsTable.resultsByRaceId(raceId) }
+
+    suspend fun resultsBoatBracketByRaceId(raceId: Long): List<RaceResultBoatBracket> =
+        dbQuery { RaceResultsTable.resultsBoatBracketByRaceId(raceId) }
 
     suspend fun allResults() = dbQuery { RaceResultsTable.allResults() }
     suspend fun upsertResult(result: RaceResult): RaceResult? = dbQuery { RaceResultsTable.upsertResult(result) }

@@ -78,11 +78,13 @@ enum class Route(val pathPattern: String) {
     RaceEdit("/race/:id"),
     Boats("/boats"),
     BoatEdit("/boat/:id"),
+    BoatAdd("/add/boat"),
     Classes("/class"),
     RaceResult("/races/results"),
     RaceResultView("/races/results/view/:id"),
     RaceResultEdit("/races/results/:id"),
     SeriesStandingsView("/series/standings/view/:id/:year"),
+    Rc("/rc"),
     NotFound("/404")
 }
 

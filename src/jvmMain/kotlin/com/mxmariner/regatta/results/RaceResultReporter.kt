@@ -193,7 +193,7 @@ object RaceResultReporter {
         val classReportList = mutableListOf<ClassReportCards>()
         RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
             val schedules = raceSchedule.schedule.associateBy { it.raceClass.id }
-            val boatCards = RegattaDatabase.resultsByRaceId(raceId).map { reduceToCard(it, schedules) }
+            val boatCards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map { reduceToCard(it, schedules) }
 
             //PHRF Overall Places
             boatCards.filter { it.phrfRating != null }.place { p, card ->

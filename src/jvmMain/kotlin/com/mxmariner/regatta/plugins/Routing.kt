@@ -6,6 +6,7 @@ import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.results.RaceResultReporter
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
@@ -75,12 +76,9 @@ fun Application.configureRouting() {
             }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
         }
         get(ApiPaths.results.versionedApi()) {
-            val results = call.request.queryParameters["year"]?.toIntOrNull()?.let {
-                RegattaDatabase.getResults(it)
-            } ?: call.request.queryParameters["raceId"]?.toLong()?.let {
-                RegattaDatabase.resultsByRaceId(it)
-            } ?: RegattaDatabase.allResults()
-            call.respond(results)
+            call.request.queryParameters["raceId"]?.toLong()?.let {
+                call.respond(RegattaDatabase.resultsByRaceId(it))
+            } ?: call.respond(HttpStatusCode.NoContent)
         }
         get(ApiPaths.resultCount.versionedApi()) {
             call.request.queryParameters["raceId"]?.toLong()?.let {
@@ -96,6 +94,39 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.NoContent)
         }
         authenticate(Token.Admin.name) {
+            post(ApiPaths.image.versionedApi()) {
+                call.request.queryParameters["raceId"]?.toLong()?.let { raceId ->
+                    val multipartData = call.receiveMultipart()
+                    var fileDescription = ""
+                    var fileName = ""
+
+                    multipartData.forEachPart { part ->
+                        if (part.contentType?.contentType?.contentEquals("image", true) == true) {
+                            when (part) {
+                                is PartData.FormItem -> {
+                                    fileDescription = part.value
+                                }
+                                is PartData.FileItem -> {
+                                    fileName = part.originalFileName as String
+                                    val fileBytes = part.streamProvider().readBytes()
+                                    RegattaDatabase.saveRaceReportImage(raceId, fileName, fileBytes)
+                                }
+
+                                else -> {}
+                            }
+                        }
+                        part.dispose()
+                    }
+                    call.respond(HttpStatusCode.Accepted)
+                } ?: call.respond(HttpStatusCode.BadRequest)
+            }
+            get(ApiPaths.image.versionedApi() + "{name}") {
+                call.parameters["name"]?.let { name ->
+                    RegattaDatabase.getRaceReportImage(name)?.let { image ->
+                        call.respondBytes(contentType = ContentType.defaultForFileExtension(name)) { image }
+                    }
+                } ?: call.respond(HttpStatusCode.NotFound)
+            }
             post(ApiPaths.raceSchedule.versionedApi()) {
                 val cs = call.receive<RaceSchedule>()
                 RegattaDatabase.insertSchedule(cs)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest)

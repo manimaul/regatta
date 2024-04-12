@@ -31,4 +31,6 @@ object ApiPaths {
 
     val boat = "/boat"
     val allBoats = "/allBoat"
+
+    val image = "/image"
 }

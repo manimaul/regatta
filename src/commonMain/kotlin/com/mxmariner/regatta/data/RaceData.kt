@@ -102,11 +102,11 @@ data class RaceSchedule(
 ) {
 
     val startTime by lazy {
-        schedule.map { it.startDate }.minByOrNull { it }
+        schedule.map { it.startDate }.minBy { it }
     }
 
     val endTime by lazy {
-        schedule.map { it.endDate }.maxByOrNull { it }
+        schedule.map { it.endDate }.maxBy { it }
     }
 }
 
@@ -116,6 +116,7 @@ data class Race(
     val name: String = "",
     val seriesId: Long? = null,
     val rcId: Long? = null,
+    val reportImage: String? = null,
     val correctionFactor: Int = correctionFactorDefault,
 )
 
@@ -131,13 +132,6 @@ data class RaceTime(
 data class Windseeker(
     val rating: Int = ratingDefault.toInt(),
     val flyingSails: Boolean = false,
-)
-
-@Serializable
-data class Checkin(
-    val boatId: Long = 0,
-    val raceId: Long = 0,
-    val checkedIn: Boolean = false,
 )
 
 enum class RatingType {
@@ -180,6 +174,10 @@ data class BoatSkipper(
     fun dropLabel() :String {
         val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
         return "${label()}$sail ${ratingLabel(boat?.phrfRating, boat?.windseeker, true)}"
+    }
+
+    fun shortLabel() : String {
+        return boat?.name ?: ""
     }
 }
 

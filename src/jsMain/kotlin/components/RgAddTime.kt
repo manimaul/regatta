@@ -3,12 +3,12 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.ClassSchedule
 import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
+import utils.now
 import viewmodel.RgAddTimeViewModel
 import viewmodel.complete
 
@@ -30,12 +30,12 @@ fun RgAddTime(
                 }
             }
             RgTd {
-                RgDate(label = "Race start", placeHolder = true, date = state.value.startDate, time = true) { t ->
+                RgTime(showDate = true, date = state.value.startDate ?: now()) { t ->
                     viewModel.startTime(t)
                 }
             }
             RgTd {
-                RgDate(label = "Race end", placeHolder = true, date = state.value.endDate, time = true) { t ->
+                RgTime(showDate = true, date = state.value.endDate ?: now()) { t ->
                     viewModel.endTime(t)
                 }
             }
@@ -43,7 +43,7 @@ fun RgAddTime(
                 if (state.value.focus != null) {
                     RgButton(
                         label = "Cancel",
-                        style = RgButtonStyle.Primary,
+                        style = RgButtonStyle.PrimaryOutline,
                         customClasses = listOf(AppStyle.marginEnd),
                     ) {
                         viewModel.removeFocus()

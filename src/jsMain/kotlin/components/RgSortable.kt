@@ -3,7 +3,6 @@ package components
 import androidx.compose.runtime.*
 import lib.Sortable
 import lib.sortableArgs
-import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.Ul

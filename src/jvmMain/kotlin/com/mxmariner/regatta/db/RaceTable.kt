@@ -17,6 +17,7 @@ object RaceTable : Table() {
         name = row[name],
         seriesId = row[seriesId],
         rcId = row[rcId],
+        reportImage = ImageTable.getRaceReportImageName(row[id]),
         correctionFactor = row[correctionFactor] ?: correctionFactorDefault,
     )
 

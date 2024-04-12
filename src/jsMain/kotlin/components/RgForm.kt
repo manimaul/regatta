@@ -1,14 +1,14 @@
 package components
 
 import androidx.compose.runtime.*
-import kotlinx.datetime.Instant
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.onSubmit
-import org.jetbrains.compose.web.attributes.placeholder
+import kotlinx.datetime.*
+import org.jetbrains.compose.web.attributes.*
+import org.jetbrains.compose.web.css.maxWidth
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLFormElement
-import utils.datePickerInstant
-import utils.formattedDateString
+import utils.*
+import viewmodel.RgTimeViewModel
 
 private var num = 0
 
@@ -50,36 +50,106 @@ fun RgInput(
 }
 
 @Composable
-fun RgDate(
-    label: String,
-    date: Instant?,
-    placeHolder: Boolean = false,
-    time: Boolean = false,
-    seconds: Boolean = false,
+fun RgTimeButton(
+    modalTitle: String,
+    date: Instant,
     listener: (Instant) -> Unit
 ) {
-    println("RgDate $label $date")
-    val id = remember { "${++num}_input" }
-    if (!placeHolder) {
-        Label(id) { B { Text(label) } }
-    }
-    Input(if (time) InputType.DateTimeLocal else InputType.Date) {
-        id(id)
-        if (placeHolder) {
-            placeholder(label)
-        }
-        classes("form-control")
-        if (seconds) {
-            attr("step", "1")
-        }
-        date?.let {
-            val ts = it.formattedDateString(time)
-            value(ts)
-        }
-        onInput {
-            it.value.takeIf { it.isNotBlank() }?.let {
-                listener(it.datePickerInstant())
+    var saveDate by remember { mutableStateOf(date) }
+    RgModal(
+        buttonLabel = date.timeStr(),
+        modalTitle = modalTitle,
+        openAction = {
+            saveDate = date
+        },
+        content = {
+            RgTime(date = saveDate, showSeconds = true, listener = {
+                saveDate = it
+            })
+        }, footer = {
+            Button(attrs = {
+                classes(*RgButtonStyle.PrimaryOutline.classes)
+                attr("data-bs-dismiss", "modal")
+            }) {
+                Text("Cancel")
             }
+            Button(attrs = {
+                classes(*RgButtonStyle.Success.classes)
+                attr("data-bs-dismiss", "modal")
+                onClick {
+                    listener(saveDate)
+                }
+            }) {
+                Text("Done")
+            }
+        })
+
+}
+
+@Composable
+fun RgTime(
+    label: String? = null,
+    date: Instant,
+    showSeconds: Boolean = false,
+    showDate: Boolean = false,
+    viewModel: RgTimeViewModel = remember { RgTimeViewModel(date, showSeconds) },
+    listener: (Instant) -> Unit
+) {
+    val state = viewModel.flow.collectAsState()
+    viewModel.setInstant(date)
+    if (showDate) {
+        Div(attrs = {
+            style {
+                maxWidth(if (showDate) 600.px else 400.px)
+            }
+            classes("input-group", "input-group-sm")
+        }) {
+            label?.let {
+                Span(attrs = { classes("input-group-text") }) { Text(label) }
+            }
+            Input(InputType.Date) {
+                classes("form-control")
+                value(state.value.localTime.inputStr())
+                onInput {
+                    viewModel.setInputDate(it.value)?.let(listener)
+                }
+            }
+        }
+    }
+    Div(attrs = {
+        style {
+            maxWidth(if (showDate) 600.px else 400.px)
+        }
+        classes("input-group", "input-group-sm")
+    }) {
+        label?.takeIf { !showDate }?.let {
+            Span(attrs = { classes("input-group-text") }) { Text(label) }
+        }
+        Input(InputType.Number) {
+            classes("form-control")
+            value(state.value.localTime.hour.doubleDigit())
+            onInput {
+                viewModel.setInputHour(it.value)?.let(listener)
+            }
+        }
+        Span(attrs = { classes("input-group-text") }) { Text(":") }
+        Input(InputType.Number) {
+            classes("form-control")
+            value(state.value.localTime.minute.doubleDigit())
+            onInput {
+                viewModel.setInputMinute(it.value)?.let(listener)
+            }
+        }
+        if (showSeconds) {
+            Span(attrs = { classes("input-group-text") }) { Text(":") }
+            Input(InputType.Number) {
+                classes("form-control")
+                value(state.value.localTime.second.doubleDigit())
+                onInput {
+                    viewModel.setInputSecond(it.value)?.let(listener)
+                }
+            }
+
         }
     }
 }

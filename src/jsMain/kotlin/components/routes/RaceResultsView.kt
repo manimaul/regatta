@@ -10,8 +10,7 @@ import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
-import utils.displayTime
-import utils.year
+import utils.*
 import viewmodel.*
 
 val columns = listOf(
@@ -35,7 +34,7 @@ fun RaceResultsView(
     val loginState = loginViewModel.flow.collectAsState()
     state.value.report.complete(viewModel) { report ->
         H1 {
-            Text("${report.raceSchedule.startTime?.year() ?: ""} - ${report.raceSchedule.race.name} - Results")
+            Text("${report.raceSchedule.startTime.year()} - ${report.raceSchedule.race.name} - Results")
         }
         if (loginState.value.loginStatus == LoginStatus.LoggedIn) {
             RgButton("Editor", customClasses = listOf(AppStyle.marginVert)) {
@@ -57,7 +56,7 @@ fun RaceResultsView(
                             H4 { Text(reportCategory.raceClass.name) }
                             Text("CF - ${reportCategory.correctionFactor}")
                             Br()
-                            Text("Start time - ${report.classStart(reportCategory.raceClass.id).displayTime()}")
+                            Text("Start time - ${report.classStart(reportCategory.raceClass.id).timeStr()}")
                         }
                     }
                     reportCategory.bracketReport.forEach { classReport ->

@@ -16,6 +16,26 @@ fun localStoreGet(key: String): String? {
     return window.localStorage.getItem(key)
 }
 
+inline fun <reified T> localStoreSetById(id: String, item: T?) {
+    T::class.simpleName?.let { key ->
+        val value = item?.let { Json.encodeToString(it) } ?: ""
+        window.localStorage.setItem("${id}_$key", value)
+    }
+}
+
+inline fun <reified T> localStoreGetById(id: String): T? {
+    return T::class.simpleName?.let { key ->
+        window.localStorage.getItem("${id}_$key")?.let { value ->
+            try {
+                val decode = Json.decodeFromString<T>(value)
+                decode
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+}
+
 inline fun <reified T> localStoreSet(item: T?) {
     T::class.simpleName?.let { key ->
         val value = item?.let { Json.encodeToString(it) } ?: ""

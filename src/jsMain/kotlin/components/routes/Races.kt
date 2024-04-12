@@ -47,8 +47,8 @@ fun RaceList(schedules: List<RaceSchedule>, viewModel: RacesViewModel) {
                 RgTr {
                     RgTd { Text(sch.series?.name ?: "-") }
                     RgTd { Text(sch.race.name) }
-                    RgTd { Text(sch.startTime?.display() ?: "-") }
-                    RgTd { Text(sch.endTime?.display() ?: "-") }
+                    RgTd { Text(sch.startTime.display()) }
+                    RgTd { Text(sch.endTime.display()) }
                     RgTd { Text(sch.rc?.let { "${it.first} ${it.last}" } ?: "-") }
                     RgTd {
                         RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-start")) {

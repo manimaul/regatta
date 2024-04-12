@@ -1,56 +1,69 @@
 package utils
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
-import kotlinx.datetime.toJSDate
-import kotlinx.datetime.toKotlinInstant
-import kotlin.js.Date
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlinx.datetime.*
 
-//https://js-joda.github.io/js-joda/manual/formatting.html
-fun Instant.formattedDateString(addTime: Boolean): String {
-    val date = kotlinx.datetime.internal.JSJoda.LocalDateTime.ofInstant(
-        kotlinx.datetime.internal.JSJoda.Instant.ofEpochMilli(toEpochMilliseconds())
-    )
-    return if (addTime) {
-        DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(date)
-    } else {
-        DateTimeFormatter.ISO_LOCAL_DATE.format(date)
-    }
+fun Int.doubleDigit(): String {
+    return "$this".padStart(2, '0')
 }
+
+fun Int.quadDigit(): String {
+    return "$this".padStart(4, '0')
+}
+
+fun LocalDateTime.timeStr() = "${hour.doubleDigit()}:${minute.doubleDigit()}:${second.doubleDigit()}"
+
+fun LocalDateTime.dateStr() = "${monthNumber}/${dayOfMonth}/${year}"
+
+fun LocalDateTime.inputStr() = "${year.quadDigit()}-${monthNumber.doubleDigit()}-${dayOfMonth.doubleDigit()}"
+
+fun LocalDateTime.instant() = toInstant(TimeZone.currentSystemDefault())
+
+fun Instant.localDateTime() = toLocalDateTime(TimeZone.currentSystemDefault())
 
 fun getClockValue(): String {
-    val now = now()
-    return now.toJSDate().toLocaleTimeString()
+    return now().localDateTime().timeStr()
 }
 
-fun now() : Instant {
-   return Clock.System.now()
+fun now(): Instant {
+    return Clock.System.now()
 }
 
-fun currentYear() : String {
+fun currentYear(): String {
     return now().year()
 }
 
-fun Instant.displayTime(): String {
-    return display().let{
-        it.substring(it.indexOf(' '))
-    }
+fun Instant.dateStr(): String {
+    return localDateTime().dateStr()
 }
+
+fun Instant.timeStr(): String {
+    return localDateTime().timeStr()
+}
+
 fun Instant.display(): String {
-    return toJSDate().let {
-        "${it.toLocaleDateString()} ${it.toLocaleTimeString()}"
+    return localDateTime().let {
+        "${it.dateStr()} ${it.timeStr()} "
     }
 }
 
 fun Instant.year(): String {
-    return toJSDate().let {
-        "${it.getFullYear()}"
+    return localDateTime().let {
+        "${it.year}"
     }
 }
 
-fun String.datePickerInstant() : Instant {
-    return Date(this).toKotlinInstant()
+fun String.datePickerInstant(): LocalDateTime? {
+    return split("/").takeIf { it.size == 2 }?.let {
+        val month = it[0].toInt()
+        val day = it[1].toInt()
+        val year = it[2].toInt()
+        LocalDateTime(
+            year,
+            month,
+            day,
+            0,
+            0,
+            0,
+        )
+    }
 }

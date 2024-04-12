@@ -49,7 +49,7 @@ fun SortClasses(
     RgSortable(list, { it.name}) {
         order = it.mapIndexed{ i, s -> s.copy(sort = i) }
     }
-    RgButton("Cancel", customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
+    RgButton("Cancel", style = RgButtonStyle.PrimaryOutline, customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
         viewModel.sortMode(false)
     }
     RgButton("Save", style = RgButtonStyle.Success, customClasses = listOf(AppStyle.marginStart, AppStyle.marginTop)) {
@@ -180,7 +180,7 @@ fun EditClass(
             } else {
                 RgButton(
                     "Cancel",
-                    RgButtonStyle.Primary,
+                    RgButtonStyle.PrimaryOutline,
                     customClasses = listOf("float-end", AppStyle.marginStart)
                 ) {
                     viewModel.editClass(null)
@@ -234,7 +234,7 @@ fun EditBracket(
             } else {
                 RgButton(
                     "Cancel",
-                    RgButtonStyle.Primary,
+                    RgButtonStyle.PrimaryOutline,
                     bracket.name.isBlank(),
                     listOf("float-end", AppStyle.marginStart)
                 ) {
