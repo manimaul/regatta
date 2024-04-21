@@ -111,6 +111,15 @@ fun EditResultRow(
             P { Text("Normal start") }
         }
         RgTd {
+            addState.penalty?.let {
+                P { Text("Penalty +$it") }
+                RgButton(label = "+", customClasses = listOf(AppStyle.marginBot)) {
+                    viewModel.addViewModel.penalty(it + 1)
+                }
+                RgButton(label = "-", customClasses = listOf(AppStyle.marginStart, AppStyle.marginBot)) {
+                    viewModel.addViewModel.penalty(it - 1)
+                }
+            }
             addState.hocPosition?.let {
                 P { Text("HOC $it") }
                 RgButton(label = "Reset") {
@@ -130,8 +139,11 @@ fun EditResultRow(
                 RgButton(label = "RET", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
                     viewModel.addViewModel.setFinish(null)
                 }
-                RgButton(label = "HOC", customClasses = listOf(AppStyle.marginTop)) {
+                RgButton(label = "HOC", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
                     viewModel.addViewModel.hoc(state.maxHoc)
+                }
+                RgButton(label = "Penalty", customClasses = listOf(AppStyle.marginTop)) {
+                    viewModel.addViewModel.penalty(state.maxHoc)
                 }
             } ?: run {
                 P { Text("RET") }

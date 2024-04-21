@@ -19,6 +19,7 @@ data class RaceResultAddState(
     val raceClassId: Long? = null,
     val finish: Instant? = null,
     val hocPosition: Int? = null,
+    val penalty: Int? = null,
 ) : VmState {
     fun asPost(): RaceResult? {
         var phrfRating = phrfRating.toIntOrNull()
@@ -45,6 +46,7 @@ data class RaceResultAddState(
                 phrfRating = phrfRating,
                 windseeker = windseeker,
                 hocPosition = hocPosition,
+                penalty = penalty,
             )
         } else {
             null
@@ -101,7 +103,14 @@ class RaceResultAddViewModel(
                 raceSchedule = if (card != null) card.resultRecord.raceSchedule else raceSchedule,
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
+                penalty = card?.penalty,
             )
+        }
+    }
+
+    fun penalty(i: Int?) {
+        setState {
+            copy(penalty = i?.takeIf { it > 0 })
         }
     }
 

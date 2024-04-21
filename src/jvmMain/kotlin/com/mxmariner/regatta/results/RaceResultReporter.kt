@@ -3,6 +3,7 @@ package com.mxmariner.regatta.results
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
+import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -34,17 +35,17 @@ object RaceResultReporter {
 
         standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
             ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
-            var place = 0
-            var previousScore = 0
-            standings.sortedBy { it.totalScoreOverall }.forEach {
-                if (it.totalScoreOverall > previousScore) {
-                    it.placeOverall = ++place
-                } else {
-                    it.placeOverall = place
+                var place = 0
+                var previousScore = 0
+                standings.sortedBy { it.totalScoreOverall }.forEach {
+                    if (it.totalScoreOverall > previousScore) {
+                        it.placeOverall = ++place
+                    } else {
+                        it.placeOverall = place
+                    }
+                    previousScore = it.totalScoreOverall
                 }
-                previousScore = it.totalScoreOverall
             }
-        }
         return standings
     }
 
@@ -301,6 +302,7 @@ object RaceResultReporter {
             placeInClass = 0,
             placeOverall = 0,
             hocPosition = result.hocPosition,
+            penalty = result.penalty,
         )
     }
 
@@ -350,18 +352,52 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
     }
 }
 
-fun Iterable<RaceReportCard>.place(place: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
-    return this.sortedWith(cardCompare).also {
+private data class PenaltyPosition(
+    val num: Int,
+    val position: Int,
+)
+
+private data class TempPlace(
+    var place: Int,
+    val card: RaceReportCard,
+)
+
+fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
+    val penalties = mutableListOf<PenaltyPosition>()
+
+    val list = this.sortedWith(cardCompare).let{
         var last: RaceReportCard? = null
         var position = 1
-        it.forEach { ea ->
+        it.mapIndexed { i, ea ->
+            ea.penalty?.let {
+                penalties.add(PenaltyPosition(it, i))
+            }
             last?.let {
                 if (compare(ea, it) == 1) {
                     position++
                 }
             }
-            place(position, ea)
             last = ea
+            TempPlace(place = position, card = ea)
         }
+    }.toMutableList()
+
+    penalties.forEach { p ->
+        val card = list.removeAt(p.position)
+        val i = min(p.position + p.num - 1, list.size - 1)
+        val place = card.place
+        val penaltyPlace = card.place + p.num
+        card.place = penaltyPlace
+        list.add(i, card)
+        list.forEach {
+            if (it != card && it.place <= penaltyPlace && it.place > place) {
+                it.place -= 1
+            }
+        }
+    }
+
+    return list.sortedBy { it.place }.map {
+        placeHandler(it.place, it.card)
+        it.card
     }
 }

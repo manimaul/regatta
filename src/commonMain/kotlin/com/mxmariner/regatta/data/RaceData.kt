@@ -191,6 +191,7 @@ data class RaceResult(
     val finish: Instant? = null,
     val phrfRating: Int? = null,
     val hocPosition: Int? = null,
+    val penalty: Int? = null,
     val windseeker: Windseeker? = null,
 )
 
@@ -286,6 +287,7 @@ data class RaceReportCard(
     var placeInClass: Int = 0,
     var placeOverall: Int = 0,
     val hocPosition: Int? = null,
+    val penalty: Int? = null,
 ) {
 
     fun boatLabel(): String {

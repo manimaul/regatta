@@ -13,12 +13,12 @@ object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    //val startCode = integer("start_code").nullable()
     val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
     val wsRating = integer("ws_rating").nullable()
     val wsFlying = bool("ws_flying").nullable()
     val hoc = integer("hoc").nullable()
+    val penalty= integer("penalty").nullable()
     override val primaryKey = PrimaryKey(id)
 
     fun count(raceId: Long): Long {
@@ -41,6 +41,7 @@ object RaceResultsTable : Table() {
                 it[phrfRating] = result.phrfRating
             }
             it[hoc] = result.hocPosition
+            it[penalty] = result.penalty
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
 
@@ -95,6 +96,7 @@ object RaceResultsTable : Table() {
             Windseeker(r, row[wsFlying] ?: false)
         },
         hocPosition = row[hoc],
+        penalty = row[penalty],
     )
 }
 
