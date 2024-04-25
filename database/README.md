@@ -30,11 +30,15 @@ kubectl -n regatta exec regatta-postgres-865bc46b86-r52m9 -- pg_dump -U regatta_
 kubectl -n regatta exec regatta-postgres-865bc46b86-r52m9 -- bash -c "echo 'SHOW timezone;' | psql -U regatta_admin regatta"
 ```
 
+## Prod Shell
+```shell
+kubectl -n regatta exec --stdin --tty regatta-postgres-865bc46b86-r52m9 -- /bin/bash
+```
 
 # Restore Dev
 ```shell
 c='53e7bb79c828'
-df='prod_dump2024-02-15_06_57_17.sql' 
+df='prod_dump2024-04-25_07_53_27.sql' 
 docker cp "$df" "$c:/dump.sql"
 echo "SHOW timezone;" | docker exec -i "$c" psql -U regatta_admin regatta
 docker exec -i "$c" dropdb -U regatta_admin -f regatta

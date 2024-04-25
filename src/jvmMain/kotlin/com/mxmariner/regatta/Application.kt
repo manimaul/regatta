@@ -13,8 +13,10 @@ import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import java.util.*
 
 fun main() {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     embeddedServer(Netty, port = 8888, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
