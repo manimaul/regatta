@@ -14,7 +14,7 @@ import viewmodel.*
 fun Rc() {
     val state = loginViewModel.flow.collectAsState()
     if (state.value.loginStatus == LoginStatus.LoggedIn) {
-       RcLoggedIn()
+        RcLoggedIn()
     } else {
         H1 { Text("Unauthorized - Login Required") }
     }
@@ -117,7 +117,11 @@ fun RcCheckin(viewModel: RcViewModel) {
                         }
                         RgTd {
                             if (ea.checkedIn) {
-                                RgButton(label = "Checkout", style = RgButtonStyle.Danger, disabled = ea.result != null) {
+                                RgButton(
+                                    label = "Checkout",
+                                    style = RgButtonStyle.Danger,
+                                    disabled = ea.result != null
+                                ) {
                                     viewModel.checkOut(ea.bs)
                                 }
                             } else {
@@ -137,6 +141,7 @@ fun RcCheckin(viewModel: RcViewModel) {
 fun RcFinish(viewModel: RcViewModel) {
     H4 { Text("Race Finish Line") }
     val state = viewModel.flow.collectAsState()
+    var confirmDeleteResult by remember {  mutableStateOf<CheckIn?>(null) }
 
     RgModalBody(id = "rc-finish-time", modalTitle = { state.value.focus?.bs?.shortLabel() ?: "" }, content = {
         state.value.focus?.let { focus ->
@@ -188,8 +193,11 @@ fun RcFinish(viewModel: RcViewModel) {
                         }
                         RgTd {
                             ea.result?.let {
-                                RgButton("Delete", style = RgButtonStyle.Danger) {
-                                    viewModel.delete(it)
+                                RgModalButton(
+                                    id = "finish-time-delete-confirm",
+                                    style = RgButtonStyle.Danger,
+                                    buttonLabel = { "Delete" }) {
+                                    confirmDeleteResult = ea
                                 }
                             }
                         }
@@ -198,4 +206,31 @@ fun RcFinish(viewModel: RcViewModel) {
             }
         }
     }
+    RgModalBody(
+        id = "finish-time-delete-confirm",
+        modalTitle = { "Are you sure?" },
+        content = {
+            confirmDeleteResult?.let {
+                P { Text("Delete result for ${it.bs.boat?.name}?") }
+                P { Text("${it.result?.finish?.display()}") }
+            }
+
+        }, footer = {
+            Button(attrs = {
+                classes(*RgButtonStyle.PrimaryOutline.classes)
+                attr("data-bs-dismiss", "modal")
+            }) {
+                Text("Cancel")
+            }
+            Button(attrs = {
+                classes(*RgButtonStyle.Danger.classes)
+                attr("data-bs-dismiss", "modal")
+                onClick {
+                    confirmDeleteResult?.result?.let { viewModel.delete(it) }
+                }
+            }) {
+                Text("Yes - Delete it!")
+            }
+
+        })
 }
