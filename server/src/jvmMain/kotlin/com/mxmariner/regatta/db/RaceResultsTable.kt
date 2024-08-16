@@ -104,22 +104,24 @@ object RaceResultsTable : Table() {
 }
 
 fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
-    return if (result.phrfRating != null) {
+    val phrfRating = result.phrfRating
+    val windseeker = result.windseeker
+    return if (phrfRating != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
-                result.phrfRating >= it.minRating && result.phrfRating <= it.maxRating
+                phrfRating >= it.minRating && phrfRating <= it.maxRating
             }
         }
-    } else if (result.windseeker?.flyingSails == true) {
+    } else if (windseeker?.flyingSails == true) {
         race.schedule.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
-                result.windseeker.rating >= it.minRating && result.windseeker.rating <= it.maxRating
+                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
             }
         }
-    } else if (result.windseeker != null) {
+    } else if (windseeker != null) {
         race.schedule.firstNotNullOfOrNull { schedule ->
             schedule.brackets.takeIf { !schedule.raceClass.isPHRF && !schedule.raceClass.wsFlying }?.firstOrNull {
-                result.windseeker.rating >= it.minRating && result.windseeker.rating <= it.maxRating
+                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
             }
         }
     } else {

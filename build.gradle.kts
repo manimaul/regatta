@@ -7,7 +7,6 @@ plugins {
     kotlin("jvm") version kotlinVersion apply false
     kotlin("multiplatform") version kotlinVersion apply false
     id("org.jetbrains.compose") version composeVersion apply false
-//    id("io.ktor.plugin") version ktorVersion
     kotlin("plugin.serialization") version kotlinVersion apply false
 }
 

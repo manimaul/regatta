@@ -364,16 +364,20 @@ val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
 
 fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
     // compare corrected time
-    return if (lhs.correctedTime != null && rhs.correctedTime != null) {
-        lhs.correctedTime.inWholeMilliseconds.compareTo(rhs.correctedTime.inWholeMilliseconds)
+    val lct = lhs.correctedTime
+    val rct = rhs.correctedTime
+    return if (lct  != null && rct != null) {
+       lct.inWholeMilliseconds.compareTo(rct.inWholeMilliseconds)
     } else if (lhs.correctedTime != null) {
         -1
     } else if (rhs.correctedTime != null) {
         1
     } else {
         // compare HOC
-        if (lhs.hocPosition != null && rhs.hocPosition != null) {
-            lhs.hocPosition.compareTo(rhs.hocPosition)
+        val lhp = lhs.hocPosition
+        val rhp = rhs.hocPosition
+        if (lhp != null && rhp != null) {
+            lhp.compareTo(rhp)
         } else if (lhs.hocPosition != null) {
             -1
         } else if (rhs.hocPosition != null) {

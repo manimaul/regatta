@@ -24,3 +24,4 @@ pluginManagement {
 
 rootProject.name = "regatta"
 include(":common")
+include(":server")

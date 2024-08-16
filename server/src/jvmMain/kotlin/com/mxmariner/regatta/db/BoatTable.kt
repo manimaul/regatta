@@ -94,14 +94,18 @@ object BoatTable : Table() {
                 skipper = null
             )
         }).sortedWith { lhs, rhs ->
-            if (lhs.boat?.phrfRating != null && rhs.boat?.phrfRating != null) {
-                lhs.boat.phrfRating.compareTo(rhs.boat.phrfRating)
-            } else if (lhs.boat?.phrfRating != null) {
+            val lhsPhrfRating = lhs.boat?.phrfRating
+            val rhsPhrfRating = rhs.boat?.phrfRating
+            val lhsWindseeker = lhs.boat?.windseeker
+            val rhsWindseeker = rhs.boat?.windseeker
+            if (lhsPhrfRating != null && rhsPhrfRating != null) {
+                lhsPhrfRating.compareTo(rhsPhrfRating)
+            } else if (lhsPhrfRating != null) {
                 -1
-            } else if (rhs.boat?.phrfRating != null) {
+            } else if (rhsPhrfRating != null) {
                 1
-            } else if (lhs.boat?.windseeker?.flyingSails != null && rhs.boat?.windseeker?.flyingSails != null) {
-                (lhs.boat.windseeker.rating).compareTo((rhs.boat.windseeker.rating))
+            } else if (lhsWindseeker?.flyingSails != null && rhsWindseeker?.flyingSails != null) {
+                (lhsWindseeker.rating).compareTo((rhsWindseeker.rating))
             } else if (lhs.boat?.windseeker?.flyingSails != null) {
                 -1
             } else if (rhs.boat?.windseeker?.flyingSails != null) {

@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 example.py
 examples.sh
+.kotlin/
 
 ### STS ###
 .apt_generated
