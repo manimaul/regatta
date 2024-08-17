@@ -79,10 +79,8 @@ fun SeriesStandings(
                                 }
                                 RgTd { Text(ratingLabel(ss.boatSkipper.boat?.phrfRating, ss.boatSkipper.boat?.windseeker, false)) }
                                 ss.raceStandings.forEach {
-                                    RgTd {
-                                        B(attrs = {
-                                            if (it.throwOut) this.classes("text-danger")
-                                        }) {   Text("${it.placeInBracket}, ") }
+                                    RgTd(classes = if (it.throwOut) listOf("text-danger") else null) {
+                                        B { Text("${it.placeInBracket}, ") }
                                         Text("${it.placeInClass}, ")
                                         I { Text("${it.placeOverall}") }
                                         if (it.nonStarter) {

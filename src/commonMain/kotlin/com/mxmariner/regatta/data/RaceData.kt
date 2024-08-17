@@ -5,6 +5,7 @@ import com.mxmariner.regatta.ratingDefault
 import com.mxmariner.regatta.ratingLabel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
 
@@ -231,6 +232,7 @@ data class StandingsBoatSkipper(
     var placeInBracket: Int = 0,
     var placeInClass: Int = 0,
     var placeOverall: Int = 0,
+    @Transient val tiedWith: MutableSet<Long> = mutableSetOf()
 )
 
 @Serializable

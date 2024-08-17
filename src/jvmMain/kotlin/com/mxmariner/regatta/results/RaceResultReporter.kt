@@ -38,14 +38,18 @@ object RaceResultReporter {
             val bracketStandings = standingsClass.standings.map { it.standings }.flatten()
 
             var place = 0
-            var previousScore = 0
-            bracketStandings.sortedBy { it.totalScoreClass}.forEach {
-                if (it.totalScoreClass > previousScore) {
-                    it.placeInClass= ++place
-                } else {
-                    it.placeInClass= place
+            var previous: Long? = null
+            bracketStandings.sortedWith { lhs, rhs ->
+                lhs.totalScoreClass.compareTo(rhs.totalScoreClass).takeIf { it != 0 } ?: run {
+                    tieBreaker(lhs, rhs) { it.placeInClass }
                 }
-                previousScore = it.totalScoreClass
+            }.forEach {
+                if (it.tiedWith.contains(previous)) {
+                    it.placeInClass = place
+                } else {
+                    it.placeInClass = ++place
+                }
+                previous = it.boatSkipper.boat?.id
             }
         }
 
@@ -53,17 +57,35 @@ object RaceResultReporter {
         standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
             ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
                 var place = 0
-                var previousScore = 0
-                standings.sortedBy { it.totalScoreOverall }.forEach {
-                    if (it.totalScoreOverall > previousScore) {
-                        it.placeOverall = ++place
-                    } else {
-                        it.placeOverall = place
+                var previous: Long? = null
+                standings.sortedWith { lhs, rhs ->
+                    lhs.totalScoreOverall.compareTo(rhs.totalScoreOverall).takeIf { it != 0 } ?: run {
+                        tieBreaker(lhs, rhs) { it.placeOverall }
                     }
-                    previousScore = it.totalScoreOverall
+                }.forEach {
+                    if (it.tiedWith.contains(previous)) {
+                        it.placeOverall = place
+                    } else {
+                        it.placeOverall = ++place
+                    }
+                    previous = it.boatSkipper.boat?.id
                 }
             }
         return standings
+    }
+
+    private fun tieBreaker(lhs: StandingsBoatSkipper, rhs: StandingsBoatSkipper, field: (StandingsRace) -> Int) : Int {
+        return lhs.raceStandings.reversed().zip(
+            rhs.raceStandings.reversed()
+        ).firstOrNull {
+            field(it.first) != field(it.second)
+        }?.let {
+            field(it.first).compareTo(field(it.second))
+        } ?: run {
+            lhs.tiedWith.add(rhs.boatSkipper.boat?.id ?: 0)
+            rhs.tiedWith.add(lhs.boatSkipper.boat?.id ?: 0)
+            0
+        }
     }
 
     private fun getStandingsClass(
@@ -149,8 +171,8 @@ object RaceResultReporter {
                 boatSkipper = boatSkipper,
                 raceStandings = standings,
                 totalScoreBracket = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInBracket },
-                totalScoreClass = standings.fold(0) { a, s -> a + s.placeInClass },
-                totalScoreOverall = standings.fold(0) { a, s -> a + s.placeOverall },
+                totalScoreClass = standings.fold(0) { a, s -> a + if(s.throwOut) 0 else s.placeInClass },
+                totalScoreOverall = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeOverall },
                 placeInBracket = 0,
                 placeInClass = 0,
                 placeOverall = 0,
@@ -158,24 +180,18 @@ object RaceResultReporter {
         }
 
         var place = 0
-        var previousScore = 0
-        result.sortedBy { it.totalScoreBracket }.forEach {
-            if (it.totalScoreBracket > previousScore) {
-                it.placeInBracket = ++place
-            } else {
-                it.placeInBracket = place
+        var previous: Long? = null
+        result.sortedWith { lhs, rhs ->
+            lhs.totalScoreBracket.compareTo(rhs.totalScoreBracket).takeIf { it != 0 } ?: run {
+                tieBreaker(lhs, rhs) { it.placeInBracket }
             }
-            previousScore = it.totalScoreBracket
-        }
-        place = 0
-        previousScore = 0
-        result.sortedBy { it.totalScoreClass }.forEach {
-            if (it.totalScoreClass > previousScore) {
-                it.placeInClass = ++place
+        }.forEach {
+            if (it.tiedWith.contains(previous)) {
+                it.placeInBracket= place
             } else {
-                it.placeInClass = place
+                it.placeInBracket= ++place
             }
-            previousScore = it.totalScoreClass
+            previous = it.boatSkipper.boat?.id
         }
         return result.sortedBy { it.placeInBracket }
     }
