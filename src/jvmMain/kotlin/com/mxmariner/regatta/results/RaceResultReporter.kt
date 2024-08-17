@@ -33,6 +33,23 @@ object RaceResultReporter {
             )
         }
 
+        //calculate place in class
+        standings?.standings?.forEach { standingsClass: StandingsClass ->
+            val bracketStandings = standingsClass.standings.map { it.standings }.flatten()
+
+            var place = 0
+            var previousScore = 0
+            bracketStandings.sortedBy { it.totalScoreClass}.forEach {
+                if (it.totalScoreClass > previousScore) {
+                    it.placeInClass= ++place
+                } else {
+                    it.placeInClass= place
+                }
+                previousScore = it.totalScoreClass
+            }
+        }
+
+        //calculate place overall
         standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
             ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
                 var place = 0
