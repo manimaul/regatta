@@ -165,7 +165,7 @@ data class BoatSkipper(
         if (boat != null && skipper != null) {
             return "${boat.name} - ${skipper.fullName()}"
         } else if (boat != null) {
-           return boat.name
+            return boat.name
         } else if (skipper != null) {
             return skipper.fullName()
         }
