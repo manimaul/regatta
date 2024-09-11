@@ -1,161 +1,52 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
-import java.lang.IllegalStateException
 
 plugins {
-    kotlin("multiplatform") version kotlinVersion
-    id("org.jetbrains.compose") version composeVersion
-    id("io.ktor.plugin") version ktorVersion
-    kotlin("plugin.serialization") version kotlinVersion
+    kotlin("jvm") version kotlinVersion apply false
+    kotlin("multiplatform") version kotlinVersion apply false
+    kotlin("plugin.compose") version kotlinVersion apply false
+    id("org.jetbrains.compose") version composeVersion apply false
+    kotlin("plugin.serialization") version kotlinVersion apply false
 }
 
-group = "com.mxmariner.regatta"
-version = "1.0"
-
-repositories {
-    google()
-    mavenCentral()
-}
-
-
-kotlin {
-    jvm {
-        jvmToolchain(17)
-        withJava()
-        testRuns.named("test") {
-            executionTask.configure {
-                useJUnitPlatform()
-            }
-        }
-    }
-    js(IR) {
-        browser {
-            testTask(Action {
-                testLogging.showStandardStreams = true
-                useKarma {
-                    useChromeHeadless()
-                    useFirefox()
-                }
-            })
-            //https://kotlinlang.org/docs/js-project-setup.html
-            commonWebpackConfig(Action {
-                output?.library = "AppComposables"
-            })
-        }
-        binaries.executable()
-    }
-    sourceSets {
-        val jsMain by getting {
-            dependencies {
-                implementation(compose.html.core)
-                implementation(compose.runtime)
-                implementation(compose.html.svg)
-                implementation(npm("sortablejs", "1.15.2"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-            }
-        }
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-            }
-        }
-
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-server-core-jvm")
-                implementation("io.ktor:ktor-server-netty-jvm")
-                implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("io.ktor:ktor-server-status-pages:${ktorVersion}")
-                implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-                implementation("io.ktor:ktor-server-auth:$ktorVersion")
-                implementation("io.ktor:ktor-server-compression:$ktorVersion")
-                compileOnly(compose.runtime)
-
-                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-                implementation("org.postgresql:postgresql:42.5.4")
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation("io.ktor:ktor-server-tests-jvm")
-            }
-        }
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 
-application {
-    mainClass.set("com.mxmariner.regatta.ApplicationKt")
 
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
-}
-
-tasks.named<Copy>("jvmProcessResources") {
-    val jsDist = tasks.named("jsBrowserProductionWebpack")
-    from(jsDist) {
-        into("static")
-    }
-    exclude("webpack.config.js")
-}
-
-tasks.named<KotlinWebpack>("jsBrowserProductionWebpack") {
+tasks.findByPath(":web:jsBrowserProductionWebpack")?.let { it as? KotlinWebpack }?.apply {
     doFirst {
-        File("webpack.config.d/dev_server_config.js")
-            .renameTo(File("webpack.config.d/dev_server_config"))
+        File("web/webpack.config.d/dev_server_config.js")
+            .renameTo(File("web/webpack.config.d/dev_server_config"))
     }
     doLast {
-        File("webpack.config.d/dev_server_config")
-            .renameTo(File("webpack.config.d/dev_server_config.js"))
+        File("web/webpack.config.d/dev_server_config")
+            .renameTo(File("web/webpack.config.d/dev_server_config.js"))
     }
 }
 
-tasks.named("jsBrowserTest") {
-    doFirst {
-        File("webpack.config.d/dev_server_config.js")
-            .renameTo(File("webpack.config.d/dev_server_config"))
-    }
-    doLast {
-        File("webpack.config.d/dev_server_config")
-            .renameTo(File("webpack.config.d/dev_server_config.js"))
-    }
+tasks.findByPath(":server:installDist")?.apply {
+    dependsOn(":web:jsBrowserProductionWebpack")
+    mustRunAfter(":web:jsBrowserProductionWebpack")
 }
 
-afterEvaluate {
-    rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
-        nodeVersion = "16.0.0"
-    }
 
-    rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
-        rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().resolution("colors", "1.4.0")
+tasks.findByPath(":server:jvmProcessResources")?.let { it as? Copy }?.apply {
+    tasks.findByPath(":web:jsBrowserProductionWebpack")?.let {
+        from(it) {
+            into("static")
+        }
+        exclude("webpack.config.js")
     }
-}
-
-tasks.named("installDist") {
-    dependsOn("jsBrowserProductionWebpack")
-    mustRunAfter("jsBrowserProductionWebpack")
 }
 
 task<Exec>("makeImg") {
-    dependsOn( "installDist")
-    mustRunAfter( "installDist")
+    dependsOn(":server:installDist")
+    mustRunAfter(":server:installDist")
     commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
 }
-
 
 task<Exec>("pubImg") {
     dependsOn(":makeImg")

@@ -26,7 +26,7 @@ docker exec -t "$c" psql -U regatta_admin regatta -f /dump.sql
 ## Backup Prod
 ```shell
 kubectl -n regatta get pods
-kubectl -n regatta exec regatta-postgres-865bc46b86-r52m9 -- pg_dump -U regatta_admin regatta > prod_dump`date +%Y-%m-%d"_"%H_%M_%S`.sql 
+kubectl -n regatta exec regatta-postgres-9f4cbdd48-k7zvb -- pg_dump -U regatta_admin regatta > prod_dump`date +%Y-%m-%d"_"%H_%M_%S`.sql 
 kubectl -n regatta exec regatta-postgres-865bc46b86-r52m9 -- bash -c "echo 'SHOW timezone;' | psql -U regatta_admin regatta"
 ```
 
