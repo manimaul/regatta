@@ -3,8 +3,8 @@ RUN apt update && \
     apt upgrade -y && \
     apt install -y openjdk-17-jre-headless
 
-COPY build/install /opt
+COPY server/build/install/server /opt/regatta
 
-ENV JAVA_OPTS="-Djdbcurl=jdbc:postgresql://postgres:5432/regatta -Duser=admin -Dpassword=mysecretpassword"
+ENV JAVA_OPTS="-Djdbcurl=jdbc:postgresql://localhost:5432/regatta -Duser=regatta_admin -Dpassword=mysecretpassword"
 
-CMD ["/opt/regatta/bin/regatta"]
+CMD ["/opt/regatta/bin/server"]

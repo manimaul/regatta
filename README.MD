@@ -5,14 +5,37 @@ Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacom
 ![Sailing Vessel Waymaker](./sv_waymaker.jpeg "SV Waymaker")
 
 ### Build and run 
-`./gradlew run`
+```shell
+cd database
+docker-compose up
+```
+```shell
+./gradlew :server:run
+```
 
-#### Run in browser hot loading
-`./gradlew jsRun --continuous`
+### Run in browser hot loading
+```shell
+cd database
+docker-compose up
+```
+```shell
+./gradlew :server:run
+```
+(todo: this is broken)
+```shell
+./gradlew :web:jsRun --continuous
+```
 
-### Building and using the output
-`./gradlew jsBrowserProductionWebpack`
-This will produce the output in `build/dist/js/productionExecutable`.
+### Run in container 
+```shell
+cd database
+docker-compose up
+```
+
+```shell
+./gradlew makeImg
+docker run --network=host ghcr.io/manimaul/regatta:latest
+```
 
 ### Useful links:
 - [Use Kotlin Code from JS](https://kotlinlang.org/docs/js-to-kotlin-interop.html)

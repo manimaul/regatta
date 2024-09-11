@@ -1,4 +1,3 @@
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -40,7 +39,6 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-server-auth:$ktorVersion")
                 implementation("io.ktor:ktor-server-compression:$ktorVersion")
-//                compileOnly(compose.runtime)
 
                 implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
                 implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")

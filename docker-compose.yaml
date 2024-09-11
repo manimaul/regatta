@@ -1,0 +1,40 @@
+# Local development
+version: '3.8'
+services:
+
+  postgres:
+    image: 'postgres:16-bookworm'
+    networks:
+      - overlay
+    ports:
+      - "5432:5432"
+      # We only expose the port here for local dev purposes
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: regatta_admin
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: regatta
+  regatta:
+    image: ''
+    networks:
+      - overlay
+    ports:
+      - "5432:5432"
+      # We only expose the port here for local dev purposes
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: regatta_admin
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: regatta
+
+
+networks:
+  overlay:

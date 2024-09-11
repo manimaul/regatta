@@ -75,8 +75,8 @@ data class RcFocus(
                     raceId = raceId,
                     boatId = it,
                     finish = finish,
-                    phrfRating = bs.boat.phrfRating,
-                    windseeker = bs.boat.windseeker,
+                    phrfRating = bs.boat?.phrfRating,
+                    windseeker = bs.boat?.windseeker,
                     penalty = penalty,
                     hocPosition = hocPosition,
                 )
@@ -168,7 +168,7 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
     fun checkOut(bs: BoatSkipper) {
         setState {
             val c = bs.boat?.id?.let {
-                (checkinIds.asSequence()).filter { it != bs.boat.id }.toList().apply {
+                (checkinIds.asSequence()).filter { it != bs.boat?.id }.toList().apply {
                     localStoreSetById("checkin_${selectedRace?.race?.id}", this)
                 }
             } ?: checkinIds

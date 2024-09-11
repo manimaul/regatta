@@ -41,7 +41,7 @@ data class RaceResultAddState(
             RaceResult(
                 id = id,
                 raceId = raceSchedule.race.id,
-                boatId = boatSkipper.boat.id,
+                boatId = boatSkipper.boat?.id ?: 0L,
                 finish = finish,
                 phrfRating = phrfRating,
                 windseeker = windseeker,

@@ -1,12 +1,12 @@
 function composeReady() {
-    let app = AppComposables.ComposeApp('root');
+    let app = web.ComposeApp('root');
     app.notifyReady();
 }
 
 window.onload = (event) => {
     let script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = '/regatta.js';
+    script.src = '/web.js';
 
     script.onreadystatechange = composeReady;
     script.onload = composeReady;
