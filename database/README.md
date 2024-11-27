@@ -12,42 +12,49 @@ docker-compose up
 
 ## Connect Prod db to local dev
 ```shell 
-kubectl -n regatta get pods
-kubectl -n regatta port-forward regatta-postgres-865bc46b86-r52m9 5432:5432
+app=regatta-postgres-service
+pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
+kubectl -n regatta port-forward "$pod" 5432:5432
 ```
 
 ## Backup Dev
 ```shell
-docker ps
-docker exec -t 9ea6c7d84df9 pg_dump -U regatta_admin regatta > dev_dump_`date +%Y-%m-%d"_"%H_%M_%S`.sql
+id=$(docker ps --filter name=database_postgres_1 --format json | jq -r '.ID')
+stamp=dev_dump`date +%Y-%m-%d"_"%H_%M_%S`
+docker exec -t "$id" pg_dump -U regatta_admin regatta > "./backup/$stamp.sql"
+rm ./backup/dev_current.sql
+ln -s "$stamp.sql" ./backup/dev_current.sql
 ```
 
 ## Backup Prod
 ```shell
-kubectl -n regatta get pods
-kubectl -n regatta exec regatta-postgres-9f4cbdd48-sfkd2 -- pg_dump -U regatta_admin regatta > prod_dump`date +%Y-%m-%d"_"%H_%M_%S`.sql 
+app=regatta-postgres-service
+pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
+stamp=prod_dump`date +%Y-%m-%d"_"%H_%M_%S`
+kubectl -n regatta exec "$pod" -- pg_dump -U regatta_admin regatta > "./backup/$stamp.sql"
+rm ./backup/prod_current.sql
+ln -s "$stamp.sql" ./backup/prod_current.sql
 ```
 
 # Restore Prod
-```shell
-cat prod_dump_2024-11-26_21_38_46.sql | kubectl -n regatta exec -i regatta-postgres-66799f6454-5nlcp -- psql -U regatta_admin -d regatta
+```
+app=regatta-postgres-service
+pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
+cat ./backup/prod_current.sql | kubectl -n regatta exec -i "$pod" -- psql -U regatta_admin -d regatta
 ```
 
 ## Prod Shell
-```shell
-kubectl -n regatta exec --stdin --tty regatta-postgres-865bc46b86-r52m9 -- /bin/bash
+```
+app=regatta-postgres-service
+pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
+kubectl -n regatta exec --stdin --tty "$pod" -- /bin/bash
 ```
 
 # Restore Dev
 ```shell
-c='53e7bb79c828'
-df='prod_dump_2024-11-26_21_38_46' 
-docker cp "$df" "$c:/dump.sql"
-echo "SHOW timezone;" | docker exec -i "$c" psql -U regatta_admin regatta
-docker exec -i "$c" dropdb -U regatta_admin -f regatta
-docker exec -i "$c" createdb -U regatta_admin regatta
-echo "SHOW timezone;" | docker exec -i "$c" psql -U regatta_admin regatta
-docker exec -t "$c" psql -U regatta_admin regatta -f /dump.sql
-
-docker exec -it "$c" sh -c "bash"
+id=$(docker ps --filter name=database_postgres_1 --format json | jq -r '.ID')
+df=$(readlink ./backup/dev_current.sql)
+docker cp "./backup/$df" "$id:/dump.sql"
+docker cp "./restore_dev.sh" "$id:/restore_dev.sh"
+docker exec "$id" /restore_dev.sh
 ```
