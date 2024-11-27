@@ -18,10 +18,6 @@ function docker_login() {
   echo "$GH_TOKEN" | docker login ghcr.io -u manimaul --password-stdin
 }
 
-function istio_inject() {
-  kubectl label namespace regatta istio-injection=enable
-}
-
 help() {
    echo "Login to the GitHub Container Registry"
    echo
@@ -29,7 +25,6 @@ help() {
    echo "print_token  Print the token"
    echo "docker_login Login to docker"
    echo "k8s_ghcr     Add k8s container pull credential secret to the regatta namespace"
-   echo "istio_inject Inject the namespace"
    echo "help         Print this Help."
    echo
 }

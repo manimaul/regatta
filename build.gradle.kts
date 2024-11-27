@@ -57,20 +57,20 @@ task<Exec>("pubImg") {
 task<Exec>("k8sApplyServer") {
     dependsOn(":pubImg")
     mustRunAfter(":pubImg")
-    commandLine("bash", "-c", "istioctl kube-inject -f '${serverYaml().absolutePath}' | kubectl apply -f -")
+    commandLine("bash", "-c", "kubectl apply -f '${serverYaml().absolutePath}'")
 }
 
 task<Exec>("k8sDeleteServer") {
-    commandLine("bash", "-c", "istioctl kube-inject -f '${serverYaml().absolutePath}' | kubectl delete -f -")
+    commandLine("bash", "-c", "kubectl delete -f '${serverYaml().absolutePath}'")
 }
 
 task<Exec>("k8sApplyDatabase") {
-    commandLine("bash", "-c", "istioctl kube-inject -f '${dbYaml().absolutePath}' | kubectl apply -f -")
+    commandLine("bash", "-c", "kubectl apply -f '${dbYaml().absolutePath}'")
 }
 
 task<Exec>("k8sDeleteDatabase") {
     mustRunAfter(":pubImg")
-    commandLine("bash", "-c", "istioctl kube-inject -f '${dbYaml().absolutePath}' | kubectl delete -f -")
+    commandLine("bash", "-c", "kubectl delete -f '${dbYaml().absolutePath}'")
 }
 
 task<Exec>("holdOn") {

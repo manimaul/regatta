@@ -9,6 +9,7 @@ services:
     ports:
       - "5432:5432"
       # We only expose the port here for local dev purposes
+    user: 1000:1000
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin"]
       interval: 10s
@@ -18,6 +19,9 @@ services:
       POSTGRES_USER: regatta_admin
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: regatta
+      PG_DATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./backup/volume/pgdata:/var/lib/postgresql/data
 
 networks:
   overlay:

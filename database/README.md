@@ -19,15 +19,18 @@ kubectl -n regatta port-forward regatta-postgres-865bc46b86-r52m9 5432:5432
 ## Backup Dev
 ```shell
 docker ps
-docker exec -t d6f22ce2de86 pg_dump -U regatta_admin regatta > dev_dump_`date +%Y-%m-%d"_"%H_%M_%S`.sql
-docker exec -t "$c" psql -U regatta_admin regatta -f /dump.sql
+docker exec -t 9ea6c7d84df9 pg_dump -U regatta_admin regatta > dev_dump_`date +%Y-%m-%d"_"%H_%M_%S`.sql
 ```
 
 ## Backup Prod
 ```shell
 kubectl -n regatta get pods
-kubectl -n regatta exec regatta-postgres-9f4cbdd48-k7zvb -- pg_dump -U regatta_admin regatta > prod_dump`date +%Y-%m-%d"_"%H_%M_%S`.sql 
-kubectl -n regatta exec regatta-postgres-865bc46b86-r52m9 -- bash -c "echo 'SHOW timezone;' | psql -U regatta_admin regatta"
+kubectl -n regatta exec regatta-postgres-9f4cbdd48-sfkd2 -- pg_dump -U regatta_admin regatta > prod_dump`date +%Y-%m-%d"_"%H_%M_%S`.sql 
+```
+
+# Restore Prod
+```shell
+cat prod_dump_2024-11-26_21_38_46.sql | kubectl -n regatta exec -i regatta-postgres-66799f6454-5nlcp -- psql -U regatta_admin -d regatta
 ```
 
 ## Prod Shell
@@ -38,7 +41,7 @@ kubectl -n regatta exec --stdin --tty regatta-postgres-865bc46b86-r52m9 -- /bin/
 # Restore Dev
 ```shell
 c='53e7bb79c828'
-df='prod_dump2024-04-25_07_53_27.sql' 
+df='prod_dump_2024-11-26_21_38_46' 
 docker cp "$df" "$c:/dump.sql"
 echo "SHOW timezone;" | docker exec -i "$c" psql -U regatta_admin regatta
 docker exec -i "$c" dropdb -U regatta_admin -f regatta
