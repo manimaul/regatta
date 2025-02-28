@@ -42,43 +42,43 @@ tasks.findByPath(":server:jvmProcessResources")?.let { it as? Copy }?.apply {
     }
 }
 
-task<Exec>("makeImg") {
+tasks.register<Exec>("makeImg") {
     dependsOn(":server:installDist")
     mustRunAfter(":server:installDist")
     commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
 }
 
-task<Exec>("pubImg") {
+tasks.register<Exec>("pubImg") {
     dependsOn(":makeImg")
     mustRunAfter(":makeImg")
     commandLine("bash", "-c", "docker push ghcr.io/manimaul/regatta:latest")
 }
 
-task<Exec>("k8sApplyServer") {
+tasks.register<Exec>("k8sApplyServer") {
     dependsOn(":pubImg")
     mustRunAfter(":pubImg")
     commandLine("bash", "-c", "kubectl apply -f '${serverYaml().absolutePath}'")
 }
 
-task<Exec>("k8sDeleteServer") {
+tasks.register<Exec>("k8sDeleteServer") {
     commandLine("bash", "-c", "kubectl delete -f '${serverYaml().absolutePath}'")
 }
 
-task<Exec>("k8sApplyDatabase") {
+tasks.register<Exec>("k8sApplyDatabase") {
     commandLine("bash", "-c", "kubectl apply -f '${dbYaml().absolutePath}'")
 }
 
-task<Exec>("k8sDeleteDatabase") {
+tasks.register<Exec>("k8sDeleteDatabase") {
     mustRunAfter(":pubImg")
     commandLine("bash", "-c", "kubectl delete -f '${dbYaml().absolutePath}'")
 }
 
-task<Exec>("holdOn") {
+tasks.register<Exec>("holdOn") {
     mustRunAfter(":pubImg")
     commandLine("bash", "-c", "echo 'hold on' && sleep 5")
 }
 
-task<Exec>("cyclePods") {
+tasks.register<Exec>("cyclePods") {
     mustRunAfter(":k8sApplyServer", ":pubImg", ":holdOn")
     commandLine("bash", "-c", "kubectl -n regatta delete pods -l app=regatta-service")
 }

@@ -9,13 +9,13 @@ kotlin {
 
     js(IR) {
         browser {
-            testTask(Action {
+            testTask {
                 testLogging.showStandardStreams = true
                 useKarma {
                     useChromeHeadless()
                     useFirefox()
                 }
-            })
+            }
         }
         binaries.executable()
     }
