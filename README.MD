@@ -41,3 +41,26 @@ docker run --network=host ghcr.io/manimaul/regatta:latest
 - [Use Kotlin Code from JS](https://kotlinlang.org/docs/js-to-kotlin-interop.html)
 - [JavaScript modules](https://kotlinlang.org/docs/js-modules.html)
 - [webpack bundling](https://kotlinlang.org/docs/js-project-setup.html#webpack-bundling)
+
+### Install on bare metal / VM 
+
+Build & Install Binary
+```shell
+./gradlew :server:buildDeb
+sudo dpkg -i server/build/distributions/regatta<version>.deb
+```
+
+Edit `/etc/regatta.env` and restart service
+```shell
+sudo systemctl restart regatta.service
+sudo systemctl status regatta.service
+```
+
+Check logs
+```shell
+sudo journalctl -u regatta -f
+```
+Uninstall
+```shell
+sudo dpkg --remove regatta
+```

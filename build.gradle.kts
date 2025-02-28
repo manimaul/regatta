@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.compose") version kotlinVersion apply false
     id("org.jetbrains.compose") version composeVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
+    id("com.netflix.nebula.ospackage-application") version "11.11.1" apply false
 }
 
 allprojects {
@@ -25,6 +26,11 @@ tasks.findByPath(":web:jsBrowserProductionWebpack")?.let { it as? KotlinWebpack 
         File("web/webpack.config.d/dev_server_config")
             .renameTo(File("web/webpack.config.d/dev_server_config.js"))
     }
+}
+
+tasks.findByPath(":server:shadowDistTar")?.apply {
+    dependsOn(":web:jsBrowserProductionWebpack")
+    mustRunAfter(":web:jsBrowserProductionWebpack")
 }
 
 tasks.findByPath(":server:installDist")?.apply {

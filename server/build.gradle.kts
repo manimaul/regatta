@@ -1,13 +1,37 @@
+import GitInfo.gitShortHash
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version ktorVersion
+    id("com.netflix.nebula.ospackage-application") version "11.11.1"
 }
 
 
 group = "com.mxmariner.regatta"
 version = "1.0"
 
+application.applicationName = "regatta"
+
+ospackage {
+    packageName = "regatta"
+    version = "1.0-${gitShortHash()}"
+    release = "1"
+    from("debpkg/regatta.service", closureOf<CopySpec> {
+        into("/etc/systemd/system/")
+    })
+    from("debpkg/regatta_exec.sh", closureOf<CopySpec> {
+        into("/usr/bin/")
+    })
+    from("debpkg/regatta.env", closureOf<CopySpec> {
+        into("/etc/")
+    })
+    preDepends("systemd")
+    requires("openjdk-17-jre-headless")
+    postInstall(file("debpkg/postInstall.sh"))
+    preUninstall(file("debpkg/preUninstall.sh"))
+    postUninstall(file("debpkg/postUninstall.sh"))
+}
 
 application {
     mainClass.set("com.mxmariner.regatta.ApplicationKt")
