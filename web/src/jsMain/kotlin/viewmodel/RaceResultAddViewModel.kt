@@ -21,6 +21,17 @@ data class RaceResultAddState(
     val hocPosition: Int? = null,
     val penalty: Int? = null,
 ) : VmState {
+
+    val isValid = when (ratingType) {
+        RatingType.PHRF -> {
+            phrfRating.toIntOrNull() != null
+        }
+
+        RatingType.Windseeker -> {
+            wsRating.toIntOrNull() != null
+        }
+    }
+
     fun asPost(): RaceResult? {
         var phrfRating = phrfRating.toIntOrNull()
         var windseeker = wsRating.toIntOrNull()?.let {

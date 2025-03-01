@@ -5,6 +5,7 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RaceSchedule
 import com.mxmariner.regatta.ratingLabel
 import components.*
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
@@ -108,6 +109,9 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
             }
             Button(attrs = {
                 classes(*RgButtonStyle.Success.classes)
+                if (!addState.value.isValid) {
+                    disabled()
+                }
                 attr("data-bs-dismiss", "modal")
                 onClick {
                     viewModel.addResult(addState.value)
@@ -164,6 +168,7 @@ fun EditResultRow(
                 label = "Save",
                 style = RgButtonStyle.Success,
                 customClasses = listOf(AppStyle.marginAll, AppStyle.marginAll),
+                disabled = !addState.isValid
             ) {
                 viewModel.addResult(addState)
             }
