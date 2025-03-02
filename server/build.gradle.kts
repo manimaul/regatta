@@ -4,7 +4,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version ktorVersion
-    id("com.netflix.nebula.ospackage-application") version "11.11.1"
+    id("com.netflix.nebula.ospackage-application") version osPackageVersion
 }
 
 

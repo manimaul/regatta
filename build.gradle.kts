@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.compose") version kotlinVersion apply false
     id("org.jetbrains.compose") version composeVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
-    id("com.netflix.nebula.ospackage-application") version "11.11.1" apply false
+    id("com.netflix.nebula.ospackage-application") version osPackageVersion apply false
 }
 
 allprojects {
