@@ -49,8 +49,9 @@ Install Postgres Local
 sudo apt install postgresql postgresql-client
 sudo su - postgres -c "createuser regatta_admin"
 sudo su - postgres -c "createdb regatta"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE regatta TO regatta_admin;"
 sudo -u postgres psql -c "ALTER USER regatta_admin PASSWORD 'mysecretpassword';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE regatta TO regatta_admin;"
+sudo -u postgres psql -c "ALTER DATABASE regatta OWNER TO regatta_admin;"
 sudo bash -c "sed -i -e 's/5433/5432/g' /etc/postgresql/15/main/postgresql.conf"
 sudo bash -c 'echo "listen_addresses = 'localhost'" >> /etc/postgresql/15/main/postgresql.conf'
 sudo systemctl restart postgresql
