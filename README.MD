@@ -77,3 +77,41 @@ Uninstall
 ```shell
 sudo dpkg --remove regatta
 ```
+
+### Nginx Reverse Proxy Info
+
+```shell
+sudo apt install nginx openssl
+sudo mkdir -p /etc/tls
+sudo chmod go+r /etc/tls/key.pem
+sudo openssl req -x509 -newkey rsa:4096 -nodes -keyout /etc/tls/key.pem -out /etc/tls/cert.pem -days 365 -subj '/CN=localhost'
+sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+sudo vim /etc/nginx/sites-enabled/default
+```
+
+/etc/nginx/sites-enabled/default
+```
+server {
+    listen 80;
+    server_name regatta;
+
+    location / {
+        proxy_pass http://localhost:8888;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    listen [::]:443 ssl ipv6only=on;
+    listen 443 ssl;
+    server_name regatta;
+    ssl_certificate /etc/tls/cert.pem;
+    ssl_certificate_key /etc/tls/key.pem;
+    add_header Content-Security-Policy upgrade-insecure-requests;
+}
+```
+
+```shell
+sudo systemctl restart nginx
+journalctl -fxeu nginx
+```
