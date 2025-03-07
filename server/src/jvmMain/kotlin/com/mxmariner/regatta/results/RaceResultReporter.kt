@@ -282,12 +282,12 @@ object RaceResultReporter {
             }
             if (orphans.isNotEmpty()) {
                 val orphanCards = BracketReportCards(
-                    bracket = Bracket(name = "Everyone"),
+                    bracket = Bracket(name = "Invalid result records"),
                     cards = orphans
                 )
                 classReportList.add(
                     ClassReportCards(
-                        raceClass = RaceClass(name = "Other"),
+                        raceClass = RaceClass(name = "Incorrectly classed"),
                         bracketReport = listOf(orphanCards),
                         correctionFactor = raceSchedule.race.correctionFactor
                     )

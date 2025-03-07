@@ -56,7 +56,7 @@ fun RaceResultsView(
                             H4 { Text(reportCategory.raceClass.name) }
                             Text("CF - ${reportCategory.correctionFactor}")
                             Br()
-                            Text("Start time - ${report.classStart(reportCategory.raceClass.id).timeStr()}")
+                            Text("Start time - ${report.classStart(reportCategory.raceClass.id)?.timeStr() ?: "None"}")
                         }
                     }
                     reportCategory.bracketReport.forEach { classReport ->
