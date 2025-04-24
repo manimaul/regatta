@@ -7,34 +7,27 @@ import kotlinx.datetime.Instant
 fun RaceResult.finishText(startTime: Instant?): String {
     return finish?.timeStr()?.takeIf { startTime != null }?.let { t ->
         penalty?.let { "$t P+$it" } ?: t
-    } ?: "RET".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
+    } ?: finishCode.finishText(hocPosition)
 }
 
-//fun BoatSkipper.raceClass(schedule: RaceSchedule): RaceClass? {
-//    boat?.let {
-//        schedule.schedule.firstOrNull {
-//
-//        }
-//    }
-//}
-
-fun RaceReportCard.startText(): String {
-    return startTime?.display() ?: "error"
+fun FinishCode.finishText(hocPosition: Int?) : String {
+    return when(val code = this) {
+        FinishCode.TIME,
+        FinishCode.RET,
+        FinishCode.DNF,
+        FinishCode.NSC -> code.name
+        FinishCode.HOC -> "HOC $hocPosition"
+    }
 }
 
 fun RaceReportCard.finishText(): String {
     return finishTime?.timeStr()?.takeIf { startTime != null }?.let { t ->
         penalty?.let { "$t P+$it" } ?: t
-    } ?: "RET".takeIf { startTime != null && hocPosition == null } ?: hocPosition?.let { "HOC $it" } ?: ""
+    } ?: resultRecord.result.finishCode.finishText(hocPosition)
 }
-
 
 fun RaceReportCard.elapsedText(): String {
     return elapsedTime?.display() ?: "n/a"
-}
-
-fun RaceReportCard.elapsedSecText(): String {
-    return elapsedTime?.inWholeSeconds?.toString() ?: "n/a"
 }
 
 fun RaceReportCard.cfText(): String {
@@ -43,8 +36,4 @@ fun RaceReportCard.cfText(): String {
 
 fun RaceReportCard.corTimeText(): String {
     return correctedTime?.display()?.let { "$it (${cfText()})" } ?: "n/a"
-}
-
-fun RaceReportCard.corTimeSecText(): String {
-    return correctedTime?.inWholeSeconds?.toString() ?: "n/a"
 }

@@ -192,6 +192,7 @@ data class RaceResult(
     val hocPosition: Int? = null,
     val penalty: Int? = null,
     val windseeker: Windseeker? = null,
+    val finishCode: FinishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
 )
 
 @Serializable

@@ -53,7 +53,7 @@ kubectl -n regatta exec --stdin --tty "$pod" -- /bin/bash
 # Restore Dev
 ```shell
 id=$(docker ps --filter name=database_postgres_1 --format json | jq -r '.ID')
-df=$(readlink ./backup/dev_current.sql)
+df=$(readlink ./backup/prod_current.sql)
 docker cp "./backup/$df" "$id:/dump.sql"
 docker cp "./restore_dev.sh" "$id:/restore_dev.sh"
 docker exec "$id" /restore_dev.sh

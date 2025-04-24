@@ -18,6 +18,7 @@ object RaceResultsTable : Table() {
     val wsRating = integer("ws_rating").nullable()
     val wsFlying = bool("ws_flying").nullable()
     val hoc = integer("hoc").nullable()
+    val finishCode = varchar("finish_code", 128).nullable()
     val penalty= integer("penalty").nullable()
     override val primaryKey = PrimaryKey(id)
 
@@ -33,15 +34,16 @@ object RaceResultsTable : Table() {
             }
             it[raceId] = result.raceId
             it[boatId] = result.boatId
-            it[finish] = result.finish
+            it[finish] = result.finish.takeIf { result.finishCode == FinishCode.TIME }
             result.windseeker?.let { ws ->
                 it[wsRating] = ws.rating
                 it[wsFlying] = ws.flyingSails
             } ?: run {
                 it[phrfRating] = result.phrfRating
             }
-            it[hoc] = result.hocPosition
+            it[hoc] = result.hocPosition.takeIf { result.finishCode == FinishCode.HOC }
             it[penalty] = result.penalty
+            it[finishCode] = result.finishCode.name
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
 
@@ -89,18 +91,25 @@ object RaceResultsTable : Table() {
         )
     }
 
-    fun rowToResult(row: ResultRow) = RaceResult(
-        id = row[id],
-        raceId = row[raceId],
-        boatId = row[boatId],
-        finish = row[finish],
-        phrfRating = row[phrfRating],
-        windseeker = row[wsRating]?.let { r ->
-            Windseeker(r, row[wsFlying] ?: false)
-        },
-        hocPosition = row[hoc],
-        penalty = row[penalty],
-    )
+    fun rowToResult(row: ResultRow): RaceResult {
+        val time = row[finish]
+        val code = row[finishCode]?.let { FinishCode.valueOf(it) } ?: run {
+            time?.let { FinishCode.TIME } ?: FinishCode.RET
+        }
+        return RaceResult(
+            id = row[id],
+            raceId = row[raceId],
+            boatId = row[boatId],
+            finish = time,
+            phrfRating = row[phrfRating],
+            windseeker = row[wsRating]?.let { r ->
+                Windseeker(r, row[wsFlying] ?: false)
+            },
+            hocPosition = row[hoc],
+            penalty = row[penalty],
+            finishCode = code
+        )
+    }
 }
 
 fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {

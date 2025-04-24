@@ -2,6 +2,7 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceSchedule
 import com.mxmariner.regatta.ratingLabel
 import components.*
@@ -205,7 +206,7 @@ fun TimeRow(
         P { Text("HOC $it") }
         RgButton(label = "Reset") {
             viewModel.addViewModel.hoc(null)
-            viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
+            viewModel.addViewModel.setFinish(FinishCode.TIME, addState.raceSchedule?.endTime)
         }
         RgButton(label = "+", customClasses = listOf(AppStyle.marginStart)) {
             viewModel.addViewModel.hoc(it + 1)
@@ -217,27 +218,30 @@ fun TimeRow(
         if (useModalTime) {
             Div {
                 RgTimeButton("Finish Time", finish) {
-                    viewModel.addViewModel.setFinish(it)
+                    viewModel.addViewModel.setFinish(FinishCode.TIME, it)
                 }
             }
         } else {
             RgTime(date = finish, showSeconds = true) {
-                viewModel.addViewModel.setFinish(it)
+                viewModel.addViewModel.setFinish(FinishCode.TIME,it)
             }
         }
-        RgButton(label = "RET", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
-            viewModel.addViewModel.setFinish(null)
-        }
-        RgButton(label = "HOC", customClasses = listOf(AppStyle.marginTop, AppStyle.marginEnd)) {
-            viewModel.addViewModel.hoc(state.maxHoc)
+        FinishCodeDrop(selected = addState.finishCode, customClasses = listOf(AppStyle.marginTop)) {
+            when (it) {
+                FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, finish)
+                FinishCode.RET,
+                FinishCode.DNF,
+                FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null)
+                FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)
+            }
         }
         RgButton(label = "Penalty", customClasses = listOf(AppStyle.marginTop)) {
             viewModel.addViewModel.penalty(state.maxHoc)
         }
     } ?: run {
-        P { Text("RET") }
+        P { Text("${addState.finishCode}") }
         RgButton(label = "Reset") {
-            viewModel.addViewModel.setFinish(addState.raceSchedule?.endTime)
+            viewModel.addViewModel.setFinish(FinishCode.TIME,addState.raceSchedule?.endTime)
         }
     }
 }

@@ -188,7 +188,7 @@ fun RcFinish(viewModel: RcViewModel) {
                                 id = "rc-finish-time",
                                 style = style,
                                 buttonLabel = { ea.result?.finishText(ea.startTime) ?: "Finish" }) {
-                                viewModel.focus(ea.bs, ea.result?.finish ?: now())
+                                viewModel.focus(ea.bs, ea.result)
                             }
                         }
                         RgTd {

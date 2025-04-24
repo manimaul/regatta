@@ -3,6 +3,7 @@ package viewmodel
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.ClassSchedule
+import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceResult
 import com.mxmariner.regatta.data.RaceSchedule
 import com.mxmariner.regatta.display
@@ -50,17 +51,19 @@ data class RcFocus(
     val raceStart: Instant?,
     val penalty: Int?,
     val hocPosition: Int?,
+    val finishCode: FinishCode,
     val maxHoc: Int
 ) {
 
-    fun isValid() : Boolean {
+    fun isValid(): Boolean {
         return raceStart?.let { s ->
-           finish?.let { f ->
-              f > s
-           }
-        } ?: false
+            finish?.let { f ->
+                f > s
+            }
+        } ?: true
     }
-    fun elapsedTime() : String? {
+
+    fun elapsedTime(): String? {
         return raceStart?.let { s ->
             finish?.let { f ->
                 (f - s).display()
@@ -79,6 +82,7 @@ data class RcFocus(
                     windseeker = bs.boat?.windseeker,
                     penalty = penalty,
                     hocPosition = hocPosition,
+                    finishCode = finishCode
                 )
             }
         }
@@ -199,39 +203,22 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
         }
     }
 
-    fun raceDayFinish(race: RaceSchedule?, bs: BoatSkipper, finish: Instant): Instant {
-        race?.findClassSchedule(bs)?.startDate?.let { start ->
-            val l = start.localDateTime()
-            val f = finish.localDateTime()
-            LocalDateTime(
-                l.year,
-                l.monthNumber,
-                l.dayOfMonth,
-                f.hour,
-                f.minute,
-                f.second
-            ).instant()
-        } ?: finish
-
-        return finish
-    }
-
-    fun focus(bs: BoatSkipper?, finish: Instant?) {
+    fun focus(boatSkipper: BoatSkipper?, result: RaceResult?) {
         setState {
-            val result = results.value?.get(bs?.boat?.id)
-            val f = bs?.let {
-                finish?.let {
-                    RcFocus(
-                        bs = bs,
-                        finish = raceDayFinish(selectedRace, bs, it),
-                        penalty = result?.penalty,
-                        hocPosition = result?.hocPosition,
-                        raceStart = selectedRace?.findClassSchedule(bs)?.startDate,
-                        maxHoc = findMaxHoc()
-                    )
-                }
-            }
-            copy(focus = f)
+            copy(
+                focus =
+                    boatSkipper?.let { bs ->
+                        RcFocus(
+                            bs = bs,
+                            finish = if (result == null) now() else result.finish,
+                            penalty = result?.penalty,
+                            hocPosition = result?.hocPosition,
+                            raceStart = selectedRace?.findClassSchedule(bs)?.startDate,
+                            maxHoc = findMaxHoc(),
+                            finishCode = result?.finishCode ?: FinishCode.TIME
+                        )
+                    }
+            )
         }
     }
 
@@ -298,8 +285,8 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
         setState { copy(focus = focus?.copy(hocPosition = value?.let { max(1, it) }, finish = null)) }
     }
 
-    fun setFinish(value: Instant?) {
-        setState { copy(focus = focus?.copy(finish = value, hocPosition = null)) }
+    fun setFinish(code: FinishCode, value: Instant?) {
+        setState { copy(focus = focus?.copy(finish = value, hocPosition = null, finishCode = code)) }
     }
 
     fun setCf(cf: Int?) {

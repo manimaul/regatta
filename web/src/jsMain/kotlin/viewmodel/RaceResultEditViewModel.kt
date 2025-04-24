@@ -2,7 +2,10 @@ package viewmodel
 
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RaceReport
-import utils.*
+import utils.Api
+import utils.Async
+import utils.Loading
+import utils.toAsync
 import kotlin.math.max
 
 data class RaceResultEditState(

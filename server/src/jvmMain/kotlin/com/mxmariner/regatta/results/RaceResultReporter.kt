@@ -379,7 +379,7 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
         } else if (rhs.hocPosition != null) {
             1
         } else {
-            // RET
+            // RET, DNF, NSC
             0
         }
     }
