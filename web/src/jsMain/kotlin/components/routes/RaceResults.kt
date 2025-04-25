@@ -223,15 +223,20 @@ fun TimeRow(
             }
         } else {
             RgTime(date = finish, showSeconds = true) {
-                viewModel.addViewModel.setFinish(FinishCode.TIME,it)
+                viewModel.addViewModel.setFinish(FinishCode.TIME, it)
             }
         }
-        FinishCodeDrop(selected = addState.finishCode, customClasses = listOf(AppStyle.marginTop)) {
+        FinishCodeDrop(
+            selected = addState.finishCode,
+            hocPosition = addState.hocPosition,
+            customClasses = listOf(AppStyle.marginTop)
+        ) {
             when (it) {
                 FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, finish)
                 FinishCode.RET,
                 FinishCode.DNF,
                 FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null)
+
                 FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)
             }
         }
@@ -241,7 +246,7 @@ fun TimeRow(
     } ?: run {
         P { Text("${addState.finishCode}") }
         RgButton(label = "Reset") {
-            viewModel.addViewModel.setFinish(FinishCode.TIME,addState.raceSchedule?.endTime)
+            viewModel.addViewModel.setFinish(FinishCode.TIME, addState.raceSchedule?.endTime)
         }
     }
 }

@@ -48,6 +48,7 @@ data class CheckIn(
 data class RcFocus(
     val bs: BoatSkipper,
     val finish: Instant?,
+    val restoreFinish: Instant? = null,
     val raceStart: Instant?,
     val penalty: Int?,
     val hocPosition: Int?,
@@ -211,6 +212,7 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
                         RcFocus(
                             bs = bs,
                             finish = if (result == null) now() else result.finish,
+                            restoreFinish = if (result == null) now() else result.finish,
                             penalty = result?.penalty,
                             hocPosition = result?.hocPosition,
                             raceStart = selectedRace?.findClassSchedule(bs)?.startDate,
@@ -282,11 +284,19 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
     }
 
     fun hoc(value: Int?) {
-        setState { copy(focus = focus?.copy(hocPosition = value?.let { max(1, it) }, finish = null)) }
+        setState {
+            copy(
+                focus = focus?.copy(
+                    hocPosition = value?.let { max(1, it) },
+                    finish = null,
+                    finishCode = FinishCode.HOC
+                )
+            )
+        }
     }
 
     fun setFinish(code: FinishCode, value: Instant?) {
-        setState { copy(focus = focus?.copy(finish = value, hocPosition = null, finishCode = code)) }
+        setState { copy(focus = focus?.copy(finish = value, hocPosition = null, finishCode = code, penalty = null)) }
     }
 
     fun setCf(cf: Int?) {

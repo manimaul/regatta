@@ -145,7 +145,7 @@ fun RcFinish(viewModel: RcViewModel) {
 
     RgModalBody(id = "rc-finish-time", modalTitle = { state.value.focus?.bs?.shortLabel() ?: "" }, content = {
         state.value.focus?.let { focus ->
-            TimeRow(viewModel)
+            RcTimeRow(viewModel)
         }
     }, footer = {
         Button(attrs = {
