@@ -159,6 +159,7 @@ object RaceResultReporter {
                         throwOut = false,
                         finish = it.finishTime != null,
                         hocPosition = it.hocPosition,
+                        finishCode = it.resultRecord.result.finishCode
                     )
                 } ?: nonStarterPlace(race, bracketRecords, classRecords, overallRecords)
             }.toList()
@@ -219,6 +220,7 @@ object RaceResultReporter {
             placeInClass = classStarters + 1,
             placeOverall = overallStarters + 1,
             hocPosition = null,
+            finishCode = null,
         )
     }
 

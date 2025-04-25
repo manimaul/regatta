@@ -245,6 +245,7 @@ data class StandingsRace(
     val placeInClass: Int = 0,
     var placeOverall: Int = 0,
     var throwOut: Boolean = false,
+    val finishCode: FinishCode?
 )
 
 @Serializable

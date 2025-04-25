@@ -3,6 +3,7 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.ratingLabel
 import components.*
@@ -83,14 +84,13 @@ fun SeriesStandings(
                                         B { Text("${it.placeInBracket}, ") }
                                         Text("${it.placeInClass}, ")
                                         I { Text("${it.placeOverall}") }
-                                        if (it.nonStarter) {
-                                            Text(" DNS")
-                                        } else if (!it.finish) {
-                                            if (it.hocPosition != null) {
-                                                Text(" HOC${it.hocPosition}")
-                                            } else {
-                                                Text(" RET")
-                                            }
+                                        when (val code = it.finishCode) {
+                                            FinishCode.TIME -> Unit
+                                            FinishCode.RET,
+                                            FinishCode.DNF,
+                                            FinishCode.NSC -> Text(" ${code.name}")
+                                            FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
+                                            null -> Text(" DNS")
                                         }
                                     }
                                 }
