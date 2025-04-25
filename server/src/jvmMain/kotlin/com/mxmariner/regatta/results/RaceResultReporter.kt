@@ -381,8 +381,7 @@ fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
         } else if (rhs.hocPosition != null) {
             1
         } else {
-            // RET, DNF, NSC
-            0
+            lhs.resultRecord.result.finishCode.weight.compareTo(rhs.resultRecord.result.finishCode.weight)
         }
     }
 }
@@ -399,7 +398,10 @@ private data class TempPlace(
 
 fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
     val penalties = mutableListOf<PenaltyPosition>()
+    val starters = this.count()
+    val finishers = this.count { it.resultRecord.result.finish != null}
 
+    //sorted by corrected time then HOC
     val list = this.sortedWith(cardCompare).let{
         var last: RaceReportCard? = null
         var position = 1
@@ -407,13 +409,27 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
             ea.penalty?.let {
                 penalties.add(PenaltyPosition(it, i))
             }
-            last?.let {
-                if (compare(ea, it) == 1) {
-                    position++
+            when (ea.resultRecord.result.finishCode) {
+                FinishCode.TIME,
+                FinishCode.HOC -> {
+                    last?.let { theLast ->
+                        if (compare(ea, theLast) == 1) {
+                            position++
+                        }
+                    }
+                    last = ea
+                    TempPlace(place = position, card = ea)
+                }
+
+                FinishCode.RET,
+                FinishCode.DNF -> {
+                    TempPlace(place= finishers + 1, card = ea )
+                }
+
+                FinishCode.NSC -> {
+                    TempPlace(place= starters, card = ea )
                 }
             }
-            last = ea
-            TempPlace(place = position, card = ea)
         }
     }.toMutableList()
 
