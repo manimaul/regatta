@@ -100,8 +100,8 @@ class RaceResultAddViewModel(
         }
     }
 
-    fun setFinish(code: FinishCode, value: Instant?) {
-        setState { copy(finishCode = code, finish = value) }
+    fun setFinish(code: FinishCode, value: Instant?, clearPenalty: Boolean = false) {
+        setState { copy(hocPosition = null, finishCode = code, finish = value, penalty = if(clearPenalty) null else penalty) }
     }
 
     fun setCard(card: RaceReportCard? = null) {
@@ -132,11 +132,12 @@ class RaceResultAddViewModel(
     fun hoc(i: Int?) {
         setState {
             copy(
+                finishCode = FinishCode.HOC,
+                penalty = null,
                 hocPosition = i?.let { max(0, i) },
                 finish = if (i != null) null else finish,
             )
         }
-        println(flow.value.finish)
     }
 
     fun setPhrfRating(rating: String) {

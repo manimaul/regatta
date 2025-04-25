@@ -193,28 +193,7 @@ fun TimeRow(
     addState: RaceResultAddState,
     useModalTime: Boolean,
 ) {
-    addState.penalty?.let {
-        P { Text("Penalty +$it") }
-        RgButton(label = "+", customClasses = listOf(AppStyle.marginBot)) {
-            viewModel.addViewModel.penalty(it + 1)
-        }
-        RgButton(label = "-", customClasses = listOf(AppStyle.marginStart, AppStyle.marginBot)) {
-            viewModel.addViewModel.penalty(it - 1)
-        }
-    }
-    addState.hocPosition?.let {
-        P { Text("HOC $it") }
-        RgButton(label = "Reset") {
-            viewModel.addViewModel.hoc(null)
-            viewModel.addViewModel.setFinish(FinishCode.TIME, addState.raceSchedule?.endTime)
-        }
-        RgButton(label = "+", customClasses = listOf(AppStyle.marginStart)) {
-            viewModel.addViewModel.hoc(it + 1)
-        }
-        RgButton(label = "-", customClasses = listOf(AppStyle.marginStart)) {
-            viewModel.addViewModel.hoc(it - 1)
-        }
-    } ?: addState.finish?.let { finish ->
+    addState.finish?.let { finish ->
         if (useModalTime) {
             Div {
                 RgTimeButton("Finish Time", finish) {
@@ -226,27 +205,51 @@ fun TimeRow(
                 viewModel.addViewModel.setFinish(FinishCode.TIME, it)
             }
         }
-        FinishCodeDrop(
-            selected = addState.finishCode,
-            hocPosition = addState.hocPosition,
-            customClasses = listOf(AppStyle.marginTop)
-        ) {
-            when (it) {
-                FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, finish)
-                FinishCode.RET,
-                FinishCode.DNF,
-                FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null)
 
-                FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)
+        RgButton(label = "Penalty${addState.penalty?.let { " $it" } ?: " 0"}", customClasses = listOf(
+            AppStyle.marginTop,
+            AppStyle.marginBot
+        )) {
+            viewModel.addViewModel.penalty(addState.penalty?.let { it + 1 } ?: 1)
+        }
+        addState.penalty?.let {
+            RgButton(
+                style = RgButtonStyle.Danger,
+                label = "-",
+                customClasses = listOf(AppStyle.marginStart, AppStyle.marginBot, AppStyle.marginTop)
+            ) {
+            viewModel.addViewModel.penalty(it - 1)
             }
         }
-        RgButton(label = "Penalty", customClasses = listOf(AppStyle.marginTop)) {
-            viewModel.addViewModel.penalty(state.maxHoc)
+    }
+    FinishCodeDrop(
+        selected = addState.finishCode,
+        hocPosition = addState.hocPosition,
+        customClasses = listOf(AppStyle.marginTop)
+    ) {
+        when (it) {
+            FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, addState.finish ?: now())
+            FinishCode.RET,
+            FinishCode.DNF,
+            FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null, true)
+
+            FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)
         }
-    } ?: run {
-        P { Text("${addState.finishCode}") }
-        RgButton(label = "Reset") {
-            viewModel.addViewModel.setFinish(FinishCode.TIME, addState.raceSchedule?.endTime)
+    }
+    addState.hocPosition?.let {
+        RgButton(
+            style = RgButtonStyle.Danger,
+            label = "+",
+            customClasses = listOf(AppStyle.marginTop)
+        ) {
+            viewModel.addViewModel.hoc(it + 1)
+        }
+        if (it > 1) RgButton(
+            style = RgButtonStyle.Danger,
+            label = "-",
+            customClasses = listOf(AppStyle.marginTop, AppStyle.marginStart)
+        ) {
+            viewModel.addViewModel.hoc(it - 1)
         }
     }
 }
