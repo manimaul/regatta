@@ -21,7 +21,7 @@ docker-compose up
 ```shell
 ./gradlew :server:run
 ```
-(todo: this is broken)
+
 ```shell
 ./gradlew :web:jsRun --continuous
 ```

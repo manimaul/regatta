@@ -400,6 +400,7 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
     val penalties = mutableListOf<PenaltyPosition>()
     val starters = this.count()
     val finishers = this.count { it.resultRecord.result.finish != null}
+    val hocCount = this.count { it.hocPosition != null }
 
     //sorted by corrected time then HOC
     val list = this.sortedWith(cardCompare).let{
@@ -423,7 +424,7 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
 
                 FinishCode.RET,
                 FinishCode.DNF -> {
-                    TempPlace(place= finishers + 1, card = ea )
+                    TempPlace(place= finishers + hocCount + 1, card = ea )
                 }
 
                 FinishCode.NSC -> {

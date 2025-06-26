@@ -50,7 +50,7 @@ pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata
 kubectl -n regatta exec --stdin --tty "$pod" -- /bin/bash
 ```
 
-# Restore Dev
+# Restore Prod Backup to Dev
 ```shell
 id=$(docker ps --filter name=database_postgres_1 --format json | jq -r '.ID')
 df=$(readlink ./backup/prod_current.sql)
