@@ -3,6 +3,8 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.data.ClassReportCards
+import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
 import com.mxmariner.regatta.ratingLabel
 import components.*
@@ -12,18 +14,6 @@ import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
 import viewmodel.*
-
-val columns = listOf(
-    "Boat",
-    "Skipper",
-    "Rating",
-    "Finish",
-    "Elapsed Time",
-    "Corrected Time",
-    "Place In Bracket",
-    "Place In Class",
-    "Place Overall"
-)
 
 @Composable
 fun RaceResultsView(
@@ -41,42 +31,78 @@ fun RaceResultsView(
                 routeViewModel.pushRoute("/races/results/${raceId}")
             }
         }
-        RgTable(stripeColumn = true, color = TableColor.light) {
-            RgThead {
-                RgTr {
-                    columns.forEach {
-                        RgTh(scope = Scope.Colgroup) { Text(it) }
-                    }
+        report.classReports.forEach { classReportCards ->
+            RaceResultsClassTable(report, classReportCards)
+            Br()
+        }
+    }
+}
+
+@Composable
+fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards) {
+    val totalBracketInClassCount = classReportCards.bracketReport.size
+
+    Div(attrs = {
+        classes("border-top", "border-2", "border")
+    }) {
+        H4 { Text(classReportCards.raceClass.name) }
+        Text("CF - ${classReportCards.correctionFactor}")
+        Text("Start time - ${report.classStart(classReportCards.raceClass.id)?.timeStr() ?: "None"}")
+    }
+    val headers = if (classReportCards.raceClass.isPHRF) {
+        listOf(
+            "Boat",
+            "Skipper",
+            "Rating",
+            "Finish",
+            "Elapsed Time",
+            "Corrected Time",
+        )
+    } else {
+        listOf(
+            "Boat",
+            "Skipper",
+            "Rating",
+            "Finish",
+            "Elapsed Time",
+        )
+    }
+    RgTable(stripeColumn = true, color = TableColor.light) {
+        RgThead {
+            RgTr {
+                headers.forEach {
+                    RgTh(scope = Scope.Colgroup) { Text(it) }
+                }
+                if (totalBracketInClassCount > 1) {
+                    RgTh(scope = Scope.Colgroup) { Text("Place In Bracket") }
+                    RgTh(scope = Scope.Colgroup) { Text("Place In Class") }
+                } else {
+                    RgTh(scope = Scope.Colgroup) { Text("Place In Class") }
                 }
             }
-            RgTbody {
-                report.classReports.forEach { reportCategory ->
-                    RgTr(classes = listOf("table-light", "table-borderless")) {
-                        RgTdColor(colSpan = 15, color = TableColor.info) {
-                            H4 { Text(reportCategory.raceClass.name) }
-                            Text("CF - ${reportCategory.correctionFactor}")
-                            Br()
-                            Text("Start time - ${report.classStart(reportCategory.raceClass.id)?.timeStr() ?: "None"}")
-                        }
+        }
+        RgTbody {
+            classReportCards.bracketReport.forEach { classReport ->
+                RgTr(classes = listOf("table-light", "table-borderless")) {
+                    RgTdColor(colSpan = 15, color = TableColor.warning) {
+                        H6 { Text("${classReport.bracket.name} ${classReport.bracket.description ?: ""}") }
                     }
-                    reportCategory.bracketReport.forEach { classReport ->
-                        RgTr(classes = listOf("table-light", "table-borderless")) {
-                            RgTdColor(colSpan = 15, color = TableColor.warning) {
-                                H6 { Text("${classReport.bracket.name} ${classReport.bracket.description ?: ""}") }
-                            }
+                }
+                classReport.cards.forEach { card ->
+                    RgTr {
+                        RgTd { BoatLabel(card) }
+                        RgTd { Text(card.skipper) }
+                        RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
+                        RgTd { Text(card.finishText()) }
+                        RgTd { Text(card.elapsedText()) }
+                        if (classReportCards.raceClass.isPHRF) {
+                            RgTd { Text(card.corTimeText()) }
                         }
-                        classReport.cards.forEach { card ->
-                            RgTr {
-                                RgTd { BoatLabel(card) }
-                                RgTd { Text(card.skipper) }
-                                RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
-                                RgTd { Text(card.finishText()) }
-                                RgTd { Text(card.elapsedText()) }
-                                RgTd { Text(card.corTimeText()) }
-                                RgTd { Text(card.placeInBracket.toString()) }
-                                RgTd { Text(card.placeInClass.toString()) }
-                                RgTd { Text(card.placeOverall.toString()) }
-                            }
+                        if (totalBracketInClassCount > 1) {
+                            RgTd { Text(card.placeInBracket.toString()) }
+                            RgTd { Text(card.placeInClass.toString()) }
+                        } else {
+                            RgTd { Text(card.placeInBracket.toString()) }
                         }
                     }
                 }
@@ -87,9 +113,9 @@ fun RaceResultsView(
 
 @Composable
 fun BoatLabel(card: RaceReportCard) {
-   Span(attrs = { style { fontWeight("bold") } }) {
-       Text(card.boatName)
-   }
+    Span(attrs = { style { fontWeight("bold") } }) {
+        Text(card.boatName)
+    }
     card.boatType.takeIf { it.isNotBlank() }?.let {
         Text(" - $it")
     }

@@ -251,7 +251,7 @@ data class StandingsRace(
 @Serializable
 data class RaceReport(
     val raceSchedule: RaceSchedule = RaceSchedule(),
-    val classReports: List<ClassReportCards> = emptyList()
+    val classReports: List<ClassReportCards> = emptyList(),
 ) {
     fun classStart(classId: Long): Instant? {
         return raceSchedule.schedule.firstOrNull() { it.raceClass.id == classId }?.startDate

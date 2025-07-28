@@ -1,5 +1,13 @@
-- Check-In page - (assign boats to a race)
-- Series overall
+- Overall result optional
+- Workflows
+  - create new race
+  - add boat
+- RC image upload (for attaching paper race results)
+- ORC scoring support
+- Integration with new CYCT website login
+- Allow boat owners to upload images, ORC / PHRF cert
+- Course chart (map)
+- Race day feed - allow users to upload and share photos and pics
 - Backup, export CSV/Excel function
 - race can have list of RCs
 - results show last edit date and user
@@ -15,11 +23,4 @@
 - People show last race date
 - Boats show last race date
 - Deactivate vs delete
-- Raw (JSX like) component
-- Raw SQL & startup init & migrations 
-```
-  implementation("org.postgresql:postgresql:42.5.4")
-  implementation("com.zaxxer:HikariCP:5.0.1")
-```
 - Offline race upload (PWA / native app)
-

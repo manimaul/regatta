@@ -259,7 +259,7 @@ object RaceResultReporter {
                     if (bracketCards.isNotEmpty()) {
                         BracketReportCards(
                             bracket = bracket,
-                            cards = bracketCards
+                            cards = bracketCards,
                         )
                     } else {
                         null
@@ -298,7 +298,7 @@ object RaceResultReporter {
 
             return RaceReport(
                 raceSchedule = raceSchedule,
-                classReports = classReportList
+                classReports = classReportList,
             )
         }
         return null

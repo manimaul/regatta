@@ -22,7 +22,6 @@ private val col1 = listOf(
 private val col2 = listOf(
     "Place in bracket",
     "Place in class",
-    "Place overall",
 )
 @Composable
 fun SeriesStandings(
@@ -45,12 +44,12 @@ fun SeriesStandings(
                     ss.races.forEach { race ->
                         RgTh(scope = Scope.Colgroup) {
                             P { Text(race.name) }
-                            Text("(bracket, class, overall)")
+                            Text("(bracket, class)")
                         }
                     }
                     RgTh(scope = Scope.Colgroup) {
                         P { Text("Total Score") }
-                        Text("(bracket, class, overall)")
+                        Text("(bracket, class)")
                     }
                     col2.forEach {
                         RgTh(scope = Scope.Colgroup) { P { Text(it) } }
@@ -82,8 +81,7 @@ fun SeriesStandings(
                                 ss.raceStandings.forEach {
                                     RgTd(classes = if (it.throwOut) listOf("text-danger") else null) {
                                         B { Text("${it.placeInBracket}, ") }
-                                        Text("${it.placeInClass}, ")
-                                        I { Text("${it.placeOverall}") }
+                                        Text("${it.placeInClass}")
                                         when (val code = it.finishCode) {
                                             FinishCode.TIME -> Unit
                                             FinishCode.RET,
@@ -96,8 +94,7 @@ fun SeriesStandings(
                                 }
                                 RgTd {
                                     B {   Text("${ss.totalScoreBracket}, ") }
-                                    Text("${ss.totalScoreClass}, ")
-                                    I { Text("${ss.totalScoreOverall}") }
+                                    Text("${ss.totalScoreClass}")
                                 }
                                 RgTd {
                                     B { Text("${ss.placeInBracket}") }
@@ -105,9 +102,9 @@ fun SeriesStandings(
                                 RgTd {
                                     Text("${ss.placeInClass}")
                                 }
-                                RgTd {
-                                    I { Text("${ss.placeOverall}") }
-                                }
+//                                RgTd {
+//                                    I { Text("${ss.placeOverall}") }
+//                                }
                             }
                         }
                     }
