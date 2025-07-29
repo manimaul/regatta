@@ -5,6 +5,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.StandingsBoatSkipper
+import com.mxmariner.regatta.data.StandingsClass
+import com.mxmariner.regatta.data.StandingsSeries
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
@@ -23,6 +25,7 @@ private val col2 = listOf(
     "Place in bracket",
     "Place in class",
 )
+
 @Composable
 fun SeriesStandings(
     id: Long?,
@@ -31,81 +34,99 @@ fun SeriesStandings(
 ) {
     val state = viewModel.flow.collectAsState()
 
-    state.value.standings.complete(viewModel) { ss ->
+    state.value.standings.complete(viewModel) { standingsSeries ->
         H1 {
-            Text("${ss.series.name} Standings ${ss.year}")
+            Text("${standingsSeries.series.name} Standings ${standingsSeries.year}")
         }
-        RgTable(stripeColumn = true, color = TableColor.light) {
-            RgThead {
-                RgTr {
-                    col1.forEach {
-                        RgTh(scope = Scope.Colgroup) { P { Text(it) } }
-                    }
-                    ss.races.forEach { race ->
-                        RgTh(scope = Scope.Colgroup) {
-                            P { Text(race.name) }
+        standingsSeries.standings.forEach { standingsClass ->
+            Br()
+            H4 { Text(standingsClass.raceClass.name) }
+            StandingsTable(standingsSeries, standingsClass)
+
+        }
+    }
+}
+
+@Composable
+fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsClass) {
+    val multiBracket = standingsClass.standings.size > 1
+    RgTable(stripeColumn = true, color = TableColor.light) {
+        RgThead {
+            RgTr {
+                col1.forEach {
+                    RgTh(scope = Scope.Colgroup) { P { Text(it) } }
+                }
+                standingsSeries.races.forEach { race ->
+                    RgTh(scope = Scope.Colgroup) {
+                        P { Text(race.name) }
+                        if (multiBracket) {
                             Text("(bracket, class)")
                         }
                     }
-                    RgTh(scope = Scope.Colgroup) {
-                        P { Text("Total Score") }
+                }
+                RgTh(scope = Scope.Colgroup) {
+                    P { Text("Total Score") }
+                    if (multiBracket) {
                         Text("(bracket, class)")
                     }
-                    col2.forEach {
-                        RgTh(scope = Scope.Colgroup) { P { Text(it) } }
-                    }
+                }
+                col2.forEach {
+                    RgTh(scope = Scope.Colgroup) { P { Text(it) } }
                 }
             }
-            RgTbody {
-                ss.standings.forEach { sc ->
-                    RgTr(classes = listOf("table-light", "table-borderless")) {
-                        RgTdColor(colSpan = col1.size + col2.size + ss.races.size + 1, color = TableColor.info) {
-                            H4 { Text(sc.raceClass.name) }
-                        }
+        }
+        RgTbody {
+            standingsClass.standings.forEach { standingsBracket ->
+                RgTr(classes = listOf("table-light", "table-borderless")) {
+                    RgTdColor(
+                        colSpan = col1.size + col2.size + standingsSeries.races.size + 1,
+                        color = TableColor.warning
+                    ) {
+                        H6 { Text("${standingsBracket.bracket.name} ${standingsBracket.bracket.description ?: ""}") }
                     }
-                    sc.standings.forEach { sb ->
-                        RgTr(classes = listOf("table-light", "table-borderless")) {
-                            RgTdColor(colSpan = col1.size + col2.size + ss.races.size + 1, color = TableColor.warning) {
-                                H6 { Text("${sb.bracket.name} ${sb.bracket.description ?: ""}") }
+                }
+                standingsBracket.standings.forEach { standings ->
+                    RgTr {
+                        RgTd {
+                            BoatLabel(standings)
+                        }
+                        RgTd {
+                            Text(standings.boatSkipper.skipper?.fullName() ?: "")
+                        }
+                        RgTd {
+                            Text(
+                                ratingLabel(
+                                    standings.boatSkipper.boat?.phrfRating,
+                                    standings.boatSkipper.boat?.windseeker,
+                                    false
+                                )
+                            )
+                        }
+                        standings.raceStandings.forEach {
+                            RgTd(classes = if (it.throwOut) listOf("text-danger") else null) {
+                                B { Text("${it.placeInBracket}") }
+                                if (multiBracket) {
+                                    Text(", ${it.placeInClass}")
+                                }
+                                when (val code = it.finishCode) {
+                                    FinishCode.TIME -> Unit
+                                    FinishCode.RET,
+                                    FinishCode.DNF,
+                                    FinishCode.NSC -> Text(" ${code.name}")
+                                    FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
+                                    null -> Text(" DNS")
+                                }
                             }
                         }
-                        sb.standings.forEach { ss ->
-                            RgTr {
-                                RgTd {
-                                    BoatLabel(ss)
-                                }
-                                RgTd {
-                                    Text(ss.boatSkipper.skipper?.fullName() ?: "")
-                                }
-                                RgTd { Text(ratingLabel(ss.boatSkipper.boat?.phrfRating, ss.boatSkipper.boat?.windseeker, false)) }
-                                ss.raceStandings.forEach {
-                                    RgTd(classes = if (it.throwOut) listOf("text-danger") else null) {
-                                        B { Text("${it.placeInBracket}, ") }
-                                        Text("${it.placeInClass}")
-                                        when (val code = it.finishCode) {
-                                            FinishCode.TIME -> Unit
-                                            FinishCode.RET,
-                                            FinishCode.DNF,
-                                            FinishCode.NSC -> Text(" ${code.name}")
-                                            FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
-                                            null -> Text(" DNS")
-                                        }
-                                    }
-                                }
-                                RgTd {
-                                    B {   Text("${ss.totalScoreBracket}, ") }
-                                    Text("${ss.totalScoreClass}")
-                                }
-                                RgTd {
-                                    B { Text("${ss.placeInBracket}") }
-                                }
-                                RgTd {
-                                    Text("${ss.placeInClass}")
-                                }
-//                                RgTd {
-//                                    I { Text("${ss.placeOverall}") }
-//                                }
-                            }
+                        RgTd {
+                            B { Text("${standings.totalScoreBracket}, ") }
+                            Text("${standings.totalScoreClass}")
+                        }
+                        RgTd {
+                            B { Text("${standings.placeInBracket}") }
+                        }
+                        RgTd {
+                            Text("${standings.placeInClass}")
                         }
                     }
                 }
