@@ -21,10 +21,6 @@ private val col1 = listOf(
     "Rating",
 )
 
-private val col2 = listOf(
-    "Place in bracket",
-    "Place in class",
-)
 
 @Composable
 fun SeriesStandings(
@@ -70,16 +66,18 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                         Text("(bracket, class)")
                     }
                 }
-                col2.forEach {
-                    RgTh(scope = Scope.Colgroup) { P { Text(it) } }
+
+                if (multiBracket) {
+                    RgTh(scope = Scope.Colgroup) { P { Text("Place in bracket") } }
                 }
+                RgTh(scope = Scope.Colgroup) { P { Text("Place in class") } }
             }
         }
         RgTbody {
             standingsClass.standings.forEach { standingsBracket ->
                 RgTr(classes = listOf("table-light", "table-borderless")) {
                     RgTdColor(
-                        colSpan = col1.size + col2.size + standingsSeries.races.size + 1,
+                        colSpan = col1.size + standingsSeries.races.size + 3,
                         color = TableColor.warning
                     ) {
                         H6 { Text("${standingsBracket.bracket.name} ${standingsBracket.bracket.description ?: ""}") }
@@ -119,12 +117,18 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                             }
                         }
                         RgTd {
-                            B { Text("${standings.totalScoreBracket}, ") }
+                            if (multiBracket) {
+                                B { Text("${standings.totalScoreBracket}, ") }
+                            }
                             Text("${standings.totalScoreClass}")
                         }
-                        RgTd {
-                            B { Text("${standings.placeInBracket}") }
+
+                        if (multiBracket) {
+                            RgTd {
+                                B { Text("${standings.placeInBracket}") }
+                            }
                         }
+
                         RgTd {
                             Text("${standings.placeInClass}")
                         }
