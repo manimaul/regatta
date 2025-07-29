@@ -58,6 +58,7 @@ object RegattaDatabase {
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
+            exec("UPDATE raceresults SET finish_code='HOC' WHERE hoc > 0 AND end_date IS NULL;")
 //            exec(
 //                "alter table raceresults drop column if exists name"
 //            )
