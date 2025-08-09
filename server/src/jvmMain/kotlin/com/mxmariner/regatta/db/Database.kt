@@ -27,6 +27,7 @@ object RegattaDatabase {
         val driverClassName = "org.postgresql.Driver"
         val database = Database.connect(config.jdbcURL, driverClassName, config.user, config.password)
         val tables = arrayOf(
+            OrcTable,
             SeriesTable,
             PersonTable,
             RaceClassTable,
