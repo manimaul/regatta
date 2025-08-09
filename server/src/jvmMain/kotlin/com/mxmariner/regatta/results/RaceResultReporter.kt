@@ -75,17 +75,24 @@ object RaceResultReporter {
     }
 
     private fun tieBreaker(lhs: StandingsBoatSkipper, rhs: StandingsBoatSkipper, field: (StandingsRace) -> Int) : Int {
-        return lhs.raceStandings.reversed().zip(
-            rhs.raceStandings.reversed()
-        ).firstOrNull {
-            field(it.first) != field(it.second)
-        }?.let {
-            field(it.first).compareTo(field(it.second))
-        } ?: run {
-            lhs.tiedWith.add(rhs.boatSkipper.boat?.id ?: 0)
-            rhs.tiedWith.add(lhs.boatSkipper.boat?.id ?: 0)
-            0
+        //In the event of a tie:
+        //a. If two or more boats have the same lowest individual overall score, then the
+        //tiebreaker shall be determined by the total number of said lowest individual scores, with
+        //the yacht having the highest count of said scores shall be the winner
+        //b. If a tie still exists after (a) and (b) above, then the next lowest individual
+        //score shall be used to break the tie, and so on until scores no longer match
+        val min = (lhs.raceStandings + rhs.raceStandings).minOf { field(it)}
+        val max = (lhs.raceStandings + rhs.raceStandings).maxOf { field(it)}
+        (min..max).forEach { score ->
+            val lCount = lhs.raceStandings.count { field(it) == score }
+            val rCount = rhs.raceStandings.count { field(it) == score }
+            if (lCount != rCount) {
+                return rCount.compareTo(lCount)
+            }
         }
+        lhs.tiedWith.add(rhs.boatSkipper.boat?.id ?: 0)
+        rhs.tiedWith.add(lhs.boatSkipper.boat?.id ?: 0)
+        return 0
     }
 
     private fun getStandingsClass(
@@ -165,7 +172,7 @@ object RaceResultReporter {
             }.toList()
 
             if (standings.size >= 5) {
-                standings.sortedBy { it.placeInBracket }.last().let { it.throwOut = true }
+                throwOutWorst(standings)
             }
 
             StandingsBoatSkipper(
@@ -195,6 +202,24 @@ object RaceResultReporter {
             previous = it.boatSkipper.boat?.id
         }
         return result.sortedBy { it.placeInBracket }
+    }
+
+    private fun throwOutWorst(standings: List<StandingsRace>) {
+        val minBracket = standings.minOf { it.placeInBracket }
+        val maxBracket = standings.maxOf { it.placeInBracket }
+        if (minBracket != maxBracket) {
+            standings.first { it.placeInBracket == maxBracket }.throwOut = true
+            return
+        }
+
+        val minClass = standings.minOf { it.placeInClass }
+        val maxClass = standings.maxOf { it.placeInClass }
+        if (minClass != maxClass) {
+            standings.first { it.placeInClass == maxClass }.throwOut = true
+            return
+        }
+
+        standings.lastOrNull()?.throwOut = true
     }
 
     private fun nonStarterPlace(
