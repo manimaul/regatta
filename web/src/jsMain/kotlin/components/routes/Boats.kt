@@ -5,9 +5,11 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.ratingDefault
 import com.mxmariner.regatta.ratingLabel
 import components.*
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.*
 import utils.*
 import viewmodel.BoatViewModel
+import viewmodel.alertsViewModel
 
 @Composable
 fun Boats(
@@ -34,6 +36,10 @@ fun BoatList(
 ) {
     Div {
         H1 { Text("Boats") }
+        Div {
+            AddBoat(people, boatViewModel)
+        }
+        Br {  }
         RgTable {
             RgThead {
                 RgTr {
@@ -46,7 +52,6 @@ fun BoatList(
                 }
             }
             RgTbody {
-                AddBoat(people, boatViewModel)
                 boats.forEach { boat ->
                     RgTr {
                         RgTd { Text(boat.boat?.name ?: "") }
@@ -82,64 +87,95 @@ fun AddBoat(
     var phrfRating by remember { mutableStateOf("${ratingDefault.toInt()}") }
     var wsRating by remember { mutableStateOf("${ratingDefault.toInt()}") }
     var wsFlying by remember { mutableStateOf(false) }
-    RgTr {
-        RgTd {
-            RgInput(label = "Name", value = addBoat.name, placeHolder = true) {
-                addBoat = addBoat.copy(name = it)
-            }
-        }
-        RgTd {
-            RgSkipperDropdown(people, addSkipper) {
-                addSkipper = it
-            }
-        }
-        RgTd {
-            RgInput(label = "Sail number", value = addBoat.sailNumber, placeHolder = true) {
-                addBoat = addBoat.copy(sailNumber = it)
-            }
-        }
-        RgTd {
-            RgInput(label = "Type", value = addBoat.boatType, placeHolder = true) {
-                addBoat = addBoat.copy(boatType = it)
-            }
-        }
-        RgTd {
-            RatingSelections(
-                boatType, phrfRating, wsRating, wsFlying,
-                { boatType = it },
-                { phrfRating = it },
-                { wsRating = it },
-                { wsFlying = it },
-            )
-        }
-        RgTd {
-            RgButton(
-                "Add",
-                RgButtonStyle.Primary,
-                disabled = addBoat.name.isBlank() || (boatType == RatingType.PHRF && phrfRating.isBlank())
-            ) {
-                var pr: Int? = null
-                var windseeker: Windseeker? = null
-                when (boatType) {
-                    RatingType.PHRF -> pr = phrfRating.toIntOrNull()
-                    RatingType.Windseeker -> windseeker = Windseeker(
-                        rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(),
-                        flyingSails = wsFlying
-                    )
-                }
-                boatViewModel.addBoat(
-                    addBoat.copy(
-                        phrfRating = pr,
-                        windseeker = windseeker,
-                        skipperId = addSkipper?.id
-                    )
-                )
-                addBoat = Boat()
-                addSkipper = null
-                phrfRating = "${ratingDefault.toInt()}"
-                wsRating = "${ratingDefault.toInt()}"
-                wsFlying = false
-            }
-        }
+    fun clear() {
+        addBoat = Boat()
+        boatType = RatingType.PHRF
+        addSkipper = null
+        phrfRating = "${ratingDefault.toInt()}"
+        wsRating = "${ratingDefault.toInt()}"
+        wsFlying = false
     }
+    RgModal(
+        buttonLabel = "Add boat",
+        modalTitle = "Add boat",
+        openAction = null,
+        content = {
+            RgForm {
+                Fieldset {
+                    P {
+                        RgInput(label = "Boat Name", value = addBoat.name, placeHolder = true) {
+                            addBoat = addBoat.copy(name = it)
+                        }
+                    }
+                    P {
+                        RgSkipperDropdown(people, addSkipper) {
+                            addSkipper = it
+                        }
+                    }
+                    P {
+                        RgInput(label = "Sail Number", value = addBoat.sailNumber, placeHolder = true) {
+                            addBoat = addBoat.copy(sailNumber = it)
+                        }
+                    }
+                    P {
+                        RgInput(label = "Boat Type", value = addBoat.boatType, placeHolder = true) {
+                            addBoat = addBoat.copy(boatType = it)
+                        }
+                    }
+                    P {
+                        RatingSelections(
+                            boatType, phrfRating, wsRating, wsFlying,
+                            { boatType = it },
+                            { phrfRating = it },
+                            { wsRating = it },
+                            { wsFlying = it },
+                        )
+                    }
+                }
+            }
+        },
+        footer = {
+            Div(attrs = {classes("flex-fill", "d-flex", "justify-content-between")}) {
+                Button(attrs = {
+                    classes(*RgButtonStyle.PrimaryOutline.classes)
+                    onClick {
+                        clear()
+                    }
+                }) {
+                    Text("Clear")
+                }
+
+                Button(attrs = {
+                    classes(*RgButtonStyle.Success.classes)
+
+                    if(addBoat.name.isBlank() || (boatType == RatingType.PHRF && phrfRating.isBlank())) {
+                        disabled()
+                    }
+                    attr("data-bs-dismiss", "modal")
+                    onClick {
+                        var pr: Int? = null
+                        var windseeker: Windseeker? = null
+                        when (boatType) {
+                            RatingType.PHRF -> pr = phrfRating.toIntOrNull()
+                            RatingType.Windseeker -> windseeker = Windseeker(
+                                rating = wsRating.toIntOrNull() ?: ratingDefault.toInt(),
+                                flyingSails = wsFlying
+                            )
+                        }
+                        boatViewModel.addBoat(
+                            addBoat.copy(
+                                phrfRating = pr,
+                                windseeker = windseeker,
+                                skipperId = addSkipper?.id
+                            )
+                        )
+                        alertsViewModel.showAlert("${addBoat.name} added!")
+                        clear()
+                    }
+                }) {
+                    Text("Save")
+                }
+            }
+        }
+    )
 }

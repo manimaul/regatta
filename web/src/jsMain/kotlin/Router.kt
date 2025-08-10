@@ -19,6 +19,7 @@ fun Router(
     Style(AppStyle)
     RgGrid(RgContainerType.container_fluid) {
         NavBar()
+        Alerts()
         RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s2) }) {
             when (state.current.route) {
                 Route.Home -> Home()
@@ -34,6 +35,7 @@ fun Router(
                     state.current.args?.get("id")?.toLongOrNull(),
                     state.current.args?.get("year")?.toIntOrNull(),
                 )
+
                 Route.Rc -> Rc()
                 Route.Boats -> Boats()
                 Route.Classes -> Classes()
@@ -41,7 +43,7 @@ fun Router(
                 Route.AdminCreate -> Admin(create = true)
                 Route.PeopleEdit -> PeopleEdit(state.current.args?.get("id")?.toLongOrNull())
                 Route.BoatEdit -> BoatEdit(state.current.args?.get("id")?.toLongOrNull())
-                Route.BoatAdd-> BoatAdd()
+                Route.BoatAdd -> BoatAdd()
                 Route.NotFound -> Text("womp womp, something's missing")
             }
         }
