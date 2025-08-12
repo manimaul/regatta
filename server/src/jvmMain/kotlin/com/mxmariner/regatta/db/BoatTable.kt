@@ -122,20 +122,23 @@ object BoatTable : Table() {
     fun resultRowToBoat(
         row: ResultRow,
     ): Boat {
-        val phrfRating = row[BoatTable.phrfRating]
+        val phrfRating = row[phrfRating]
         val windseeker: Windseeker? = if (phrfRating == null) {
             Windseeker(
                 rating = row[wsRating] ?: ratingDefault.toInt(),
                 flyingSails = row[wsFlying] ?: false,
             )
         } else null
+        val boatId = row[id]
+        val numberOfRaces = RaceResultsTable.raceCount(boatId)
         return Boat(
-            id = row[id],
+            id = boatId,
             name = row[name],
             sailNumber = row[sailNumber],
             boatType = row[boatType],
             phrfRating = phrfRating,
             windseeker = windseeker,
+            numberOfRaces = numberOfRaces,
         )
     }
 }

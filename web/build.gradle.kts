@@ -9,6 +9,11 @@ kotlin {
 
     js(IR) {
         browser {
+            commonWebpackConfig {
+                cssSupport { enabled.set(true) } // Add this
+                scssSupport { enabled.set(true) } // Add this
+                outputFileName = "web.js"
+            }
             testTask {
                 testLogging.showStandardStreams = true
                 useKarma {
@@ -27,6 +32,8 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.html.svg)
                 implementation(npm("sortablejs", "1.15.2"))
+                implementation(npm("bootstrap", "5.3.3"))
+                implementation(npm("@popperjs/core", "2.11.8"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }

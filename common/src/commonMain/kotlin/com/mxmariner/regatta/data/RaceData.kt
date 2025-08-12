@@ -149,6 +149,7 @@ data class Boat(
     val phrfRating: Int? = null,
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
+    val numberOfRaces: Long = 0,
     val active: Boolean = true
 ) {
     fun ratingType(): RatingType {

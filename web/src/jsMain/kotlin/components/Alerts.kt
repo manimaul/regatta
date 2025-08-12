@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.jetbrains.compose.web.ExperimentalComposeWebSvgApi
+import org.jetbrains.compose.web.css.marginTop
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.svg.Path
 import org.jetbrains.compose.web.svg.Svg
@@ -12,6 +15,7 @@ import org.jetbrains.compose.web.svg.height
 import org.jetbrains.compose.web.svg.width
 import styles.AppStyle
 import viewmodel.AlertsViewModel
+import viewmodel.confirmationModalId
 
 @OptIn(ExperimentalComposeWebSvgApi::class)
 @Composable
@@ -19,9 +23,27 @@ fun Alerts(
     alertsViewModel: AlertsViewModel = viewmodel.alertsViewModel
 ) {
     val state by alertsViewModel.flow.collectAsState()
+    RgModalBody(
+        id = confirmationModalId,
+        modalTitle = { state.confirmation?.msg ?: "" },
+        content = {
+            H6 {
+                Text(state.confirmation?.subTitle ?: "")
+            }
+        },
+        footer = {
+            RgButton("No", RgButtonStyle.Danger, customClasses = listOf(AppStyle.marginEnd)) {
+                alertsViewModel.noConfirmation()
+            }
+            RgButton("Yes", RgButtonStyle.Primary, customClasses = listOf(AppStyle.marginStart)) {
+                alertsViewModel.yesConfirmation()
+            }
+        }
+    )
     state.message?.let { message ->
         Div(attrs = {
-            classes("alert", "alert-success", "d-flex", "align-items-center")
+            classes("alert", "alert-success", "d-flex", "align-items-center", "fixed-top")
+            style { marginTop(80.px )}
             attr("role", "alert")
         }) {
             Svg(attrs = {

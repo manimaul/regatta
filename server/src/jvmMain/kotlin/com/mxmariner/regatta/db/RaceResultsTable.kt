@@ -51,6 +51,10 @@ object RaceResultsTable : Table() {
         return RaceResultsTable.selectAll().map(::rowToResult)
     }
 
+    fun raceCount(boatId: Long) : Long {
+        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId}.count()
+    }
+
     fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
         return innerJoin(RaceTable).innerJoin(BoatTable).select {
             raceId.eq(rId)

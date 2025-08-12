@@ -1,11 +1,14 @@
 package components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffectResult
 import androidx.compose.runtime.remember
 import org.jetbrains.compose.web.attributes.ButtonType
 import org.jetbrains.compose.web.attributes.type
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLDivElement
+import viewmodel.alertsViewModel
+import viewmodel.confirmationModalId
 
 private var num = 0
 
@@ -13,11 +16,12 @@ private var num = 0
 fun RgModalButton(
     id: String,
     style: RgButtonStyle = RgButtonStyle.SuccessOutline,
+    customClasses: List<String> = emptyList(),
     buttonLabel: () -> String,
     openAction: (() -> Unit)? = null,
 ) {
     Button(attrs = {
-        classes(*style.classes)
+        classes(*(style.classes + customClasses))
         attr("data-bs-toggle", "modal")
         attr("data-bs-target", "#$id")
         onClick { openAction?.invoke() }
@@ -39,6 +43,16 @@ fun RgModalBody(
         attr("tabindex", "-1")
         attr("aria-hidden", "true")
         attr("aria-labelledby", "$id-title")
+        if (id == confirmationModalId) {
+            ref {
+                alertsViewModel.confirmationModalCreated()
+                object : DisposableEffectResult {
+                    override fun dispose() {
+                        alertsViewModel.confirmationModalDestroyed()
+                    }
+                }
+            }
+        }
     }) {
         Div(attrs = {
             classes("modal-dialog")
