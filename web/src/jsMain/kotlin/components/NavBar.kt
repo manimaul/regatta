@@ -3,11 +3,11 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import kotlinx.browser.window
 import org.jetbrains.compose.web.attributes.ATarget
 import org.jetbrains.compose.web.attributes.alt
 import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.dom.*
+import utils.Bootstrap
 import viewmodel.*
 
 @Composable
@@ -46,11 +46,9 @@ fun NavBar(
             }
             Button(attrs = {
                 classes("navbar-toggler")
-                attr("data-bs-toggle", "collapse")
-                attr("data-bs-target", "#navbarNavDropdown")
-                attr("aria-controls", "navbarNavDropdown")
-                attr("aria-expanded", "false")
-                attr("aria-label", "Toggle navigation")
+                onClick {
+                    Bootstrap.Collapse.getOrCreateInstance("#navbarNavDropdown")?.toggle()
+                }
             }) {
                 Span(attrs = { classes("navbar-toggler-icon") }) { }
             }
@@ -75,8 +73,6 @@ fun NavBar(
                     )).forEach { route ->
                         Li(attrs = { classes("nav-item") }) {
                             Button(attrs = {
-                                attr("data-bs-toggle", "collapse")
-                                attr("data-bs-target", "#navbarNavDropdown")
                                 if (route == state.current.route) {
                                     classes("nav-link", "active")
                                 } else {

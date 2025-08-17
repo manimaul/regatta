@@ -145,6 +145,7 @@ class BoatViewModel(
             copy(
                 addEditState = addEditState.copy(
                     addBoat = boat,
+                    addSkipper = person
                 )
             )
         }
