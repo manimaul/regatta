@@ -18,8 +18,12 @@ object RaceResultsTable : Table() {
     val wsRating = integer("ws_rating").nullable()
     val wsFlying = bool("ws_flying").nullable()
     val hoc = integer("hoc").nullable()
+    val raceClass = (long("class_id") references RaceClassTable.id).nullable()
+    val bracket = (long("bracket_id") references BracketTable.id).nullable()
+
     val finishCode = varchar("finish_code", 128).nullable()
     val penalty= integer("penalty").nullable()
+
     override val primaryKey = PrimaryKey(id)
 
     fun count(raceId: Long): Long {
@@ -44,6 +48,8 @@ object RaceResultsTable : Table() {
             it[hoc] = result.hocPosition.takeIf { result.finishCode == FinishCode.HOC }
             it[penalty] = result.penalty
             it[finishCode] = result.finishCode.name
+            it[raceClass] = result.raceClassId
+            it[bracket] = result.bracketId
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
 
@@ -111,6 +117,8 @@ object RaceResultsTable : Table() {
             },
             hocPosition = row[hoc],
             penalty = row[penalty],
+            raceClassId = row[raceClass],
+            bracketId = row[bracket],
             finishCode = code
         )
     }
@@ -119,7 +127,14 @@ object RaceResultsTable : Table() {
 fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
     val phrfRating = result.phrfRating
     val windseeker = result.windseeker
-    return if (phrfRating != null) {
+    return if (result.bracketId != null) {
+        race.schedule.firstNotNullOfOrNull { sch ->
+            sch.brackets.firstOrNull {
+                it.id == result.bracketId
+            }
+        }
+    }
+    else if (phrfRating != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
                 phrfRating >= it.minRating && phrfRating <= it.maxRating

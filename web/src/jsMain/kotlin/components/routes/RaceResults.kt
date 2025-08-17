@@ -2,6 +2,8 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.Bracket
+import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceSchedule
 import com.mxmariner.regatta.ratingLabel
@@ -51,7 +53,7 @@ fun RaceResultsEdit(
                         }
                         raceClass.cards.forEach { card ->
                             if (card.resultRecord.result.id == addState.value.id) {
-                                EditResultRow(viewModel, state.value, addState.value)
+                                EditResultRow(viewModel)
                             } else {
                                 RgTr {
                                     RgTd { Text(card.boatName) }
@@ -59,7 +61,11 @@ fun RaceResultsEdit(
                                     RgTd { Text(card.finishText()) }
                                     RgTd {
                                         RgButton(label = "Edit") {
-                                            viewModel.addViewModel.setCard(card)
+                                            viewModel.addViewModel.setCard(
+                                                card = card,
+                                                autoRaceClassId = category.raceClass.id,
+                                                autoBracketId = raceClass.bracket.id,
+                                            )
                                         }
                                     }
                                 }
@@ -126,11 +132,9 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
 }
 
 @Composable
-fun EditResultRow(
-    viewModel: RaceResultEditViewModel,
-    state: RaceResultEditState,
-    addState: RaceResultAddState,
-) {
+fun EditResultRow(viewModel: RaceResultEditViewModel) {
+    val addState by viewModel.addViewModel.flow.collectAsState()
+    val state by viewModel.flow.collectAsState()
     RgTr {
         RgTd {
             if (addState.id == 0L) {
@@ -151,6 +155,25 @@ fun EditResultRow(
                 { viewModel.addViewModel.setWsRating(it) },
                 { viewModel.addViewModel.setWsFlying(it) },
             )
+
+            state.report.complete(viewModel) { report ->
+                val selectedRaceClass =
+                    report.raceSchedule.schedule.firstOrNull { it.raceClass.id == addState.raceClassId }
+                val selectedBracket = selectedRaceClass?.brackets?.firstOrNull { it.id == addState.bracketId }
+                selectedRaceClass?.brackets?.takeIf { it.size > 1 }?.let { brackets ->
+                    if (selectedBracket != null) {
+                        Br()
+                        Text("Bracket:")
+                        RgDropdown(
+                            items = brackets,
+                            selectedItem = selectedBracket,
+                            name = { it.name },
+                        ) {
+                            viewModel.addViewModel.addResultSelectedBracket(it)
+                        }
+                    }
+                }
+            }
         }
         RgTd {
             TimeRow(viewModel, state, addState, true)
@@ -218,7 +241,7 @@ fun TimeRow(
                 label = "-",
                 customClasses = listOf(AppStyle.marginStart, AppStyle.marginBot, AppStyle.marginTop)
             ) {
-            viewModel.addViewModel.penalty(it - 1)
+                viewModel.addViewModel.penalty(it - 1)
             }
         }
     }

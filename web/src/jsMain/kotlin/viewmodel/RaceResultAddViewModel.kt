@@ -17,6 +17,7 @@ data class RaceResultAddState(
     val wsFlying: Boolean = false,
     val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
+    val bracketId: Long? = null,
     val finish: Instant? = null,
     val finishCode: FinishCode = FinishCode.TIME,
     val hocPosition: Int? = null,
@@ -59,7 +60,9 @@ data class RaceResultAddState(
                 windseeker = windseeker,
                 hocPosition = hocPosition,
                 penalty = penalty,
-                finishCode = finishCode
+                finishCode = finishCode,
+                bracketId = bracketId,
+                raceClassId = raceClassId,
             )
         } else {
             null
@@ -101,10 +104,21 @@ class RaceResultAddViewModel(
     }
 
     fun setFinish(code: FinishCode, value: Instant?, clearPenalty: Boolean = false) {
-        setState { copy(hocPosition = null, finishCode = code, finish = value, penalty = if(clearPenalty) null else penalty) }
+        setState {
+            copy(
+                hocPosition = null,
+                finishCode = code,
+                finish = value,
+                penalty = if (clearPenalty) null else penalty
+            )
+        }
     }
 
-    fun setCard(card: RaceReportCard? = null) {
+    fun setCard(
+        card: RaceReportCard? = null,
+        autoRaceClassId: Long? = null,
+        autoBracketId: Long? = null
+    ) {
         val type = card?.ratingType() ?: RatingType.Windseeker
         setState {
             copy(
@@ -118,7 +132,9 @@ class RaceResultAddViewModel(
                 finish = if (card != null) card.finishTime else raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
                 penalty = card?.penalty,
-                finishCode = card?.resultRecord?.result?.finishCode ?: FinishCode.TIME
+                finishCode = card?.resultRecord?.result?.finishCode ?: FinishCode.TIME,
+                raceClassId = card?.resultRecord?.result?.raceClassId ?: autoRaceClassId,
+                bracketId = card?.resultRecord?.result?.bracketId ?: autoBracketId
             )
         }
     }
@@ -165,6 +181,22 @@ class RaceResultAddViewModel(
             copy(
                 phrfRating = "",
                 wsFlying = flying,
+            )
+        }
+    }
+
+    fun addResultSelectedClass(cs: ClassSchedule?) {
+        setState {
+            copy(
+                raceClassId = cs?.raceClass?.id
+            )
+        }
+    }
+
+    fun addResultSelectedBracket(bracket: Bracket?) {
+        setState {
+            copy(
+                bracketId = bracket?.id
             )
         }
     }

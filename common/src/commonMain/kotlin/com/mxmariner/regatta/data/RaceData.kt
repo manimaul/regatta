@@ -191,6 +191,8 @@ data class RaceResult(
     val finish: Instant? = null,
     val phrfRating: Int? = null,
     val hocPosition: Int? = null,
+    val bracketId: Long? = null,
+    val raceClassId: Long? = null,
     val penalty: Int? = null,
     val windseeker: Windseeker? = null,
     val finishCode: FinishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
