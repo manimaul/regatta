@@ -81,23 +81,23 @@ fun RaceResultsEdit(
 
 @Composable
 fun AddResult(viewModel: RaceResultEditViewModel) {
-    val state = viewModel.flow.collectAsState()
-    val addState = viewModel.addViewModel.flow.collectAsState()
+    val state by viewModel.flow.collectAsState()
+    val addState by viewModel.addViewModel.flow.collectAsState()
     RgModal(
         buttonLabel = "Add Result",
         modalTitle = "Add Result",
         openAction = null,
         content = {
             Span { B { Text("Boat") } }
-            state.value.boats.complete(viewModel) {
-                RgBoatDropdown(it, addState.value.boatSkipper) { boat ->
+            state.boats.complete(viewModel) {
+                RgBoatDropdown(it, addState.boatSkipper) { boat ->
                     viewModel.addViewModel.addBoat(boat)
                 }
             }
             Hr { }
             Span { B { Text("Rating") } }
             RatingSelections(
-                addState.value.ratingType, addState.value.phrfRating, addState.value.wsRating, addState.value.wsFlying,
+                addState.ratingType, addState.phrfRating, addState.wsRating, addState.wsFlying,
                 { viewModel.addViewModel.setType(it) },
                 { viewModel.addViewModel.setPhrfRating(it) },
                 { viewModel.addViewModel.setWsRating(it) },
@@ -105,7 +105,7 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
             )
             Hr { }
             Span { B { Text("Finish Time") } }
-            TimeRow(viewModel, state.value, addState.value, false)
+            TimeRow(viewModel, false)
         },
         footer = {
             Button(attrs = {
@@ -116,12 +116,12 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
             }
             Button(attrs = {
                 classes(*RgButtonStyle.Success.classes)
-                if (!addState.value.isValid) {
+                if (!addState.isValid) {
                     disabled()
                 }
                 attr("data-bs-dismiss", "modal")
                 onClick {
-                    viewModel.addResult(addState.value)
+                    viewModel.addResult(addState)
                 }
             }) {
                 Text("Save")
@@ -176,7 +176,7 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
             }
         }
         RgTd {
-            TimeRow(viewModel, state, addState, true)
+            TimeRow(viewModel, true)
         }
         RgTd {
             if (addState.id != 0L) {
@@ -212,10 +212,10 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
 @Composable
 fun TimeRow(
     viewModel: RaceResultEditViewModel,
-    state: RaceResultEditState,
-    addState: RaceResultAddState,
     useModalTime: Boolean,
 ) {
+    val state by viewModel.flow.collectAsState()
+    val addState by viewModel.addViewModel.flow.collectAsState()
     addState.finish?.let { finish ->
         if (useModalTime) {
             Div {

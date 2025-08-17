@@ -76,11 +76,12 @@ class RaceResultAddViewModel(
     override fun reload() {
         setState {
             val race = Api.getRaceSchedule(raceId).toAsync()
+            val ft = race.value?.endTime
             RaceResultAddState(
                 boatSkipper = null,
                 raceSchedule = race.value,
-                finish = race.value?.endTime,
-                finishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
+                finish = ft,
+                finishCode = ft?.let { FinishCode.TIME } ?: FinishCode.RET,
             )
         }
     }
@@ -103,7 +104,9 @@ class RaceResultAddViewModel(
         }
     }
 
+
     fun setFinish(code: FinishCode, value: Instant?, clearPenalty: Boolean = false) {
+        print("setting finish $code, $value")
         setState {
             copy(
                 hocPosition = null,
