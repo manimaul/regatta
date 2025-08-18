@@ -1,7 +1,9 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.RaceReport
+import com.mxmariner.regatta.data.RatingType
 import utils.Api
 import utils.Async
 import utils.Loading
@@ -73,3 +75,4 @@ class RaceResultEditViewModel(
         addViewModel.setCard()
     }
 }
+

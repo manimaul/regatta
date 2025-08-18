@@ -133,8 +133,7 @@ fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
                 it.id == result.bracketId
             }
         }
-    }
-    else if (phrfRating != null) {
+    } else if (phrfRating != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
                 phrfRating >= it.minRating && phrfRating <= it.maxRating

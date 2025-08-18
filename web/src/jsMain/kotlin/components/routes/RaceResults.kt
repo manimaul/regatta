@@ -2,7 +2,6 @@ package components.routes
 
 import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceSchedule
@@ -160,7 +159,22 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
                 val selectedRaceClass =
                     report.raceSchedule.schedule.firstOrNull { it.raceClass.id == addState.raceClassId }
                 val selectedBracket = selectedRaceClass?.brackets?.firstOrNull { it.id == addState.bracketId }
-                selectedRaceClass?.brackets?.takeIf { it.size > 1 }?.let { brackets ->
+
+                viewModel.addViewModel.availableClasses(report.raceSchedule.schedule)
+                    .takeIf { it.size > 1 }
+                    ?.let { availableClasses ->
+                        Br()
+                        Text("Class:")
+                        RgDropdown(
+                            items = listOf<ClassSchedule?>(null) + availableClasses,
+                            selectedItem = selectedRaceClass,
+                            name = { it?.raceClass?.name ?: "Auto" },
+                        ) {
+                            viewModel.addViewModel.addResultSelectedClass(it)
+                        }
+                    }
+
+                viewModel.addViewModel.availableBrackets(selectedRaceClass)?.takeIf { it.size > 1 }?.let { brackets ->
                     if (selectedBracket != null) {
                         Br()
                         Text("Bracket:")

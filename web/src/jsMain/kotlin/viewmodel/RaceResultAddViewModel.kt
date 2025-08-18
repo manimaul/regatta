@@ -168,7 +168,16 @@ class RaceResultAddViewModel(
     }
 
     fun setType(type: RatingType) {
-        setState { copy(ratingType = type) }
+        setState {
+            copy(
+                ratingType = type,
+                raceClassId = null,
+                bracketId = null,
+                wsFlying = boatSkipper?.boat?.windseeker?.flyingSails ?: true,
+                wsRating = boatSkipper?.boat?.windseeker?.rating?.toString() ?: ratingDefault.toInt().toString(),
+                phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: ""
+            )
+        }
     }
 
     fun setWsRating(rating: String) {
@@ -191,8 +200,59 @@ class RaceResultAddViewModel(
     fun addResultSelectedClass(cs: ClassSchedule?) {
         setState {
             copy(
-                raceClassId = cs?.raceClass?.id
+                raceClassId = cs?.raceClass?.id,
+                bracketId = cs?.brackets?.firstOrNull { bracket ->
+                    when (boatSkipper?.boat?.ratingType()) {
+                        RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
+                            it >= bracket.minRating && it <= bracket.maxRating
+                        } ?: false
+
+                        RatingType.Windseeker -> boatSkipper.boat?.windseeker?.rating?.let {
+                            it >= bracket.minRating && it <= bracket.maxRating
+                        } ?: false
+
+                        null -> false
+                    }
+                }?.id
             )
+        }
+    }
+
+    fun availableBrackets(selectedRaceClass: ClassSchedule?): List<Bracket>? {
+        return withState { addState ->
+            val rating = when (addState.ratingType) {
+                RatingType.PHRF -> addState.phrfRating.toInt()
+                RatingType.Windseeker -> addState.wsRating.toInt()
+            }
+            selectedRaceClass?.brackets?.filter { bracket ->
+                rating >= bracket.minRating && rating <= bracket.maxRating
+            }
+        }
+    }
+
+    fun availableClasses(schedule: List<ClassSchedule>): List<ClassSchedule> {
+        return withState { addState ->
+            schedule.filter { classSchedule ->
+                when (addState.ratingType) {
+                    RatingType.PHRF -> {
+                        val rating = addState.phrfRating.toInt()
+                        val brackets = classSchedule.brackets.count {
+                            rating >= it.minRating && rating <= it.maxRating
+                        }
+                        classSchedule.raceClass.isPHRF && brackets > 0
+                    }
+
+                    RatingType.Windseeker -> {
+                        val rating = addState.wsRating.toInt()
+                        val brackets = classSchedule.brackets.count {
+                            rating >= it.minRating && rating <= it.maxRating
+                        }
+                        !classSchedule.raceClass.isPHRF
+                                && brackets > 0
+                                && classSchedule.raceClass.wsFlying == addState.wsFlying
+                    }
+                }
+            }
         }
     }
 
@@ -204,3 +264,4 @@ class RaceResultAddViewModel(
         }
     }
 }
+
