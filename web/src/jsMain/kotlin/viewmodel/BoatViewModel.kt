@@ -32,6 +32,8 @@ enum class AddEditBoatMode {
 
 data class BoatState(
     val addEditState: AddEditBoatState = AddEditBoatState(),
+    val addEditPerson: Person = Person(),
+    val showConfirmDeletePerson: Boolean = false,
     val addEditMode: AddEditBoatMode = AddEditBoatMode.Adding,
     val response: Async<BoatPeopleComposite> = Loading(),
 ) : VmState
@@ -63,20 +65,61 @@ class BoatViewModel(
         }?.boat?.name ?: "-"
     }
 
-    fun upsertPerson(person: Person) {
-        setEditPerson(null)
-        launch {
-            Api.postPerson(person)
-            getAllBoatsAndPeople()
+    fun upsertPerson() {
+        withState {
+            launch {
+                Api.postPerson(it.addEditPerson)
+                getAllBoatsAndPeople()
+            }
+            setEditPerson(Person())
         }
     }
 
-    fun setEditPerson(person: Person?) {
-        person?.id?.let {
-            routeVm.pushRoute("/people/$it")
+    fun deletePerson() {
+        withState {
+            launch {
+                Api.deletePerson(it.addEditPerson.id)
+                getAllBoatsAndPeople()
+            }
+            setEditPerson(Person())
         }
     }
 
+    fun confirmDeletePerson(show: Boolean = true) {
+        setState {
+            copy(showConfirmDeletePerson = show)
+        }
+    }
+
+    fun setEditPerson(person: Person) {
+        setState {
+            copy(
+                addEditPerson = person,
+                showConfirmDeletePerson = false
+            )
+        }
+//        person?.id?.let {
+//            routeVm.pushRoute("/people/$it")
+//        }
+    }
+
+    fun setEditPersonFirst(name: String) {
+        setState {
+            copy(addEditPerson = addEditPerson.copy(first = name))
+        }
+    }
+
+    fun setEditPersonLast(name: String) {
+        setState {
+            copy(addEditPerson = addEditPerson.copy(last = name))
+        }
+    }
+
+    fun setEditPersonMember(member: Boolean) {
+        setState {
+            copy(addEditPerson = addEditPerson.copy(clubMember = member))
+        }
+    }
     fun deleteBoat(boat: Boat) {
         setState {
             val boats = Api.deleteBoat(boat.id).toAsync().flatMap { Api.getAllBoats().toAsync() }

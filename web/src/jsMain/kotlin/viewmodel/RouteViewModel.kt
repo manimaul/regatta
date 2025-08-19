@@ -66,24 +66,23 @@ data class Routing(
     }
 }
 
-enum class Route(val pathPattern: String) {
-    Home("/"),
-    Series("/series"),
-    People("/people"),
-    PeopleEdit("/people/:id"),
-    Admin("/admin"),
-    AdminCreate("/admin/create"),
-    Races("/races"),
-    RaceCreate("/race/create"),
-    RaceEdit("/race/:id"),
-    Boats("/boats"),
-    Classes("/class"),
-    RaceResult("/races/results"),
-    RaceResultView("/races/results/view/:id"),
-    RaceResultEdit("/races/results/:id"),
-    SeriesStandingsView("/series/standings/view/:id/:year"),
-    Rc("/rc"),
-    NotFound("/404")
+enum class Route(val pathPattern: String, val label: String) {
+    Home("/", "Home"),
+    Series("/series", "Series"),
+    People("/people", "Skippers"),
+    Admin("/admin", "Admin"),
+    AdminCreate("/admin/create", "Create Admin"),
+    Races("/races", "Races"),
+    RaceCreate("/race/create", "Create Race"),
+    RaceEdit("/race/:id", "Edit Race"),
+    Boats("/boats", "Boats"),
+    Classes("/class", "Classes"),
+    RaceResult("/races/results", "Race Results"),
+    RaceResultView("/races/results/view/:id", "Race Result"),
+    RaceResultEdit("/races/results/:id", "Edit Race Results"),
+    SeriesStandingsView("/series/standings/view/:id/:year", "Series Standings"),
+    Rc("/rc", "RC"),
+    NotFound("/404", "NotFound")
 }
 
 data class RouteState(

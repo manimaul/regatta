@@ -82,7 +82,7 @@ fun NavBar(
                                     viewModel.pushRoute(route)
                                 }
                             }) {
-                                Text(route.name)
+                                Text(route.label)
                             }
                         }
                     }
