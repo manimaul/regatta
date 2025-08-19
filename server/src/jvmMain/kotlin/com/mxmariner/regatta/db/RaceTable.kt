@@ -21,6 +21,10 @@ object RaceTable : Table() {
         correctionFactor = row[correctionFactor] ?: correctionFactorDefault,
     )
 
+    fun raceCount(seriesId: Long) : Long {
+        return RaceTable.select { RaceTable.seriesId eq seriesId}.count()
+    }
+
     fun upsertRace(race: Race): Race? {
         return RaceTable.upsert {
             if (race.id > 0) {

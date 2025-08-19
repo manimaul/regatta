@@ -14,6 +14,7 @@ data class Series(
     val id: Long = 0,
     val name: String = "",
     val sort: Int = 0,
+    val raceCount: Long = 0,
     val active: Boolean = true
 )
 

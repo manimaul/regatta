@@ -4,14 +4,12 @@ import com.mxmariner.regatta.data.Series
 import utils.*
 
 data class SeriesState(
-    val editId: Long? = null,
     val series: Async<List<Series>> = Loading(),
+    val addEditSeries: Series = Series(),
     val sortMode: Boolean = false,
 ) : VmState
 
-class SeriesViewModel(
-    val routeVm: RouteViewModel = routeViewModel
-) : BaseViewModel<SeriesState>(SeriesState()) {
+class SeriesViewModel() : BaseViewModel<SeriesState>(SeriesState()) {
 
     init {
         setState {
@@ -28,12 +26,15 @@ class SeriesViewModel(
         setState { copy(series = Api.allSeries().toAsync()) }
     }
 
-    fun editSeries(id: Long?) {
-        setState { copy(editId = id) }
+    fun editSeries(series: Series) {
+        setState { copy(addEditSeries = series) }
     }
 
+    fun editSeriesName(name: String) {
+        setState { copy(addEditSeries = addEditSeries.copy(name = name)) }
+    }
 
-    fun upsert(series: Series) {
+    fun upsert(series: Series, onSuccess: (Series) -> Unit) {
         val s = if (series.id > 0) {
             series
         } else {
@@ -41,15 +42,21 @@ class SeriesViewModel(
         }
         setState {
             copy(
-                series = Api.postSeries(listOf(s)).toAsync().flatMap { Api.allSeries().toAsync() },
+                series = Api.postSeries(listOf(s)).toAsync().flatMap {
+                    onSuccess(s)
+                    Api.allSeries().toAsync()
+                },
             )
         }
     }
 
-    fun delete(series: Series) {
+    fun delete(series: Series, onSuccess: (Series) -> Unit) {
         setState {
             copy(
-                series = Api.deleteSeries(series.id).toAsync().flatMap { Api.allSeries().toAsync() },
+                series = Api.deleteSeries(series.id).toAsync().flatMap {
+                    onSuccess(series)
+                    Api.allSeries().toAsync()
+                },
             )
         }
     }
@@ -59,10 +66,12 @@ class SeriesViewModel(
     }
 
     fun saveOrder(order: List<Series>) {
-        setState { copy(
-            series = series.loading(),
-            sortMode = false,
-        ) }
+        setState {
+            copy(
+                series = series.loading(),
+                sortMode = false,
+            )
+        }
         setState {
             copy(
                 series = Api.postSeries(order).toAsync().flatMap { Api.allSeries().toAsync() },
@@ -70,3 +79,4 @@ class SeriesViewModel(
         }
     }
 }
+

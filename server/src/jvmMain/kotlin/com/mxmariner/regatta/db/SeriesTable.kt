@@ -11,9 +11,17 @@ object SeriesTable : Table() {
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
-    fun resultRowToSeries(row: ResultRow) = Series(
-        id = row[id], name = row[name], active = row[active]
-    )
+    fun resultRowToSeries(row: ResultRow): Series {
+        val seriesId = row[id]
+        val raceCount = RaceTable.raceCount(seriesId)
+        return Series(
+            id = seriesId,
+            name = row[name],
+            sort = row[sort],
+            raceCount = raceCount,
+            active = row[active]
+        )
+    }
 
     fun selectAllSeries(): List<Series> {
         return selectAll().orderBy(sort).map(::resultRowToSeries)
