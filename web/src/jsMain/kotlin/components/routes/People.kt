@@ -56,6 +56,9 @@ fun PeopleLoaded(
                 id = "add-edit-skipper",
                 style = RgButtonStyle.SuccessOutline,
                 buttonLabel = { "Add Skipper" },
+                openAction = {
+                   viewModel.setEditPerson(Person())
+                }
             )
             AddEditPerson()
         }
@@ -190,6 +193,7 @@ fun AddEditPerson() {
                         attr("data-bs-dismiss", "modal")
                         onClick {
                             boatViewModel.upsertPerson()
+                            alertsViewModel.showAlert("${state.addEditPerson.first} ${state.addEditPerson.last} updated!")
                         }
                     }) {
                         Text("Save")

@@ -40,9 +40,7 @@ data class BoatState(
 
 val boatViewModel = BoatViewModel()
 
-class BoatViewModel(
-    val routeVm: RouteViewModel = routeViewModel,
-) : BaseViewModel<BoatState>(BoatState()) {
+class BoatViewModel() : BaseViewModel<BoatState>(BoatState()) {
 
     init {
         getAllBoatsAndPeople()
@@ -97,9 +95,6 @@ class BoatViewModel(
                 showConfirmDeletePerson = false
             )
         }
-//        person?.id?.let {
-//            routeVm.pushRoute("/people/$it")
-//        }
     }
 
     fun setEditPersonFirst(name: String) {
