@@ -25,7 +25,7 @@ object RaceClassTable : Table() {
     }
 
     fun upsertClass(list: List<RaceClass>): List<RaceClassBrackets> {
-        return list.mapNotNull{ item ->
+        return list.mapNotNull { item ->
             upsert {
                 if (item.id > 0) {
                     it[id] = item.id
@@ -48,14 +48,18 @@ object RaceClassTable : Table() {
         return RaceClassTable.deleteWhere { id eq catId }
     }
 
-    private fun resultRowToClass(row: ResultRow) = RaceClass(
-        id = row[id],
-        name = row[name],
-        sort = row[sort],
-        isPHRF = row[phrf],
-        wsFlying = row[wsFlying],
-        active = row[active],
-    )
+    private fun resultRowToClass(row: ResultRow): RaceClass {
+        val classId = row[id]
+        return RaceClass(
+            id = classId,
+            name = row[name],
+            sort = row[sort],
+            isPHRF = row[phrf],
+            wsFlying = row[wsFlying],
+            numberOfRaces = RaceBracketJunction.numberOfRaces(classId),
+            active = row[active],
+        )
+    }
 
     fun selectById(id: Long): RaceClass? {
         return RaceClassTable.select {

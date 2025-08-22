@@ -9,6 +9,10 @@ object RaceBracketJunction : Table() {
     val race = (long("race_id") references RaceTable.id)
     val raceClass = (long("class_id") references RaceClassTable.id)
 
+    fun numberOfRaces(raceClassId: Long): Long {
+        return slice(race.countDistinct()).select { raceClass eq raceClassId }.first()[race.countDistinct()]
+    }
+
     fun setBrackets(raceId: Long, classId: Long, list: List<Bracket>): Int {
         val deleteCount = deleteWhere { race.eq(raceId).and(raceClass.eq(classId)) }
         println("deleted bracket race junctions $deleteCount")

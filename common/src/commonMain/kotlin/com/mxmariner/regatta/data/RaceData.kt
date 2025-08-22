@@ -44,6 +44,7 @@ data class RaceClass(
     val sort: Int = 0,
     val isPHRF: Boolean = false,
     val wsFlying: Boolean = false,
+    val numberOfRaces: Long = 0,
     val active: Boolean = true,
 ) {
     fun ratingLabel(): String {
