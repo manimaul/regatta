@@ -188,8 +188,14 @@ fun Application.configureRouting() {
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             post(ApiPaths.raceClass.versionedApi()) {
+                val body = call.receive<RaceClassBrackets>()
+                RegattaDatabase.upsertClassBrackets(body).let { rcb ->
+                    rcb?.let { call.respond(it) }
+                } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            post(ApiPaths.raceClassList.versionedApi()) {
                 val body = call.receive<List<RaceClass>>()
-                RegattaDatabase.upsertClass(body).let {
+                RegattaDatabase.upsertClassList(body).let {
                     call.respond(it)
                 }
             }

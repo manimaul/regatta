@@ -4,7 +4,6 @@ import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 
 /**
  * Each [RaceClassFull] / [RaceClassTable] has a list of [Bracket]s / [BracketTable].
@@ -38,6 +37,17 @@ object BracketTable : Table() {
         }.resultedValues?.singleOrNull()?.let(::resultRowToBracket)
     }
 
+    fun upsertBrackets(brackets: RaceClassBrackets) : List<Bracket> {
+        findClassBrackets(brackets.raceClass.id).map {
+            it.id
+        }.filter { id ->
+            brackets.brackets.firstOrNull { it.id == id } == null
+        }.forEach {
+            deleteBracket(it)
+        }
+        return brackets.brackets.mapNotNull { upsertBracket(it) }
+    }
+
     fun deleteBracket(bracketId: Long): Int {
         return deleteWhere { id eq bracketId }
     }
@@ -55,6 +65,7 @@ object BracketTable : Table() {
         name = row[name],
         description = row[description],
         active = row[active],
+        numberOfRaces = RaceBracketJunction.raceCountForBracket(row[id]),
         minRating = row[minRating],
         maxRating = row[maxRating],
         classId = row[raceClass],

@@ -5,7 +5,6 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.data.Windseeker
-import com.mxmariner.regatta.ratingDefault
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -120,6 +119,7 @@ class BoatViewModel(
             copy(addEditPerson = addEditPerson.copy(clubMember = member))
         }
     }
+
     fun deleteBoat(boat: Boat) {
         setState {
             val boats = Api.deleteBoat(boat.id).toAsync().flatMap { Api.getAllBoats().toAsync() }
@@ -142,7 +142,7 @@ class BoatViewModel(
         }
     }
 
-    private fun BoatSkipper?.addState() : AddEditBoatState {
+    private fun BoatSkipper?.addState(): AddEditBoatState {
         return AddEditBoatState(
             addBoat = this?.boat?.copy(skipperId = skipper?.id) ?: Boat(skipperId = this?.skipper?.id),
             addSkipper = this?.skipper
@@ -208,47 +208,25 @@ class BoatViewModel(
         }
     }
 
-    fun setEditBoatRatingType(ratingType: RatingType) {
+    fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
-            var boat = it.addEditState.addBoat
-            if (boat.ratingType() != ratingType) {
-                when (ratingType) {
-                    RatingType.PHRF -> boat = boat.copy(windseeker = null, phrfRating = ratingDefault.toInt())
-                    RatingType.Windseeker -> boat = boat.copy(windseeker = Windseeker(), phrfRating = null)
-                }
-                setState {
-                    copy(addEditState = addEditState.copy(addBoat = boat))
-                }
+            val boat = when (ratingType) {
+                RatingType.PHRF -> it.addEditState.addBoat.copy(
+                    windseeker = null,
+                    phrfRating = rating
+                )
+                RatingType.CruisingFlyingSails -> it.addEditState.addBoat.copy(
+                    windseeker = Windseeker(rating, true),
+                    phrfRating = null
+                )
+                RatingType.CruisingNonFlyingSails -> it.addEditState.addBoat.copy(
+                    windseeker = Windseeker(rating, false),
+                    phrfRating = null
+                )
             }
-        }
-    }
-
-    fun setEditBoatPhrfRating(rating: String) {
-        setState {
-            val boat = addEditState.addBoat.copy(phrfRating = rating.toIntOrNull())
-            copy(addEditState = addEditState.copy(addBoat = boat))
-        }
-    }
-
-    fun setEditBoatWsRating(wsRating: String) {
-        setState {
-            val boat = addEditState.addBoat.copy(
-                windseeker = addEditState.addBoat.windseeker?.copy(
-                    rating = wsRating.toIntOrNull() ?: ratingDefault.toInt()
-                )
-            )
-            copy(addEditState = addEditState.copy(addBoat = boat))
-        }
-    }
-
-    fun setEditBoatWsFlying(isFlying: Boolean) {
-        setState {
-            val boat = addEditState.addBoat.copy(
-                windseeker = addEditState.addBoat.windseeker?.copy(
-                    flyingSails = isFlying
-                )
-            )
-            copy(addEditState = addEditState.copy(addBoat = boat))
+            setState {
+                copy(addEditState = addEditState.copy(addBoat = boat))
+            }
         }
     }
 }

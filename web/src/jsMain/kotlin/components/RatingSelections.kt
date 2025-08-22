@@ -2,46 +2,27 @@ package components
 
 import androidx.compose.runtime.Composable
 import com.mxmariner.regatta.data.RatingType
-import styles.AppStyle
-import utils.digits
+import com.mxmariner.regatta.ratingDefault
 
 @Composable
 fun RatingSelections(
     boatType: RatingType,
-    phrfRating: String,
-    wsRating: String,
-    wsFlying: Boolean,
-    typeChagne: (RatingType) -> Unit,
-    phrfChange: (String) -> Unit,
-    wsRatingChange: (String) -> Unit,
-    wsFlyingChange: (Boolean) -> Unit,
+    phrfRating: Int?,
+    typeChange: (RatingType, Int) -> Unit,
 ) {
-    RgDropdown(RatingType.entries, boatType, { it.name }) {
-        typeChagne(it)
+    RgDropdown(RatingType.entries, boatType, { it.label }) {
+        typeChange(it, phrfRating ?: ratingDefault.toInt())
     }
     when (boatType) {
         RatingType.PHRF -> {
-            RgInput(
+            RgNumberInput(
                 label = "PHRF Rating",
                 value = phrfRating,
                 placeHolder = false,
             ) {
-                phrfChange(it.digits(4))
+                typeChange(boatType, it.toInt())
             }
         }
-
-        RatingType.Windseeker -> {
-            RgInput(
-                label = "WindSeeker Rating",
-                value = wsRating,
-                placeHolder = false,
-                customClasses = listOf(AppStyle.marginBot),
-            ) {
-                wsRatingChange(it.digits(4))
-            }
-            RgSwitch("wsflying", 0, "Flying Sails", check = { wsFlying }) {
-                wsFlyingChange(it)
-            }
-        }
+        else -> {}
     }
 }

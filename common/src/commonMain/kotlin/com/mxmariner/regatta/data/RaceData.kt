@@ -47,14 +47,18 @@ data class RaceClass(
     val numberOfRaces: Long = 0,
     val active: Boolean = true,
 ) {
-    fun ratingLabel(): String {
+    fun ratingType(): RatingType {
         if (isPHRF) {
-            return "PHRF"
+            return RatingType.PHRF
         } else if (wsFlying) {
-            return "Cruising - Flying Sails"
+            return RatingType.CruisingFlyingSails
         } else {
-            return "Cruising - Non Flying Sails"
+            return RatingType.CruisingNonFlyingSails
         }
+    }
+
+    fun ratingLabel(): String {
+        return ratingType().label
     }
 }
 
@@ -64,8 +68,9 @@ data class Bracket(
     val name: String = "",
     val description: String? = null,
     val active: Boolean = true,
-    val minRating: Float = ratingDefault,
-    val maxRating: Float = ratingDefault,
+    val numberOfRaces: Long = 0L,
+    val minRating: Float = -1000f,
+    val maxRating: Float = 1000f,
     val classId: Long = 0,
 ) {
     fun label(): String {
@@ -137,9 +142,11 @@ data class Windseeker(
     val flyingSails: Boolean = false,
 )
 
-enum class RatingType {
-    PHRF,
-    Windseeker
+enum class RatingType(val label: String) {
+//    ORC("ORC"),
+    PHRF("PHRF"),
+    CruisingFlyingSails("Cruising Flying Sails"),
+    CruisingNonFlyingSails("Cruising Non-Flying Sails"),
 }
 
 @Serializable
@@ -155,7 +162,13 @@ data class Boat(
     val active: Boolean = true
 ) {
     fun ratingType(): RatingType {
-        return windseeker?.let { RatingType.Windseeker } ?: RatingType.PHRF
+        return windseeker?.let {
+            if (it.flyingSails) {
+                RatingType.CruisingFlyingSails
+            } else {
+                RatingType.CruisingNonFlyingSails
+            }
+        } ?: RatingType.PHRF
     }
 }
 
@@ -164,7 +177,7 @@ data class BoatSkipper(
     val skipper: Person? = null,
     val boat: Boat? = null,
 ) {
-    fun label() : String {
+    fun label(): String {
         if (boat != null && skipper != null) {
             return "${boat.name} - ${skipper.fullName()}"
         } else if (boat != null) {
@@ -175,12 +188,12 @@ data class BoatSkipper(
         return ""
     }
 
-    fun dropLabel() :String {
+    fun dropLabel(): String {
         val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
         return "${label()}$sail ${ratingLabel(boat?.phrfRating, boat?.windseeker, true)}"
     }
 
-    fun shortLabel() : String {
+    fun shortLabel(): String {
         return boat?.name ?: ""
     }
 }
@@ -312,6 +325,12 @@ data class RaceReportCard(
     }
 
     fun ratingType(): RatingType {
-        return windseeker?.let { RatingType.Windseeker } ?: RatingType.PHRF
+        return windseeker?.let {
+            if (it.flyingSails) {
+                RatingType.CruisingFlyingSails
+            } else {
+                RatingType.CruisingNonFlyingSails
+            }
+        } ?: RatingType.PHRF
     }
 }

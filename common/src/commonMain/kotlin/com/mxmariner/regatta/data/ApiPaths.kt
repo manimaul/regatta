@@ -9,6 +9,7 @@ object ApiPaths {
     val standings = "series/standings"
 
     val raceClass = "/raceClass"
+    val raceClassList = "/raceClassList"
     val allClasses = "/allClasses"
     val bracket = "/bracket"
 

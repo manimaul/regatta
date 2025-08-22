@@ -13,7 +13,7 @@ object SeriesTable : Table() {
 
     fun resultRowToSeries(row: ResultRow): Series {
         val seriesId = row[id]
-        val raceCount = RaceTable.raceCount(seriesId)
+        val raceCount = RaceTable.raceCountForSeries(seriesId)
         return Series(
             id = seriesId,
             name = row[name],

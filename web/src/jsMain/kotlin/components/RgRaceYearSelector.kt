@@ -25,8 +25,6 @@ class RgRaceYearViewModel : BaseViewModel<RgRaceYearState>(RgRaceYearState()) {
         }
     }
 
-    fun selectedYear(): Int? = flow.value.year
-
     fun selectYear(year: String?): Int? {
         return year?.toIntOrNull()?.let { y ->
             setState {

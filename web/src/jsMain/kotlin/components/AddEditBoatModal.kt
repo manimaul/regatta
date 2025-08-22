@@ -71,13 +71,10 @@ fun AddEditBoatModal(
                     P {
                         RatingSelections(
                             boatType = state.addEditState.addBoat.ratingType(),
-                            phrfRating = state.addEditState.addBoat.phrfRating?.toString() ?: "",
-                            wsRating = state.addEditState.addBoat.windseeker?.rating?.toString() ?: "",
-                            wsFlying = state.addEditState.addBoat.windseeker?.flyingSails == true,
-                            typeChagne = { boatViewModel.setEditBoatRatingType(it) },
-                            phrfChange = { boatViewModel.setEditBoatPhrfRating(it) },
-                            wsRatingChange = { boatViewModel.setEditBoatWsRating(it) },
-                            wsFlyingChange = { boatViewModel.setEditBoatWsFlying(it) },
+                            phrfRating = state.addEditState.addBoat.phrfRating,
+                            typeChange = { t, r ->
+                                boatViewModel.setEditBoatRatingType(t, r)
+                            },
                         )
                     }
                 }

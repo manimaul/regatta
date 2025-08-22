@@ -9,7 +9,11 @@ object RaceBracketJunction : Table() {
     val race = (long("race_id") references RaceTable.id)
     val raceClass = (long("class_id") references RaceClassTable.id)
 
-    fun numberOfRaces(raceClassId: Long): Long {
+    fun raceCountForBracket(bracketId: Long): Long {
+        return slice(race.countDistinct()).select { bracket eq bracketId }.first()[race.countDistinct()]
+    }
+
+    fun raceCountForClass(raceClassId: Long): Long {
         return slice(race.countDistinct()).select { raceClass eq raceClassId }.first()[race.countDistinct()]
     }
 

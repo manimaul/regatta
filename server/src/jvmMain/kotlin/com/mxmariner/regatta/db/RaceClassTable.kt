@@ -24,18 +24,29 @@ object RaceClassTable : Table() {
         }
     }
 
-    fun upsertClass(list: List<RaceClass>): List<RaceClassBrackets> {
+    fun upsertClassBrackets(raceClassBrackets: RaceClassBrackets): RaceClassBrackets? {
+        return upsertClass(raceClassBrackets.raceClass)?.let { raceClass ->
+            val brackets = BracketTable.upsertBrackets(raceClassBrackets)
+            return RaceClassBrackets(raceClass, brackets)
+        }
+    }
+
+    fun upsertClass(item: RaceClass): RaceClass? {
+        return upsert {
+            if (item.id > 0) {
+                it[id] = item.id
+            }
+            it[name] = item.name.trim()
+            it[active] = item.active
+            it[wsFlying] = item.wsFlying
+            it[phrf] = item.isPHRF
+            it[sort] = item.sort
+        }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
+    }
+
+    fun upsertClassList(list: List<RaceClass>): List<RaceClassBrackets> {
         return list.mapNotNull { item ->
-            upsert {
-                if (item.id > 0) {
-                    it[id] = item.id
-                }
-                it[name] = item.name.trim()
-                it[active] = item.active
-                it[wsFlying] = item.wsFlying
-                it[phrf] = item.isPHRF
-                it[sort] = item.sort
-            }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
+            upsertClass(item)
         }.map { c ->
             RaceClassBrackets(
                 raceClass = c,
@@ -56,7 +67,7 @@ object RaceClassTable : Table() {
             sort = row[sort],
             isPHRF = row[phrf],
             wsFlying = row[wsFlying],
-            numberOfRaces = RaceBracketJunction.numberOfRaces(classId),
+            numberOfRaces = RaceBracketJunction.raceCountForClass(classId),
             active = row[active],
         )
     }

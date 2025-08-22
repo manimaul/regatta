@@ -45,9 +45,11 @@ object Api {
 
     suspend fun postBracket(bracket: Bracket) =
         Network.post<Bracket, Bracket>(ApiPaths.bracket, bracket)
+    suspend fun postClass(raceClassBrackets: RaceClassBrackets) =
+        Network.post<RaceClassBrackets, RaceClassBrackets>(ApiPaths.raceClass, raceClassBrackets)
 
-    suspend fun postClass(classList: List<RaceClass>) =
-        Network.post<List<RaceClass>, List<RaceClassBrackets>>(ApiPaths.raceClass, classList)
+    suspend fun postClassList(classList: List<RaceClass>) =
+        Network.post<List<RaceClass>, List<RaceClassBrackets>>(ApiPaths.raceClassList, classList)
 
     suspend fun getPerson(id: Long) =
         Network.get<Person>(ApiPaths.skipper, mapOf("id" to "$id"))

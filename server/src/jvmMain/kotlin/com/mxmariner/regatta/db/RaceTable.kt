@@ -21,7 +21,7 @@ object RaceTable : Table() {
         correctionFactor = row[correctionFactor] ?: correctionFactorDefault,
     )
 
-    fun raceCount(seriesId: Long) : Long {
+    fun raceCountForSeries(seriesId: Long) : Long {
         return RaceTable.select { RaceTable.seriesId eq seriesId}.count()
     }
 

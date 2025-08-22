@@ -7,6 +7,7 @@ import org.jetbrains.compose.web.css.maxWidth
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLFormElement
+import styles.AppStyle
 import utils.*
 import viewmodel.RgTimeViewModel
 
@@ -23,6 +24,59 @@ fun RgForm(
     }, content = content)
 }
 
+enum class NumberType {
+    NumberInt, NumberFloat, NumberDouble
+}
+
+@Composable
+fun RgNumberInput(
+    label: String,
+    value: Number?,
+    placeHolder: Boolean = false,
+    customClasses: List<String>? = null,
+    numberType: NumberType = NumberType.NumberInt,
+    listener: (Number) -> Unit
+) {
+    var locked by remember { mutableStateOf(false)}
+    var rNumber by remember { mutableStateOf(value?.toString() ?: "")}
+    if (!locked) {
+        val numberValue = when (numberType) {
+            NumberType.NumberInt -> value?.toInt()
+            NumberType.NumberFloat -> value?.toFloat()
+            NumberType.NumberDouble -> value?.toDouble()
+    }
+        rNumber = numberValue?.toString() ?: ""
+    }
+    val id = remember { "${++num}_input" }
+    if (!placeHolder) {
+        Label(id) { B { Text(label) } }
+    }
+    Input(InputType.Text) {
+        id(id)
+        customClasses?.let { classes(it) }
+        if (placeHolder) {
+            placeholder(label)
+        }
+        classes("form-control")
+        inputMode(InputMode.Numeric)
+        value(rNumber)
+        onChange {
+            locked = false
+        }
+        onInput { input ->
+            locked = true
+            rNumber = input.value
+            when (numberType) {
+                NumberType.NumberInt -> input.value.toIntOrNull()
+                NumberType.NumberFloat -> input.value.toFloatOrNull()
+                NumberType.NumberDouble -> input.value.toDoubleOrNull()
+            }.takeIf { input.value.isNotBlank() && input.value != "-" }?.let {
+                listener(it)
+            }
+        }
+    }
+}
+
 @Composable
 fun RgInput(
     label: String,
@@ -33,7 +87,9 @@ fun RgInput(
 ) {
     val id = remember { "${++num}_input" }
     if (!placeHolder) {
-        Label(id) { B { Text(label) } }
+        Label(id, attrs = {
+            classes(AppStyle.marginEnd)
+        }) { B { Text(label) } }
     }
     Input(InputType.Text) {
         id(id)

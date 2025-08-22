@@ -94,13 +94,12 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
                 }
             }
             Hr { }
-            Span { B { Text("Rating") } }
             RatingSelections(
-                addState.ratingType, addState.phrfRating, addState.wsRating, addState.wsFlying,
-                { viewModel.addViewModel.setType(it) },
-                { viewModel.addViewModel.setPhrfRating(it) },
-                { viewModel.addViewModel.setWsRating(it) },
-                { viewModel.addViewModel.setWsFlying(it) },
+                boatType = addState.ratingType,
+                phrfRating = addState.phrfRating.toIntOrNull(),
+                typeChange = { t, r ->
+                    viewModel.addViewModel.setType(t, r)
+                },
             )
             Hr { }
             Span { B { Text("Finish Time") } }
@@ -148,11 +147,9 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
         }
         RgTd {
             RatingSelections(
-                addState.ratingType, addState.phrfRating, addState.wsRating, addState.wsFlying,
-                { viewModel.addViewModel.setType(it) },
-                { viewModel.addViewModel.setPhrfRating(it) },
-                { viewModel.addViewModel.setWsRating(it) },
-                { viewModel.addViewModel.setWsFlying(it) },
+                addState.ratingType,
+                addState.phrfRating.toIntOrNull(),
+                { t, r, -> viewModel.addViewModel.setType(t, r) },
             )
 
             state.report.complete(viewModel) { report ->
@@ -164,7 +161,7 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
                     .takeIf { it.size > 1 }
                     ?.let { availableClasses ->
                         Br()
-                        Text("Class:")
+                        Span { B { Text("Class") } }
                         RgDropdown(
                             items = listOf<ClassSchedule?>(null) + availableClasses,
                             selectedItem = selectedRaceClass,
@@ -177,7 +174,7 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
                 viewModel.addViewModel.availableBrackets(selectedRaceClass)?.takeIf { it.size > 1 }?.let { brackets ->
                     if (selectedBracket != null) {
                         Br()
-                        Text("Bracket:")
+                        Span { B { Text("Bracket") } }
                         RgDropdown(
                             items = brackets,
                             selectedItem = selectedBracket,

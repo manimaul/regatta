@@ -3,20 +3,16 @@ package viewmodel
 import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
-import com.mxmariner.regatta.moveItem
 import kotlinx.coroutines.launch
 import utils.*
 
 data class ClassesState(
-    val editBracketId: Long? = 0L,
-    val editClassId: Long? = 0L,
+    val editClass: RaceClassBrackets = RaceClassBrackets(brackets = listOf(Bracket())),
     val classList: Async<List<RaceClassBrackets>> = Loading(),
     val sortMode: Boolean = false,
 ) : VmState
 
-class ClassesViewModel(
-    val routeVm: RouteViewModel = routeViewModel
-) : BaseViewModel<ClassesState>(ClassesState()) {
+class ClassesViewModel() : BaseViewModel<ClassesState>(ClassesState()) {
 
     init {
         reload()
@@ -31,43 +27,49 @@ class ClassesViewModel(
         }
     }
 
-    fun editBracket(bracket: Bracket?) {
-        setState { copy(editBracketId = bracket?.id ?: 0L) }
-    }
-
     fun nextSort(): Int {
         return flow.value.classList.value?.lastOrNull()?.raceClass?.sort?.let { it + 1 } ?: 0
     }
 
-    fun upsertClass(raceClass: RaceClass) {
-        val rc = if (raceClass.id == 0L) {
-            raceClass.copy(sort = nextSort())
-        } else {
-            raceClass
+    fun isUpsertClassBracketsValid(rcb: RaceClassBrackets): Boolean {
+        val nameValid = rcb.raceClass.name.isNotBlank()
+        if (!nameValid) {
+           return false
         }
+        val bracketFull = rcb.brackets.isNotEmpty()
+        if (!bracketFull) {
+            return false
+        }
+        return rcb.brackets.fold(true) { l, r ->
+            l && r.name.isNotBlank() && r.minRating <= r.maxRating
+        }
+    }
 
+    fun upsertClassBrackets(rcb: RaceClassBrackets) {
         setState {
-            val list =
-                Api.postClass(listOf(rc)).toAsync().flatMap { Api.getAllClasses().toAsync() }
+            val list = Api.postClass(
+                if (rcb.raceClass.id == 0L) {
+                    rcb.copy(raceClass = rcb.raceClass.copy(sort = nextSort()))
+                } else {
+                    rcb
+                }
+            ).toAsync().flatMap {
+                Api.getAllClasses().toAsync()
+            }
             copy(
-                editClassId = 0L,
-                classList = list,
+                editClass = RaceClassBrackets(
+                    raceClass = RaceClass(
+                        sort = nextSort()
+                    ),
+                    brackets = listOf(Bracket())
+                ),
+                classList = list
             )
         }
     }
 
-    fun upsertBracket(bracket: Bracket) {
-        setState {
-            val list = Api.postBracket(bracket).toAsync().flatMap { Api.getAllClasses().toAsync() }
-            copy(
-                editBracketId = 0L,
-                classList = list,
-            )
-        }
-    }
-
-    fun editClass(raceClass: RaceClass?) {
-        setState { copy(editClassId = raceClass?.id) }
+    fun editClass(raceClass: RaceClassBrackets) {
+        setState { copy(editClass = raceClass) }
     }
 
     fun delete(raceClass: RaceClass) {
@@ -75,6 +77,23 @@ class ClassesViewModel(
             copy(
                 classList = Api.deleteClass(raceClass.id).toAsync().flatMap { Api.getAllClasses().toAsync() }
             )
+        }
+    }
+
+    fun delete(raceClassBrackets: RaceClassBrackets) {
+        setState { copy(classList = Loading()) }
+        launch {
+            if (raceClassBrackets.brackets.mapNotNull {
+                    Api.deleteBracket(it.id).toAsync().takeIf { it is Complete }
+                }.size == raceClassBrackets.brackets.size) {
+
+                setState {
+                    copy(
+                        classList = Api.deleteClass(raceClassBrackets.raceClass.id).toAsync()
+                            .flatMap { Api.getAllClasses().toAsync() }
+                    )
+                }
+            }
         }
     }
 
@@ -99,8 +118,33 @@ class ClassesViewModel(
         }
         setState {
             copy(
-                classList = Api.postClass(order).toAsync()
+                classList = Api.postClassList(order).toAsync()
             )
         }
     }
+
+    fun addBracket() {
+        setState {
+            val list = editClass.brackets.toMutableList()
+            list.add(Bracket())
+            copy(editClass = editClass.copy(brackets = list))
+        }
+    }
+
+    fun removeBracket(index: Int) {
+        setState {
+            val list = editClass.brackets.toMutableList()
+            list.removeAt(index)
+            copy(editClass = editClass.copy(brackets = list))
+        }
+    }
+
+    fun updateBracket(index: Int, bracket: Bracket) {
+        setState {
+            val list = editClass.brackets.toMutableList()
+            list[index] = bracket
+            copy(editClass = editClass.copy(brackets = list))
+        }
+    }
 }
+

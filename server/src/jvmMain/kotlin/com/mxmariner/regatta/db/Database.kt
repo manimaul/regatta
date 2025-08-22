@@ -123,7 +123,8 @@ object RegattaDatabase {
 
     // Race Class ------------------------
 
-    suspend fun upsertClass(item: List<RaceClass>) = dbQuery { RaceClassTable.upsertClass(item) }
+    suspend fun upsertClassBrackets(body: RaceClassBrackets) = dbQuery { RaceClassTable.upsertClassBrackets(body) }
+    suspend fun upsertClassList(item: List<RaceClass>) = dbQuery { RaceClassTable.upsertClassList(item) }
     suspend fun allClasses(): List<RaceClassBrackets> = dbQuery { RaceClassTable.allClasses() }
     suspend fun deleteClass(id: Long): Int = dbQuery { RaceClassTable.deleteClass(id) }
     suspend fun findClass(id: Long): RaceClass? = dbQuery { RaceClassTable.selectById(id) }
