@@ -41,7 +41,8 @@ object RaceResultReporter {
             var previous: Long? = null
             bracketStandings.sortedWith { lhs, rhs ->
                 lhs.totalScoreClass.compareTo(rhs.totalScoreClass).takeIf { it != 0 } ?: run {
-                    tieBreaker(lhs, rhs) { it.placeInClass }
+                    standingsClass.raceClass
+                    tieBreaker(races.size, lhs, rhs) { it.placeInClass }
                 }
             }.forEach {
                 if (it.tiedWith.contains(previous)) {
@@ -60,7 +61,7 @@ object RaceResultReporter {
                 var previous: Long? = null
                 standings.sortedWith { lhs, rhs ->
                     lhs.totalScoreOverall.compareTo(rhs.totalScoreOverall).takeIf { it != 0 } ?: run {
-                        tieBreaker(lhs, rhs) { it.placeOverall }
+                        tieBreaker(races.size, lhs, rhs) { it.placeOverall }
                     }
                 }.forEach {
                     if (it.tiedWith.contains(previous)) {
@@ -74,15 +75,30 @@ object RaceResultReporter {
         return standings
     }
 
-    private fun tieBreaker(lhs: StandingsBoatSkipper, rhs: StandingsBoatSkipper, field: (StandingsRace) -> Int) : Int {
+    private fun tieBreaker(
+        numberOfRacesInSeries: Int,
+        lhs: StandingsBoatSkipper,
+        rhs: StandingsBoatSkipper,
+        field: (StandingsRace) -> Int
+    ): Int {
+        //https://cyct.com/wp-content/uploads/2025/01/2025-CYCT-General-Sailing-Instructions-Final.pdf
+        //14.5. If two or more boats are tied in a series, the boat with the highest finishing place in
+        //the last race of the series will be scored the series winner. This changes RRS Appendix
+        // A8.1, A8.2
+        if (lhs.raceStandings.size == numberOfRacesInSeries || rhs.raceStandings.size == numberOfRacesInSeries) {
+            val left = lhs.raceStandings.getOrNull(numberOfRacesInSeries - 1)?.let { field(it) } ?: Int.MAX_VALUE
+            val right = rhs.raceStandings.getOrNull(numberOfRacesInSeries - 1)?.let { field(it) } ?: Int.MAX_VALUE
+            return left.compareTo(right)
+        }
+
         //In the event of a tie:
         //a. If two or more boats have the same lowest individual overall score, then the
         //tiebreaker shall be determined by the total number of said lowest individual scores, with
         //the yacht having the highest count of said scores shall be the winner
         //b. If a tie still exists after (a) and (b) above, then the next lowest individual
         //score shall be used to break the tie, and so on until scores no longer match
-        val min = (lhs.raceStandings + rhs.raceStandings).minOf { field(it)}
-        val max = (lhs.raceStandings + rhs.raceStandings).maxOf { field(it)}
+        val min = (lhs.raceStandings + rhs.raceStandings).minOf { field(it) }
+        val max = (lhs.raceStandings + rhs.raceStandings).maxOf { field(it) }
         (min..max).forEach { score ->
             val lCount = lhs.raceStandings.count { field(it) == score }
             val rCount = rhs.raceStandings.count { field(it) == score }
@@ -179,7 +195,7 @@ object RaceResultReporter {
                 boatSkipper = boatSkipper,
                 raceStandings = standings,
                 totalScoreBracket = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInBracket },
-                totalScoreClass = standings.fold(0) { a, s -> a + if(s.throwOut) 0 else s.placeInClass },
+                totalScoreClass = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInClass },
                 totalScoreOverall = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeOverall },
                 placeInBracket = 0,
                 placeInClass = 0,
@@ -191,13 +207,13 @@ object RaceResultReporter {
         var previous: Long? = null
         result.sortedWith { lhs, rhs ->
             lhs.totalScoreBracket.compareTo(rhs.totalScoreBracket).takeIf { it != 0 } ?: run {
-                tieBreaker(lhs, rhs) { it.placeInBracket }
+                tieBreaker(races.size, lhs, rhs) { it.placeInBracket }
             }
         }.forEach {
             if (it.tiedWith.contains(previous)) {
-                it.placeInBracket= place
+                it.placeInBracket = place
             } else {
-                it.placeInBracket= ++place
+                it.placeInBracket = ++place
             }
             previous = it.boatSkipper.boat?.id
         }
@@ -424,11 +440,11 @@ private data class TempPlace(
 fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
     val penalties = mutableListOf<PenaltyPosition>()
     val starters = this.count()
-    val finishers = this.count { it.resultRecord.result.finish != null}
+    val finishers = this.count { it.resultRecord.result.finish != null }
     val hocCount = this.count { it.hocPosition != null }
 
     //sorted by corrected time then HOC
-    val list = this.sortedWith(cardCompare).let{
+    val list = this.sortedWith(cardCompare).let {
         var last: RaceReportCard? = null
         var position = 1
         it.mapIndexed { i, ea ->
@@ -449,11 +465,11 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
 
                 FinishCode.RET,
                 FinishCode.DNF -> {
-                    TempPlace(place= finishers + hocCount + 1, card = ea )
+                    TempPlace(place = finishers + hocCount + 1, card = ea)
                 }
 
                 FinishCode.NSC -> {
-                    TempPlace(place= starters, card = ea )
+                    TempPlace(place = starters, card = ea)
                 }
             }
         }
