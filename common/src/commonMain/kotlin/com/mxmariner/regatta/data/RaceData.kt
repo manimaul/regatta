@@ -260,7 +260,9 @@ data class StandingsRace(
     val hocPosition: Int? = null,
     val finish: Boolean,
     val placeInBracket: Int = 0,
+    var placeInBracketCorrected: Int? = null,
     val placeInClass: Int = 0,
+    var placeInClassCorrected: Int? = null,
     var placeOverall: Int = 0,
     var throwOut: Boolean = false,
     val finishCode: FinishCode?

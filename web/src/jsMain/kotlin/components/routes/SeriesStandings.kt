@@ -101,21 +101,63 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                             )
                         }
                         standings.raceStandings.forEach {
-                            RgTd(classes = if (it.throwOut) listOf("text-danger") else null) {
-                                B { Text("${it.placeInBracket}") }
+                            RgTd {
+//                                B { Text("${it.placeInBracket}") }
+//                                if (multiBracket) {
+//                                    Text(", ${it.placeInClass}")
+//                                }
+
+                                if (it.placeInBracketCorrected != null) {
+
+                                }
+
+
+                                B(attrs = {
+                                    if (it.placeInBracketCorrected != null && it.throwOut) {
+                                        classes("text-danger", "text-decoration-line-through")
+                                    } else if (it.throwOut) {
+                                        classes("text-danger")
+                                    } else if (it.placeInBracketCorrected != null) {
+                                        classes("text-decoration-line-through")
+                                    }
+                                }) { Text("${it.placeInBracket}") }
+                                it.placeInBracketCorrected?.let { pbc ->
+                                    B { Text(" $pbc") }
+                                }
                                 if (multiBracket) {
-                                    Text(", ${it.placeInClass}")
+                                    B(attrs = {
+                                        if (it.placeInClassCorrected != null && it.throwOut) {
+                                            classes("text-danger", "text-decoration-line-through")
+                                        } else if (it.throwOut) {
+                                            classes("text-danger")
+                                        } else if (it.placeInClassCorrected != null) {
+                                            classes("text-decoration-line-through")
+                                        }
+                                    }) { Text(", ${it.placeInClass}") }
+                                    it.placeInClassCorrected?.let { pcc ->
+                                        B {  Text(", $pcc") }
+                                    }
                                 }
                                 when (val code = it.finishCode) {
                                     FinishCode.TIME -> Unit
                                     FinishCode.RET,
                                     FinishCode.DNF,
                                     FinishCode.NSC -> Text(" ${code.name}")
+
                                     FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
                                     FinishCode.DNS_RC -> Text(" DNS RC Volunteer")
                                     null -> Text(" DNS")
                                 }
                             }
+//                            it.placeInClassCorrected?.let { pcc ->
+//                                if (multiBracket) {
+//                                    Text(", ${it.placeInClass}")
+//                                }
+//                                it.placeInBracketCorrected?.let { pbc ->
+//                                    B { Text("${it.placeInBracket}") }
+//
+//                                }
+//                            }
                         }
                         RgTd {
                             if (multiBracket) {

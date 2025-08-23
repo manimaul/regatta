@@ -192,6 +192,38 @@ object RaceResultReporter {
                 throwOutWorst(standings)
             }
 
+            /*
+            1.4.1.2 If the registered boat chooses to volunteer individuals for Race Committee, and is unable to
+            race, that boat will receive a score that is the average of their series score for that specific race. The
+            boat’s overall score for racer of the year calculations will be average of their overall finishes in that
+            series. The given score will not affect the other boats scored in that class. This can only be utilized
+            once per series and cannot be used as a tie breaker per scoring rules. Additionally, sign-ups for the
+            RC volunteers must be completed before the start of the series if you are intending to use this rule
+            for your score. This amends Section 14.4, 14.5, and all appendices outlined in these two sections.
+            As part of crew education and contributing to club support, Club Crew Members are strongly
+            encouraged to volunteer once,
+             */
+            var avgPlaceBracket: Int? = null
+            var avgPlaceClass: Int? = null
+            standings.takeIf { it.size > 1 }?.forEach { ea ->
+                println("each ${ea.finishCode}")
+                if (ea.finishCode == FinishCode.DNS_RC) {
+                    if (avgPlaceBracket == null || avgPlaceClass == null) {
+                        val list = standings.filter { it.finishCode != FinishCode.DNS_RC }
+                        avgPlaceBracket = list
+                            .fold(0.0f) { l, r -> l + r.placeInBracket.toFloat() }.div(list.size).roundToInt()
+                        avgPlaceClass = list
+                            .fold(0.0f) { l, r -> l + r.placeInClass.toFloat() }.div(list.size).roundToInt()
+
+                        standings.filter { it.finishCode == FinishCode.DNS_RC }.forEach { ea ->
+                            ea.placeInBracketCorrected = avgPlaceBracket
+                            ea.placeInClassCorrected = avgPlaceClass
+                        }
+                    }
+                }
+            }
+
+            //apply logic here for RC volunteer
             StandingsBoatSkipper(
                 boatSkipper = boatSkipper,
                 raceStandings = standings,
@@ -464,10 +496,7 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
                     TempPlace(place = position, card = ea)
                 }
 
-                FinishCode.DNS_RC -> {
-                    TempPlace(place = 0, card = ea)
-                }
-
+                FinishCode.DNS_RC,
                 FinishCode.RET,
                 FinishCode.DNF -> {
                     TempPlace(place = finishers + hocCount + 1, card = ea)
@@ -479,27 +508,6 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
             }
         }
     }.toMutableList()
-
-    /*
-    1.4.1.2 If the registered boat chooses to volunteer individuals for Race Committee, and is unable to
-    race, that boat will receive a score that is the average of their series score for that specific race. The
-    boat’s overall score for racer of the year calculations will be average of their overall finishes in that
-    series. The given score will not affect the other boats scored in that class. This can only be utilized
-    once per series and cannot be used as a tie breaker per scoring rules. Additionally, sign-ups for the
-    RC volunteers must be completed before the start of the series if you are intending to use this rule
-    for your score. This amends Section 14.4, 14.5, and all appendices outlined in these two sections.
-    As part of crew education and contributing to club support, Club Crew Members are strongly
-    encouraged to volunteer once,
-     */
-    var avgPlace: Int? = null
-    list.forEach { ea ->
-        if (ea.card.resultRecord.result.finishCode == FinishCode.DNS_RC) {
-            if (avgPlace == null) {
-               avgPlace = list.fold(0.0f) { l, r -> l + r.place.toFloat()}.div(list.size).roundToInt()
-            }
-            ea.place = avgPlace
-        }
-    }
 
     penalties.forEach { p ->
         val card = list.removeAt(p.position)
