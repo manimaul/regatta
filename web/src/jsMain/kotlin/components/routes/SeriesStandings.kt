@@ -112,7 +112,7 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                                     FinishCode.DNF,
                                     FinishCode.NSC -> Text(" ${code.name}")
                                     FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
-                                    FinishCode.DNS_RC -> Text("DNS RC Volunteer")
+                                    FinishCode.DNS_RC -> Text(" DNS RC Volunteer")
                                     null -> Text(" DNS")
                                 }
                             }
