@@ -25,6 +25,7 @@ fun FinishCodeDrop(
                     FinishCode.NSC -> it.name
 
                     FinishCode.HOC -> "${it.name}${hocPosition?.let { " $it" } ?: ""}"
+                    FinishCode.DNS_RC -> "DNS RC Volunteer"
                 }
             }, handler = handler
         )

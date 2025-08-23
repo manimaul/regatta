@@ -51,8 +51,7 @@ fun RcTimeRow(
             FinishCode.TIME -> {
                 viewModel.setFinish(FinishCode.TIME, state.value.focus?.restoreFinish ?: now())
             }
-
-            FinishCode.RET, FinishCode.DNF, FinishCode.NSC -> {
+            FinishCode.DNS_RC, FinishCode.RET, FinishCode.DNF, FinishCode.NSC -> {
                 viewModel.setFinish(it, null)
             }
 

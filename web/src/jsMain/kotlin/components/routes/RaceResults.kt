@@ -263,8 +263,7 @@ fun TimeRow(
     ) {
         when (it) {
             FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, addState.finish ?: now())
-            FinishCode.RET,
-            FinishCode.DNF,
+            FinishCode.RET, FinishCode.DNF, FinishCode.DNS_RC,
             FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null, true)
 
             FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)

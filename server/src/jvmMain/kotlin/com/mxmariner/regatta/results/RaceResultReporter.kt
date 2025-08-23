@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -224,7 +225,7 @@ object RaceResultReporter {
         val minBracket = standings.minOf { it.placeInBracket }
         val maxBracket = standings.maxOf { it.placeInBracket }
         if (minBracket != maxBracket) {
-            standings.first { it.placeInBracket == maxBracket }.throwOut = true
+            standings.filter { it.placeInBracket == maxBracket }.maxByOrNull { it.placeInClass }?.throwOut = true
             return
         }
 
@@ -463,6 +464,10 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
                     TempPlace(place = position, card = ea)
                 }
 
+                FinishCode.DNS_RC -> {
+                    TempPlace(place = 0, card = ea)
+                }
+
                 FinishCode.RET,
                 FinishCode.DNF -> {
                     TempPlace(place = finishers + hocCount + 1, card = ea)
@@ -474,6 +479,27 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
             }
         }
     }.toMutableList()
+
+    /*
+    1.4.1.2 If the registered boat chooses to volunteer individuals for Race Committee, and is unable to
+    race, that boat will receive a score that is the average of their series score for that specific race. The
+    boat’s overall score for racer of the year calculations will be average of their overall finishes in that
+    series. The given score will not affect the other boats scored in that class. This can only be utilized
+    once per series and cannot be used as a tie breaker per scoring rules. Additionally, sign-ups for the
+    RC volunteers must be completed before the start of the series if you are intending to use this rule
+    for your score. This amends Section 14.4, 14.5, and all appendices outlined in these two sections.
+    As part of crew education and contributing to club support, Club Crew Members are strongly
+    encouraged to volunteer once,
+     */
+    var avgPlace: Int? = null
+    list.forEach { ea ->
+        if (ea.card.resultRecord.result.finishCode == FinishCode.DNS_RC) {
+            if (avgPlace == null) {
+               avgPlace = list.fold(0.0f) { l, r -> l + r.place.toFloat()}.div(list.size).roundToInt()
+            }
+            ea.place = avgPlace
+        }
+    }
 
     penalties.forEach { p ->
         val card = list.removeAt(p.position)

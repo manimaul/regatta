@@ -17,6 +17,7 @@ fun FinishCode.finishText(hocPosition: Int?) : String {
         FinishCode.DNF,
         FinishCode.NSC -> code.name
         FinishCode.HOC -> "HOC $hocPosition"
+        FinishCode.DNS_RC -> "DNS RC Volunteer"
     }
 }
 

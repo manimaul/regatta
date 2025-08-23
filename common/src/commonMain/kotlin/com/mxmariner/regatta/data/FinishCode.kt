@@ -6,4 +6,5 @@ enum class FinishCode(val weight: Int) {
     RET(1),
     DNF(1),
     NSC(2),
+    DNS_RC(3)
 }
