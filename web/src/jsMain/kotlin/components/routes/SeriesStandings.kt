@@ -102,16 +102,6 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                         }
                         standings.raceStandings.forEach {
                             RgTd {
-//                                B { Text("${it.placeInBracket}") }
-//                                if (multiBracket) {
-//                                    Text(", ${it.placeInClass}")
-//                                }
-
-                                if (it.placeInBracketCorrected != null) {
-
-                                }
-
-
                                 B(attrs = {
                                     if (it.placeInBracketCorrected != null && it.throwOut) {
                                         classes("text-danger", "text-decoration-line-through")
@@ -122,7 +112,9 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                                     }
                                 }) { Text("${it.placeInBracket}") }
                                 it.placeInBracketCorrected?.let { pbc ->
-                                    B { Text(" $pbc") }
+                                    B(attrs = { if (it.throwOut) classes("text-danger") }) {
+                                        Text(" $pbc")
+                                    }
                                 }
                                 if (multiBracket) {
                                     B(attrs = {
@@ -135,7 +127,9 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                                         }
                                     }) { Text(", ${it.placeInClass}") }
                                     it.placeInClassCorrected?.let { pcc ->
-                                        B {  Text(", $pcc") }
+                                        B(attrs = { if (it.throwOut) classes("text-danger") }) {
+                                            Text(" $pcc")
+                                        }
                                     }
                                 }
                                 when (val code = it.finishCode) {
@@ -149,15 +143,6 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                                     null -> Text(" DNS")
                                 }
                             }
-//                            it.placeInClassCorrected?.let { pcc ->
-//                                if (multiBracket) {
-//                                    Text(", ${it.placeInClass}")
-//                                }
-//                                it.placeInBracketCorrected?.let { pbc ->
-//                                    B { Text("${it.placeInBracket}") }
-//
-//                                }
-//                            }
                         }
                         RgTd {
                             if (multiBracket) {
