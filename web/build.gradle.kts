@@ -31,6 +31,7 @@ kotlin {
                 implementation(compose.html.core)
                 implementation(compose.runtime)
                 implementation(compose.html.svg)
+                implementation(npm("maplibre-gl", "4.7.1"))
                 implementation(npm("sortablejs", "1.15.2"))
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("@popperjs/core", "2.11.8"))

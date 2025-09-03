@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import components.RgButton
 import components.RgButtonStyle
 import kotlinx.browser.window
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
@@ -26,10 +27,15 @@ fun Home(
         P {
             Text(" Login expires in ${clockState.expiresDisplay}")
         }
-        RgButton("Copy auth token", RgButtonStyle.PrimaryOutline) {
-            val token = token()
-            window.navigator.clipboard.writeText(token)
-            window.alert("Auth token copied to clipboard\n\n$token")
+        Div(attrs = { classes("flex-wrap") }) {
+            RgButton(
+                label = "Copy auth token",
+                style = RgButtonStyle.PrimaryOutline,
+            ) {
+                val token = token()
+                window.navigator.clipboard.writeText(token)
+                window.alert("Auth token copied to clipboard\n\n$token")
+            }
         }
     } else {
         routeVm.pushRoute(Route.RaceResult)

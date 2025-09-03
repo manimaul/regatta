@@ -25,7 +25,6 @@ fun Races(
     H1 { Text("Races") }
     B { Text("Year") }
     RgRaceYearSelector { viewModel.selectYear(it) }
-    Br()
     state.value.races.complete(viewModel) { RaceList(it, viewModel) }
 }
 

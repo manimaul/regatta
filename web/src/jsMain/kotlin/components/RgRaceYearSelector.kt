@@ -7,6 +7,7 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
+import styles.AppStyle
 import utils.*
 import viewmodel.BaseViewModel
 import viewmodel.VmState
@@ -54,7 +55,10 @@ fun RgRaceYearSelector(
     onYearSelect: ((Int?) -> Unit)? = null,
 ) {
     val state = viewModel.flow.collectAsState()
-    Div(attrs = { style { property("width", "fit-content") } }) {
+    Div(attrs = {
+        classes(AppStyle.marginBot)
+        style { property("width", "fit-content") }
+    }) {
         state.value.years.complete(viewModel, loading = {
             Text("...")
         }) { yearList ->

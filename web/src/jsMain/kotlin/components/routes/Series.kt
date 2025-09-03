@@ -60,7 +60,9 @@ fun AllSeries(
     viewModel: SeriesViewModel,
 ) {
     H1 { Text("Series") }
-    Div {
+    Div(attrs = {
+        classes(AppStyle.marginBot)
+    }) {
         RgModalButton(
             id = "add-edit-series",
             style = RgButtonStyle.SuccessOutline,
@@ -69,7 +71,6 @@ fun AllSeries(
         )
         AddEditSeries(viewModel)
     }
-    Br { }
     RgTable {
         RgThead {
             RgTr {
@@ -97,8 +98,10 @@ fun AllSeries(
             }
         }
     }
-    RgButton("Change Sort Order") {
-        viewModel.sortMode(true)
+    Div(attrs = { classes("flex-wrap") }) {
+        RgButton("Change Sort Order") {
+            viewModel.sortMode(true)
+        }
     }
 }
 

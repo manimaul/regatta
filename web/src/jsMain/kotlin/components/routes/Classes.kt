@@ -76,7 +76,9 @@ fun ClassList(
     list: List<RaceClassBrackets>,
 ) {
     H1 { Text("Race Classes") }
-    Div {
+    Div(attrs = {
+        classes(AppStyle.marginBot)
+    }) {
         RgModalButton(
             id = "add-edit-class",
             style = RgButtonStyle.SuccessOutline,
@@ -87,7 +89,6 @@ fun ClassList(
         )
         AddEditClassModal(viewModel)
     }
-    Br()
     RgTable {
         RgThead {
             RgTr {
@@ -138,8 +139,10 @@ fun ClassList(
             }
         }
     }
-    RgButton("Change Sort Order") {
-        viewModel.sortMode(true)
+    Div(attrs = { classes("flex-wrap") }) {
+        RgButton("Change Sort Order") {
+            viewModel.sortMode(true)
+        }
     }
 }
 

@@ -38,7 +38,9 @@ fun BoatList(
 ) {
     Div {
         H1 { Text("Boats") }
-        Div {
+        Div(attrs = {
+            classes(AppStyle.marginBot)
+        }) {
             AddEditBoatModalButton(
                 style = RgButtonStyle.SuccessOutline,
                 buttonLabel = AddEditBoatMode.Adding.label(),
@@ -51,7 +53,6 @@ fun BoatList(
                 modalTitle = { addEditMode.label() },
             )
         }
-        Br { }
         RgTable {
             RgThead {
                 RgTr {

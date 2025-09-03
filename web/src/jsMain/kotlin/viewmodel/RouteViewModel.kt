@@ -69,6 +69,7 @@ data class Routing(
 enum class Route(val pathPattern: String, val label: String) {
     Home("/", "Home"),
     Series("/series", "Series"),
+    Course("/course", "Course"),
     People("/people", "Skippers"),
     Admin("/admin", "Admin"),
     AdminCreate("/admin/create", "Create Admin"),

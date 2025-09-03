@@ -12,6 +12,7 @@ import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import styles.AppStyle
 import utils.Complete
 import utils.Error
 import utils.Loading
@@ -51,7 +52,9 @@ fun PeopleLoaded(
 ) {
     Div {
         H1 { Text("Skippers") }
-        Div {
+        Div(attrs = {
+            classes(AppStyle.marginBot)
+        }){
             RgModalButton(
                 id = "add-edit-skipper",
                 style = RgButtonStyle.SuccessOutline,
@@ -62,7 +65,6 @@ fun PeopleLoaded(
             )
             AddEditPerson()
         }
-        Br { }
         RgTable {
             RgThead {
                 RgTr {

@@ -24,7 +24,7 @@ fun RgGrid(
     content: ContentBuilder<HTMLDivElement>? = null
 ) {
     Div(attrs = {
-        listOfNotNull(type.name, position?.cls).takeIf { it.isNotEmpty() }?.let {
+        listOfNotNull(type.name, position?.cls, "min-vh-100", "d-flex", "flex-column").takeIf { it.isNotEmpty() }?.let {
             classes(it)
         }
     }, content)
@@ -149,10 +149,15 @@ enum class RgSz(val size: String) {
 
 @Composable
 fun RgDiv(
+    id: String? = null,
     customizer: (@Composable Customizer.() -> Unit)? = null,
     content: ContentBuilder<HTMLDivElement>? = null
 ) {
     val c = remember { Customizer() }
     customizer?.invoke(c)
-    Div(attrs = { c.getClasses().takeIf { it.isNotEmpty() }?.let { classes(it) } }, content)
+    Div(attrs = {
+        id?.let { id(it) }
+        c.getClasses().takeIf { it.isNotEmpty() }?.let { classes(it)
+        }
+                }, content)
 }
