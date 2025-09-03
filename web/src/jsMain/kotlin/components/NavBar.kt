@@ -38,7 +38,7 @@ fun NavBar(
     }) {
         Div(attrs = { classes("container-fluid") }) {
             A(attrs = { classes("navbar-brand") }, href = "#") {
-                Img(src = "/cyct_burgee.png", attrs = {
+                Img(src = "/cyct_burgee.svg", attrs = {
                     classes("d-inline-block")
                     attr("height", "60")
                     alt("logo")
