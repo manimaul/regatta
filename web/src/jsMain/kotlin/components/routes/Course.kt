@@ -10,9 +10,6 @@ fun Course() {
     Div(
         attrs = {
             classes("flex-grow-1")
-//            style {
-//                height(window.innerHeight.px)
-//            }
             ref { element ->
                 chartViewModel.controller.createMapView(element)
                 object : DisposableEffectResult {
