@@ -13,6 +13,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()
+//        repositories {
+//            maven {
+//                name = "GitHubPackages"
+//                url = uri("https://maven.pkg.github.com/manimaul/geojson")
+//                credentials {
+//                    username = System.getenv("GH_USER")
+//                    password = System.getenv("GH_TOKEN")
+//                }
+//            }
+//        }
     }
 }
 

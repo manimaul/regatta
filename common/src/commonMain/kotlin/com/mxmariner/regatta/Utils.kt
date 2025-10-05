@@ -28,6 +28,7 @@ fun String.versionedApi(version: Int = 1, params: Map<String, String>? = null): 
     } ?: ""
     return "/v$version/api/$this$paramString"
 }
+
 fun kotlin.time.Duration.display(): String {
     var t = this
     val hrs = t.inWholeHours
