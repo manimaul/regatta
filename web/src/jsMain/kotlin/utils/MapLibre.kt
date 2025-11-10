@@ -60,6 +60,7 @@ external class MapLibre {
         fun getElement() : HTMLElement
         fun setText(text: String): Popup
         fun setHTML(html: String): Popup
+        fun on(type: String, listener: (dynamic) -> dynamic)
     }
 
     // https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/

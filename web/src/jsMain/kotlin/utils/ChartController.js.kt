@@ -20,22 +20,21 @@ class ChartController {
         mapView?.jumpTo(options)
     }
 
-    fun popUp(mark: Mark) {
-        mapView?.let { mv ->
-            val popUp = MapLibre.Popup(
-                options = PopupOptions(
-                    closeOnClick = false,
-                    closeButton = true
-                )
-            ).setLngLat(mark.position)
-                .setHTML("<p><strong>${mark.name}</strong> - ${mark.desc}</p>")
-                .addTo(mv)
+    private val markPopupMap = mutableMapOf<Mark, MapLibre.Popup>()
+
+    fun showPopup(mark: Mark) {
+        markPopupMap[mark]?.let { popup ->
+            mapView?.let { mv ->
+                popup.addTo(mv)
+            }
         }
     }
 
-    private var showing: MapLibre.Popup? = null
+    fun hidePopup(mark: Mark) {
+        markPopupMap[mark]?.remove()
+    }
 
-    fun addMarkPopup(mark: Mark) {
+    fun addMarkPopup(mark: Mark, onSelect: (Mark?) -> Unit, onClose: (Mark) -> Unit) {
         mapView?.let { mv ->
             val popUp = MapLibre.Popup(
                 options = PopupOptions(
@@ -46,15 +45,18 @@ class ChartController {
                 .setHTML("""<h4>${mark.name}</h4>
                     <h6>${mark.desc}</h6>
                 """.trimIndent())
+            popUp.on("close") {
+                println("popup ${mark.letter} closed")
+                onClose(mark)
+            }
 
+            markPopupMap[mark] = popUp
             val el = document.createElement("div") as HTMLElement
             el.innerHTML = "<span>${mark.letter}</span>"
             el.style.color = "red"
             el.style.fontSize = "40px"
             el.onclick = {
-                showing?.remove()
-                showing = popUp
-                popUp.addTo(mv)
+                onSelect(mark)
             }
             MapLibre.Marker(MarkerOptions(element = el))
                 .setLngLat(mark.position)
@@ -99,6 +101,7 @@ class ChartController {
     }
 
     fun disposeMapView() {
+        markPopupMap.clear()
         mapView?.remove()
         mapView = null
     }

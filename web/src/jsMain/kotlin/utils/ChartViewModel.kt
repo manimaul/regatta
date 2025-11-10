@@ -13,6 +13,7 @@ private fun mapLocation(): MapLocation? {
 data class ChartState(
     val location: MapLocation = mapLocation() ?: MapLocation(),
     val query: List<dynamic> = emptyList(),
+    val mark: Mark? = null,
 ) : VmState
 
 @Serializable
@@ -109,7 +110,7 @@ val marks = listOf(
         name = "Outfall Buoy",
         desc = "Yellow Perm. Mark",
         letter = "O",
-        position = MapLibre.LngLat(-122.48416224770311, 47.28729287090877 )
+        position = MapLibre.LngLat(-122.48416224770311, 47.28729287090877)
     ),
     Mark(
         name = "Piner Point",
@@ -154,8 +155,20 @@ class ChartViewModel : BaseViewModel<ChartState>(ChartState()) {
 
     init {
         controller.onLoad = {
-            marks.forEach {
-                controller.addMarkPopup(it)
+            marks.forEach { ea ->
+                controller.addMarkPopup(
+                    mark = ea,
+                    onSelect = { mark ->
+                        selectMark(mark)
+                    },
+                    onClose = { mark ->
+                        withState { state ->
+                            if (state.mark == mark) {
+                                setState { copy(mark = null) }
+                            }
+                        }
+                    }
+                )
             }
         }
 
@@ -182,4 +195,13 @@ class ChartViewModel : BaseViewModel<ChartState>(ChartState()) {
     override fun reload() {
         setState { ChartState() }
     }
+
+    fun selectMark(mark: Mark?) {
+        withState { state ->
+            state.mark?.let { controller.hidePopup(it)}
+        }
+        setState { copy(mark = mark) }
+        mark?.let { controller.showPopup(it) }
+    }
 }
+
