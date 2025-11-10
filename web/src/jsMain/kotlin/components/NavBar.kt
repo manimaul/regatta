@@ -67,9 +67,11 @@ fun NavBar(
                             Route.Races,
                             Route.Rc,
                             Route.RaceResult,
+                            Route.Course,
                         )
                     } ?: arrayOf(
                         Route.RaceResult,
+                        Route.Course,
                     )).forEach { route ->
                         Li(attrs = { classes("nav-item") }) {
                             Button(attrs = {
