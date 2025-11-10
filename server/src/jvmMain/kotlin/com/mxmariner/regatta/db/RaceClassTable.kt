@@ -26,7 +26,12 @@ object RaceClassTable : Table() {
 
     fun upsertClassBrackets(raceClassBrackets: RaceClassBrackets): RaceClassBrackets? {
         return upsertClass(raceClassBrackets.raceClass)?.let { raceClass ->
-            val brackets = BracketTable.upsertBrackets(raceClassBrackets)
+            val brackets = BracketTable.upsertBrackets(
+                RaceClassBrackets(
+                    raceClass,
+                    raceClassBrackets.brackets.map { it.copy(classId = raceClass.id) }
+                )
+            )
             return RaceClassBrackets(raceClass, brackets)
         }
     }
