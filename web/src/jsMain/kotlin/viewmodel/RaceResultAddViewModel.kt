@@ -25,9 +25,9 @@ data class RaceResultAddState(
 ) : VmState {
 
     val isValid = when (ratingType) {
-//        RatingType.ORC -> {
-//            false
-//        }
+        RatingType.ORC -> { //todo: ORC
+            false
+        }
         RatingType.PHRF -> {
             phrfRating.toIntOrNull() != null
         }
@@ -45,7 +45,11 @@ data class RaceResultAddState(
         var phrfRating: Int?
         var windseeker: Windseeker?
         val valid = when (ratingType) {
-//            RatingType.ORC -> false
+            RatingType.ORC -> {
+                windseeker = null
+                phrfRating = null
+                false
+            } //todo: ORC
             RatingType.PHRF -> {
                 windseeker = null
                 phrfRating = this.phrfRating.toIntOrNull()
@@ -198,7 +202,7 @@ class RaceResultAddViewModel(
                 raceClassId = cs?.raceClass?.id,
                 bracketId = cs?.brackets?.firstOrNull { bracket ->
                     when (boatSkipper?.boat?.ratingType()) {
-//                        RatingType.ORC -> false
+                        RatingType.ORC -> false //todo: ORC
                         RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
                             it >= bracket.minRating && it <= bracket.maxRating
                         } ?: false
@@ -220,7 +224,7 @@ class RaceResultAddViewModel(
     fun availableBrackets(selectedRaceClass: ClassSchedule?): List<Bracket>? {
         return withState { addState ->
             val rating: Float = when (addState.ratingType) {
-//                RatingType.ORC -> 1.0f //addState.phrfRating.toInt()
+                RatingType.ORC -> 1.0f //todo: ORC
                 RatingType.PHRF -> addState.phrfRating.toFloat()
                 RatingType.CruisingFlyingSails -> addState.wsRating.toFloat()
                 RatingType.CruisingNonFlyingSails -> addState.wsRating.toFloat()
@@ -234,26 +238,28 @@ class RaceResultAddViewModel(
     fun availableClasses(schedule: List<ClassSchedule>): List<ClassSchedule> {
         return withState { addState ->
             schedule.filter { classSchedule ->
-                when (addState.ratingType) {
-                    RatingType.PHRF -> {
-                        val rating = addState.phrfRating.toInt()
-                        val brackets = classSchedule.brackets.count {
-                            rating >= it.minRating && rating <= it.maxRating
-                        }
-                        classSchedule.raceClass.isPHRF && brackets > 0
-                    }
-
-                    RatingType.CruisingFlyingSails,
-                    RatingType.CruisingNonFlyingSails -> {
-                        val rating = addState.wsRating.toInt()
-                        val brackets = classSchedule.brackets.count {
-                            rating >= it.minRating && rating <= it.maxRating
-                        }
-                        !classSchedule.raceClass.isPHRF
-                                && brackets > 0
-                                && classSchedule.raceClass.wsFlying == addState.wsFlying
-                    }
-                }
+                classSchedule.raceClass.ratingType == addState.ratingType
+//                when (addState.ratingType) {
+//                    RatingType.ORC -> false //todo: ORC
+//                    RatingType.PHRF -> {
+//                        val rating = addState.phrfRating.toInt()
+//                        val brackets = classSchedule.brackets.count {
+//                            rating >= it.minRating && rating <= it.maxRating
+//                        }
+//                        classSchedule.raceClass.isPHRF && brackets > 0
+//                    }
+//
+//                    RatingType.CruisingFlyingSails,
+//                    RatingType.CruisingNonFlyingSails -> {
+//                        val rating = addState.wsRating.toInt()
+//                        val brackets = classSchedule.brackets.count {
+//                            rating >= it.minRating && rating <= it.maxRating
+//                        }
+//                        !classSchedule.raceClass.isPHRF
+//                                && brackets > 0
+//                                && classSchedule.raceClass.wsFlying == addState.wsFlying
+//                    }
+//                }
             }
         }
     }

@@ -135,19 +135,19 @@ fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
         }
     } else if (phrfRating != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
-            sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
+            sch.brackets.takeIf { sch.raceClass.ratingType == RatingType.PHRF}?.firstOrNull {
                 phrfRating >= it.minRating && phrfRating <= it.maxRating
             }
         }
     } else if (windseeker?.flyingSails == true) {
         race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
+            schedule.brackets.takeIf { schedule.raceClass.ratingType == RatingType.CruisingFlyingSails }?.firstOrNull {
                 windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
             }
         }
     } else if (windseeker != null) {
         race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { !schedule.raceClass.isPHRF && !schedule.raceClass.wsFlying }?.firstOrNull {
+            schedule.brackets.takeIf { schedule.raceClass.ratingType == RatingType.CruisingNonFlyingSails }?.firstOrNull {
                 windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
             }
         }

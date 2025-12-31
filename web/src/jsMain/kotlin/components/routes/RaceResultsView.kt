@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.ClassReportCards
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
@@ -49,7 +50,7 @@ fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards
         Text("CF - ${classReportCards.correctionFactor}")
         Text("Start time - ${report.classStart(classReportCards.raceClass.id)?.timeStr() ?: "None"}")
     }
-    val headers = if (classReportCards.raceClass.isPHRF) {
+    val headers = if (classReportCards.raceClass.ratingType == RatingType.PHRF) {
         listOf(
             "Boat",
             "Skipper",
@@ -95,7 +96,7 @@ fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards
                         RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
                         RgTd { Text(card.finishText()) }
                         RgTd { Text(card.elapsedText()) }
-                        if (classReportCards.raceClass.isPHRF) {
+                        if (classReportCards.raceClass.ratingType == RatingType.PHRF) {
                             RgTd { Text(card.corTimeText()) }
                         }
                         if (totalBracketInClassCount > 1) {

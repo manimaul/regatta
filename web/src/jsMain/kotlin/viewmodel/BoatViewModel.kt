@@ -206,6 +206,9 @@ class BoatViewModel() : BaseViewModel<BoatState>(BoatState()) {
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
             val boat = when (ratingType) {
+                RatingType.ORC -> {
+                    Boat() //todo: ORC
+                }
                 RatingType.PHRF -> it.addEditState.addBoat.copy(
                     windseeker = null,
                     phrfRating = rating

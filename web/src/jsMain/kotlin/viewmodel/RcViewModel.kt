@@ -6,6 +6,7 @@ import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceResult
 import com.mxmariner.regatta.data.RaceSchedule
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.display
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -196,8 +197,9 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
         return boatSkipper.boat?.let { boat ->
             val isPhrf = boat.phrfRating != null
             schedule.filter {
-                (isPhrf && it.raceClass.isPHRF) ||
-                        (it.raceClass.wsFlying == boat.windseeker?.flyingSails)
+                (isPhrf && it.raceClass.ratingType == RatingType.PHRF) ||
+                        (boat.windseeker?.flyingSails == true && it.raceClass.ratingType == RatingType.CruisingFlyingSails)  ||
+                        (boat.windseeker?.flyingSails == false && it.raceClass.ratingType == RatingType.CruisingNonFlyingSails)
             }.map {
                 it
             }.firstOrNull()

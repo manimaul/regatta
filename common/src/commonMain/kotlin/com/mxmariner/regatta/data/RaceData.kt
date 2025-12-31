@@ -42,24 +42,10 @@ data class RaceClass(
     val id: Long = 0,
     val name: String = "",
     val sort: Int = 0,
-    val isPHRF: Boolean = false,
-    val wsFlying: Boolean = false,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true,
 ) {
-    fun ratingType(): RatingType {
-        if (isPHRF) {
-            return RatingType.PHRF
-        } else if (wsFlying) {
-            return RatingType.CruisingFlyingSails
-        } else {
-            return RatingType.CruisingNonFlyingSails
-        }
-    }
-
-    fun ratingLabel(): String {
-        return ratingType().label
-    }
 }
 
 @Serializable
@@ -143,7 +129,7 @@ data class Windseeker(
 )
 
 enum class RatingType(val label: String) {
-//    ORC("ORC"),
+    ORC("ORC"),
     PHRF("PHRF"),
     CruisingFlyingSails("Cruising Flying Sails"),
     CruisingNonFlyingSails("Cruising Non-Flying Sails"),

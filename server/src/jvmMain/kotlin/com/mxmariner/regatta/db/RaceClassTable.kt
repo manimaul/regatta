@@ -2,6 +2,7 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
+import com.mxmariner.regatta.data.RatingType
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
@@ -9,8 +10,9 @@ object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
     val name = varchar("name", 128)
     val sort = integer("sort")
-    val phrf = bool("phrf")
-    val wsFlying = bool("wsf")
+    val ratingType = varchar("ratingtype", 128)
+//    val phrf = bool("phrf")
+//    val wsFlying = bool("wsf")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
@@ -43,8 +45,9 @@ object RaceClassTable : Table() {
             }
             it[name] = item.name.trim()
             it[active] = item.active
-            it[wsFlying] = item.wsFlying
-            it[phrf] = item.isPHRF
+            it[ratingType] = item.ratingType.name
+//            it[wsFlying] = item.wsFlying
+//            it[phrf] = item.isPHRF
             it[sort] = item.sort
         }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
     }
@@ -70,8 +73,9 @@ object RaceClassTable : Table() {
             id = classId,
             name = row[name],
             sort = row[sort],
-            isPHRF = row[phrf],
-            wsFlying = row[wsFlying],
+            ratingType = RatingType.valueOf(row[ratingType]),
+//            isPHRF = row[phrf],
+//            wsFlying = row[wsFlying],
             numberOfRaces = RaceBracketJunction.raceCountForClass(classId),
             active = row[active],
         )
