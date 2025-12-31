@@ -93,10 +93,11 @@ fun RgModal(
     buttonLabel: String,
     modalTitle: String,
     openAction: (() -> Unit)? = null,
+    buttonClasses: List<String> = emptyList(),
     content: ContentBuilder<HTMLDivElement>,
     footer: ContentBuilder<HTMLDivElement>? = null,
 ) {
     val modalId = remember { "modal-${++num}" }
-    RgModalButton(id = modalId, buttonLabel = { buttonLabel }, openAction = openAction)
+    RgModalButton(id = modalId, buttonLabel = { buttonLabel }, customClasses = buttonClasses, openAction = openAction)
     RgModalBody(id = modalId, modalTitle = { modalTitle }, content = content, footer = footer)
 }

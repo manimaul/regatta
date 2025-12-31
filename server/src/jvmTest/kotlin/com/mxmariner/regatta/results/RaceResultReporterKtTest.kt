@@ -23,13 +23,13 @@ class RaceResultReporterKtTest {
                 boatName = "finish place 1",
                 startTime = start,
                 finishTime = finish,
-                correctedTime = finish.minus(start)
+                correctedPhrfTime = finish.minus(start)
             ), //finish
         ).sortedWith(cardCompare)
 
         val results = cards.place { i, raceReportCard ->
-            raceReportCard.placeOverall = i
-        }.associate { it.boatName to it.placeOverall }
+            raceReportCard.placeInClass = i
+        }.associate { it.boatName to it.placeInClass }
 
         assertEquals(1, results["finish place 1"])
         assertEquals(2, results["HOC1 place 2"])

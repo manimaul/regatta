@@ -14,11 +14,6 @@ kotlin {
 
     jvm {
         withJava()
-        testRuns.named("test") {
-            executionTask.configure {
-                useJUnitPlatform()
-            }
-        }
     }
     js(IR) {
         browser {

@@ -106,11 +106,11 @@ fun ClassList(
                         Text(each.raceClass.name)
                     }
                     RgTd {
-                        Text(each.raceClass.ratingLabel())
+                        Text(each.raceClass.ratingType.label)
                     }
                     RgTd {
-                        each.brackets.takeIf { it.isNotEmpty() }?.let {
-                            Text("(1) ${it.map { it.name }.reduceIndexed { i, l, r -> "${l}, (${i + 1}) $r" }}")
+                        each.brackets.takeIf { it.isNotEmpty() }?.let { brackets ->
+                            Text(  "[${brackets.map { "'${it.name}'" }.reduce{ l, r -> "$l, $r" }}]")
                         }
                     }
                     RgTd {
@@ -173,48 +173,19 @@ fun AddEditClassModal(
                         if (state.editClass.raceClass.numberOfRaces == 0L) {
                             RgDropdown(
                                 items = RatingType.entries,
-                                selectedItem = if (state.editClass.raceClass.isPHRF) RatingType.PHRF else if (state.editClass.raceClass.wsFlying) RatingType.CruisingFlyingSails else RatingType.CruisingNonFlyingSails,
+                                selectedItem = state.editClass.raceClass.ratingType,
                                 name = { it.label }
                             ) {
-                                when (it) {
-                                    RatingType.PHRF -> {
-                                        viewModel.editClass(
-                                            state.editClass.copy(
-                                                raceClass = state.editClass.raceClass.copy(
-                                                    isPHRF = true,
-                                                    wsFlying = false
-                                                ),
-                                            )
+                                viewModel.editClass(
+                                    state.editClass.copy(
+                                        raceClass = state.editClass.raceClass.copy(
+                                            ratingType = it
                                         )
-                                    }
-
-                                    RatingType.CruisingFlyingSails -> {
-                                        viewModel.editClass(
-                                            state.editClass.copy(
-                                                raceClass = state.editClass.raceClass.copy(
-                                                    isPHRF = false,
-                                                    wsFlying = true
-                                                ),
-                                            )
-                                        )
-                                    }
-
-                                    RatingType.CruisingNonFlyingSails -> {
-                                        viewModel.editClass(
-                                            state.editClass.copy(
-                                                raceClass = state.editClass.raceClass.copy(
-                                                    isPHRF = false,
-                                                    wsFlying = false
-                                                ),
-                                            )
-                                        )
-
-                                    }
-                                }
-
+                                    )
+                                )
                             }
                         } else {
-                            Text("(${state.editClass.raceClass.ratingLabel()} ${state.editClass.raceClass.numberOfRaces} race(s) / cannot be edited)")
+                            Text("(${state.editClass.raceClass.ratingType.label} ${state.editClass.raceClass.numberOfRaces} race(s) / cannot be edited)")
                         }
                     }
 

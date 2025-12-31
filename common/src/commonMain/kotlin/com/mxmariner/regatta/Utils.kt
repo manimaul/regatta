@@ -1,6 +1,5 @@
 package com.mxmariner.regatta
 
-import com.mxmariner.regatta.data.Windseeker
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -9,7 +8,7 @@ fun String.versionedApi(): String {
 }
 
 const val correctionFactorDefault = 600
-const val ratingDefault = 200.0F
+const val ratingDefault = 200
 
 fun String.versionedApi(version: Int = 1, params: Map<String, String>? = null): String {
     val paramString = params?.let {
@@ -53,22 +52,4 @@ inline fun <T> List<T>.moveItem(up: Boolean = false, predicate: (T) -> Boolean):
         }
     }
     return lst
-}
-
-fun ratingLabel(phrfRating: Int?, windseeker: Windseeker?, showWsRating: Boolean) : String {
-    return phrfRating?.let {
-        "PHRF ($it)"
-    } ?: if (windseeker?.flyingSails == true) {
-        if (showWsRating) {
-            return "Cruising - Flying Sails (${windseeker.rating})"
-        } else {
-            return "Cruising - Flying Sails"
-        }
-    } else {
-        if (showWsRating) {
-            return "Cruising - Non Flying Sails (${windseeker?.rating}}"
-        } else {
-            return "Cruising - Non Flying Sails"
-        }
-    }
 }

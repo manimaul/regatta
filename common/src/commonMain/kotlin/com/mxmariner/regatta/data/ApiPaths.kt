@@ -28,6 +28,7 @@ object ApiPaths {
 
     val report = "/report"
     val results = "/results"
+    val scheduleResults = "/scheduleResults"
     val resultCount = "/resultCount"
 
     val boat = "/boat"

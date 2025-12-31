@@ -87,6 +87,9 @@ object Api {
     suspend fun getResults(raceId: Long) =
         Network.get<List<RaceResult>>(ApiPaths.results, mapOf("raceId" to "$raceId"))
 
+    suspend fun getRaceScheduleResults(raceId: Long) =
+        Network.get<RaceScheduleResults>(ApiPaths.scheduleResults, mapOf("raceId" to "$raceId"))
+
     suspend fun deleteResult(id: Long) =
         Network.delete(ApiPaths.results, mapOf("id" to "$id"))
 

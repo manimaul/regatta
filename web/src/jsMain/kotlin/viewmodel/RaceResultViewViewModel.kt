@@ -5,6 +5,7 @@ import utils.Api
 import utils.Async
 import utils.Loading
 import utils.toAsync
+import utils.year
 
 data class RaceReportState(
     val report: Async<RaceReport> = Loading()
@@ -19,6 +20,6 @@ class RaceResultViewViewModel(
     }
 
     init {
-        setState { copy(report = Api.getReport(raceId).toAsync()) }
+        reload()
     }
 }

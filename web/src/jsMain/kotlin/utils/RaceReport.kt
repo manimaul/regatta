@@ -3,8 +3,9 @@ package utils
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.display
 import kotlinx.datetime.Instant
+import kotlin.time.Duration
 
-fun RaceResult.finishText(startTime: Instant?): String {
+fun RaceResultFull.finishText(startTime: Instant?): String {
     return finish?.timeStr()?.takeIf { startTime != null }?.let { t ->
         penalty?.let { "$t P+$it" } ?: t
     } ?: finishCode.finishText(hocPosition)
@@ -16,7 +17,7 @@ fun FinishCode.finishText(hocPosition: Int?) : String {
         FinishCode.RET,
         FinishCode.DNF,
         FinishCode.NSC -> code.name
-        FinishCode.HOC -> "HOC $hocPosition"
+        FinishCode.HOC -> "HOC ${hocPosition ?: ""}"
         FinishCode.DNS_RC -> "DNS RC Volunteer"
     }
 }
@@ -32,9 +33,11 @@ fun RaceReportCard.elapsedText(): String {
 }
 
 fun RaceReportCard.cfText(): String {
-    return "${correctionFactor.asDynamic().toFixed(3)}"
+    return "${phrfTcf.asDynamic().toFixed(3)}"
 }
 
-fun RaceReportCard.corTimeText(): String {
-    return correctedTime?.display()?.let { "$it (${cfText()})" } ?: "n/a"
+fun RaceReportCard.corTimePhrfText() = corTimeText(correctedPhrfTime, "PHRF")
+fun RaceReportCard.corTimeOrcText() = corTimeText(correctedOrcTime, "ORC")
+fun RaceReportCard.corTimeText(duration: Duration?, label: String): String {
+    return duration?.display()?.let { "$it (${cfText()} $label)" } ?: "n/a"
 }

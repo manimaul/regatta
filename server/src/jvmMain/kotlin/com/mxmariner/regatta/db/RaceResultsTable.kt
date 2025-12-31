@@ -6,23 +6,25 @@ import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
 import com.mxmariner.regatta.db.RaceTable.rowToRace
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    val finish = timestamp("end_date").nullable()
+    val finish = timestamp("end_date").nullable().index()
     val phrfRating = integer("phrf_rating").nullable()
-    val wsRating = integer("ws_rating").nullable()
-    val wsFlying = bool("ws_flying").nullable()
+    val orcRefNo = (varchar("orc_ref", 128) references OrcTable.refNo).nullable()
+    val ratingType = varchar("rating_type", 128)
     val hoc = integer("hoc").nullable()
-    val raceClass = (long("class_id") references RaceClassTable.id).nullable()
-    val bracket = (long("bracket_id") references BracketTable.id).nullable()
-
+    val raceClass = (long("class_id") references RaceClassTable.id)
+    val bracket = (long("bracket_id") references BracketTable.id)
     val finishCode = varchar("finish_code", 128).nullable()
-    val penalty= integer("penalty").nullable()
+    val penalty = integer("penalty").nullable()
+
+    init {
+        uniqueIndex("idx_boat_race_unique", boatId, raceId)
+    }
 
     override val primaryKey = PrimaryKey(id)
 
@@ -31,25 +33,18 @@ object RaceResultsTable : Table() {
     }
 
     fun upsertResult(result: RaceResult): RaceResult? {
-        deleteWhere { raceId.eq(result.raceId).and(boatId.eq(result.boatId)) }
-        return insert {
-            if (result.id > 0) {
-                it[id] = result.id
-            }
+        return upsert(boatId, raceId) {
             it[raceId] = result.raceId
             it[boatId] = result.boatId
             it[finish] = result.finish.takeIf { result.finishCode == FinishCode.TIME }
-            result.windseeker?.let { ws ->
-                it[wsRating] = ws.rating
-                it[wsFlying] = ws.flyingSails
-            } ?: run {
-                it[phrfRating] = result.phrfRating
-            }
+            it[phrfRating] = result.phrfRating
+            it[orcRefNo] = result.orcRef
+            it[ratingType] = result.ratingType.name
             it[hoc] = result.hocPosition.takeIf { result.finishCode == FinishCode.HOC }
-            it[penalty] = result.penalty
-            it[finishCode] = result.finishCode.name
             it[raceClass] = result.raceClassId
             it[bracket] = result.bracketId
+            it[finishCode] = result.finishCode.name
+            it[penalty] = result.penalty
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
 
@@ -57,8 +52,8 @@ object RaceResultsTable : Table() {
         return RaceResultsTable.selectAll().map(::rowToResult)
     }
 
-    fun raceCount(boatId: Long) : Long {
-        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId}.count()
+    fun raceCount(boatId: Long): Long {
+        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId }.count()
     }
 
     fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
@@ -69,6 +64,15 @@ object RaceResultsTable : Table() {
 
     fun resultsByRaceId(rId: Long): List<RaceResult> {
         return RaceResultsTable.select { raceId.eq(rId) }.map(::rowToResult)
+    }
+
+    fun scheduleResultsByRaceId(rId: Long): RaceScheduleResults? {
+        return findRaceSchedule(rId)?.let { raceSchedule ->
+            RaceScheduleResults(
+                raceSchedule = raceSchedule,
+                results = RaceResultsTable.select { raceId.eq(rId) }.map(::rowToResultFull)
+            )
+        }
     }
 
     fun getResults(year: Int): List<RaceResultBoatBracket> {
@@ -88,11 +92,10 @@ object RaceResultsTable : Table() {
         val bracket = findBoatBracket(raceSchedule, result)
         return RaceResultBoatBracket(
             result = result,
-            raceSchedule = raceSchedule,
             boatSkipper = BoatSkipper(
                 boat = resultRowToBoat(row)
                     .copy(
-                        windseeker = result.windseeker,
+                        ratingType = result.ratingType,
                         phrfRating = result.phrfRating,
                     ),
                 skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
@@ -101,6 +104,26 @@ object RaceResultsTable : Table() {
         )
     }
 
+    fun rowToResultFull(row: ResultRow): RaceResultFull {
+        val time = row[finish]
+        val code = row[finishCode]?.let { FinishCode.valueOf(it) } ?: run {
+            time?.let { FinishCode.TIME } ?: FinishCode.RET
+        }
+        return RaceResultFull(
+            id = row[id],
+            raceId = row[raceId],
+            boat = requireNotNull(BoatTable.findBoatSkipper(row[boatId])),
+            finish = time,
+            phrfRating = row[phrfRating],
+            orcCertificate =OrcTable.findCertificate(row[orcRefNo]),
+            ratingType = RatingType.valueOf(row[ratingType]),
+            hocPosition = row[hoc],
+            raceClassId = row[raceClass],
+            bracketId = row[bracket],
+            finishCode = code,
+            penalty = row[penalty],
+        )
+    }
     fun rowToResult(row: ResultRow): RaceResult {
         val time = row[finish]
         val code = row[finishCode]?.let { FinishCode.valueOf(it) } ?: run {
@@ -112,46 +135,63 @@ object RaceResultsTable : Table() {
             boatId = row[boatId],
             finish = time,
             phrfRating = row[phrfRating],
-            windseeker = row[wsRating]?.let { r ->
-                Windseeker(r, row[wsFlying] ?: false)
-            },
+            orcRef = row[orcRefNo],
+            ratingType = RatingType.valueOf(row[ratingType]),
             hocPosition = row[hoc],
-            penalty = row[penalty],
             raceClassId = row[raceClass],
             bracketId = row[bracket],
-            finishCode = code
+            finishCode = code,
+            penalty = row[penalty],
         )
     }
 }
 
 fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
-    val phrfRating = result.phrfRating
-    val windseeker = result.windseeker
     return if (result.bracketId != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.firstOrNull {
                 it.id == result.bracketId
             }
         }
-    } else if (phrfRating != null) {
-        race.schedule.firstNotNullOfOrNull { sch ->
-            sch.brackets.takeIf { sch.raceClass.isPHRF }?.firstOrNull {
-                phrfRating >= it.minRating && phrfRating <= it.maxRating
-            }
-        }
-    } else if (windseeker?.flyingSails == true) {
-        race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { schedule.raceClass.wsFlying }?.firstOrNull {
-                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
-            }
-        }
-    } else if (windseeker != null) {
-        race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { !schedule.raceClass.isPHRF && !schedule.raceClass.wsFlying }?.firstOrNull {
-                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
-            }
-        }
     } else {
-        null
+        when (result.ratingType) {
+            RatingType.ORC -> {
+                val phrfRating = requireNotNull(result.phrfRating ?: OrcTable.findCertificate(result.orcRef)?.virtualPhrf())
+                race.schedule.firstNotNullOfOrNull { sch ->
+                    sch.brackets.takeIf { sch.raceClass.ratingType.isORC }?.firstOrNull {
+                        phrfRating >= it.minRating && phrfRating <= it.maxRating
+                    }
+                }
+            }
+            RatingType.ORC_PHRF -> {
+                val phrfRating = requireNotNull(result.phrfRating ?: OrcTable.findCertificate(result.orcRef)?.virtualPhrf())
+                race.schedule.firstNotNullOfOrNull { sch ->
+                    sch.brackets.takeIf { sch.raceClass.ratingType.isORCorPHRF }?.firstOrNull {
+                        phrfRating >= it.minRating && phrfRating <= it.maxRating
+                    }
+                }
+            }
+
+            RatingType.PHRF -> {
+                val phrfRating = requireNotNull(result.phrfRating)
+                race.schedule.firstNotNullOfOrNull { sch ->
+                    sch.brackets.takeIf { sch.raceClass.ratingType.isPHRF }?.firstOrNull {
+                        phrfRating >= it.minRating && phrfRating <= it.maxRating
+                    }
+                }
+            }
+
+            RatingType.CruisingFlyingSails -> {
+                race.schedule.firstNotNullOfOrNull { schedule ->
+                    schedule.brackets.firstOrNull { schedule.raceClass.ratingType == RatingType.CruisingFlyingSails }
+                }
+            }
+
+            RatingType.CruisingNonFlyingSails -> {
+                race.schedule.firstNotNullOfOrNull { schedule ->
+                    schedule.brackets.firstOrNull { schedule.raceClass.ratingType == RatingType.CruisingNonFlyingSails }
+                }
+            }
+        }
     }
 }

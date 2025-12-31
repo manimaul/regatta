@@ -2,17 +2,23 @@ package viewmodel
 
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.BoatSkipper
+import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.FinishCode
-import com.mxmariner.regatta.data.RaceResult
+import com.mxmariner.regatta.data.Orc3Band
+import com.mxmariner.regatta.data.Orc5Band
+import com.mxmariner.regatta.data.OrcCertificate
+import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.RaceSchedule
-import com.mxmariner.regatta.display
+import com.mxmariner.regatta.data.RatingType
+import components.Action
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import utils.*
-import kotlin.math.max
 import kotlin.time.Duration.Companion.days
 
 enum class RcTab(val title: String) {
@@ -41,60 +47,15 @@ enum class SyncState {
 data class CheckIn(
     val bs: BoatSkipper,
     val checkedIn: Boolean,
-    val result: RaceResult? = null,
+    val result: RaceResultFull? = null,
     val startTime: Instant?
 )
-
-data class RcFocus(
-    val bs: BoatSkipper,
-    val finish: Instant?,
-    val restoreFinish: Instant? = null,
-    val raceStart: Instant?,
-    val penalty: Int?,
-    val hocPosition: Int?,
-    val finishCode: FinishCode,
-    val maxHoc: Int
-) {
-
-    fun isValid(): Boolean {
-        return raceStart?.let { s ->
-            finish?.let { f ->
-                f > s
-            }
-        } ?: true
-    }
-
-    fun elapsedTime(): String? {
-        return raceStart?.let { s ->
-            finish?.let { f ->
-                (f - s).display()
-            }
-        }
-    }
-
-    fun asResult(raceId: Long?): RaceResult? {
-        return raceId?.let {
-            bs.boat?.id?.let {
-                RaceResult(
-                    raceId = raceId,
-                    boatId = it,
-                    finish = finish,
-                    phrfRating = bs.boat?.phrfRating,
-                    windseeker = bs.boat?.windseeker,
-                    penalty = penalty,
-                    hocPosition = hocPosition,
-                    finishCode = finishCode
-                )
-            }
-        }
-    }
-}
 
 data class RcState(
     val races: Async<List<RaceSchedule>> = Loading(),
     val boats: Async<List<CheckIn>> = Loading(),
-    val results: Async<Map<Long, RaceResult>> = Uninitialized,
-    val focus: RcFocus? = null,
+    val results: Async<Map<Long, RaceResultFull>> = Uninitialized,
+    val addState: RaceResultAddState? = null,
     val checkinIds: List<Long> = emptyList(),
     val selectedRace: RaceSchedule? = null,
     val tab: RcTab = RcTab.RaceConfig,
@@ -102,8 +63,20 @@ data class RcState(
 ) : VmState
 
 class RcViewModel : BaseViewModel<RcState>(RcState()) {
+
+    val addVm = RaceResultAddViewModel(0)
+
     init {
         fetchRaces()
+        launch {
+            addVm.flow.collect { state ->
+                setState {
+                    copy(
+                        addState = state
+                    )
+                }
+            }
+        }
         launch {
             while (true) {
                 delay(3000)
@@ -124,14 +97,14 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
     private fun getCheckins(
         ids: List<Long>,
         boats: List<BoatSkipper>,
-        results: Map<Long, RaceResult>?,
+        results: Map<Long, RaceResultFull>?,
         raceSchedule: RaceSchedule?,
     ): List<CheckIn> {
         return boats.sortedBy { it.boat?.name }.map {
             CheckIn(
                 bs = it,
                 checkedIn = ids.contains(it.boat?.id) || results?.contains(it.boat?.id) == true,
-                result = results?.get(it.boat!!.id),
+                result = results?.get(it.boat?.id),
                 startTime = raceSchedule?.findClassSchedule(it)?.startDate
             )
         }
@@ -148,20 +121,36 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
         }
     }
 
+    fun refreshResults(race: RaceSchedule?) {
+        launch {
+            addVm.flow.filter { it.results.complete }.take(1).collect { state ->
+                setState {
+                    val results = state.results.map { it.results.associateBy { it.boat.boat?.id ?: 0 } }
+                    val boats = Api.getAllBoats().toAsync().map { getCheckins(checkinIds, it, results.value, race) }
+                    copy(
+                        results = results,
+                        boats = boats
+                    )
+                }
+            }
+        }
+    }
+
     fun selectRace(race: RaceSchedule?) {
-        setState { copy(boats = Loading(), checkinIds = emptyList(), results = Loading()) }
+        race?.race?.id?.let {
+            if (it != addVm.raceId) {
+                addVm.raceId = it
+
+            }
+        }
+        setState { copy(boats = Loading(), checkinIds = emptyList(), results = Loading(), selectedRace = null) }
+        refreshResults(race)
         setState {
             val checkinIds = race?.race?.id?.let { getCheckinIds(it) } ?: emptyList()
-            val results = race?.race?.id?.let { raceId ->
-                Api.getResults(raceId).toAsync().map { it.associateBy { it.boatId } }
-            }
-            val boats = Api.getAllBoats().toAsync().map { getCheckins(checkinIds, it, results?.value, race) }
             copy(
                 selectedRace = race,
                 syncState = SyncState.Synced,
                 checkinIds = checkinIds,
-                boats = boats,
-                results = results ?: Uninitialized,
             )
         }
     }
@@ -194,115 +183,88 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
 
     fun RaceSchedule.findClassSchedule(boatSkipper: BoatSkipper): ClassSchedule? {
         return boatSkipper.boat?.let { boat ->
-            val isPhrf = boat.phrfRating != null
-            schedule.filter {
-                (isPhrf && it.raceClass.isPHRF) ||
-                        (it.raceClass.wsFlying == boat.windseeker?.flyingSails)
-            }.map {
-                it
-            }.firstOrNull()
-        }
-    }
-
-    fun focus(boatSkipper: BoatSkipper?, result: RaceResult?) {
-        setState {
-            copy(
-                focus =
-                    boatSkipper?.let { bs ->
-                        RcFocus(
-                            bs = bs,
-                            finish = if (result == null) now() else result.finish,
-                            restoreFinish = if (result == null) now() else result.finish,
-                            penalty = result?.penalty,
-                            hocPosition = result?.hocPosition,
-                            raceStart = selectedRace?.findClassSchedule(bs)?.startDate,
-                            maxHoc = findMaxHoc(),
-                            finishCode = result?.finishCode ?: FinishCode.TIME
-                        )
-                    }
-            )
-        }
-    }
-
-    private fun findMaxHoc(): Int {
-        return withState {
-            it.results.value?.values?.fold(0) { acc, raceResult ->
-                max(
-                    acc,
-                    raceResult.hocPosition ?: 0
-                )
-            } ?: 0
-        }
-    }
-
-    fun saveFocus() {
-        withState { state ->
-            val result = state.focus?.asResult(state.selectedRace?.race?.id)
-            setState { copy(focus = null) }
-
-            setState {
-                result?.let { Api.postResult(it).toAsync().value }?.let { result ->
-                    val results = results.map { it.toMutableMap().also { it.put(result.boatId, result) } }
-                    copy(
-                        boats = boats.map { getCheckins(checkinIds, it.map { it.bs }, results.value, selectedRace) },
-                        results = results
-                    )
-                } ?: this
-            }
-        }
-    }
-
-    fun delete(result: RaceResult) {
-        setState {
-            val results = Api.deleteResult(result.id).toAsync().flatMap {
-                results.map { it.toMutableMap().also { it.remove(result.boatId) } }
-            }
-            val ids = if (!checkinIds.contains(result.boatId)) {
-                (sequenceOf(result.boatId) + checkinIds.asSequence()).distinct().toList().apply {
-                    localStoreSetById("checkin_${selectedRace?.race?.id}", this)
+            schedule.firstOrNull {
+                boat.ratingType == it.raceClass.ratingType
+            } ?: run {
+                schedule.firstOrNull {
+                    boat.ratingType.isPHRF && it.raceClass.ratingType.isPHRF || boat.ratingType.isORC && it.raceClass.ratingType.isORC
                 }
-            } else {
-                checkinIds
             }
-            copy(
-                checkinIds = ids,
-                boats = boats.map { getCheckins(ids, it.map { it.bs }, results.value, selectedRace) },
-                results = results
-            )
         }
     }
 
+    fun focus(checkin: CheckIn) {
+        val t = withState {
+            it.selectedRace?.endTime
+        }
+        checkin.result?.let {
+            println("focusing result $checkin")
+            addVm.focusResultForEdit(it)
+        } ?: run {
+            addVm.selectBoat(checkin.bs, false)
+            addVm.setFinish(FinishCode.TIME, t, null)
+        }
+    }
+
+    fun selectRating(ratingType: RatingType, rating: Int) {
+        addVm.selectRating(ratingType, rating)
+
+    }
+
+    fun selectOrc(action: Action, certificate: OrcCertificate) {
+        addVm.selectOrc(action, certificate)
+    }
+
+    fun postResult() {
+        val race = withState { it.selectedRace }
+        addVm.postResult {
+            refreshResults(race)
+        }
+    }
+
+    fun delete(result: RaceResultFull) {
+        addVm.deleteResult(result.id)
+        val race = withState { it.selectedRace }
+        setState {
+            val ids = result.boat.boat?.id?.takeIf { !checkinIds.contains(it) }?.let {
+                checkinIds.toMutableList().apply { add(it) }
+            } ?: checkinIds
+            copy(checkinIds = ids)
+        }
+        refreshResults(race)
+    }
 
     fun penalty(value: Int?) {
-        setState {
-            copy(
-                focus = focus?.copy(
-                    penalty = value?.takeIf { it > 0 },
-                )
-            )
-        }
+        addVm.penalty(value)
     }
 
-    fun hoc(value: Int?) {
-        setState {
-            copy(
-                focus = focus?.copy(
-                    hocPosition = value?.let { max(1, it) },
-                    finish = null,
-                    finishCode = FinishCode.HOC
-                )
-            )
-        }
+    fun selectBracket(bracket: Bracket) {
+        addVm.selectBracket(bracket)
     }
 
-    fun setFinish(code: FinishCode, value: Instant?) {
-        setState { copy(focus = focus?.copy(finish = value, hocPosition = null, finishCode = code, penalty = null)) }
+    fun selectClass(raceClass: RaceClass) {
+        addVm.selectClass(raceClass)
     }
 
-    fun setCf(cf: Int?) {
+    fun selectBoat(boatSkipper: BoatSkipper?) {
+        addVm.selectBoat(boatSkipper)
+    }
+
+    fun setFinish(code: FinishCode, finish: Instant?, hoc: Int?) {
+        addVm.setFinish(code, finish, hoc)
+    }
+
+    fun selectPhrfBFactor(cf: Int?) {
         setState {
             val sr = selectedRace?.let {
-                it.copy(race = it.race.copy(correctionFactor = cf ?: correctionFactorDefault))
+                val factor = cf ?: correctionFactorDefault
+                it.copy(
+                    race = it.race.copy(
+                        phrfBFactor = cf ?: correctionFactorDefault,
+                        orc3Band = Orc3Band.fromPhrfBFactor(factor),
+                        orc5Band = Orc5Band.fromPhrfBFactor(factor),
+                    )
+                )
             }
             copy(
                 syncState = SyncState.Dirty,
@@ -331,19 +293,31 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
     }
 
     private fun checkSchedule() {
-        val sync = withState { state ->
+        val isDirty = withState { state ->
             state.syncState == SyncState.Dirty
         }
 
-        if (sync) {
+        if (isDirty) {
             setState { copy(syncState = SyncState.Working) }
             setState {
                 val ps = selectedRace?.let {
                     Api.postSchedule(it).toAsync()
                 }?.value
+                val rs = ps?.let {
+                    races.map {
+                        it.map {
+                            if (it.race.id == ps.race.id) {
+                                ps
+                            } else {
+                                it
+                            }
+                        }
+                    }
+                } ?: races
                 copy(
                     syncState = ps?.let { SyncState.Synced } ?: SyncState.Dirty,
-                    selectedRace = ps ?: selectedRace
+                    selectedRace = ps ?: selectedRace,
+                    races = rs
                 )
             }
         }

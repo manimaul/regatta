@@ -1,74 +1,147 @@
 package components.routes
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.ClassSchedule
+import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.FinishCode
+import com.mxmariner.regatta.data.OrcCertificate
+import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceSchedule
-import com.mxmariner.regatta.ratingLabel
+import com.mxmariner.regatta.data.RatingType
 import components.*
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.selected
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
-import utils.*
-import viewmodel.*
+import utils.display
+import utils.year
+import viewmodel.RaceResultAddState
+import viewmodel.RaceResultAddViewModel
+import viewmodel.ResultsViewModel
+import viewmodel.complete
+import viewmodel.routeViewModel
+import kotlinx.datetime.Instant
+import utils.finishText
+import viewmodel.alertsViewModel
 
 @Composable
 fun RaceResultsEdit(
     raceId: Long?,
-    viewModel: RaceResultEditViewModel = remember { RaceResultEditViewModel(raceId ?: 0) }
+    viewModel: RaceResultAddViewModel = remember { RaceResultAddViewModel(raceId ?: 0) }
 ) {
-    val state = viewModel.flow.collectAsState()
-    val addState = viewModel.addViewModel.flow.collectAsState()
-    state.value.report.complete(viewModel) { report ->
+    val state by viewModel.flow.collectAsState()
+    state.results.complete(viewModel) { results ->
         H1 {
-            Text("${report.raceSchedule.startTime.year()} - ${report.raceSchedule.race.name} - Results Editor")
+            Text("${results.raceSchedule.startTime.year()} - ${results.raceSchedule.race.name} - Results Editor")
         }
-        RgButton("Viewer", customClasses = listOf(AppStyle.marginVert, AppStyle.marginEnd)) {
-            routeViewModel.pushRoute("/races/results/view/${raceId}")
+
+        if (state.results.value?.results?.isNotEmpty() == true) {
+            RgButton("Viewer", customClasses = listOf(AppStyle.marginVert, AppStyle.marginEnd)) {
+                routeViewModel.pushRoute("/races/results/view/${raceId}")
+            }
         }
-        if (addState.value.id <= 0) {
-            AddResult(viewModel)
-            Br { }
+
+        RgModalBody(
+            id = "race-result-add-edit",
+            modalTitle = { "Race Result" },
+            content = {
+                AddResult(
+                    state,
+                    viewModel::selectBoat,
+                    viewModel::selectClass,
+                    viewModel::selectBracket,
+                    viewModel::setFinish,
+                    viewModel::penalty,
+                    viewModel::selectOrc,
+                    viewModel::selectRating,
+                )
+            },
+            footer = {
+                Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
+                    Button(attrs = {
+                        classes(*RgButtonStyle.PrimaryOutline.classes)
+                        attr("data-bs-dismiss", "modal")
+                    }) {
+                        Text("Cancel")
+                    }
+                    Button(attrs = {
+                        classes(*RgButtonStyle.Success.classes)
+                        if (!state.isValid) {
+                            disabled()
+                        }
+                        attr("data-bs-dismiss", "modal")
+                        onClick {
+                            viewModel.postResult()
+                        }
+                    }) {
+                        Text("Save")
+                    }
+                }
+            }
+        )
+        RgModalButton(
+            id = "race-result-add-edit",
+            buttonLabel = { "Add Result" },
+            customClasses = listOf(AppStyle.marginBot)
+        ) {
+            viewModel.clearResultForBoatSelection()
         }
+
         RgTable {
             RgThead {
                 RgTr {
                     RgTh { Text("Boat Name") }
+                    RgTh { Text("Class") }
                     RgTh { Text("Rating") }
+                    RgTh { Text("Bracket") }
                     RgTh { Text("Finish Time") }
+                    RgTh { Text("Penalty") }
                     RgTh { Text("Action") }
                 }
             }
             RgTbody {
-                report.classReports.forEach { category ->
+                results.results.forEach { result ->
                     RgTr {
-                        RgTd(12) { H4 { Text(category.raceClass.name) } }
-                    }
-                    category.bracketReport.forEach { raceClass ->
-                        RgTr {
-                            RgTd(12) { H6 { Text(raceClass.bracket.name) } }
+                        RgTd { Text(result.boat.boat?.name ?: "") }
+                        val cls = results.raceSchedule.schedule.firstOrNull { it.raceClass.id == result.raceClassId }
+                        val bracket = cls?.brackets?.firstOrNull { it.id == result.bracketId }
+                        RgTd {
+                            Text(cls?.raceClass?.name ?: "")
                         }
-                        raceClass.cards.forEach { card ->
-                            if (card.resultRecord.result.id == addState.value.id) {
-                                EditResultRow(viewModel)
-                            } else {
-                                RgTr {
-                                    RgTd { Text(card.boatName) }
-                                    RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, true)) }
-                                    RgTd { Text(card.finishText()) }
-                                    RgTd {
-                                        RgButton(label = "Edit") {
-                                            viewModel.addViewModel.setCard(
-                                                card = card,
-                                                autoRaceClassId = category.raceClass.id,
-                                                autoBracketId = raceClass.bracket.id,
-                                            )
-                                        }
+                        RgTd {
+                            Text(result.ratingType.ratedLabel(result.phrfRating, result.orcCertificate?.refNo))
+                        }
+                        RgTd {
+                            Text(bracket?.label() ?: "")
+                        }
+                        RgTd {
+                            Text(result.finish?.display() ?: result.finishCode.finishText(result.hocPosition))
+                        }
+                        RgTd {
+                            Text(result.penalty?.toString() ?: "-")
+                        }
+
+                        RgTd {
+                            RgModalButton(
+                                id = "race-result-add-edit",
+                                style = RgButtonStyle.PrimaryOutline,
+                                buttonLabel = { "Edit" }
+                            ) {
+                                viewModel.focusResultForEdit(result)
+                            }
+                            RgButton(
+                                label = "Delete",
+                                style = RgButtonStyle.Danger,
+                                customClasses = listOf(AppStyle.marginStart)
+                            ) {
+                                alertsViewModel.confirm("Are you sure?", "Delete ${result.boat.boat?.name}'s result?") {
+                                    if (it) {
+                                        viewModel.deleteResult(result.id)
                                     }
                                 }
-
                             }
                         }
                     }
@@ -79,210 +152,79 @@ fun RaceResultsEdit(
 }
 
 @Composable
-fun AddResult(viewModel: RaceResultEditViewModel) {
-    val state by viewModel.flow.collectAsState()
-    val addState by viewModel.addViewModel.flow.collectAsState()
-    RgModal(
-        buttonLabel = "Add Result",
-        modalTitle = "Add Result",
-        openAction = null,
-        content = {
-            Span { B { Text("Boat") } }
-            state.boats.complete(viewModel) {
-                RgBoatDropdown(it, addState.boatSkipper) { boat ->
-                    viewModel.addViewModel.addBoat(boat)
-                }
-            }
-            Hr { }
-            RatingSelections(
-                boatType = addState.ratingType,
-                phrfRating = addState.phrfRating.toIntOrNull(),
-                typeChange = { t, r ->
-                    viewModel.addViewModel.setType(t, r)
-                },
-            )
-            Hr { }
-            Span { B { Text("Finish Time") } }
-            TimeRow(viewModel, false)
-        },
-        footer = {
-            Button(attrs = {
-                classes(*RgButtonStyle.PrimaryOutline.classes)
-                attr("data-bs-dismiss", "modal")
-            }) {
-                Text("Cancel")
-            }
-            Button(attrs = {
-                classes(*RgButtonStyle.Success.classes)
-                if (!addState.isValid) {
-                    disabled()
-                }
-                attr("data-bs-dismiss", "modal")
-                onClick {
-                    viewModel.addResult(addState)
-                }
-            }) {
-                Text("Save")
-            }
-
-        }
-    )
-}
-
-@Composable
-fun EditResultRow(viewModel: RaceResultEditViewModel) {
-    val addState by viewModel.addViewModel.flow.collectAsState()
-    val state by viewModel.flow.collectAsState()
-    RgTr {
-        RgTd {
-            if (addState.id == 0L) {
-                state.boats.complete(viewModel) {
-                    RgBoatDropdown(it, addState.boatSkipper) { boat ->
-                        viewModel.addViewModel.addBoat(boat)
-                    }
-                }
-            } else {
-                Text(addState.boatSkipper?.label() ?: "")
-            }
-        }
-        RgTd {
-            RatingSelections(
-                addState.ratingType,
-                addState.phrfRating.toIntOrNull(),
-                { t, r, -> viewModel.addViewModel.setType(t, r) },
-            )
-
-            state.report.complete(viewModel) { report ->
-                val selectedRaceClass =
-                    report.raceSchedule.schedule.firstOrNull { it.raceClass.id == addState.raceClassId }
-                val selectedBracket = selectedRaceClass?.brackets?.firstOrNull { it.id == addState.bracketId }
-
-                viewModel.addViewModel.availableClasses(report.raceSchedule.schedule)
-                    .takeIf { it.size > 1 }
-                    ?.let { availableClasses ->
-                        Br()
-                        Span { B { Text("Class") } }
-                        RgDropdown(
-                            items = listOf<ClassSchedule?>(null) + availableClasses,
-                            selectedItem = selectedRaceClass,
-                            name = { it?.raceClass?.name ?: "Auto" },
-                        ) {
-                            viewModel.addViewModel.addResultSelectedClass(it)
-                        }
-                    }
-
-                viewModel.addViewModel.availableBrackets(selectedRaceClass)?.takeIf { it.size > 1 }?.let { brackets ->
-                    if (selectedBracket != null) {
-                        Br()
-                        Span { B { Text("Bracket") } }
-                        RgDropdown(
-                            items = brackets,
-                            selectedItem = selectedBracket,
-                            name = { it.name },
-                        ) {
-                            viewModel.addViewModel.addResultSelectedBracket(it)
-                        }
-                    }
-                }
-            }
-        }
-        RgTd {
-            TimeRow(viewModel, true)
-        }
-        RgTd {
-            if (addState.id != 0L) {
-                RgButton(
-                    label = "Cancel",
-                    style = RgButtonStyle.PrimaryOutline,
-                    customClasses = listOf(AppStyle.marginAll),
-                ) {
-                    viewModel.addViewModel.setCard()
-                }
-            }
-            RgButton(
-                label = "Save",
-                style = RgButtonStyle.Success,
-                customClasses = listOf(AppStyle.marginAll, AppStyle.marginAll),
-                disabled = !addState.isValid
-            ) {
-                viewModel.addResult(addState)
-            }
-            if (addState.id != 0L) {
-                RgButton(
-                    label = "Delete",
-                    style = RgButtonStyle.Danger,
-                    customClasses = listOf(AppStyle.marginAll),
-                ) {
-                    viewModel.delete(addState.id)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TimeRow(
-    viewModel: RaceResultEditViewModel,
-    useModalTime: Boolean,
+fun AddResult(
+    state: RaceResultAddState,
+    onBoatSkipper: (BoatSkipper?) -> Unit,
+    onClass: (RaceClass) -> Unit,
+    onBracket: (Bracket) -> Unit,
+    onFinish: (FinishCode, Instant?, Int?) -> Unit,
+    onPenalty: (Int?) -> Unit,
+    onOrc: (Action, OrcCertificate) -> Unit,
+    ratingChange: (RatingType, Int) -> Unit,
 ) {
-    val state by viewModel.flow.collectAsState()
-    val addState by viewModel.addViewModel.flow.collectAsState()
-    addState.finish?.let { finish ->
-        if (useModalTime) {
-            Div {
-                RgTimeButton("Finish Time", finish) {
-                    viewModel.addViewModel.setFinish(FinishCode.TIME, it)
-                }
+
+    Div {
+        Span { B { Text("Boat") } }
+        if (state.allowBoatChange) {
+            RgBoatDropdown(state.boats, state.raceResult.boat) { boat ->
+                onBoatSkipper(boat)
             }
         } else {
-            RgTime(date = finish, showSeconds = true) {
-                viewModel.addViewModel.setFinish(FinishCode.TIME, it)
-            }
+            RgBoatDropdown(
+                boats = listOf(state.raceResult.boat),
+                selectedBoat = state.raceResult.boat,
+                allowNone = false
+            ) { /* selection ignored */ }
         }
 
-        RgButton(label = "Penalty${addState.penalty?.let { " $it" } ?: " 0"}", customClasses = listOf(
-            AppStyle.marginTop,
-            AppStyle.marginBot
-        )) {
-            viewModel.addViewModel.penalty(addState.penalty?.let { it + 1 } ?: 1)
-        }
-        addState.penalty?.let {
-            RgButton(
-                style = RgButtonStyle.Danger,
-                label = "-",
-                customClasses = listOf(AppStyle.marginStart, AppStyle.marginBot, AppStyle.marginTop)
+        Br { }
+        Span { B { Text("Finish Time") } }
+        TimeRow(
+            maxHoc = state.maxHoc,
+            finish= state.raceResult.finish,
+            finishCode = state.raceResult.finishCode,
+            showHocOption = state.raceResult.ratingType.isCruising,
+            hocPosition = state.raceResult.hocPosition,
+            penalty = state.raceResult.penalty,
+            start = state.selectedClassStart,
+            onFinish = onFinish,
+            onPenalty = onPenalty,
+        )
+
+        Br { }
+        RatingSelections(
+            selectMode = true,
+            boatType = state.raceResult.ratingType,
+            phrfRating = state.raceResult.phrfRating,
+            orcCertificate = state.raceResult.orcCertificate,
+            hideRatingSelector = state.raceResult.ratingType.isCruising,
+            hideCruising = true,
+            certs = state.orcCerts,
+            onOrc = onOrc,
+            typeChange = ratingChange,
+        )
+
+        state.selectedClass?.let { selected ->
+            Span { B { Text("Class") } }
+            RgDropdown(
+                state.classes,
+                selected,
+                { it.name },
             ) {
-                viewModel.addViewModel.penalty(it - 1)
+                onClass(it)
             }
         }
-    }
-    FinishCodeDrop(
-        selected = addState.finishCode,
-        hocPosition = addState.hocPosition,
-        customClasses = listOf(AppStyle.marginTop)
-    ) {
-        when (it) {
-            FinishCode.TIME -> viewModel.addViewModel.setFinish(FinishCode.TIME, addState.finish ?: now())
-            FinishCode.RET, FinishCode.DNF, FinishCode.DNS_RC,
-            FinishCode.NSC -> viewModel.addViewModel.setFinish(it, null, true)
 
-            FinishCode.HOC -> viewModel.addViewModel.hoc(state.maxHoc)
-        }
-    }
-    addState.hocPosition?.let {
-        RgButton(
-            style = RgButtonStyle.Danger,
-            label = "+",
-            customClasses = listOf(AppStyle.marginTop)
-        ) {
-            viewModel.addViewModel.hoc(it + 1)
-        }
-        if (it > 1) RgButton(
-            style = RgButtonStyle.Danger,
-            label = "-",
-            customClasses = listOf(AppStyle.marginTop, AppStyle.marginStart)
-        ) {
-            viewModel.addViewModel.hoc(it - 1)
+        state.selectedBracket?.let { selected ->
+            Br { }
+            Span { B { Text("Bracket") } }
+            RgDropdown(
+                state.brackets,
+                selected,
+                { it.label() },
+            ) {
+                onBracket(it)
+            }
         }
     }
 }
@@ -291,9 +233,14 @@ fun TimeRow(
 fun RgBoatDropdown(
     boats: List<BoatSkipper>,
     selectedBoat: BoatSkipper?,
+    allowNone: Boolean = true,
     handler: (BoatSkipper?) -> Unit
 ) {
-    RgDropdownNone(boats, selectedBoat, { it.dropLabel() }, { it.shortLabel() }, handler = handler)
+    if (allowNone) {
+        RgDropdownNone(boats, selectedBoat, { it.dropLabel() }, true, { it.shortLabel() }, handler = handler)
+    } else {
+        RgDropdown(boats, selectedBoat, { it?.shortLabel() ?: "" }, handler = handler)
+    }
 }
 
 @Composable

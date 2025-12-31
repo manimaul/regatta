@@ -3,11 +3,13 @@ package components
 import androidx.compose.runtime.Composable
 import com.mxmariner.regatta.data.FinishCode
 import org.jetbrains.compose.web.dom.Div
+import utils.finishText
 
 @Composable
 fun FinishCodeDrop(
     selected: FinishCode,
     hocPosition: Int?,
+    showHoc: Boolean = true,
     customClasses: List<String>? = null,
     handler: (FinishCode) -> Unit
 ) {
@@ -17,16 +19,8 @@ fun FinishCodeDrop(
         }
     }) {
         RgDropdown(
-            items = FinishCode.entries, selectedItem = selected, name = {
-                when (it) {
-                    FinishCode.TIME,
-                    FinishCode.RET,
-                    FinishCode.DNF,
-                    FinishCode.NSC -> it.name
-
-                    FinishCode.HOC -> "${it.name}${hocPosition?.let { " $it" } ?: ""}"
-                    FinishCode.DNS_RC -> "DNS RC Volunteer"
-                }
+            items = if (showHoc) FinishCode.entries else FinishCode.entries.filter { it != FinishCode.HOC }, selectedItem = selected, name = {
+                it.finishText(hocPosition)
             }, handler = handler
         )
     }
