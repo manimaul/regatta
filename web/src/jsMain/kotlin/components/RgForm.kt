@@ -48,9 +48,7 @@ fun RgNumberInput(
         rNumber = numberValue?.toString() ?: ""
     }
     val id = remember { "${++num}_input" }
-    if (!placeHolder) {
-        Label(id) { B { Text(label) } }
-    }
+    Label(id) { B { Text(label) } }
     Input(InputType.Text) {
         id(id)
         customClasses?.let { classes(it) }
@@ -86,11 +84,9 @@ fun RgInput(
     listener: (String) -> Unit
 ) {
     val id = remember { "${++num}_input" }
-    if (!placeHolder) {
-        Label(id, attrs = {
-            classes(AppStyle.marginEnd)
-        }) { B { Text(label) } }
-    }
+    Label(id, attrs = {
+        classes(AppStyle.marginEnd)
+    }) { B { Text(label) } }
     Input(InputType.Text) {
         id(id)
         customClasses?.let { classes(it) }
@@ -101,6 +97,50 @@ fun RgInput(
         value(value)
         onInput {
             listener(it.value.trimStart())
+        }
+    }
+}
+
+@Composable
+fun RgInputWithButton(
+    label: String? = null,
+    value: String,
+    btnLabel: String,
+    disabled: Boolean = false,
+    btnDisabled: Boolean = false,
+    listener: (String, Boolean) -> Unit,
+) {
+    val id = remember { "${++num}_input" }
+    label?.let {
+        Label(id, attrs = {
+            classes(AppStyle.marginEnd)
+        }) { B { Text(label) } }
+    }
+    Div(attrs = {
+        classes("input-group", "mb-3")
+    }) {
+        Input(type = InputType.Text) {
+            classes("form-control")
+            id(id)
+            label?.let { placeholder(it) }
+            if (disabled) {
+                disabled()
+            }
+            value(value)
+            onInput {
+                listener(it.value.trim(), false)
+            }
+        }
+        Button(attrs = {
+            classes("btn", "btn-outline-primary")
+            if (btnDisabled) {
+                disabled()
+            }
+            onClick {
+                listener(value.trim(), true)
+            }
+        }) {
+            Text(btnLabel)
         }
     }
 }

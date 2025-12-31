@@ -1,269 +1,413 @@
 package viewmodel
 
+import com.mxmariner.regatta.data.OrcCertificate
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.ratingDefault
+import components.Action
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import utils.Api
+import utils.Async
+import utils.Complete
+import utils.Loading
+import utils.flatMap
 import utils.toAsync
 import kotlin.math.max
 
 
 data class RaceResultAddState(
-    val id: Long = 0,
-    val raceSchedule: RaceSchedule? = null,
-    val boatSkipper: BoatSkipper? = null,
-    val phrfRating: String = ratingDefault.toInt().toString(),
-    val wsRating: String = ratingDefault.toInt().toString(),
-    val wsFlying: Boolean = false,
-    val ratingType: RatingType = RatingType.PHRF,
-    val raceClassId: Long? = null,
-    val bracketId: Long? = null,
-    val finish: Instant? = null,
-    val finishCode: FinishCode = FinishCode.TIME,
-    val hocPosition: Int? = null,
-    val penalty: Int? = null,
+    val raceResult: RaceResultFull = RaceResultFull(),
+    val results: Async<RaceScheduleResults> = Loading(),
+    val boatSkippers: Async<List<BoatSkipper>> = Loading(),
+    val boats: List<BoatSkipper> = emptyList(),
+    val maxHoc: Int = 1,
+    val allowBoatChange: Boolean = true,
+    val classes: List<RaceClass> = emptyList(),
+    val brackets: List<Bracket> = emptyList(),
+    val orcCerts: List<OrcCertificate> = emptyList(),
+    val selectedClass: RaceClass? = null,
+    val selectedClassStart: Instant? = null,
+    val selectedBracket: Bracket? = null,
 ) : VmState {
 
-    val isValid = when (ratingType) {
-//        RatingType.ORC -> {
-//            false
-//        }
-        RatingType.PHRF -> {
-            phrfRating.toIntOrNull() != null
+    val isValid: Boolean
+        get() {
+            return raceResult.boat.boat?.id != null &&
+                    raceResult.boat.boat?.id != 0L &&
+                    raceResult.raceClassId != 0L &&
+                    raceResult.bracketId != 0L &&
+                    when (raceResult.ratingType) {
+                        RatingType.ORC_PHRF -> {
+                            raceResult.phrfRating != null && raceResult.orcCertificate != null
+                        }
+
+                        RatingType.ORC -> {
+                            raceResult.orcCertificate != null
+                        }
+
+                        RatingType.PHRF -> {
+                            raceResult.phrfRating != null
+                        }
+
+                        RatingType.CruisingFlyingSails,
+                        RatingType.CruisingNonFlyingSails -> true
+
+                    }
         }
-
-        RatingType.CruisingFlyingSails -> {
-            wsRating.toIntOrNull() != null
-        }
-
-        RatingType.CruisingNonFlyingSails -> {
-            wsRating.toIntOrNull() != null
-        }
-    }
-
-    fun asPost(): RaceResult? {
-        var phrfRating: Int?
-        var windseeker: Windseeker?
-        val valid = when (ratingType) {
-//            RatingType.ORC -> false
-            RatingType.PHRF -> {
-                windseeker = null
-                phrfRating = this.phrfRating.toIntOrNull()
-
-                phrfRating != null
-            }
-
-            RatingType.CruisingFlyingSails -> {
-                phrfRating = null
-                windseeker = wsRating.toIntOrNull()?.let {
-                    Windseeker(it, true)
-                }
-
-                windseeker != null
-            }
-            RatingType.CruisingNonFlyingSails -> {
-                phrfRating = null
-                windseeker = wsRating.toIntOrNull()?.let {
-                    Windseeker(it, false)
-                }
-
-                windseeker != null
-            }
-        }
-        return if (boatSkipper?.boat?.id != null && raceSchedule?.race?.id != null && valid) {
-            RaceResult(
-                id = id,
-                raceId = raceSchedule.race.id,
-                boatId = boatSkipper.boat?.id ?: 0L,
-                finish = finish,
-                phrfRating = phrfRating,
-                windseeker = windseeker,
-                hocPosition = hocPosition,
-                penalty = penalty,
-                finishCode = finishCode,
-                bracketId = bracketId,
-                raceClassId = raceClassId,
-            )
-        } else {
-            null
-        }
-    }
 }
 
 class RaceResultAddViewModel(
-    val raceId: Long
+    rId: Long
 ) : BaseViewModel<RaceResultAddState>(RaceResultAddState()) {
+
+    var raceId = rId
+        set(value) {
+            field = value
+            setState { copy(results = Loading()) }
+            reload()
+        }
+
     override fun reload() {
+        println("reloading")
+        val raceId = raceId
         setState {
-            val race = Api.getRaceSchedule(raceId).toAsync()
-            val ft = race.value?.endTime
+            val results = when {
+                raceId == 0L -> Loading()
+                results is Complete -> results
+                else -> Api.getRaceScheduleResults(raceId).toAsync()
+            }
+            val ft = results.value?.raceSchedule?.endTime
+            val bs = boatSkippers as? Complete ?: Api.getAllBoats().toAsync()
+
             RaceResultAddState(
-                boatSkipper = null,
-                raceSchedule = race.value,
-                finish = ft,
-                finishCode = ft?.let { FinishCode.TIME } ?: FinishCode.RET,
+                raceResult = RaceResultFull(
+                    raceId = raceId,
+                    finish = ft,
+                    finishCode = ft?.let { FinishCode.TIME } ?: FinishCode.RET,
+                ),
+                results = results,
+                boatSkippers = bs,
+                boats = availableBoats(results.value, bs.value),
             )
         }
     }
 
     init {
-        reload()
+        raceId = rId
+        launch {
+            flow.collect { state ->
+                println("state change")
+                println("-- rating ${state.raceResult.ratingType}")
+                println("-- hoc ${state.raceResult.finishCode}")
+                println("-- maxhoc ${state.maxHoc}")
+            }
+        }
     }
 
-    fun addBoat(boatSkipper: BoatSkipper?) {
+    private fun getRating(addState: RaceResultAddState): Int {
+        return getRating(
+            addState.raceResult.ratingType,
+            addState.raceResult.phrfRating ?: ratingDefault,
+            addState.raceResult.orcCertificate
+        )
 
-        val type = boatSkipper?.boat?.ratingType() ?: RatingType.PHRF
+    }
+
+    private fun getRating(boat: Boat?): Int {
+        return getRating(
+            boat?.ratingType ?: RatingType.CruisingNonFlyingSails,
+            boat?.phrfRating ?: ratingDefault,
+            boat?.orcCerts?.findPreferred()
+        )
+    }
+
+    private fun getRating(ratingType: RatingType, phrfRating: Int?, orcCertificate: OrcCertificate?): Int {
+        val rating = when (ratingType) {
+            RatingType.ORC -> phrfRating ?: run { orcCertificate?.virtualPhrf() } ?: ratingDefault
+            RatingType.ORC_PHRF,
+            RatingType.CruisingFlyingSails,
+            RatingType.CruisingNonFlyingSails,
+            RatingType.PHRF -> phrfRating ?: ratingDefault
+
+        }
+        println("rating determined $ratingType $rating")
+        return rating
+    }
+
+    private fun availableBrackets(raceSchedule: RaceSchedule?, classId: Long?, rating: Int): List<Bracket> {
+        return raceSchedule?.schedule?.firstOrNull {
+            it.raceClass.id == classId
+        }?.brackets?.filter { b ->
+            rating <= b.maxRating && rating >= b.minRating
+        } ?: emptyList()
+    }
+
+    /**
+     * List of available classes the result can be placed in based on the boat being orc capable, the rating and
+     * brackets in the race schedule
+     */
+    fun getAvailableClasses(boat: Boat?, raceResultsSchedule: RaceSchedule?, rating: Int): List<RaceClass> {
+        val canOrc = boat?.orcCerts?.isNotEmpty() == true
+        return raceResultsSchedule?.schedule?.filter { cs ->
+            if (cs.raceClass.ratingType == RatingType.ORC && !canOrc) {
+                false
+            } else {
+                cs.brackets.any { b ->
+                    rating <= b.maxRating && rating >= b.minRating
+                }
+            }
+        }?.map {
+            it.raceClass
+        } ?: emptyList()
+    }
+
+    fun focusResultForEdit(result: RaceResultFull) {
+        println("+++++ ${result.boat.boat?.name}")
+        setState {
+            val resultRating =
+                getRating(result.ratingType, result.phrfRating, result.orcCertificate)
+            val classes = getAvailableClasses(result.boat.boat, results.value?.raceSchedule, resultRating)
+            val selectedClass = classes.firstOrNull { it.id == result.raceClassId }
+            val selectedClassStart =
+                results.value?.raceSchedule?.schedule?.firstOrNull { it.raceClass.id == selectedClass?.id }?.raceStart()
+            val brackets = availableBrackets(results.value?.raceSchedule, selectedClass?.id, resultRating)
+            val selectedBracket = brackets.firstOrNull { it.id == result.bracketId }
+            val certs = result.orcCertificate?.let { c ->
+                ((result.boat.boat?.orcCerts ?: emptyList()) + c).distinctBy { it.refNo }
+            } ?: result.boat.boat?.orcCerts ?: emptyList()
+            copy(
+                raceResult = if (result.orcCertificate == null && certs.isNotEmpty()) {
+                    result.copy(orcCertificate = certs.findPreferred())
+                } else {
+                    result
+                },
+                allowBoatChange = false,
+                classes = classes,
+                brackets = brackets,
+                selectedClass = selectedClass,
+                selectedClassStart = selectedClassStart,
+                selectedBracket = selectedBracket,
+                orcCerts = certs,
+            )
+        }
+    }
+
+    fun selectBracket(bracket: Bracket) {
         setState {
             copy(
-                boatSkipper = boatSkipper,
-                phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
-                wsRating = boatSkipper?.boat?.windseeker?.rating?.toString() ?: "",
-                wsFlying = boatSkipper?.boat?.windseeker?.flyingSails == true,
-                ratingType = type,
+                raceResult = raceResult.copy(
+                    bracketId = bracket.id
+                ),
+                selectedBracket = bracket,
+            )
+        }
+    }
+
+    fun selectClass(raceClass: RaceClass) {
+        setState {
+            val rating = getRating(this)
+            val classes = getAvailableClasses(raceResult.boat.boat, results.value?.raceSchedule, rating)
+            val brackets = availableBrackets(results.value?.raceSchedule, raceClass.id, rating)
+            val selectedClassStart =
+                results.value?.raceSchedule?.schedule?.firstOrNull { it.raceClass.id == raceClass.id }?.raceStart()
+
+            val canOrc = raceResult.boat.boat?.orcCerts?.isNotEmpty() == true
+            val ratingType = if (raceClass.ratingType.isORC && !canOrc) {
+                RatingType.PHRF
+            } else {
+                raceClass.ratingType
+            }
+            val selectBracket = brackets.firstOrNull()
+            copy(
+                raceResult = raceResult.copy(
+                    raceClassId = raceClass.id,
+                    bracketId = selectBracket?.id ?: 0L,
+                    ratingType = ratingType,
+                ),
+                classes = classes,
+                brackets = brackets,
+                selectedClass = raceClass,
+                selectedClassStart = selectedClassStart,
+                selectedBracket = selectBracket,
+            )
+        }
+    }
+
+    fun clearResultForBoatSelection() {
+        setState {
+            copy(
+                raceResult = RaceResultFull(
+                    raceId = raceId,
+                    finish = results.value?.raceSchedule?.endTime,
+                ),
+                allowBoatChange = true,
+                selectedClass = null,
+                selectedClassStart = null,
+                selectedBracket = null,
+                classes = emptyList(),
+                brackets = emptyList(),
+            )
+        }
+    }
+
+    fun selectBoat(boatSkipper: BoatSkipper?, allowBoatChange: Boolean = true) {
+        setState {
+            val ratingType = boatSkipper?.boat?.ratingType ?: RatingType.PHRF
+            val rating = getRating(boatSkipper?.boat)
+            val classes = getAvailableClasses(boatSkipper?.boat, results.value?.raceSchedule, rating)
+            val selectClass = classes.firstOrNull { it.ratingType == ratingType } ?: run {
+                classes.firstOrNull { it.ratingType.isCompatible(ratingType) }
+            }
+            val selectedClassStart =
+                results.value?.raceSchedule?.schedule?.firstOrNull { it.raceClass.id == selectClass?.id }?.raceStart()
+            val brackets = availableBrackets(results.value?.raceSchedule, selectClass?.id, rating)
+            val selectBracket = brackets.firstOrNull()
+            println("selected boat bracket $selectBracket $ratingType")
+
+            val result = RaceResultFull(
+                raceId = raceId,
+                boat = boatSkipper ?: BoatSkipper(),
+                phrfRating = boatSkipper?.boat?.phrfRating,
+                orcCertificate = boatSkipper?.boat?.orcCerts?.findPreferred(),
+                ratingType = ratingType,
+                raceClassId = selectClass?.id ?: 0L,
+                bracketId = selectBracket?.id ?: 0L,
+            )
+
+            copy(
+                raceResult = result,
+                classes = classes,
+                brackets = brackets,
+                orcCerts = result.boat.boat?.orcCerts ?: emptyList(),
+                selectedClass = selectClass,
+                selectedClassStart = selectedClassStart,
+                selectedBracket = selectBracket,
+                allowBoatChange = allowBoatChange,
             )
         }
     }
 
 
-    fun setFinish(code: FinishCode, value: Instant?, clearPenalty: Boolean = false) {
-        print("setting finish $code, $value")
+    fun setFinish(code: FinishCode, finish: Instant?, hoc: Int?) {
         setState {
-            copy(
-                hocPosition = null,
+            val maxHoc = max(hoc ?: 1, findMaxHoc(results.value?.results))
+            val updateResult = raceResult.copy(
+                hocPosition = hoc,
                 finishCode = code,
-                finish = value,
-                penalty = if (clearPenalty) null else penalty
+                finish = finish,
+                penalty = if (code == FinishCode.NSC) null else raceResult.penalty,
             )
-        }
-    }
-
-    fun setCard(
-        card: RaceReportCard? = null,
-        autoRaceClassId: Long? = null,
-        autoBracketId: Long? = null
-    ) {
-        val type = card?.ratingType() ?: RatingType.CruisingNonFlyingSails
-        setState {
             copy(
-                id = card?.resultRecord?.result?.id ?: 0L,
-                boatSkipper = card?.resultRecord?.boatSkipper,
-                phrfRating = card?.resultRecord?.result?.phrfRating?.toString() ?: "",
-                wsRating = card?.resultRecord?.result?.windseeker?.rating?.toString() ?: "",
-                wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
-                ratingType = type,
-                raceSchedule = card?.resultRecord?.raceSchedule ?: raceSchedule,
-                finish = card?.finishTime ?: raceSchedule?.endTime,
-                hocPosition = card?.hocPosition,
-                penalty = card?.penalty,
-                finishCode = card?.resultRecord?.result?.finishCode ?: FinishCode.TIME,
-                raceClassId = card?.resultRecord?.result?.raceClassId ?: autoRaceClassId,
-                bracketId = card?.resultRecord?.result?.bracketId ?: autoBracketId
+                raceResult = updateResult,
+                maxHoc = maxHoc,
             )
         }
     }
 
     fun penalty(i: Int?) {
         setState {
-            copy(penalty = i?.takeIf { it > 0 })
-        }
-    }
-
-    fun hoc(i: Int?) {
-        setState {
             copy(
-                finishCode = FinishCode.HOC,
-                penalty = null,
-                hocPosition = i?.let { max(0, i) },
-                finish = if (i != null) null else finish,
+                raceResult = raceResult.copy(
+                    penalty = i?.takeIf { it > 0 }
+                )
             )
         }
     }
 
-    fun setType(type: RatingType, rating: Int) {
+    fun selectOrc(action: Action, certificate: OrcCertificate) {
         setState {
             copy(
-                ratingType = type,
-                raceClassId = null,
-                bracketId = null,
-                wsFlying = type == RatingType.CruisingFlyingSails,
-                wsRating = rating.toString(),
-                phrfRating = rating.toString()
+                raceResult = raceResult.copy(
+                    orcCertificate = when (action) {
+                        Action.Add -> certificate
+                        Action.Delete -> null
+                    }
+                )
             )
         }
     }
 
-    fun addResultSelectedClass(cs: ClassSchedule?) {
+    fun selectRating(ratingType: RatingType, rating: Int) {
         setState {
-            copy(
-                raceClassId = cs?.raceClass?.id,
-                bracketId = cs?.brackets?.firstOrNull { bracket ->
-                    when (boatSkipper?.boat?.ratingType()) {
-//                        RatingType.ORC -> false
-                        RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
-                            it >= bracket.minRating && it <= bracket.maxRating
-                        } ?: false
-
-                        RatingType.CruisingFlyingSails -> boatSkipper.boat?.windseeker?.rating?.let {
-                            it >= bracket.minRating && it <= bracket.maxRating
-                        } ?: false
-
-                        RatingType.CruisingNonFlyingSails -> boatSkipper.boat?.windseeker?.rating?.let {
-                            it >= bracket.minRating && it <= bracket.maxRating
-                        } ?: false
-                        null -> false
-                    }
-                }?.id
-            )
+            copy(raceResult = raceResult.copy(phrfRating = rating, ratingType = ratingType))
         }
     }
 
-    fun availableBrackets(selectedRaceClass: ClassSchedule?): List<Bracket>? {
-        return withState { addState ->
-            val rating: Float = when (addState.ratingType) {
-//                RatingType.ORC -> 1.0f //addState.phrfRating.toInt()
-                RatingType.PHRF -> addState.phrfRating.toFloat()
-                RatingType.CruisingFlyingSails -> addState.wsRating.toFloat()
-                RatingType.CruisingNonFlyingSails -> addState.wsRating.toFloat()
-            }
-            selectedRaceClass?.brackets?.filter { bracket ->
-                rating >= bracket.minRating && rating <= bracket.maxRating
-            }
-        }
+    private fun RaceResultFull.asRaceResultSparse(): RaceResult {
+        return RaceResult(
+            id = id,
+            raceId = raceId,
+            boatId = boat.boat?.id ?: 0L,
+            finish = finish,
+            phrfRating = phrfRating,
+            orcRef = orcCertificate?.refNo,
+            hocPosition = hocPosition,
+            bracketId = bracketId,
+            raceClassId = raceClassId,
+            penalty = penalty,
+            ratingType = ratingType,
+            finishCode = finishCode,
+        )
     }
 
-    fun availableClasses(schedule: List<ClassSchedule>): List<ClassSchedule> {
-        return withState { addState ->
-            schedule.filter { classSchedule ->
-                when (addState.ratingType) {
-                    RatingType.PHRF -> {
-                        val rating = addState.phrfRating.toInt()
-                        val brackets = classSchedule.brackets.count {
-                            rating >= it.minRating && rating <= it.maxRating
-                        }
-                        classSchedule.raceClass.isPHRF && brackets > 0
-                    }
+    private fun availableBoats(results: RaceScheduleResults?, boatSkippers: List<BoatSkipper>?): List<BoatSkipper> {
+        return boatSkippers?.filter { bs ->
+            val match = results?.results?.any { result ->
+                result.boat.boat?.id == bs.boat?.id
+            } ?: false
+            !match
+        } ?: emptyList()
+    }
 
-                    RatingType.CruisingFlyingSails,
-                    RatingType.CruisingNonFlyingSails -> {
-                        val rating = addState.wsRating.toInt()
-                        val brackets = classSchedule.brackets.count {
-                            rating >= it.minRating && rating <= it.maxRating
-                        }
-                        !classSchedule.raceClass.isPHRF
-                                && brackets > 0
-                                && classSchedule.raceClass.wsFlying == addState.wsFlying
+    fun postResult(onSuccess: (() -> Unit)? = null) {
+        launch {
+            withStateAsync { state ->
+                if (state.isValid) {
+                    setState { copy(results = Loading()) }
+                    val results = Api.postResult(state.raceResult.asRaceResultSparse()).toAsync().flatMap {
+                        onSuccess?.invoke()
+                        Api.getRaceScheduleResults(raceId).toAsync()
                     }
+                    val ft = state.results.value?.raceSchedule?.endTime
+                    setState {
+                        copy(
+                            raceResult = RaceResultFull(
+                                raceId = raceId,
+                                finish = ft,
+                                finishCode = ft?.let { FinishCode.TIME } ?: FinishCode.RET),
+                            results = results,
+                            boats = availableBoats(results.value, state.boatSkippers.value),
+                            maxHoc = findMaxHoc(results.value?.results)
+                        )
+                    }
+                } else {
+                    setState { copy(results = results.error()) }
                 }
             }
         }
     }
 
-    fun addResultSelectedBracket(bracket: Bracket?) {
-        setState {
-            copy(
-                bracketId = bracket?.id
-            )
+    fun findMaxHoc(): Int {
+        return withState {
+            findMaxHoc(it.results.value?.results)
         }
     }
+
+    fun findMaxHoc(results: List<RaceResultFull>?): Int {
+        return results?.maxOfOrNull {
+            it.hocPosition ?: 1
+        } ?: 1
+    }
+
+    fun deleteResult(id: Long) {
+        setState {
+            copy(results = Loading())
+        }
+        launch {
+            Api.deleteResult(id)
+            reload()
+        }
+    }
+
 }
 

@@ -71,15 +71,28 @@ fun RcRaceConfig(viewModel: RcViewModel, selectedRace: RaceSchedule, syncState: 
             }
         }
     }
-    RgInput("Correction Factor", "${selectedRace.race.correctionFactor}") {
-        viewModel.setCf(it.toIntOrNull() ?: 0)
+    RgInput("PHRF B Factor", "${selectedRace.race.phrfBFactor}") {
+        viewModel.selectPhrfBFactor(it.toIntOrNull() ?: 0)
+    }
+
+    selectedRace.race.orcBandLabel()?.let {
+        RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s3, side = RgSide.t) }) {
+            H6 { Text("ORC Settings") }
+            P {
+                Text(selectedRace.race.orcScoringOption.label)
+                I { Text(" (* not currently selectable)") }
+                Br { }
+                Text(it)
+                I { Text(" (* based on PHRF B Factor)") }
+            }
+        }
     }
 }
 
 
 @Composable
 fun RcCheckin(viewModel: RcViewModel) {
-    val state = viewModel.flow.collectAsState()
+    val state by viewModel.flow.collectAsState()
     var filter by remember { mutableStateOf("") }
     Div(attrs = {
         classes("input-group", "input-group-sm")
@@ -97,7 +110,7 @@ fun RcCheckin(viewModel: RcViewModel) {
         }
     }
     Br { }
-    state.value.boats.complete(viewModel) { boats ->
+    state.boats.complete(viewModel) { boats ->
         RgTable {
             RgThead {
                 RgTr {
@@ -140,35 +153,48 @@ fun RcCheckin(viewModel: RcViewModel) {
 @Composable
 fun RcFinish(viewModel: RcViewModel) {
     H4 { Text("Race Finish Line") }
-    val state = viewModel.flow.collectAsState()
-    var confirmDeleteResult by remember {  mutableStateOf<CheckIn?>(null) }
+    val state by viewModel.flow.collectAsState()
+    var confirmDeleteResult by remember { mutableStateOf<CheckIn?>(null) }
 
-    RgModalBody(id = "rc-finish-time", modalTitle = { state.value.focus?.bs?.shortLabel() ?: "" }, content = {
-        state.value.focus?.let { focus ->
-            RcTimeRow(viewModel)
-        }
-    }, footer = {
-        Button(attrs = {
-            classes(*RgButtonStyle.PrimaryOutline.classes)
-            attr("data-bs-dismiss", "modal")
-        }) {
-            Text("Cancel")
-        }
-        Button(attrs = {
-            classes(*RgButtonStyle.Success.classes)
-            attr("data-bs-dismiss", "modal")
-            if (state.value.focus?.isValid() == false) {
-                disabled()
+    RgModalBody(
+        id = "rc-finish-time",
+        modalTitle = { state.addState?.raceResult?.boat?.shortLabel() ?: "" },
+        content = {
+            state.addState?.let { focus ->
+                AddResult(
+                    focus,
+                    viewModel::selectBoat,
+                    viewModel::selectClass,
+                    viewModel::selectBracket,
+                    viewModel::setFinish,
+                    viewModel::penalty,
+                    viewModel::selectOrc,
+                    viewModel::selectRating,
+                )
             }
-            onClick {
-                viewModel.saveFocus()
+        },
+        footer = {
+            Button(attrs = {
+                classes(*RgButtonStyle.PrimaryOutline.classes)
+                attr("data-bs-dismiss", "modal")
+            }) {
+                Text("Cancel")
             }
-        }) {
-            Text("Save")
-        }
-    })
+            Button(attrs = {
+                classes(*RgButtonStyle.Success.classes)
+                attr("data-bs-dismiss", "modal")
+                if (state.addState?.isValid != true) {
+                    disabled()
+                }
+                onClick {
+                    viewModel.postResult()
+                }
+            }) {
+                Text("Save")
+            }
+        })
 
-    state.value.boats.complete(viewModel) { boats ->
+    state.boats.complete(viewModel) { boats ->
         RgTable {
             RgThead {
                 RgTr {
@@ -188,7 +214,7 @@ fun RcFinish(viewModel: RcViewModel) {
                                 id = "rc-finish-time",
                                 style = style,
                                 buttonLabel = { ea.result?.finishText(ea.startTime) ?: "Finish" }) {
-                                viewModel.focus(ea.bs, ea.result)
+                                viewModel.focus(ea)
                             }
                         }
                         RgTd {

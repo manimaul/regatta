@@ -7,7 +7,6 @@ import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.data.StandingsClass
 import com.mxmariner.regatta.data.StandingsSeries
-import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
@@ -93,11 +92,7 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                         }
                         RgTd {
                             Text(
-                                ratingLabel(
-                                    standings.boatSkipper.boat?.phrfRating,
-                                    standings.boatSkipper.boat?.windseeker,
-                                    false
-                                )
+                                standings.boatSkipper.boat?.ratingType?.label ?: ""
                             )
                         }
                         standings.raceStandings.forEach {

@@ -80,6 +80,11 @@ fun Application.configureRouting() {
                 call.respond(RegattaDatabase.resultsByRaceId(it))
             } ?: call.respond(HttpStatusCode.NoContent)
         }
+        get(ApiPaths.scheduleResults.versionedApi()) {
+            call.request.queryParameters["raceId"]?.toLong()?.let {
+                RegattaDatabase.scheduleResultsByRaceId(it)
+            }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+        }
         get(ApiPaths.resultCount.versionedApi()) {
             call.request.queryParameters["raceId"]?.toLong()?.let {
                 call.respond(RegattaDatabase.resultCount(it))

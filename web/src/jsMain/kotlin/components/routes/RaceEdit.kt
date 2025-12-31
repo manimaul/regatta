@@ -94,7 +94,7 @@ fun RaceForm(
                     }
                 }
                 RgTd {
-                    RgInput(label = "CF", placeHolder = true, value = raceSchedule.race.correctionFactor.toString()) {
+                    RgInput(label = "CF", placeHolder = true, value = raceSchedule.race.phrfBFactor.toString()) {
                         viewModel.setCF(it.toIntOrNull())
                     }
                 }

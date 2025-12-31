@@ -2,14 +2,17 @@ package components.routes
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.ClassReportCards
+import com.mxmariner.regatta.data.PhrfBFactor
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
-import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
+import org.jetbrains.compose.web.css.marginBottom
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
@@ -20,9 +23,9 @@ fun RaceResultsView(
     raceId: Long?,
     viewModel: RaceResultViewViewModel = remember { RaceResultViewViewModel(raceId ?: 0L) }
 ) {
-    val state = viewModel.flow.collectAsState()
+    val state by viewModel.flow.collectAsState()
     val loginState = loginViewModel.flow.collectAsState()
-    state.value.report.complete(viewModel) { report ->
+    state.report.complete(viewModel) { report ->
         H1 {
             Text("${report.raceSchedule.startTime.year()} - ${report.raceSchedule.race.name} - Results")
         }
@@ -31,25 +34,43 @@ fun RaceResultsView(
                 routeViewModel.pushRoute("/races/results/${raceId}")
             }
         }
-        report.classReports.forEach { classReportCards ->
-            RaceResultsClassTable(report, classReportCards)
-            Br()
+        report.classReports.forEachIndexed { i, classReportCards ->
+            RaceResultsClassTable(i > 0, report, classReportCards)
         }
     }
 }
 
 @Composable
-fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards) {
+fun RaceResultsClassTable(
+    addDivider: Boolean,
+    report: RaceReport,
+    classReportCards: ClassReportCards,
+) {
     val totalBracketInClassCount = classReportCards.bracketReport.size
-
+    val showOrc = classReportCards.raceClass.ratingType.isORC
+    if (addDivider) {
+        Div(attrs = { style { marginBottom(32.px) } })
+    }
     Div(attrs = {
         classes("border-top", "border-2", "border")
     }) {
-        H4 { Text(classReportCards.raceClass.name) }
-        Text("CF - ${classReportCards.correctionFactor}")
-        Text("Start time - ${report.classStart(classReportCards.raceClass.id)?.timeStr() ?: "None"}")
+        H4 { Text(classReportCards.raceClass.label()) }
+        H6 {
+            Text(" Start time - ${report.classStart(classReportCards.raceClass.id)?.timeStr() ?: "None"}")
+        }
+        H6 {
+            Text("PHRF B - ${classReportCards.phrfBFactor} - ${PhrfBFactor.fromBFactor(classReportCards.phrfBFactor).label}")
+        }
+        if (showOrc) {
+            H6 {
+                Text(
+                    "ORC ${classReportCards.orcScoringOption.label}${
+                        classReportCards.orcBandLabel()?.let { " - $it" } ?: ""
+                    }")
+            }
+        }
     }
-    val headers = if (classReportCards.raceClass.isPHRF) {
+    val headers = if (classReportCards.raceClass.ratingType.isORCorPHRF) {
         listOf(
             "Boat",
             "Skipper",
@@ -92,17 +113,49 @@ fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards
                     RgTr {
                         RgTd { BoatLabel(card) }
                         RgTd { Text(card.skipper) }
-                        RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
+                        RgTd { Text(card.ratingType().ratedLabel(card.phrfRating, card.resultRecord.result.orcRef)) }
                         RgTd { Text(card.finishText()) }
                         RgTd { Text(card.elapsedText()) }
-                        if (classReportCards.raceClass.isPHRF) {
-                            RgTd { Text(card.corTimeText()) }
+                        if (classReportCards.raceClass.ratingType.isORCorPHRF) {
+                            RgTd {
+                                Text(card.corTimePhrfText())
+                                if (showOrc && card.ratingType().isORC) {
+                                    Br { }
+                                    Text(card.corTimeOrcText())
+                                }
+                            }
                         }
                         if (totalBracketInClassCount > 1) {
-                            RgTd { Text(card.placeInBracket.toString()) }
-                            RgTd { Text(card.placeInClass.toString()) }
+                            if (showOrc && classReportCards.raceClass.ratingType.isORC) {
+                                RgTd {
+                                    Text("${card.placeInBracket} PHRF")
+                                    if (card.placeInBracketOrc != 0) {
+                                        Br {  }
+                                        Text("${card.placeInBracketOrc} ORC")
+                                    }
+                                }
+                                RgTd {
+                                    Text("${card.placeInClass} PHRF")
+                                    if (card.placeInClassOrc != 0) {
+                                        Br {  }
+                                        Text("${card.placeInClassOrc} ORC")
+                                    }
+                                }
+                            } else {
+                                RgTd { Text(card.placeInBracket.toString()) }
+                                RgTd { Text(card.placeInClass.toString()) }
+                            }
                         } else {
-                            RgTd { Text(card.placeInBracket.toString()) }
+
+                            if (showOrc && classReportCards.raceClass.ratingType.isORC) {
+                                Text("${card.placeInBracket} PHRF")
+                                if (card.placeInBracketOrc != 0) {
+                                    Br {  }
+                                    Text("${card.placeInBracketOrc} ORC")
+                                }
+                            } else {
+                                RgTd { Text(card.placeInBracket.toString()) }
+                            }
                         }
                     }
                 }

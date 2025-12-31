@@ -18,7 +18,7 @@ object RaceTable : Table() {
         seriesId = row[seriesId],
         rcId = row[rcId],
         reportImage = ImageTable.getRaceReportImageName(row[id]),
-        correctionFactor = row[correctionFactor] ?: correctionFactorDefault,
+        phrfBFactor = row[correctionFactor] ?: correctionFactorDefault,
     )
 
     fun raceCountForSeries(seriesId: Long) : Long {
@@ -33,7 +33,7 @@ object RaceTable : Table() {
             it[name] = race.name.trim()
             it[seriesId] = race.seriesId
             it[rcId] = race.rcId
-            it[correctionFactor] = race.correctionFactor
+            it[correctionFactor] = race.phrfBFactor
         }.resultedValues?.map { row ->
             rowToRace(row)
         }?.singleOrNull()

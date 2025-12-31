@@ -1,8 +1,6 @@
 package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
-import com.mxmariner.regatta.ratingDefault
-import com.mxmariner.regatta.ratingLabel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -42,23 +40,18 @@ data class RaceClass(
     val id: Long = 0,
     val name: String = "",
     val sort: Int = 0,
-    val isPHRF: Boolean = false,
-    val wsFlying: Boolean = false,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true,
 ) {
-    fun ratingType(): RatingType {
-        if (isPHRF) {
-            return RatingType.PHRF
-        } else if (wsFlying) {
-            return RatingType.CruisingFlyingSails
-        } else {
-            return RatingType.CruisingNonFlyingSails
+    fun label() : String {
+        return when (ratingType) {
+            RatingType.ORC,
+            RatingType.ORC_PHRF,
+            RatingType.PHRF -> "${ratingType.label} $name"
+            RatingType.CruisingFlyingSails,
+            RatingType.CruisingNonFlyingSails -> name
         }
-    }
-
-    fun ratingLabel(): String {
-        return ratingType().label
     }
 }
 
@@ -69,8 +62,8 @@ data class Bracket(
     val description: String? = null,
     val active: Boolean = true,
     val numberOfRaces: Long = 0L,
-    val minRating: Float = -1000f,
-    val maxRating: Float = 1000f,
+    val minRating: Float = -1000f, //slowest PHRF - fastest ORC
+    val maxRating: Float = 1000f,  //fastest PHRF - slowest ORC
     val classId: Long = 0,
 ) {
     fun label(): String {
@@ -125,8 +118,16 @@ data class Race(
     val seriesId: Long? = null,
     val rcId: Long? = null,
     val reportImage: String? = null,
-    val correctionFactor: Int = correctionFactorDefault,
-)
+    val phrfBFactor: Int = correctionFactorDefault,
+    val orcScoringOption: OrcScoringOption = OrcScoringOption.FiveBandWindwardLeeward,
+    val orc3Band: Orc3Band = Orc3Band.fromPhrfBFactor(phrfBFactor),
+    val orc5Band: Orc5Band = Orc5Band.fromPhrfBFactor(phrfBFactor),
+) {
+
+    fun orcBandLabel() : String? {
+        return orcScoringOption.orcBandLabel(orc5Band, orc3Band)
+    }
+}
 
 @Serializable
 data class RaceTime(
@@ -136,17 +137,44 @@ data class RaceTime(
     val raceId: Long,
 )
 
-@Serializable
-data class Windseeker(
-    val rating: Int = ratingDefault.toInt(),
-    val flyingSails: Boolean = false,
-)
-
 enum class RatingType(val label: String) {
-//    ORC("ORC"),
+    ORC("ORC"),
+    ORC_PHRF("ORC, PHRF"),
     PHRF("PHRF"),
     CruisingFlyingSails("Cruising Flying Sails"),
-    CruisingNonFlyingSails("Cruising Non-Flying Sails"),
+    CruisingNonFlyingSails("Cruising Non-Flying Sails");
+
+    val isCruising: Boolean by lazy {
+        this == CruisingFlyingSails || this == CruisingNonFlyingSails
+    }
+
+    val isPHRF: Boolean by lazy {
+        this == PHRF || this == ORC_PHRF
+    }
+
+    val isORC: Boolean by lazy {
+        this == ORC || this == ORC_PHRF
+    }
+
+    val isORCorPHRF: Boolean by lazy {
+        this == ORC || this == ORC_PHRF || this == PHRF
+    }
+
+    fun isCompatible(other: RatingType) : Boolean {
+        return (isCruising && other.isCruising) ||
+                (isPHRF && other.isPHRF) ||
+                (isORC && other.isORC)
+    }
+
+    fun ratedLabel(phrfRating: Int? = null, orcInfo: String? = null) : String {
+        return when (this) {
+            ORC -> "$label${orcInfo?.let { "($it)" }}"
+            ORC_PHRF -> "PHRF ($phrfRating), ORC${orcInfo?.let { " ($it)" } ?: ""}"
+            PHRF -> "$label ($phrfRating)"
+            CruisingFlyingSails,
+            CruisingNonFlyingSails -> label
+        }
+    }
 }
 
 @Serializable
@@ -156,20 +184,19 @@ data class Boat(
     val sailNumber: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
+    val orcCerts: List<OrcCertificate> = emptyList(),
     val skipperId: Long? = null,
-    val windseeker: Windseeker? = null,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true
 ) {
-    fun ratingType(): RatingType {
-        return windseeker?.let {
-            if (it.flyingSails) {
-                RatingType.CruisingFlyingSails
-            } else {
-                RatingType.CruisingNonFlyingSails
-            }
-        } ?: RatingType.PHRF
+
+    fun orcInfo() : String? {
+        return orcCerts.takeIf { it.isNotEmpty() }?.let {
+            "~${orcCerts.minOf { it.virtualPhrf() }}"
+        }
     }
+
 }
 
 @Serializable
@@ -190,12 +217,36 @@ data class BoatSkipper(
 
     fun dropLabel(): String {
         val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
-        return "${label()}$sail ${ratingLabel(boat?.phrfRating, boat?.windseeker, true)}"
+        return "${label()}$sail ${boat?.ratingType?.label ?: ""}}"
     }
 
     fun shortLabel(): String {
         return boat?.name ?: ""
     }
+
+}
+
+@Serializable
+data class RaceScheduleResults (
+    val raceSchedule: RaceSchedule = RaceSchedule(),
+    val results: List<RaceResultFull> = emptyList(),
+)
+
+@Serializable
+data class RaceResultFull(
+    val id: Long = 0,
+    val raceId: Long = 0,
+    val boat: BoatSkipper = BoatSkipper(),
+    val finish: Instant? = null,
+    val phrfRating: Int? = null,
+    val orcCertificate: OrcCertificate? = null,
+    val hocPosition: Int? = null,
+    val bracketId: Long = 0,
+    val raceClassId: Long = 0,
+    val penalty: Int? = null,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
+    val finishCode: FinishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
+)  {
 }
 
 @Serializable
@@ -205,18 +256,18 @@ data class RaceResult(
     val boatId: Long = 0,
     val finish: Instant? = null,
     val phrfRating: Int? = null,
+    val orcRef: String? = null,
     val hocPosition: Int? = null,
-    val bracketId: Long? = null,
-    val raceClassId: Long? = null,
+    val bracketId: Long = 0,
+    val raceClassId: Long = 0,
     val penalty: Int? = null,
-    val windseeker: Windseeker? = null,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val finishCode: FinishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
 )
 
 @Serializable
 data class RaceResultBoatBracket(
     val result: RaceResult = RaceResult(),
-    val raceSchedule: RaceSchedule = RaceSchedule(),
     val boatSkipper: BoatSkipper = BoatSkipper(),
     val bracket: Bracket = Bracket(),
 )
@@ -247,10 +298,8 @@ data class StandingsBoatSkipper(
     val raceStandings: List<StandingsRace> = emptyList(),
     val totalScoreBracket: Int = 0,
     val totalScoreClass: Int = 0,
-    val totalScoreOverall: Int = 0,
     var placeInBracket: Int = 0,
     var placeInClass: Int = 0,
-    var placeOverall: Int = 0,
     @Transient val tiedWith: MutableSet<Long> = mutableSetOf()
 )
 
@@ -263,7 +312,6 @@ data class StandingsRace(
     var placeInBracketCorrected: Int? = null,
     val placeInClass: Int = 0,
     var placeInClassCorrected: Int? = null,
-    var placeOverall: Int = 0,
     var throwOut: Boolean = false,
     val finishCode: FinishCode?
 )
@@ -281,9 +329,19 @@ data class RaceReport(
 @Serializable
 data class ClassReportCards(
     val raceClass: RaceClass = RaceClass(),
-    val correctionFactor: Int = correctionFactorDefault,
+    val phrfBFactor: Int = correctionFactorDefault,
+    val orcScoringOption: OrcScoringOption = OrcScoringOption.FiveBandWindwardLeeward,
+    val orc3Band: Orc3Band = Orc3Band.fromPhrfBFactor(phrfBFactor),
+    val orc5Band: Orc5Band = Orc5Band.fromPhrfBFactor(phrfBFactor),
     val bracketReport: List<BracketReportCards> = emptyList(),
-)
+    val hasOrcResults: Boolean = false,
+) {
+
+    fun orcBandLabel() : String? {
+        return orcScoringOption.orcBandLabel(orc5Band, orc3Band)
+    }
+
+}
 
 @Serializable
 data class BracketReportCards(
@@ -299,40 +357,23 @@ data class RaceReportCard(
     val skipper: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
-    val windseeker: Windseeker? = null,
     val startTime: Instant? = null,
     val finishTime: Instant? = null,
     val elapsedTime: Duration? = null,
-    val correctionFactor: Double = 1.0,
-    val correctedTime: Duration? = null,
+    val phrfTcf: Double = 1.0,
+    val orcTcf: Double = 1.0,
+    val correctedPhrfTime: Duration? = null,
+    val correctedOrcTime: Duration? = null,
     var placeInBracket: Int = 0,
+    var placeInBracketOrc: Int = 0,
     var placeInClass: Int = 0,
-    var placeOverall: Int = 0,
+    var placeInClassOrc: Int = 0,
     val hocPosition: Int? = null,
     val penalty: Int? = null,
 ) {
 
-    fun boatLabel(): String {
-        return StringBuilder()
-            .apply {
-                append(boatName)
-                boatType.takeIf { it.isNotBlank() }?.let {
-                    append("  - $it")
-                }
-                sail.takeIf { it.isNotBlank() }?.let {
-                    append(" ($it)")
-                }
-            }
-            .toString()
+    fun ratingType(): RatingType {
+        return resultRecord.result.ratingType
     }
 
-    fun ratingType(): RatingType {
-        return windseeker?.let {
-            if (it.flyingSails) {
-                RatingType.CruisingFlyingSails
-            } else {
-                RatingType.CruisingNonFlyingSails
-            }
-        } ?: RatingType.PHRF
-    }
 }

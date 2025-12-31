@@ -5,9 +5,11 @@ import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.Series
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 
 
 fun itemNameContainsFilter(itemName: String, filter: String) :Boolean{
@@ -21,6 +23,7 @@ fun <T> RgDropdownNone(
     items: List<T>,
     selectedItem: T?,
     name: (T) -> String,
+    showFilter: Boolean = true,
     shorName: ((T) -> String)? = null,
     handler: (T?) -> Unit
 ) {
@@ -40,10 +43,12 @@ fun <T> RgDropdownNone(
                 property("z-index", "1000")
             }
         }) {
-            RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-3", "my-2")) {
-                filter = it
+            if (showFilter) {
+                RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-3", "my-2")) {
+                    filter = it
+                }
+                Hr { }
             }
-            Hr { }
             Button(attrs = {
                 classes("dropdown-item")
                 onClick {
@@ -90,6 +95,9 @@ fun <T> RgDropdown(
     Div {
         Button(attrs = {
             classes("btn", "btn-primary", "dropdown-toggle")
+            if (items.size <= 1) {
+               disabled()
+            }
             onClick { toggle = !toggle }
         }) { Text(selected) }
 
@@ -126,7 +134,7 @@ fun RgSeriesDropdown(
     series: Series?,
     handler: (Series) -> Unit,
 ) {
-    RgDropdownNone(seriesList, series, { it.name }, { it.name }) { it?.let(handler) }
+    RgDropdownNone(seriesList, series, { it.name }, true,{ it.name }) { it?.let(handler) }
 }
 
 @Composable
@@ -145,6 +153,9 @@ fun RgSkipperDropdown(
     person: Person?,
     handler: (Person?) -> Unit
 ) {
+    Label(attrs = {
+        classes(AppStyle.marginEnd)
+    }) { B { Text("Skipper") } }
     RgDropdownNone(people.sortedBy { it.fullName() }, person, { it.fullName() }) {
         handler(it)
     }

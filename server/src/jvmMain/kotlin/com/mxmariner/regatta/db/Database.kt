@@ -40,29 +40,15 @@ object RegattaDatabase {
             RaceBracketJunction,
             ImageTable,
         )
+        Migration.runMigration(database)
         transaction(database) {
-//            exec("ALTER TABLE IF EXISTS raceresults DROP COLUMN IF EXISTS start_date;")
-//            exec("ALTER TABLE IF EXISTS series ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS race_class BIGINT DEFAULT 1 NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS min_r FLOAT DEFAULT 0 NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS bracket ADD COLUMN IF NOT EXISTS max_r FLOAT DEFAULT 0 NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS sort INTEGER DEFAULT 0 NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS phrf BOOLEAN DEFAULT false NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS raceclass ADD COLUMN IF NOT EXISTS wsf BOOLEAN DEFAULT false NOT NULL;")
-//            exec("ALTER TABLE IF EXISTS raceresults DROP COLUMN IF EXISTS bracket_id;")
-            exec("ALTER TABLE IF EXISTS racetime DROP COLUMN IF EXISTS correction_factor;")
-            //nuke
-            //raceresults, racetime, raceclasscategory, raceclass
-            //alter table boat drop column if exists class_id
-            //alter table boat drop column if exists class_id
             SchemaUtils.create(*tables)
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
-            exec("UPDATE raceresults SET finish_code='HOC' WHERE hoc > 0 AND end_date IS NULL;")
-//            exec(
-//                "alter table raceresults drop column if exists name"
-//            )
+            execInBatch(
+                SchemaUtils.statementsRequiredToActualizeScheme(*tables, withLogs = true)
+            )
         }
     }
 
@@ -171,6 +157,7 @@ object RegattaDatabase {
 
     suspend fun findRace(id: Long): Race? = dbQuery { RaceTable.findRace(id) }
     suspend fun findRaceSchedule(id: Long): RaceSchedule? = dbQuery { RaceTable.findRaceSchedule(id) }
+    suspend fun findCertificate(ref: String?): OrcCertificate? = dbQuery { OrcTable.findCertificate(ref) }
     suspend fun upsertRace(race: Race): Race? = dbQuery { RaceTable.upsertRace(race) }
 
     suspend fun deleteRace(id: Long) = dbQuery {
@@ -198,6 +185,9 @@ object RegattaDatabase {
     suspend fun getResults(year: Int) = dbQuery { RaceResultsTable.getResults(year) }
     suspend fun resultsByRaceId(raceId: Long): List<RaceResult> =
         dbQuery { RaceResultsTable.resultsByRaceId(raceId) }
+
+    suspend fun scheduleResultsByRaceId(raceId: Long): RaceScheduleResults? =
+        dbQuery { RaceResultsTable.scheduleResultsByRaceId(raceId) }
 
     suspend fun resultsBoatBracketByRaceId(raceId: Long): List<RaceResultBoatBracket> =
         dbQuery { RaceResultsTable.resultsBoatBracketByRaceId(raceId) }

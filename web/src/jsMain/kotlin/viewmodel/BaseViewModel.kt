@@ -39,6 +39,26 @@ abstract class BaseViewModel<T : VmState>(
         }
     }
 
+    @Composable
+    fun <A, B> allComplete(a: Async<A>, b: Async<B>, handler: @Composable (A, B) -> Unit) {
+        a.complete(this) { aa ->
+            b.complete(this@BaseViewModel) { bb ->
+                handler(aa, bb)
+            }
+        }
+    }
+
+    @Composable
+    fun <A, B, C> allComplete(a: Async<A>, b: Async<B>, c: Async<C>, handler: @Composable (A, B, C) -> Unit) {
+        a.complete(this) { aa ->
+            b.complete(this@BaseViewModel) { bb ->
+                c.complete(this@BaseViewModel) { cc ->
+                    handler(aa, bb, cc)
+                }
+            }
+        }
+    }
+
     protected fun <A, B> setState(
         n1: suspend () -> Async<A>,
         n2: suspend () -> Async<B>,

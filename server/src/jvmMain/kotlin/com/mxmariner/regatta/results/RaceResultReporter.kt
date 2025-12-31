@@ -3,6 +3,9 @@ package com.mxmariner.regatta.results
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.time.Duration
@@ -11,7 +14,6 @@ import kotlin.time.toDuration
 
 object RaceResultReporter {
 
-
     suspend fun getStandingsReport(seriesId: Long, year: Int): StandingsSeries? {
         val reports = RegattaDatabase.seriesRaces(seriesId, year).mapNotNull { raceId ->
             getReport(raceId)
@@ -19,24 +21,18 @@ object RaceResultReporter {
 
         val races = reports.map { it.raceSchedule }.sortedBy { it.startTime }.map { it.race }.toList()
 
-        val windseekerRecords = reports.map { it.classReports }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker != null }
-
-        val phrfRecords = reports.map { it.classReports }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker == null }
-
         val standings = RegattaDatabase.findSeries(seriesId)?.let { series ->
             StandingsSeries(
                 year = year,
                 series = series,
-                standings = getStandingsClass(races, reports, windseekerRecords, phrfRecords),
+                standings = getStandingsClass(races, reports),
                 races = races
             )
         }
 
         //calculate place in class
         standings?.standings?.forEach { standingsClass: StandingsClass ->
-            val bracketStandings = standingsClass.standings.map { it.standings }.flatten()
+            val bracketStandings = standingsClass.standings.flatMap { it.standings }
 
             var place = 0
             var previous: Long? = null
@@ -54,25 +50,6 @@ object RaceResultReporter {
                 previous = it.boatSkipper.boat?.id
             }
         }
-
-        //calculate place overall
-        standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
-            ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
-                var place = 0
-                var previous: Long? = null
-                standings.sortedWith { lhs, rhs ->
-                    lhs.totalScoreOverall.compareTo(rhs.totalScoreOverall).takeIf { it != 0 } ?: run {
-                        tieBreaker(races.size, lhs, rhs) { it.placeOverall }
-                    }
-                }.forEach {
-                    if (it.tiedWith.contains(previous)) {
-                        it.placeOverall = place
-                    } else {
-                        it.placeOverall = ++place
-                    }
-                    previous = it.boatSkipper.boat?.id
-                }
-            }
         return standings
     }
 
@@ -115,17 +92,15 @@ object RaceResultReporter {
     private fun getStandingsClass(
         races: List<Race>,
         reports: Sequence<RaceReport>,
-        windseekerRecords: Sequence<RaceReportCard>,
-        phrfRecords: Sequence<RaceReportCard>,
     ): List<StandingsClass> {
-        val classes = reports.map { it.classReports }.flatten().map {
+        val classes = reports.flatMap { it.classReports }.map {
             it.raceClass
         }.distinctBy { it.id }.sortedBy { it.sort }.toList()
 
         return classes.map { raceClass ->
             StandingsClass(
                 raceClass = raceClass,
-                standings = getStandingsBracket(raceClass, races, reports, windseekerRecords, phrfRecords)
+                standings = getStandingsBracket(raceClass, races, reports)
             )
         }
     }
@@ -134,16 +109,14 @@ object RaceResultReporter {
         raceClass: RaceClass,
         races: List<Race>,
         raceReports: Sequence<RaceReport>,
-        windseekerRecords: Sequence<RaceReportCard>,
-        phrfRecords: Sequence<RaceReportCard>,
     ): List<StandingsBracket> {
         val brackets =
-            raceReports.map { it.classReports }.flatten().filter { it.raceClass.id == raceClass.id }
-                .map { it.bracketReport }.flatten().map { it.bracket }.distinctBy { it.id }
+            raceReports.flatMap { it.classReports }.filter { it.raceClass.id == raceClass.id }
+                .flatMap { it.bracketReport }.map { it.bracket }.distinctBy { it.id }
         return brackets.map {
             StandingsBracket(
                 bracket = it,
-                standings = getStandingsBoatBracket(raceClass, it, races, raceReports, windseekerRecords, phrfRecords)
+                standings = getStandingsBoatBracket(raceClass, it, races, raceReports)
             )
         }.toList()
     }
@@ -153,39 +126,30 @@ object RaceResultReporter {
         bracket: Bracket,
         races: List<Race>,
         raceReports: Sequence<RaceReport>,
-        windseekerRecords: Sequence<RaceReportCard>,
-        phrfRecords: Sequence<RaceReportCard>,
     ): List<StandingsBoatSkipper> {
 
-        val classRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten()
+        val classRecords = raceReports.flatMap { it.classReports.filter { it.raceClass.id == raceClass.id } }
+            .flatMap { it.bracketReport }.flatMap { it.cards }
 
-        val bracketRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
-            .map { it.bracketReport }.flatten().filter { it.bracket.id == bracket.id }
-            .map { it.cards }.flatten()
+        val bracketRecords = raceReports.flatMap { it.classReports.filter { it.raceClass.id == raceClass.id } }
+            .flatMap { it.bracketReport }.filter { it.bracket.id == bracket.id }.flatMap { it.cards }
 
 
         val result = bracketRecords.groupBy { it.resultRecord.boatSkipper }.map {
             val boatSkipper = it.key
             val raceReportCards = it.value
             val standings = races.map { race ->
-                val overallRecords = if (boatSkipper.boat?.windseeker != null) {
-                    windseekerRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
-                } else {
-                    phrfRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
-                }
-                raceReportCards.find { it.resultRecord.raceSchedule.race.id == race.id }?.let {
+                raceReportCards.find { it.resultRecord.result.raceId == race.id }?.let {
                     StandingsRace(
                         nonStarter = false,
                         placeInBracket = it.placeInBracket,
                         placeInClass = it.placeInClass,
-                        placeOverall = it.placeOverall,
                         throwOut = false,
                         finish = it.finishTime != null,
                         hocPosition = it.hocPosition,
                         finishCode = it.resultRecord.result.finishCode
                     )
-                } ?: nonStarterPlace(race, bracketRecords, classRecords, overallRecords)
+                } ?: nonStarterPlace(race, bracketRecords, classRecords)
             }.toList()
 
             if (standings.size >= 5) {
@@ -206,7 +170,6 @@ object RaceResultReporter {
             var avgPlaceBracket: Int? = null
             var avgPlaceClass: Int? = null
             standings.takeIf { it.size > 1 }?.forEach { ea ->
-                println("each ${ea.finishCode}")
                 if (ea.finishCode == FinishCode.DNS_RC) {
                     if (avgPlaceBracket == null || avgPlaceClass == null) {
                         val list = standings.filter { it.finishCode != FinishCode.DNS_RC }
@@ -229,10 +192,8 @@ object RaceResultReporter {
                 raceStandings = standings,
                 totalScoreBracket = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInBracket },
                 totalScoreClass = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeInClass },
-                totalScoreOverall = standings.fold(0) { a, s -> a + if (s.throwOut) 0 else s.placeOverall },
                 placeInBracket = 0,
                 placeInClass = 0,
-                placeOverall = 0,
             )
         }
 
@@ -275,15 +236,11 @@ object RaceResultReporter {
         race: Race,
         bracketRecords: Sequence<RaceReportCard>,
         classRecords: Sequence<RaceReportCard>,
-        overAllRecords: Sequence<RaceReportCard>,
     ): StandingsRace {
-        val bracketStarters = bracketRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+        val bracketStarters = bracketRecords.filter { it.resultRecord.result.raceId == race.id }
             .map { it.placeInBracket }
             .count()
-        val classStarters = classRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
-            .map { it.placeInBracket }
-            .count()
-        val overallStarters = overAllRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+        val classStarters = classRecords.filter { it.resultRecord.result.raceId == race.id }
             .map { it.placeInBracket }
             .count()
 
@@ -292,68 +249,109 @@ object RaceResultReporter {
             finish = false,
             placeInBracket = bracketStarters + 1,
             placeInClass = classStarters + 1,
-            placeOverall = overallStarters + 1,
             hocPosition = null,
             finishCode = null,
         )
     }
 
+    fun classCard(
+        raceSchedule: RaceSchedule,
+        classSchedule: ClassSchedule,
+        boatCards: List<RaceReportCard>,
+        raceClass: RaceClass,
+    ): ClassReportCards? {
+        //Class Places
+        var hasOrcResults = false
+        val classCards = boatCards.filter {
+            it.resultRecord.bracket.classId == raceClass.id
+        }.place { p: Int, card: RaceReportCard ->
+            card.placeInClass = p
+        }
+
+        classCards.place(orc = true) { p, card ->
+            hasOrcResults = true
+            card.placeInClassOrc = p
+        }
+
+        //Bracket Places
+        val bracketCards = classSchedule.brackets.mapNotNull { bracket ->
+            val bracketCards = classCards.filter {
+                it.resultRecord.bracket.id == bracket.id
+            }.place { p: Int, card: RaceReportCard ->
+                card.placeInBracket = p
+            }
+
+            bracketCards.place(orc = true) { p, card ->
+                card.placeInBracketOrc = p
+            }
+
+            if (bracketCards.isNotEmpty()) {
+                BracketReportCards(
+                    bracket = bracket,
+                    cards = bracketCards,
+                )
+            } else {
+                null
+            }
+        }
+
+        return ClassReportCards(
+            raceClass = raceClass,
+            bracketReport = bracketCards,
+            phrfBFactor = raceSchedule.race.phrfBFactor,
+            hasOrcResults = hasOrcResults
+        ).takeIf { it.bracketReport.isNotEmpty() }
+    }
+
     suspend fun getReport(raceId: Long): RaceReport? {
         val classReportList = mutableListOf<ClassReportCards>()
-        RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
-            val schedules = raceSchedule.schedule.associateBy { it.raceClass.id }
-            val boatCards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map { reduceToCard(it, schedules) }
+        RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule: RaceSchedule ->
+            val schedules: Map<Long, ClassSchedule> = raceSchedule.schedule.associateBy { it.raceClass.id }
 
-            //PHRF Overall Places
-            boatCards.filter { it.phrfRating != null }.place { p, card ->
-                card.placeOverall = p
-            }
+            //Calculate corrected time
+            val allResults: List<RaceResultBoatBracket> = RegattaDatabase.resultsBoatBracketByRaceId(raceId)
 
-            //Cruising Overall Places
-            boatCards.filter { it.phrfRating == null }.place { p, card ->
-                card.placeOverall = p
-            }
-
-            raceSchedule.schedule.forEach { classSchedule ->
-                val raceClass = classSchedule.raceClass
-
-                //Class Places
-                val classCards = boatCards.filter { it.resultRecord.bracket.classId == raceClass.id }
-                    .place { p, card ->
-                        card.placeInClass = p
-                    }
-
-                val bracketCards = classSchedule.brackets.mapNotNull { bracket ->
-
-                    val bracketCards = classCards.filter { it.resultRecord.bracket.id == bracket.id }
-                        .place { p, card ->
-                            card.placeInBracket = p
+            //Places
+            raceSchedule.schedule.forEach { classSchedule: ClassSchedule ->
+                when (val rt = classSchedule.raceClass.ratingType) {
+                    RatingType.ORC,
+                    RatingType.PHRF,
+                    RatingType.ORC_PHRF -> {
+                        val year = classSchedule.raceStart()?.toLocalDateTime(TimeZone.of("America/Los_Angeles"))?.year ?: 0
+                        val raceClass = if (year >= 2026) {
+                            classSchedule.raceClass
+                        } else {
+                            classSchedule.raceClass.copy(ratingType = RatingType.PHRF)
                         }
 
-                    if (bracketCards.isNotEmpty()) {
-                        BracketReportCards(
-                            bracket = bracket,
-                            cards = bracketCards,
-                        )
-                    } else {
-                        null
+                        classCard(
+                            raceSchedule,
+                            classSchedule,
+                            allResults.filter { it.result.ratingType.isORCorPHRF }.map {
+                                reduceToCard(it, raceSchedule, schedules)
+                            },
+                            raceClass
+                        )?.let { classReportList.add(it) }
                     }
 
-                }
-                ClassReportCards(
-                    raceClass = raceClass,
-                    bracketReport = bracketCards,
-                    correctionFactor = raceSchedule.race.correctionFactor
-                ).takeIf { it.bracketReport.isNotEmpty() }?.also {
-                    classReportList.add(it)
+                    RatingType.CruisingFlyingSails,
+                    RatingType.CruisingNonFlyingSails -> classCard(
+                        raceSchedule,
+                        classSchedule,
+                        allResults.filter { it.result.ratingType == rt }.map {
+                            reduceToCard(it, raceSchedule, schedules)
+                        },
+                        classSchedule.raceClass,
+                    )?.let { classReportList.add(it) }
                 }
             }
 
             //Orphan results
-            val orphans = boatCards.filter { it.resultRecord.bracket.id == 0L }
+            val orphans = allResults.filter { it.bracket.id == 0L }.map {
+                reduceToCard(it, raceSchedule, schedules)
+            }
             orphans.place { i, it ->
                 it.placeInBracket = i
-                it.placeOverall = i
                 it.placeInClass = i
             }
             if (orphans.isNotEmpty()) {
@@ -365,7 +363,10 @@ object RaceResultReporter {
                     ClassReportCards(
                         raceClass = RaceClass(name = "Incorrectly classed"),
                         bracketReport = listOf(orphanCards),
-                        correctionFactor = raceSchedule.race.correctionFactor
+                        phrfBFactor = raceSchedule.race.phrfBFactor,
+                        orcScoringOption = raceSchedule.race.orcScoringOption,
+                        orc3Band = raceSchedule.race.orc3Band,
+                        orc5Band = raceSchedule.race.orc5Band,
                     )
                 )
             }
@@ -378,7 +379,11 @@ object RaceResultReporter {
         return null
     }
 
-    private fun reduceToCard(record: RaceResultBoatBracket, classSchedules: Map<Long, ClassSchedule>): RaceReportCard {
+    private suspend fun reduceToCard(
+        record: RaceResultBoatBracket,
+        raceSchedule: RaceSchedule,
+        classSchedules: Map<Long, ClassSchedule>
+    ): RaceReportCard {
         val schedule = classSchedules[record.bracket.classId]
         val result = record.result
         val boat = record.boatSkipper.boat
@@ -388,6 +393,20 @@ object RaceResultReporter {
                 finish - start
             }
         }
+        val phrfBFactor = raceSchedule.race.phrfBFactor
+
+        val phrfTcf = phrfTcf(phrfBFactor, result.phrfRating)
+
+        val orcTcf = record.result.orcRef?.let { ref ->
+            orcTcf(
+                raceSchedule.race.orc3Band,
+                raceSchedule.race.orc5Band,
+                raceSchedule.race.orcScoringOption,
+                requireNotNull(RegattaDatabase.findCertificate(ref)) {
+                    "could not find certificate for result id ${record.result.id} ref = $ref"
+                }
+            )
+        } ?: 1.0
 
         return RaceReportCard(
             resultRecord = record,
@@ -396,26 +415,31 @@ object RaceResultReporter {
             skipper = skipper?.fullName() ?: "",
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
-            windseeker = result.windseeker,
             startTime = schedule?.startDate,
             finishTime = result.finish,
             elapsedTime = time,
-            correctionFactor = correctionFactor(record.raceSchedule.race.correctionFactor, result.phrfRating),
-            correctedTime = boatCorrectedTime(
-                record.raceSchedule.race.correctionFactor,
-                schedule?.startDate,
-                result.finish,
-                result.phrfRating,
+            phrfTcf = phrfTcf,
+            orcTcf = orcTcf,
+            correctedPhrfTime = boatCorrectedTime(
+                tcf = phrfTcf,
+                start = schedule?.startDate,
+                finish = result.finish
+            ).takeIf { result.finish != null },
+            correctedOrcTime = boatCorrectedTime(
+                tcf = orcTcf,
+                start = schedule?.startDate,
+                finish = result.finish
             ).takeIf { result.finish != null },
             placeInBracket = 0,
+            placeInClassOrc = 0,
             placeInClass = 0,
-            placeOverall = 0,
+            placeInBracketOrc = 0,
             hocPosition = result.hocPosition,
             penalty = result.penalty,
         )
     }
 
-    private fun correctionFactor(factor: Int?, phrfRating: Int?): Double {
+    private fun phrfTcf(factor: Int?, phrfRating: Int?): Double {
         return factor?.let { cf ->
             phrfRating?.let { rating ->
                 650.0 / (cf.toDouble() + rating.toDouble())
@@ -423,28 +447,111 @@ object RaceResultReporter {
         } ?: 1.0
     }
 
-    private fun boatCorrectedTime(factor: Int?, start: Instant?, finish: Instant?, phrfRating: Int?): Duration? {
+    private fun orcTcf(
+        orc3Band: Orc3Band? = null,
+        orc5Band: Orc5Band? = null,
+        orcScoringOption: OrcScoringOption,
+        orcCertificate: OrcCertificate
+    ): Double {
+        return when (orcScoringOption) {
+            OrcScoringOption.SingleNumberAllPurpose -> orcCertificate.allPurposeTot
+            OrcScoringOption.SingleNumberWindwardLeeward -> orcCertificate.wlSingleNumberTot
+            OrcScoringOption.TripleNumberAllPurpose -> when (requireNotNull(orc3Band)) {
+                Orc3Band.Low -> orcCertificate.tripleNumberAllPurposeLowTot
+                Orc3Band.Medium -> orcCertificate.tripleNumberAllPurposeMedTot
+                Orc3Band.High -> orcCertificate.tripleNumberAllPurposeHiTot
+            }
+
+            OrcScoringOption.TripleNumberWindwardLeeward -> when (requireNotNull(orc3Band)) {
+                Orc3Band.Low -> orcCertificate.tripleNumberWlLowTot
+                Orc3Band.Medium -> orcCertificate.tripleNumberWlMedTot
+                Orc3Band.High -> orcCertificate.tripleNumberWlHiTot
+            }
+
+            OrcScoringOption.SingleNumberPredominantUpwind -> orcCertificate.singleNumberPredominantUpwindTot
+            OrcScoringOption.SingleNumberPredominantReaching -> orcCertificate.singleNumberPredominantReachingTot
+            OrcScoringOption.SingleNumberPredominantDownwind -> orcCertificate.singleNumberPredominantDownwindTot
+            OrcScoringOption.PredominantUpwind -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.predominantUpwindLowTot
+                Orc5Band.LowMedium -> orcCertificate.predominantUpwindLowMedTot
+                Orc5Band.Medium -> orcCertificate.predominantUpwindMedTot
+                Orc5Band.MediumHigh -> orcCertificate.predominantUpwindMedHiTot
+                Orc5Band.High -> orcCertificate.predominantUpwindHiTot
+            }
+
+            OrcScoringOption.PredominantDownwind -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.predominantDownwindLowTot
+                Orc5Band.LowMedium -> orcCertificate.predominantDownwindLowMedTot
+                Orc5Band.Medium -> orcCertificate.predominantDownwindMedTot
+                Orc5Band.MediumHigh -> orcCertificate.predominantDownwindMedHiTot
+                Orc5Band.High -> orcCertificate.predominantDownwindHiTot
+            }
+
+            OrcScoringOption.PredominantReaching -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.predominantReachingLowTot
+                Orc5Band.LowMedium -> orcCertificate.predominantReachingLowMedTot
+                Orc5Band.Medium -> orcCertificate.predominantReachingMedTot
+                Orc5Band.MediumHigh -> orcCertificate.predominantReachingMedHiTot
+                Orc5Band.High -> orcCertificate.predominantReachingHiTot
+            }
+
+            OrcScoringOption.FiveBandWindwardLeeward -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.fiveBandWlLowTot
+                Orc5Band.LowMedium -> orcCertificate.fiveBandWlLowMedTot
+                Orc5Band.Medium -> orcCertificate.fiveBandWlMedTot
+                Orc5Band.MediumHigh -> orcCertificate.fiveBandWlMedHiTot
+                Orc5Band.High -> orcCertificate.fiveBandWlHiTot
+            }
+
+            OrcScoringOption.WindwardLeeward60_40 -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.usWl6040LTot
+                Orc5Band.LowMedium -> orcCertificate.usWl6040LmTot
+                Orc5Band.Medium -> orcCertificate.usWl6040MTot
+                Orc5Band.MediumHigh -> orcCertificate.usWl6040MhTot
+                Orc5Band.High -> orcCertificate.usWl6040HTot
+            }
+
+            OrcScoringOption.FiveBandAllPurpose -> when (requireNotNull(orc5Band)) {
+                Orc5Band.Low -> orcCertificate.fiveBandAllPurposeLowTot
+                Orc5Band.LowMedium -> orcCertificate.fiveBandAllPurposeLowMedTot
+                Orc5Band.Medium -> orcCertificate.fiveBandAllPurposeMedTot
+                Orc5Band.MediumHigh -> orcCertificate.fiveBandAllPurposeMedHiTot
+                Orc5Band.High -> orcCertificate.fiveBandAllPurposeHiTot
+            }
+        }
+
+    }
+
+    private fun boatCorrectedTime(tcf: Double, start: Instant?, finish: Instant?): Duration? {
         if (start != null && finish != null) {
-            val cf = correctionFactor(factor, phrfRating)
-            val ms = ((finish - start).inWholeMilliseconds) * cf
+            val ms = ((finish - start).inWholeMilliseconds) * tcf
             return ms.toDuration(DurationUnit.MILLISECONDS)
         }
         return null
     }
 }
 
-
-val cardCompare: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
-    compare(lhs, rhs)
+val cardComparePhrf: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
+    compare(lhs, rhs) { card ->
+        card.correctedPhrfTime
+    }
 }
 
-fun compare(lhs: RaceReportCard, rhs: RaceReportCard): Int {
+val cardCompareOrc: Comparator<RaceReportCard> = Comparator { lhs, rhs ->
+    compare(lhs, rhs) { card ->
+        card.correctedOrcTime
+    }
+}
+
+fun compare(lhs: RaceReportCard, rhs: RaceReportCard, cTime: (RaceReportCard) -> Duration?): Int {
     // compare corrected time
-    return if (lhs.correctedTime != null && rhs.correctedTime != null) {
-        lhs.correctedTime!!.inWholeMilliseconds.compareTo(rhs.correctedTime!!.inWholeMilliseconds)
-    } else if (lhs.correctedTime != null) {
+    val lhsCorrectedTime = cTime(lhs)
+    val rhsCorrectedTime = cTime(rhs)
+    return if (lhsCorrectedTime != null && rhsCorrectedTime != null) {
+        lhsCorrectedTime.inWholeMilliseconds.compareTo(rhsCorrectedTime.inWholeMilliseconds)
+    } else if (lhsCorrectedTime != null) {
         -1
-    } else if (rhs.correctedTime != null) {
+    } else if (rhsCorrectedTime != null) {
         1
     } else {
         // compare HOC
@@ -470,14 +577,19 @@ private data class TempPlace(
     val card: RaceReportCard,
 )
 
-fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit): List<RaceReportCard> {
+fun Iterable<RaceReportCard>.place(
+    orc: Boolean = false,
+    placeHandler: (Int, RaceReportCard) -> Unit
+): List<RaceReportCard> {
+    val cardList = if (orc) this.filter { it.ratingType().isORC } else this
     val penalties = mutableListOf<PenaltyPosition>()
-    val starters = this.count()
-    val finishers = this.count { it.resultRecord.result.finish != null }
-    val hocCount = this.count { it.hocPosition != null }
+    val starters = cardList.count()
+    val finishers = cardList.count { it.resultRecord.result.finish != null }
+    val hocCount = cardList.count { it.hocPosition != null }
 
+    val cardCompare = if (orc) cardCompareOrc else cardComparePhrf
     //sorted by corrected time then HOC
-    val list = this.sortedWith(cardCompare).let {
+    val list = cardList.sortedWith(cardCompare).let {
         var last: RaceReportCard? = null
         var position = 1
         it.mapIndexed { i, ea ->
@@ -488,7 +600,7 @@ fun Iterable<RaceReportCard>.place(placeHandler: (Int, RaceReportCard) -> Unit):
                 FinishCode.TIME,
                 FinishCode.HOC -> {
                     last?.let { theLast ->
-                        if (compare(ea, theLast) == 1) {
+                        if (cardCompare.compare(ea, theLast) == 1) {
                             position++
                         }
                     }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.mxmariner.regatta.data.Person
-import com.mxmariner.regatta.data.RatingType
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
@@ -70,8 +69,13 @@ fun AddEditBoatModal(
                     }
                     P {
                         RatingSelections(
-                            boatType = state.addEditState.addBoat.ratingType(),
-                            phrfRating = state.addEditState.addBoat.phrfRating,
+                            boat = state.addEditState.addBoat,
+                            onOrc = { a, cert ->
+                                when (a) {
+                                    Action.Add -> boatViewModel.addOrcCertificate(cert)
+                                    Action.Delete -> boatViewModel.deleteOrcCertificate(cert)
+                                }
+                            },
                             typeChange = { t, r ->
                                 boatViewModel.setEditBoatRatingType(t, r)
                             },
@@ -97,9 +101,7 @@ fun AddEditBoatModal(
                 Button(attrs = {
                     classes(*RgButtonStyle.Success.classes)
 
-                    if (state.addEditState.addBoat.name.isBlank()
-                        || (state.addEditState.addBoat.ratingType() == RatingType.PHRF && state.addEditState.addBoat.phrfRating == null)
-                    ) {
+                    if (!state.addEditState.isValid) {
                         disabled()
                     }
                     attr("data-bs-dismiss", "modal")

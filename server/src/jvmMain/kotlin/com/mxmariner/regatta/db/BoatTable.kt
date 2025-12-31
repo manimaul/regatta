@@ -2,7 +2,7 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.Windseeker
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
 import com.mxmariner.regatta.ratingDefault
 import org.jetbrains.exposed.sql.*
@@ -14,12 +14,10 @@ object BoatTable : Table() {
     val sailNumber = varchar("sail_number", 128)
     val boatType = varchar("boat_type", 128)
     val phrfRating = integer("phrf_rating").nullable()
-    val wsRating = integer("ws_rating").nullable()
-    val wsFlying = bool("ws_flying").nullable()
+    val ratingType = varchar("rating_type", 128)
     val skipper = (long("skipper_id") references PersonTable.id).nullable()
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
-    val orc = (long("orc_id") references OrcTable.id).nullable()
 
     fun removePerson(personId: Long): Int {
         return update(where = {
@@ -43,14 +41,13 @@ object BoatTable : Table() {
         }
     }
 
-    fun upsertBoatSkipper(boatSkipper: BoatSkipper): BoatSkipper {
-        return BoatSkipper(
-            boat = boatSkipper.boat?.let { upsertBoat(it) },
-            skipper = boatSkipper.skipper?.let { PersonTable.upsertPerson(it) },
-        )
-    }
-
     fun upsertBoat(boat: Boat): Boat? {
+        if (boat.id > 0) {
+            OrcTable.unlinkCerts(boat.id)
+        }
+        boat.orcCerts.forEach {
+            OrcTable.upsertCert(boat.id, it)
+        }
         return upsert {
             if (boat.id > 0) it[id] = boat.id
             it[name] = boat.name.trim()
@@ -59,14 +56,14 @@ object BoatTable : Table() {
             it[phrfRating] = boat.phrfRating
             it[skipper] = boat.skipperId
             it[active] = boat.active
-            it[wsFlying] = boat.windseeker?.flyingSails
-            it[wsRating] = boat.windseeker?.rating
+            it[ratingType] = boat.ratingType.name
         }.resultedValues?.singleOrNull()?.let { row ->
             resultRowToBoat(row)
         }
     }
 
     fun deleteBoat(boatId: Long): Int {
+        OrcTable.unlinkCerts(boatId)
         return BoatTable.deleteWhere {
             id eq boatId
         }
@@ -95,26 +92,18 @@ object BoatTable : Table() {
                 skipper = null
             )
         }).sortedWith { lhs, rhs ->
-            val lhsPhrfRating = lhs.boat?.phrfRating
-            val rhsPhrfRating = rhs.boat?.phrfRating
-            val lhsWindseeker = lhs.boat?.windseeker
-            val rhsWindseeker = rhs.boat?.windseeker
-            if (lhsPhrfRating != null && rhsPhrfRating != null) {
-                lhsPhrfRating.compareTo(rhsPhrfRating)
-            } else if (lhsPhrfRating != null) {
-                -1
-            } else if (rhsPhrfRating != null) {
-                1
-            } else if (lhsWindseeker?.flyingSails != null && rhsWindseeker?.flyingSails != null) {
-                (lhsWindseeker.rating).compareTo((rhsWindseeker.rating))
-            } else if (lhs.boat?.windseeker?.flyingSails != null) {
-                -1
-            } else if (rhs.boat?.windseeker?.flyingSails != null) {
-                1
-            } else {
-                (lhs.boat?.windseeker?.rating ?: Int.MAX_VALUE).compareTo(
-                    (rhs.boat?.windseeker?.rating ?: Int.MAX_VALUE)
+            val left = lhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
+            val right = rhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
+            if (left.isPHRF && right.isPHRF) {
+                (lhs.boat?.phrfRating ?: ratingDefault).compareTo(
+                    rhs.boat?.phrfRating ?: ratingDefault
                 )
+            } else if (left.isORC && right.isORC) {
+                val rmin = rhs.boat?.orcCerts?.maxOf { it.virtualPhrf() } ?: 0
+                val lmin = lhs.boat?.orcCerts?.maxOf { it.virtualPhrf() } ?: 0
+                lmin.compareTo(rmin)
+            } else {
+                left.compareTo(right)
             }
         }.toList()
     }
@@ -123,12 +112,6 @@ object BoatTable : Table() {
         row: ResultRow,
     ): Boat {
         val phrfRating = row[phrfRating]
-        val windseeker: Windseeker? = if (phrfRating == null) {
-            Windseeker(
-                rating = row[wsRating] ?: ratingDefault.toInt(),
-                flyingSails = row[wsFlying] ?: false,
-            )
-        } else null
         val boatId = row[id]
         val numberOfRaces = RaceResultsTable.raceCount(boatId)
         return Boat(
@@ -137,8 +120,9 @@ object BoatTable : Table() {
             sailNumber = row[sailNumber],
             boatType = row[boatType],
             phrfRating = phrfRating,
-            windseeker = windseeker,
+            ratingType = RatingType.valueOf(row[ratingType]),
             numberOfRaces = numberOfRaces,
+            orcCerts = OrcTable.findCertificates(boatId)
         )
     }
 }
