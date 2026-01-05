@@ -19,7 +19,6 @@ object BoatTable : Table() {
     val skipper = (long("skipper_id") references PersonTable.id).nullable()
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
-    val orc = (long("orc_id") references OrcTable.id).nullable()
 
     fun removePerson(personId: Long): Int {
         return update(where = {
@@ -67,6 +66,7 @@ object BoatTable : Table() {
     }
 
     fun deleteBoat(boatId: Long): Int {
+        OrcTable.deleteCerts(boatId)
         return BoatTable.deleteWhere {
             id eq boatId
         }
@@ -139,6 +139,7 @@ object BoatTable : Table() {
             phrfRating = phrfRating,
             windseeker = windseeker,
             numberOfRaces = numberOfRaces,
+            orcCerts = OrcTable.findCertificates(boatId)
         )
     }
 }

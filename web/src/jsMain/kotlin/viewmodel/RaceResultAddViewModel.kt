@@ -25,6 +25,9 @@ data class RaceResultAddState(
 ) : VmState {
 
     val isValid = when (ratingType) {
+        RatingType.ORC_PHRF -> { //todo: ORC
+            false
+        }
         RatingType.ORC -> { //todo: ORC
             false
         }
@@ -45,6 +48,11 @@ data class RaceResultAddState(
         var phrfRating: Int?
         var windseeker: Windseeker?
         val valid = when (ratingType) {
+            RatingType.ORC_PHRF -> {
+                windseeker = null
+                phrfRating = this.phrfRating.toIntOrNull()
+                phrfRating != null //todo: ORC
+            }
             RatingType.ORC -> {
                 windseeker = null
                 phrfRating = null
@@ -202,6 +210,7 @@ class RaceResultAddViewModel(
                 raceClassId = cs?.raceClass?.id,
                 bracketId = cs?.brackets?.firstOrNull { bracket ->
                     when (boatSkipper?.boat?.ratingType()) {
+                        RatingType.ORC_PHRF -> false //todo: ORC
                         RatingType.ORC -> false //todo: ORC
                         RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
                             it >= bracket.minRating && it <= bracket.maxRating
@@ -224,6 +233,7 @@ class RaceResultAddViewModel(
     fun availableBrackets(selectedRaceClass: ClassSchedule?): List<Bracket>? {
         return withState { addState ->
             val rating: Float = when (addState.ratingType) {
+                RatingType.ORC_PHRF -> addState.phrfRating.toFloat() //todo: ORC
                 RatingType.ORC -> 1.0f //todo: ORC
                 RatingType.PHRF -> addState.phrfRating.toFloat()
                 RatingType.CruisingFlyingSails -> addState.wsRating.toFloat()

@@ -1,9 +1,26 @@
+- ORC scoring support
+  - Boats can be either (PHRF, PHRF + ORC, ORC, Windseeker FS, Windseeker)
+    - PHRF+ORC boats will be bracketed based on ORC ratings
+    - ORC boats will be bracketed on ORC ratings
+    - PHRF boats will be bracketed on PHRF ratings
+  - Race classes can be either (PHRF, ORC, Windseeker FS, Windseeker)
+
+https://orc.org/race-managment/rms-files
+All boats
+https://data.orc.org/public/WPub.dll?action=DownRMS&CountryId=USA&ext=json&Family=1&VPPYear=2025
+
+Specific boat
+https://data.orc.org/public/WPub.dll?action=DownBoatRMS&RefNo=04560003WR9&ext=json
+
+- Race config set ORC scoring type (upwind/downwind general purpose) or ()
+- Add wind speed to RC and results editor
+  - auto select
+
 - Overall result optional
 - Workflows
   - create new race
   - add boat
 - RC image upload (for attaching paper race results)
-- ORC scoring support
 - Integration with new CYCT website login
 - Allow boat owners to upload images, ORC / PHRF cert
 - Course chart (map)

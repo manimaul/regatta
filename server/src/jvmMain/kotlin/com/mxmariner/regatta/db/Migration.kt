@@ -67,17 +67,23 @@ private fun dbVersion0To1Upgrade(database: Database) {
 private fun dbVersion1To2Upgrade(database: Database) {
     transaction(database) {
         exec("ALTER TABLE raceclass ADD COLUMN IF NOT EXISTS ratingType varchar(128) DEFAULT 'CruisingNonFlyingSails' NOT NULL;")
-    }
-    transaction(database) {
         exec("UPDATE raceclass SET ratingType = 'PHRF' WHERE phrf = true;")
         exec("UPDATE raceclass SET ratingType = 'CruisingNonFlyingSails' WHERE phrf = false AND wsf = false;")
         exec("UPDATE raceclass SET ratingType = 'CruisingFlyingSails' WHERE phrf = false AND wsf = true;")
-    }
-    transaction(database) {
         exec("ALTER TABLE raceclass DROP COLUMN IF EXISTS phrf;")
         exec("ALTER TABLE raceclass DROP COLUMN IF EXISTS wsf;")
     }
     updateVersion(database, 2)
+}
+
+private fun dbVersion1To3Upgrade(database: Database) {
+    transaction(database) {
+        exec("ALTER TABLE boat DROP COLUMN IF EXISTS orc_id;")
+    }
+    transaction(database) {
+        exec("DROP TABLE IF EXISTS orc")
+    }
+    updateVersion(database, 3)
 }
 
 object Migration {
@@ -89,7 +95,11 @@ object Migration {
         if (dbVersion(database) == 1) {
             dbVersion1To2Upgrade(database)
         }
+        if (dbVersion(database) == 2) {
+            dbVersion1To3Upgrade(database)
+        }
         println("migrations complete")
         println("database version ${dbVersion(database)}")
     }
+
 }

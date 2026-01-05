@@ -206,6 +206,9 @@ class BoatViewModel() : BaseViewModel<BoatState>(BoatState()) {
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
             val boat = when (ratingType) {
+                RatingType.ORC_PHRF -> {
+                    Boat() //todo: ORC
+                }
                 RatingType.ORC -> {
                     Boat() //todo: ORC
                 }

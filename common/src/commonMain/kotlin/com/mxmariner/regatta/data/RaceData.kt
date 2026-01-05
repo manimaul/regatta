@@ -1,5 +1,6 @@
 package com.mxmariner.regatta.data
 
+import OrcCertificate
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.ratingDefault
 import com.mxmariner.regatta.ratingLabel
@@ -55,8 +56,8 @@ data class Bracket(
     val description: String? = null,
     val active: Boolean = true,
     val numberOfRaces: Long = 0L,
-    val minRating: Float = -1000f,
-    val maxRating: Float = 1000f,
+    val minRating: Float = -1000f, //slowest PHRF - fastest ORC
+    val maxRating: Float = 1000f,  //fastest PHRF - slowest ORC
     val classId: Long = 0,
 ) {
     fun label(): String {
@@ -130,9 +131,18 @@ data class Windseeker(
 
 enum class RatingType(val label: String) {
     ORC("ORC"),
+    ORC_PHRF("ORC, PHRF"),
     PHRF("PHRF"),
     CruisingFlyingSails("Cruising Flying Sails"),
-    CruisingNonFlyingSails("Cruising Non-Flying Sails"),
+    CruisingNonFlyingSails("Cruising Non-Flying Sails");
+
+    companion object {
+        fun classEntries() : List<RatingType> {
+            return RatingType.entries.filter {
+                it != ORC_PHRF
+            }
+        }
+    }
 }
 
 @Serializable
@@ -142,6 +152,7 @@ data class Boat(
     val sailNumber: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
+    val orcCerts: List<OrcCertificate> = emptyList(),
     val skipperId: Long? = null,
     val windseeker: Windseeker? = null,
     val numberOfRaces: Long = 0,
