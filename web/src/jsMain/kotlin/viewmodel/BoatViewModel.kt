@@ -1,10 +1,10 @@
 package viewmodel
 
+import OrcCertificate
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RatingType
-import com.mxmariner.regatta.data.Windseeker
 import kotlinx.coroutines.launch
 import utils.*
 
@@ -40,7 +40,7 @@ data class BoatState(
 
 val boatViewModel = BoatViewModel()
 
-class BoatViewModel() : BaseViewModel<BoatState>(BoatState()) {
+class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
 
     init {
         getAllBoatsAndPeople()
@@ -206,22 +206,26 @@ class BoatViewModel() : BaseViewModel<BoatState>(BoatState()) {
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
             val boat = when (ratingType) {
-                RatingType.ORC_PHRF -> {
-                    Boat() //todo: ORC
-                }
-                RatingType.ORC -> {
-                    Boat() //todo: ORC
-                }
+                RatingType.ORC_PHRF-> it.addEditState.addBoat.copy(
+                    ratingType = ratingType,
+                    phrfRating = rating,
+                    orcCerts = listOf(OrcCertificate())
+                )
+                RatingType.ORC -> it.addEditState.addBoat.copy(
+                    ratingType = ratingType,
+                    phrfRating = null,
+                    orcCerts = listOf(OrcCertificate())
+                )
                 RatingType.PHRF -> it.addEditState.addBoat.copy(
-                    windseeker = null,
+                    ratingType = ratingType,
                     phrfRating = rating
                 )
                 RatingType.CruisingFlyingSails -> it.addEditState.addBoat.copy(
-                    windseeker = Windseeker(rating, true),
+                    ratingType = ratingType,
                     phrfRating = null
                 )
                 RatingType.CruisingNonFlyingSails -> it.addEditState.addBoat.copy(
-                    windseeker = Windseeker(rating, false),
+                    ratingType = ratingType,
                     phrfRating = null
                 )
             }

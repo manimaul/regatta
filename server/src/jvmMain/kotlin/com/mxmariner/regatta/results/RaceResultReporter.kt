@@ -57,7 +57,7 @@ object RaceResultReporter {
 
         //calculate place overall
         standings?.standings?.map { it.standings }?.flatten()?.map { it.standings }?.flatten()
-            ?.groupBy { it.boatSkipper.boat?.ratingType() }?.forEach { (_, standings) ->
+            ?.groupBy { it.boatSkipper.boat?.ratingType }?.forEach { (_, standings) ->
                 var place = 0
                 var previous: Long? = null
                 standings.sortedWith { lhs, rhs ->
@@ -396,7 +396,7 @@ object RaceResultReporter {
             skipper = skipper?.fullName() ?: "",
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
-            windseeker = result.windseeker,
+            windseeker = result.ratingType.windseeker,
             startTime = schedule?.startDate,
             finishTime = result.finish,
             elapsedTime = time,

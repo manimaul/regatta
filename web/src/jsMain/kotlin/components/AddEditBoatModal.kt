@@ -70,7 +70,7 @@ fun AddEditBoatModal(
                     }
                     P {
                         RatingSelections(
-                            boatType = state.addEditState.addBoat.ratingType(),
+                            boatType = state.addEditState.addBoat.ratingType,
                             phrfRating = state.addEditState.addBoat.phrfRating,
                             typeChange = { t, r ->
                                 boatViewModel.setEditBoatRatingType(t, r)
@@ -98,7 +98,7 @@ fun AddEditBoatModal(
                     classes(*RgButtonStyle.Success.classes)
 
                     if (state.addEditState.addBoat.name.isBlank()
-                        || (state.addEditState.addBoat.ratingType() == RatingType.PHRF && state.addEditState.addBoat.phrfRating == null)
+                        || (state.addEditState.addBoat.ratingType == RatingType.PHRF && state.addEditState.addBoat.phrfRating == null)
                     ) {
                         disabled()
                     }

@@ -3,7 +3,6 @@ package com.mxmariner.regatta.data
 import OrcCertificate
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.ratingDefault
-import com.mxmariner.regatta.ratingLabel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -136,6 +135,21 @@ enum class RatingType(val label: String) {
     CruisingFlyingSails("Cruising Flying Sails"),
     CruisingNonFlyingSails("Cruising Non-Flying Sails");
 
+    val windseeker: Windseeker?
+        get() = when(this) {
+            ORC,
+            ORC_PHRF,
+            PHRF -> null
+            CruisingFlyingSails -> Windseeker(flyingSails = true)
+            CruisingNonFlyingSails -> Windseeker(flyingSails = false)
+        }
+
+    fun ratedLabel(rating: Any? = null) : String {
+        return rating?.let {
+            "$label ($rating)"
+        } ?: label
+    }
+
     companion object {
         fun classEntries() : List<RatingType> {
             return RatingType.entries.filter {
@@ -154,19 +168,14 @@ data class Boat(
     val phrfRating: Int? = null,
     val orcCerts: List<OrcCertificate> = emptyList(),
     val skipperId: Long? = null,
-    val windseeker: Windseeker? = null,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true
 ) {
-    fun ratingType(): RatingType {
-        return windseeker?.let {
-            if (it.flyingSails) {
-                RatingType.CruisingFlyingSails
-            } else {
-                RatingType.CruisingNonFlyingSails
-            }
-        } ?: RatingType.PHRF
-    }
+
+    //todo: deprecate
+    @Transient
+    val windseeker: Windseeker? = ratingType.windseeker
 }
 
 @Serializable
@@ -187,12 +196,13 @@ data class BoatSkipper(
 
     fun dropLabel(): String {
         val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
-        return "${label()}$sail ${ratingLabel(boat?.phrfRating, boat?.windseeker, true)}"
+        return "${label()}$sail ${boat?.ratingType?.label ?: ""}}"
     }
 
     fun shortLabel(): String {
         return boat?.name ?: ""
     }
+
 }
 
 @Serializable
@@ -206,7 +216,7 @@ data class RaceResult(
     val bracketId: Long? = null,
     val raceClassId: Long? = null,
     val penalty: Int? = null,
-    val windseeker: Windseeker? = null,
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val finishCode: FinishCode = finish?.let { FinishCode.TIME } ?: FinishCode.RET,
 )
 

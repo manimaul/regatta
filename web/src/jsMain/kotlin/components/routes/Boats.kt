@@ -1,7 +1,6 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.ratingLabel
 import components.*
 import components.RgButtonStyle
 import org.jetbrains.compose.web.dom.*
@@ -76,7 +75,7 @@ fun BoatList(
                         }
                         RgTd { Text(boat.boat?.sailNumber ?: "") }
                         RgTd { Text(boat.boat?.boatType ?: "") }
-                        RgTd { Text(ratingLabel(boat.boat?.phrfRating, boat.boat?.windseeker, true)) }
+                        RgTd { Text(boat.boat?.ratingType?.label ?: "") }
                         RgTd { Text(boat.boat?.numberOfRaces?.toString() ?: "") }
                         RgTd {
                             AddEditBoatModalButton(

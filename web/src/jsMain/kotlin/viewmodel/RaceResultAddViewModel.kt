@@ -13,7 +13,6 @@ data class RaceResultAddState(
     val raceSchedule: RaceSchedule? = null,
     val boatSkipper: BoatSkipper? = null,
     val phrfRating: String = ratingDefault.toInt().toString(),
-    val wsRating: String = ratingDefault.toInt().toString(),
     val wsFlying: Boolean = false,
     val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
@@ -35,51 +34,34 @@ data class RaceResultAddState(
             phrfRating.toIntOrNull() != null
         }
 
-        RatingType.CruisingFlyingSails -> {
-            wsRating.toIntOrNull() != null
-        }
+        RatingType.CruisingFlyingSails,
+        RatingType.CruisingNonFlyingSails -> true
 
-        RatingType.CruisingNonFlyingSails -> {
-            wsRating.toIntOrNull() != null
-        }
     }
 
     fun asPost(): RaceResult? {
         var phrfRating: Int?
-        var windseeker: Windseeker?
         val valid = when (ratingType) {
             RatingType.ORC_PHRF -> {
-                windseeker = null
                 phrfRating = this.phrfRating.toIntOrNull()
                 phrfRating != null //todo: ORC
             }
             RatingType.ORC -> {
-                windseeker = null
                 phrfRating = null
                 false
             } //todo: ORC
             RatingType.PHRF -> {
-                windseeker = null
                 phrfRating = this.phrfRating.toIntOrNull()
-
                 phrfRating != null
             }
 
             RatingType.CruisingFlyingSails -> {
                 phrfRating = null
-                windseeker = wsRating.toIntOrNull()?.let {
-                    Windseeker(it, true)
-                }
-
-                windseeker != null
+                true
             }
             RatingType.CruisingNonFlyingSails -> {
                 phrfRating = null
-                windseeker = wsRating.toIntOrNull()?.let {
-                    Windseeker(it, false)
-                }
-
-                windseeker != null
+                true
             }
         }
         return if (boatSkipper?.boat?.id != null && raceSchedule?.race?.id != null && valid) {
@@ -89,7 +71,7 @@ data class RaceResultAddState(
                 boatId = boatSkipper.boat?.id ?: 0L,
                 finish = finish,
                 phrfRating = phrfRating,
-                windseeker = windseeker,
+                ratingType = ratingType,
                 hocPosition = hocPosition,
                 penalty = penalty,
                 finishCode = finishCode,
@@ -124,12 +106,11 @@ class RaceResultAddViewModel(
 
     fun addBoat(boatSkipper: BoatSkipper?) {
 
-        val type = boatSkipper?.boat?.ratingType() ?: RatingType.PHRF
+        val type = boatSkipper?.boat?.ratingType ?: RatingType.PHRF
         setState {
             copy(
                 boatSkipper = boatSkipper,
                 phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
-                wsRating = boatSkipper?.boat?.windseeker?.rating?.toString() ?: "",
                 wsFlying = boatSkipper?.boat?.windseeker?.flyingSails == true,
                 ratingType = type,
             )
@@ -160,8 +141,7 @@ class RaceResultAddViewModel(
                 id = card?.resultRecord?.result?.id ?: 0L,
                 boatSkipper = card?.resultRecord?.boatSkipper,
                 phrfRating = card?.resultRecord?.result?.phrfRating?.toString() ?: "",
-                wsRating = card?.resultRecord?.result?.windseeker?.rating?.toString() ?: "",
-                wsFlying = card?.resultRecord?.result?.windseeker?.flyingSails == true,
+                wsFlying = card?.resultRecord?.result?.ratingType == RatingType.CruisingFlyingSails,
                 ratingType = type,
                 raceSchedule = card?.resultRecord?.raceSchedule ?: raceSchedule,
                 finish = card?.finishTime ?: raceSchedule?.endTime,
@@ -198,7 +178,6 @@ class RaceResultAddViewModel(
                 raceClassId = null,
                 bracketId = null,
                 wsFlying = type == RatingType.CruisingFlyingSails,
-                wsRating = rating.toString(),
                 phrfRating = rating.toString()
             )
         }
@@ -209,7 +188,7 @@ class RaceResultAddViewModel(
             copy(
                 raceClassId = cs?.raceClass?.id,
                 bracketId = cs?.brackets?.firstOrNull { bracket ->
-                    when (boatSkipper?.boat?.ratingType()) {
+                    when (boatSkipper?.boat?.ratingType) {
                         RatingType.ORC_PHRF -> false //todo: ORC
                         RatingType.ORC -> false //todo: ORC
                         RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
@@ -236,8 +215,8 @@ class RaceResultAddViewModel(
                 RatingType.ORC_PHRF -> addState.phrfRating.toFloat() //todo: ORC
                 RatingType.ORC -> 1.0f //todo: ORC
                 RatingType.PHRF -> addState.phrfRating.toFloat()
-                RatingType.CruisingFlyingSails -> addState.wsRating.toFloat()
-                RatingType.CruisingNonFlyingSails -> addState.wsRating.toFloat()
+                RatingType.CruisingFlyingSails -> ratingDefault
+                RatingType.CruisingNonFlyingSails -> ratingDefault
             }
             selectedRaceClass?.brackets?.filter { bracket ->
                 rating >= bracket.minRating && rating <= bracket.maxRating

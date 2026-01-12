@@ -5,7 +5,6 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.ClassSchedule
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceSchedule
-import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.selected
@@ -56,7 +55,7 @@ fun RaceResultsEdit(
                             } else {
                                 RgTr {
                                     RgTd { Text(card.boatName) }
-                                    RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, true)) }
+                                    RgTd { Text( card.ratingType().label) }
                                     RgTd { Text(card.finishText()) }
                                     RgTd {
                                         RgButton(label = "Edit") {

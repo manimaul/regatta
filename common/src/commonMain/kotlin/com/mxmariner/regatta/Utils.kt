@@ -1,6 +1,5 @@
 package com.mxmariner.regatta
 
-import com.mxmariner.regatta.data.Windseeker
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -53,22 +52,4 @@ inline fun <T> List<T>.moveItem(up: Boolean = false, predicate: (T) -> Boolean):
         }
     }
     return lst
-}
-
-fun ratingLabel(phrfRating: Int?, windseeker: Windseeker?, showWsRating: Boolean) : String {
-    return phrfRating?.let {
-        "PHRF ($it)"
-    } ?: if (windseeker?.flyingSails == true) {
-        if (showWsRating) {
-            return "Cruising - Flying Sails (${windseeker.rating})"
-        } else {
-            return "Cruising - Flying Sails"
-        }
-    } else {
-        if (showWsRating) {
-            return "Cruising - Non Flying Sails (${windseeker?.rating}}"
-        } else {
-            return "Cruising - Non Flying Sails"
-        }
-    }
 }

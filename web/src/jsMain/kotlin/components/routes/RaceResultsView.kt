@@ -7,7 +7,6 @@ import com.mxmariner.regatta.data.ClassReportCards
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
 import com.mxmariner.regatta.data.RatingType
-import com.mxmariner.regatta.ratingLabel
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
@@ -93,7 +92,8 @@ fun RaceResultsClassTable(report: RaceReport, classReportCards: ClassReportCards
                     RgTr {
                         RgTd { BoatLabel(card) }
                         RgTd { Text(card.skipper) }
-                        RgTd { Text(ratingLabel(card.phrfRating, card.windseeker, false)) }
+                        RgTd { Text(card.ratingType().ratedLabel(card.phrfRating))
+                        }
                         RgTd { Text(card.finishText()) }
                         RgTd { Text(card.elapsedText()) }
                         if (classReportCards.raceClass.ratingType == RatingType.PHRF) {

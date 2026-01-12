@@ -81,7 +81,7 @@ data class RcFocus(
                     boatId = it,
                     finish = finish,
                     phrfRating = bs.boat?.phrfRating,
-                    windseeker = bs.boat?.windseeker,
+                    ratingType = bs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails,
                     penalty = penalty,
                     hocPosition = hocPosition,
                     finishCode = finishCode

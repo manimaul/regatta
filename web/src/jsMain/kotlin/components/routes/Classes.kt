@@ -153,7 +153,7 @@ fun AddEditClassModal(
     val state by viewModel.flow.collectAsState()
     RgModalBody(
         id = "add-edit-class",
-        modalTitle = { "Add Race Class" }, //
+        modalTitle = { "Add Race Class" },
         content = {
             RgForm {
                 Fieldset {
@@ -172,7 +172,7 @@ fun AddEditClassModal(
 
                         if (state.editClass.raceClass.numberOfRaces == 0L) {
                             RgDropdown(
-                                items = RatingType.entries,
+                                items = RatingType.classEntries(),
                                 selectedItem = state.editClass.raceClass.ratingType,
                                 name = { it.label }
                             ) {

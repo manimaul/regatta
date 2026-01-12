@@ -2,9 +2,8 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
-import com.mxmariner.regatta.data.Windseeker
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
-import com.mxmariner.regatta.ratingDefault
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
@@ -14,7 +13,6 @@ object BoatTable : Table() {
     val sailNumber = varchar("sail_number", 128)
     val boatType = varchar("boat_type", 128)
     val phrfRating = integer("phrf_rating").nullable()
-    val wsRating = integer("ws_rating").nullable()
     val wsFlying = bool("ws_flying").nullable()
     val skipper = (long("skipper_id") references PersonTable.id).nullable()
     val active = bool("active")
@@ -50,6 +48,12 @@ object BoatTable : Table() {
     }
 
     fun upsertBoat(boat: Boat): Boat? {
+        if (boat.id > 0) {
+            OrcTable.deleteCerts(boat.id)
+        }
+        boat.orcCerts.forEach {
+            OrcTable.upsertCert(boat.id, it)
+        }
         return upsert {
             if (boat.id > 0) it[id] = boat.id
             it[name] = boat.name.trim()
@@ -59,7 +63,6 @@ object BoatTable : Table() {
             it[skipper] = boat.skipperId
             it[active] = boat.active
             it[wsFlying] = boat.windseeker?.flyingSails
-            it[wsRating] = boat.windseeker?.rating
         }.resultedValues?.singleOrNull()?.let { row ->
             resultRowToBoat(row)
         }
@@ -123,13 +126,16 @@ object BoatTable : Table() {
         row: ResultRow,
     ): Boat {
         val phrfRating = row[phrfRating]
-        val windseeker: Windseeker? = if (phrfRating == null) {
-            Windseeker(
-                rating = row[wsRating] ?: ratingDefault.toInt(),
-                flyingSails = row[wsFlying] ?: false,
-            )
-        } else null
         val boatId = row[id]
+        val orcCerts = OrcTable.findCertificates(boatId)
+        val ratingType: RatingType = when {
+            orcCerts.isEmpty() && phrfRating != null -> RatingType.PHRF
+            orcCerts.isNotEmpty() && phrfRating != null -> RatingType.ORC_PHRF
+            orcCerts.isNotEmpty() && phrfRating == null -> RatingType.ORC
+            row[wsFlying] == true -> RatingType.CruisingFlyingSails
+            else -> RatingType.CruisingNonFlyingSails
+        }
+
         val numberOfRaces = RaceResultsTable.raceCount(boatId)
         return Boat(
             id = boatId,
@@ -137,7 +143,7 @@ object BoatTable : Table() {
             sailNumber = row[sailNumber],
             boatType = row[boatType],
             phrfRating = phrfRating,
-            windseeker = windseeker,
+            ratingType = ratingType,
             numberOfRaces = numberOfRaces,
             orcCerts = OrcTable.findCertificates(boatId)
         )
