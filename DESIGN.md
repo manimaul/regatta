@@ -1,5 +1,6 @@
 # Boat (table)
 Table of boats (name, sail no, type, current rating info, associated boat)
+PHRF rating is stored in this table, ORC certs are stored in a separate table with a reference to the boat
 
 # Person (table)
 Table of skippers (first, last, is club member)
@@ -17,6 +18,7 @@ Table of brackets (name, description, race class, min rating, max rating)
 
 # RaceResults (table)
 Table containing a boat's finish time, rating (at time of race), codes and penalties. 
+** adds TOT number for ORC
 
 # Registration (table) **new
 Table of boats registered for a specific race (boat id, race id, race time id)
@@ -42,4 +44,6 @@ Table containing race series (id, name, is active, sort order) . A series can ha
 
 Logged in users can register racers for individual, series or all races. Later, the CYCT race registration will call
 a webhook for this. RC can add also add a racer on checkin page. Registered racers are automatically checked in.
+
+Can we authenticate through club express to allow users to select race registration options (orc cert), class selection.
 

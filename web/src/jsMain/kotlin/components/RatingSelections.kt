@@ -14,6 +14,18 @@ fun RatingSelections(
         typeChange(it, phrfRating ?: ratingDefault.toInt())
     }
     when (boatType) {
+        RatingType.ORC-> {
+            //todo: ORC
+        }
+        RatingType.ORC_PHRF -> {
+            RgNumberInput(
+                label = "PHRF Rating",
+                value = phrfRating,
+                placeHolder = false,
+            ) {
+                typeChange(boatType, it.toInt())
+            }
+        }
         RatingType.PHRF -> {
             RgNumberInput(
                 label = "PHRF Rating",

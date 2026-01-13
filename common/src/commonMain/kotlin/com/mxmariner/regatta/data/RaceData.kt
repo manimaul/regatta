@@ -144,10 +144,14 @@ enum class RatingType(val label: String) {
             CruisingNonFlyingSails -> Windseeker(flyingSails = false)
         }
 
-    fun ratedLabel(rating: Any? = null) : String {
-        return rating?.let {
-            "$label ($rating)"
-        } ?: label
+    fun ratedLabel(phrfRating: Int? = null, orcRefs: List<String>? = emptyList()) : String {
+        return when (this) {
+            ORC -> "$label ($orcRefs)"
+            ORC_PHRF -> "ORC $orcRefs PHRF ($phrfRating)"
+            PHRF -> "$label ($phrfRating)"
+            CruisingFlyingSails,
+            CruisingNonFlyingSails -> label
+        }
     }
 
     companion object {
@@ -212,6 +216,7 @@ data class RaceResult(
     val boatId: Long = 0,
     val finish: Instant? = null,
     val phrfRating: Int? = null,
+    val orcTot: Double? = null,
     val hocPosition: Int? = null,
     val bracketId: Long? = null,
     val raceClassId: Long? = null,

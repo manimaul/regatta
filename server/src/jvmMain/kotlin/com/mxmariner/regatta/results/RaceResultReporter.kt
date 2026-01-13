@@ -206,7 +206,6 @@ object RaceResultReporter {
             var avgPlaceBracket: Int? = null
             var avgPlaceClass: Int? = null
             standings.takeIf { it.size > 1 }?.forEach { ea ->
-                println("each ${ea.finishCode}")
                 if (ea.finishCode == FinishCode.DNS_RC) {
                     if (avgPlaceBracket == null || avgPlaceClass == null) {
                         val list = standings.filter { it.finishCode != FinishCode.DNS_RC }

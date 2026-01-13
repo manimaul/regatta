@@ -13,16 +13,15 @@ object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    val finish = timestamp("end_date").nullable()
+    val finish = timestamp("end_date").nullable().index()
     val phrfRating = integer("phrf_rating").nullable()
-    val wsRating = integer("ws_rating").nullable()
+    val orcTot = double("orc_tot").nullable()
     val wsFlying = bool("ws_flying").nullable()
     val hoc = integer("hoc").nullable()
     val raceClass = (long("class_id") references RaceClassTable.id).nullable()
     val bracket = (long("bracket_id") references BracketTable.id).nullable()
-
     val finishCode = varchar("finish_code", 128).nullable()
-    val penalty= integer("penalty").nullable()
+    val penalty = integer("penalty").nullable()
 
     override val primaryKey = PrimaryKey(id)
 
@@ -39,11 +38,27 @@ object RaceResultsTable : Table() {
             it[raceId] = result.raceId
             it[boatId] = result.boatId
             it[finish] = result.finish.takeIf { result.finishCode == FinishCode.TIME }
-            result.windseeker?.let { ws ->
-                it[wsRating] = ws.rating
-                it[wsFlying] = ws.flyingSails
-            } ?: run {
-                it[phrfRating] = result.phrfRating
+            when (result.ratingType) {
+                RatingType.ORC -> {
+                    it[orcTot] = result.orcTot
+                }
+
+                RatingType.ORC_PHRF -> {
+                    it[phrfRating] = result.phrfRating
+                    it[orcTot] = result.orcTot
+                }
+
+                RatingType.PHRF -> {
+                    it[phrfRating] = result.phrfRating
+                }
+
+                RatingType.CruisingFlyingSails -> {
+                    it[wsFlying] = true
+                }
+
+                RatingType.CruisingNonFlyingSails -> {
+                    it[wsFlying] = false
+                }
             }
             it[hoc] = result.hocPosition.takeIf { result.finishCode == FinishCode.HOC }
             it[penalty] = result.penalty
@@ -57,8 +72,8 @@ object RaceResultsTable : Table() {
         return RaceResultsTable.selectAll().map(::rowToResult)
     }
 
-    fun raceCount(boatId: Long) : Long {
-        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId}.count()
+    fun raceCount(boatId: Long): Long {
+        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId }.count()
     }
 
     fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
@@ -92,7 +107,7 @@ object RaceResultsTable : Table() {
             boatSkipper = BoatSkipper(
                 boat = resultRowToBoat(row)
                     .copy(
-                        windseeker = result.windseeker,
+                        ratingType = result.ratingType,
                         phrfRating = result.phrfRating,
                     ),
                 skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
@@ -106,15 +121,24 @@ object RaceResultsTable : Table() {
         val code = row[finishCode]?.let { FinishCode.valueOf(it) } ?: run {
             time?.let { FinishCode.TIME } ?: FinishCode.RET
         }
+        val phrf= row[phrfRating]
+        val tot = row[orcTot]
+        val flying = row[wsFlying]
+        val rating = when {
+            phrf != null && tot != null -> RatingType.ORC_PHRF
+            phrf != null -> RatingType.PHRF
+            tot != null -> RatingType.ORC
+            flying == true -> RatingType.CruisingFlyingSails
+            else -> RatingType.CruisingNonFlyingSails
+        }
         return RaceResult(
             id = row[id],
             raceId = row[raceId],
             boatId = row[boatId],
             finish = time,
-            phrfRating = row[phrfRating],
-            windseeker = row[wsRating]?.let { r ->
-                Windseeker(r, row[wsFlying] ?: false)
-            },
+            phrfRating = phrf,
+            orcTot = tot,
+            ratingType = rating,
             hocPosition = row[hoc],
             penalty = row[penalty],
             raceClassId = row[raceClass],
@@ -125,33 +149,37 @@ object RaceResultsTable : Table() {
 }
 
 fun findBoatBracket(race: RaceSchedule, result: RaceResult): Bracket? {
-    val phrfRating = result.phrfRating
-    val windseeker = result.windseeker
     return if (result.bracketId != null) {
         race.schedule.firstNotNullOfOrNull { sch ->
             sch.brackets.firstOrNull {
                 it.id == result.bracketId
             }
         }
-    } else if (phrfRating != null) {
-        race.schedule.firstNotNullOfOrNull { sch ->
-            sch.brackets.takeIf { sch.raceClass.ratingType == RatingType.PHRF}?.firstOrNull {
-                phrfRating >= it.minRating && phrfRating <= it.maxRating
-            }
-        }
-    } else if (windseeker?.flyingSails == true) {
-        race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { schedule.raceClass.ratingType == RatingType.CruisingFlyingSails }?.firstOrNull {
-                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
-            }
-        }
-    } else if (windseeker != null) {
-        race.schedule.firstNotNullOfOrNull { schedule ->
-            schedule.brackets.takeIf { schedule.raceClass.ratingType == RatingType.CruisingNonFlyingSails }?.firstOrNull {
-                windseeker.rating >= it.minRating && windseeker.rating <= it.maxRating
-            }
-        }
     } else {
-        null
+        when (result.ratingType) {
+            RatingType.ORC,
+            RatingType.ORC_PHRF -> throw IllegalStateException("ORC rating types require bracket registration")
+
+            RatingType.PHRF -> {
+                val phrfRating = requireNotNull(result.phrfRating)
+                race.schedule.firstNotNullOfOrNull { sch ->
+                    sch.brackets.takeIf { sch.raceClass.ratingType == RatingType.PHRF }?.firstOrNull {
+                        phrfRating >= it.minRating && phrfRating <= it.maxRating
+                    }
+                }
+            }
+
+            RatingType.CruisingFlyingSails -> {
+                race.schedule.firstNotNullOfOrNull { schedule ->
+                    schedule.brackets.firstOrNull { schedule.raceClass.ratingType == RatingType.CruisingFlyingSails }
+                }
+            }
+
+            RatingType.CruisingNonFlyingSails -> {
+                race.schedule.firstNotNullOfOrNull { schedule ->
+                    schedule.brackets.firstOrNull { schedule.raceClass.ratingType == RatingType.CruisingNonFlyingSails }
+                }
+            }
+        }
     }
 }

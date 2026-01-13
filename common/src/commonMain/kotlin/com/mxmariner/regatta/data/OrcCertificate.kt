@@ -1,26 +1,45 @@
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
+@Serializable
+sealed interface OrcBand {
+    val identifier: String
+}
+
+@Serializable
+object  OrcSingle : OrcBand {
+    override val identifier = "1"
+}
+
+@Serializable
 enum class Orc3Band(
     val label: String,
     val desc: String,
-) {
+) : OrcBand {
     Low("Low", "9 kts or less (8.9 kts avg)"),
     Medium("Medium", "9 to 14 kts (13.5 kts avg)"),
-    High("High", "14 kts or more (17 kts avg"),
+    High("High", "14 kts or more (17 kts avg");
+
+    override val identifier get() = "3$name"
+
 }
 
+@Serializable
 enum class Orc5Band(
     val label: String,
     val desc: String,
-) {
+) : OrcBand {
     Low("Low", "7 kts or less"),
     LowMedium("Low/Medium", "7 to 10 kts"),
     Medium("Medium", "10 to 13 kts"),
     MediumHigh("Medium/High", "13 to 17 kts"),
-    High("High", "17 kts or more"),
+    High("High", "17 kts or more");
+
+    override val identifier get() = "5$name"
+
 }
 
+@Serializable
 enum class OrcScoringOption(val label: String) {
     SingleNumberAllPurpose("Single Number All Purpose"),
     SingleNumberWindwardLeeward("Single Number Windward/Leeward"),
