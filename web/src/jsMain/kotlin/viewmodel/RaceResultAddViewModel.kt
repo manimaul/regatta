@@ -111,7 +111,7 @@ class RaceResultAddViewModel(
             copy(
                 boatSkipper = boatSkipper,
                 phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
-                wsFlying = boatSkipper?.boat?.windseeker?.flyingSails == true,
+                wsFlying = boatSkipper?.boat?.ratingType == RatingType.CruisingFlyingSails,
                 ratingType = type,
             )
         }
@@ -189,19 +189,13 @@ class RaceResultAddViewModel(
                 raceClassId = cs?.raceClass?.id,
                 bracketId = cs?.brackets?.firstOrNull { bracket ->
                     when (boatSkipper?.boat?.ratingType) {
-                        RatingType.ORC_PHRF -> false //todo: ORC
                         RatingType.ORC -> false //todo: ORC
+                        RatingType.ORC_PHRF,
                         RatingType.PHRF -> boatSkipper.boat?.phrfRating?.let {
                             it >= bracket.minRating && it <= bracket.maxRating
                         } ?: false
-
-                        RatingType.CruisingFlyingSails -> boatSkipper.boat?.windseeker?.rating?.let {
-                            it >= bracket.minRating && it <= bracket.maxRating
-                        } ?: false
-
-                        RatingType.CruisingNonFlyingSails -> boatSkipper.boat?.windseeker?.rating?.let {
-                            it >= bracket.minRating && it <= bracket.maxRating
-                        } ?: false
+                        RatingType.CruisingFlyingSails -> boatSkipper.boat?.ratingType == RatingType.CruisingFlyingSails
+                        RatingType.CruisingNonFlyingSails -> boatSkipper.boat?.ratingType == RatingType.CruisingNonFlyingSails
                         null -> false
                     }
                 }?.id

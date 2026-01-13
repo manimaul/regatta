@@ -122,12 +122,6 @@ data class RaceTime(
     val raceId: Long,
 )
 
-@Serializable
-data class Windseeker(
-    val rating: Int = ratingDefault.toInt(),
-    val flyingSails: Boolean = false,
-)
-
 enum class RatingType(val label: String) {
     ORC("ORC"),
     ORC_PHRF("ORC, PHRF"),
@@ -135,14 +129,17 @@ enum class RatingType(val label: String) {
     CruisingFlyingSails("Cruising Flying Sails"),
     CruisingNonFlyingSails("Cruising Non-Flying Sails");
 
-    val windseeker: Windseeker?
-        get() = when(this) {
-            ORC,
-            ORC_PHRF,
-            PHRF -> null
-            CruisingFlyingSails -> Windseeker(flyingSails = true)
-            CruisingNonFlyingSails -> Windseeker(flyingSails = false)
-        }
+    val isCruising: Boolean by lazy {
+        this == CruisingFlyingSails || this == CruisingNonFlyingSails
+    }
+
+    val isPHRF: Boolean by lazy {
+        this == PHRF || this == ORC_PHRF
+    }
+
+    val isORC: Boolean by lazy {
+        this == ORC || this == ORC_PHRF
+    }
 
     fun ratedLabel(phrfRating: Int? = null, orcRefs: List<String>? = emptyList()) : String {
         return when (this) {
@@ -177,9 +174,9 @@ data class Boat(
     val active: Boolean = true
 ) {
 
-    //todo: deprecate
-    @Transient
-    val windseeker: Windseeker? = ratingType.windseeker
+//    //todo: deprecate
+//    @Transient
+//    val windseeker: Windseeker? = ratingType.windseeker
 }
 
 @Serializable
@@ -311,7 +308,7 @@ data class RaceReportCard(
     val skipper: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
-    val windseeker: Windseeker? = null,
+//    val windseeker: Windseeker? = null,
     val startTime: Instant? = null,
     val finishTime: Instant? = null,
     val elapsedTime: Duration? = null,
@@ -339,12 +336,7 @@ data class RaceReportCard(
     }
 
     fun ratingType(): RatingType {
-        return windseeker?.let {
-            if (it.flyingSails) {
-                RatingType.CruisingFlyingSails
-            } else {
-                RatingType.CruisingNonFlyingSails
-            }
-        } ?: RatingType.PHRF
+        return resultRecord.result.ratingType
     }
+
 }

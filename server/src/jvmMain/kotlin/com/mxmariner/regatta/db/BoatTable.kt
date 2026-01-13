@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
+import com.mxmariner.regatta.ratingDefault
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
@@ -62,7 +63,7 @@ object BoatTable : Table() {
             it[phrfRating] = boat.phrfRating
             it[skipper] = boat.skipperId
             it[active] = boat.active
-            it[wsFlying] = boat.windseeker?.flyingSails
+            it[wsFlying] = boat.ratingType == RatingType.CruisingFlyingSails
         }.resultedValues?.singleOrNull()?.let { row ->
             resultRowToBoat(row)
         }
@@ -98,26 +99,19 @@ object BoatTable : Table() {
                 skipper = null
             )
         }).sortedWith { lhs, rhs ->
-            val lhsPhrfRating = lhs.boat?.phrfRating
-            val rhsPhrfRating = rhs.boat?.phrfRating
-            val lhsWindseeker = lhs.boat?.windseeker
-            val rhsWindseeker = rhs.boat?.windseeker
-            if (lhsPhrfRating != null && rhsPhrfRating != null) {
-                lhsPhrfRating.compareTo(rhsPhrfRating)
-            } else if (lhsPhrfRating != null) {
-                -1
-            } else if (rhsPhrfRating != null) {
-                1
-            } else if (lhsWindseeker?.flyingSails != null && rhsWindseeker?.flyingSails != null) {
-                (lhsWindseeker.rating).compareTo((rhsWindseeker.rating))
-            } else if (lhs.boat?.windseeker?.flyingSails != null) {
-                -1
-            } else if (rhs.boat?.windseeker?.flyingSails != null) {
-                1
-            } else {
-                (lhs.boat?.windseeker?.rating ?: Int.MAX_VALUE).compareTo(
-                    (rhs.boat?.windseeker?.rating ?: Int.MAX_VALUE)
+            val left = lhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
+            val right = rhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
+            if (left.isORC && right.isORC) {
+                (rhs.boat?.orcCerts?.maxOf{ it.allPurposeTot } ?: 0.0).compareTo(
+                    lhs.boat?.orcCerts?.maxOf { it.allPurposeTot } ?: 0.0
                 )
+            }
+            if (left == RatingType.PHRF && right == RatingType.PHRF) {
+                (lhs.boat?.phrfRating ?: ratingDefault.toInt()).compareTo(
+                   rhs.boat?.phrfRating ?: ratingDefault.toInt()
+                )
+            } else {
+                left.compareTo(right)
             }
         }.toList()
     }

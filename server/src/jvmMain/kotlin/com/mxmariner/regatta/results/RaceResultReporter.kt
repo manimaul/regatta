@@ -19,11 +19,9 @@ object RaceResultReporter {
 
         val races = reports.map { it.raceSchedule }.sortedBy { it.startTime }.map { it.race }.toList()
 
-        val windseekerRecords = reports.map { it.classReports }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker != null }
+        val windseekerRecords = reports.flatMap { it.classReports }.flatMap { it.bracketReport }.flatMap { it.cards }.filter { it.ratingType().isCruising }
 
-        val phrfRecords = reports.map { it.classReports }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten().filter { it.windseeker == null }
+        val phrfRecords = reports.flatMap { it.classReports }.flatMap { it.bracketReport }.flatMap { it.cards }.filter { it.ratingType().isPHRF }
 
         val standings = RegattaDatabase.findSeries(seriesId)?.let { series ->
             StandingsSeries(
@@ -169,7 +167,7 @@ object RaceResultReporter {
             val boatSkipper = it.key
             val raceReportCards = it.value
             val standings = races.map { race ->
-                val overallRecords = if (boatSkipper.boat?.windseeker != null) {
+                val overallRecords = if (boatSkipper.boat?.ratingType?.isCruising == true) {
                     windseekerRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
                 } else {
                     phrfRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
@@ -395,7 +393,6 @@ object RaceResultReporter {
             skipper = skipper?.fullName() ?: "",
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
-            windseeker = result.ratingType.windseeker,
             startTime = schedule?.startDate,
             finishTime = result.finish,
             elapsedTime = time,

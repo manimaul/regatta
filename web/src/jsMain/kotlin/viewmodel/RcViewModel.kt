@@ -195,11 +195,10 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
 
     fun RaceSchedule.findClassSchedule(boatSkipper: BoatSkipper): ClassSchedule? {
         return boatSkipper.boat?.let { boat ->
-            val isPhrf = boat.phrfRating != null
             schedule.filter {
-                (isPhrf && it.raceClass.ratingType == RatingType.PHRF) ||
-                        (boat.windseeker?.flyingSails == true && it.raceClass.ratingType == RatingType.CruisingFlyingSails)  ||
-                        (boat.windseeker?.flyingSails == false && it.raceClass.ratingType == RatingType.CruisingNonFlyingSails)
+                boat.ratingType.isPHRF && it.raceClass.ratingType.isPHRF ||
+                        boat.ratingType.isORC && it.raceClass.ratingType.isORC ||
+                        boat.ratingType == it.raceClass.ratingType
             }.map {
                 it
             }.firstOrNull()
