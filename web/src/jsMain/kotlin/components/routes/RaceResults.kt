@@ -146,9 +146,9 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
         }
         RgTd {
             RatingSelections(
-                addState.ratingType,
-                addState.phrfRating.toIntOrNull(),
-                { t, r, -> viewModel.addViewModel.setType(t, r) },
+                boatType = addState.ratingType,
+                phrfRating = addState.phrfRating.toIntOrNull(),
+                typeChange = { t, r, -> viewModel.addViewModel.setType(t, r) },
             )
 
             state.report.complete(viewModel) { report ->

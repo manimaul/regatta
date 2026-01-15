@@ -27,12 +27,15 @@ fun <T, R> NetworkResponse<T>.map(mapper: (T) -> R) : NetworkResponse<R> {
 
 object Network {
 
-    suspend inline fun <reified T> Response.networkResponse(setBody: T? = null): NetworkResponse<T> {
+    suspend inline fun <reified T> Response.networkResponse(
+        setBody: T? = null,
+        json: Json = Json
+        ): NetworkResponse<T> {
         var body: T? = setBody
         var error: Exception? = null
         if (body == null) {
             try {
-                body = Json.decodeFromString(text().await())
+                body = json.decodeFromString(text().await())
             } catch (e: Exception) {
                 error = e
             }

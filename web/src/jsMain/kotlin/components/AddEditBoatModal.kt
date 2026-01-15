@@ -72,6 +72,10 @@ fun AddEditBoatModal(
                         RatingSelections(
                             boatType = state.addEditState.addBoat.ratingType,
                             phrfRating = state.addEditState.addBoat.phrfRating,
+                            cert = state.addEditState.addBoat.orcCerts.firstOrNull(),
+                            onOrc = {
+                                boatViewModel.setOrcCertificate(it)
+                            },
                             typeChange = { t, r ->
                                 boatViewModel.setEditBoatRatingType(t, r)
                             },

@@ -234,6 +234,24 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
         }
     }
 
+    fun setOrcCertificate(orcCertificate: OrcCertificate? )  {
+        println("set orc cert ${orcCertificate?.refNo}")
+        withState {
+            val boat = it.addEditState.addBoat.copy(
+                orcCerts = orcCertificate?.let { listOf(orcCertificate) } ?: emptyList(),
+            )
+            setState {
+                copy(
+                    addEditState = addEditState.copy(
+                        addBoat = boat,
+                        isValid = isEditBoatValid(boat),
+                    )
+                )
+            }
+        }
+
+    }
+
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
             val boat = it.addEditState.addBoat.copy(
