@@ -10,6 +10,9 @@ All boats
 https://data.orc.org/public/WPub.dll?action=DownRMS&CountryId=USA&ext=json&Family=1&VPPYear=2025
 
 Specific boat
+https://data.orc.org/public/WPub.dll?action=DownRMS&SailNo=59793&Family=ORC&ext=json
+https://data.orc.org/public/WPub.dll?action=DownRMS&SailNo=59793&YachtName=Waymaker&ext=json
+
 https://data.orc.org/public/WPub.dll?action=DownBoatRMS&RefNo=04560003WR9&ext=json
 
 - Race config set ORC scoring type (upwind/downwind general purpose) or ()

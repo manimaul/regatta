@@ -97,9 +97,7 @@ fun AddEditBoatModal(
                 Button(attrs = {
                     classes(*RgButtonStyle.Success.classes)
 
-                    if (state.addEditState.addBoat.name.isBlank()
-                        || (state.addEditState.addBoat.ratingType == RatingType.PHRF && state.addEditState.addBoat.phrfRating == null)
-                    ) {
+                    if (!state.addEditState.isValid) {
                         disabled()
                     }
                     attr("data-bs-dismiss", "modal")

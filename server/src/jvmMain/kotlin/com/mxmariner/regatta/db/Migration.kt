@@ -67,11 +67,18 @@ private fun dbVersion0To1Upgrade(database: Database) {
 private fun dbVersion1To2Upgrade(database: Database) {
     transaction(database) {
         exec("ALTER TABLE raceclass ADD COLUMN IF NOT EXISTS ratingType varchar(128) DEFAULT 'CruisingNonFlyingSails' NOT NULL;")
-        exec("UPDATE raceclass SET ratingType = 'PHRF' WHERE phrf = true;")
-        exec("UPDATE raceclass SET ratingType = 'CruisingNonFlyingSails' WHERE phrf = false AND wsf = false;")
-        exec("UPDATE raceclass SET ratingType = 'CruisingFlyingSails' WHERE phrf = false AND wsf = true;")
+        exec("UPDATE raceclass SET ratingtype = 'PHRF' WHERE phrf = true;")
+        exec("UPDATE raceclass SET ratingtype = 'CruisingNonFlyingSails' WHERE phrf = false AND wsf = false;")
+        exec("UPDATE raceclass SET ratingtype = 'CruisingFlyingSails' WHERE phrf = false AND wsf = true;")
         exec("ALTER TABLE raceclass DROP COLUMN IF EXISTS phrf;")
         exec("ALTER TABLE raceclass DROP COLUMN IF EXISTS wsf;")
+    }
+    transaction(database) {
+        exec("ALTER TABLE boat ADD COLUMN IF NOT EXISTS ratingType varchar(128) DEFAULT 'CruisingNonFlyingSails' NOT NULL;")
+        exec("UPDATE boat SET ratingtype = 'PHRF' WHERE phrf_rating IS NOT NULL;")
+        exec("UPDATE boat SET ratingtype = 'CruisingFlyingSails' WHERE phrf_rating IS NULL AND ws_flying = true;")
+        exec("ALTER TABLE boat DROP COLUMN IF EXISTS ws_flying;")
+        exec("ALTER TABLE boat DROP COLUMN IF EXISTS ws_rating;")
     }
     updateVersion(database, 2)
 }

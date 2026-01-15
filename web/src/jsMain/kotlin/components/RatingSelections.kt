@@ -15,7 +15,7 @@ fun RatingSelections(
     }
     when (boatType) {
         RatingType.ORC-> {
-            //todo: ORC
+            OrcFetch()
         }
         RatingType.ORC_PHRF -> {
             RgNumberInput(
@@ -25,6 +25,7 @@ fun RatingSelections(
             ) {
                 typeChange(boatType, it.toInt())
             }
+            OrcFetch()
         }
         RatingType.PHRF -> {
             RgNumberInput(
@@ -36,5 +37,16 @@ fun RatingSelections(
             }
         }
         else -> {}
+    }
+}
+
+//https://data.orc.org/public/WPub.dll?action=DownBoatRMS&RefNo=04560003WR9&ext=json
+@Composable
+fun OrcFetch() {
+    RgInput(
+        label = "ORC Reference Number",
+        value = ""
+    ) {
+
     }
 }

@@ -57,6 +57,11 @@ enum class OrcScoringOption(val label: String) {
 }
 
 @Serializable
+data class OrcResponse(
+    @SerialName("rms") val rms: List<OrcCertificate> = emptyList(),
+)
+
+@Serializable
 data class OrcCertificate(
     @SerialName("NatAuth") val natAuth: String = "",
     @SerialName("BIN") val bin: String = "",

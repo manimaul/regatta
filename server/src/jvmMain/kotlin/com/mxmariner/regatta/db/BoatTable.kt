@@ -14,7 +14,7 @@ object BoatTable : Table() {
     val sailNumber = varchar("sail_number", 128)
     val boatType = varchar("boat_type", 128)
     val phrfRating = integer("phrf_rating").nullable()
-    val wsFlying = bool("ws_flying").nullable()
+    val ratingType = varchar("ratingtype", 128)
     val skipper = (long("skipper_id") references PersonTable.id).nullable()
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
@@ -41,13 +41,6 @@ object BoatTable : Table() {
         }
     }
 
-    fun upsertBoatSkipper(boatSkipper: BoatSkipper): BoatSkipper {
-        return BoatSkipper(
-            boat = boatSkipper.boat?.let { upsertBoat(it) },
-            skipper = boatSkipper.skipper?.let { PersonTable.upsertPerson(it) },
-        )
-    }
-
     fun upsertBoat(boat: Boat): Boat? {
         if (boat.id > 0) {
             OrcTable.deleteCerts(boat.id)
@@ -63,7 +56,7 @@ object BoatTable : Table() {
             it[phrfRating] = boat.phrfRating
             it[skipper] = boat.skipperId
             it[active] = boat.active
-            it[wsFlying] = boat.ratingType == RatingType.CruisingFlyingSails
+            it[ratingType] = boat.ratingType.name
         }.resultedValues?.singleOrNull()?.let { row ->
             resultRowToBoat(row)
         }
@@ -121,15 +114,6 @@ object BoatTable : Table() {
     ): Boat {
         val phrfRating = row[phrfRating]
         val boatId = row[id]
-        val orcCerts = OrcTable.findCertificates(boatId)
-        val ratingType: RatingType = when {
-            orcCerts.isEmpty() && phrfRating != null -> RatingType.PHRF
-            orcCerts.isNotEmpty() && phrfRating != null -> RatingType.ORC_PHRF
-            orcCerts.isNotEmpty() && phrfRating == null -> RatingType.ORC
-            row[wsFlying] == true -> RatingType.CruisingFlyingSails
-            else -> RatingType.CruisingNonFlyingSails
-        }
-
         val numberOfRaces = RaceResultsTable.raceCount(boatId)
         return Boat(
             id = boatId,
@@ -137,7 +121,7 @@ object BoatTable : Table() {
             sailNumber = row[sailNumber],
             boatType = row[boatType],
             phrfRating = phrfRating,
-            ratingType = ratingType,
+            ratingType = RatingType.valueOf(row[ratingType]),
             numberOfRaces = numberOfRaces,
             orcCerts = OrcTable.findCertificates(boatId)
         )

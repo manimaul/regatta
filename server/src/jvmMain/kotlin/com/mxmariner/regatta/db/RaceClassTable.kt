@@ -11,8 +11,6 @@ object RaceClassTable : Table() {
     val name = varchar("name", 128)
     val sort = integer("sort")
     val ratingType = varchar("ratingtype", 128)
-//    val phrf = bool("phrf")
-//    val wsFlying = bool("wsf")
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
@@ -46,8 +44,6 @@ object RaceClassTable : Table() {
             it[name] = item.name.trim()
             it[active] = item.active
             it[ratingType] = item.ratingType.name
-//            it[wsFlying] = item.wsFlying
-//            it[phrf] = item.isPHRF
             it[sort] = item.sort
         }.resultedValues?.singleOrNull()?.let(::resultRowToClass)
     }
@@ -74,8 +70,6 @@ object RaceClassTable : Table() {
             name = row[name],
             sort = row[sort],
             ratingType = RatingType.valueOf(row[ratingType]),
-//            isPHRF = row[phrf],
-//            wsFlying = row[wsFlying],
             numberOfRaces = RaceBracketJunction.raceCountForClass(classId),
             active = row[active],
         )

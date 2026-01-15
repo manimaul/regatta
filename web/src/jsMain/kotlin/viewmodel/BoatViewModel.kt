@@ -17,6 +17,7 @@ data class BoatPeopleComposite(
 data class AddEditBoatState(
     val addBoat: Boat = Boat(),
     val addSkipper: Person? = null,
+    val isValid: Boolean = false,
 )
 
 enum class AddEditBoatMode {
@@ -140,6 +141,7 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     private fun BoatSkipper?.addState(): AddEditBoatState {
         return AddEditBoatState(
             addBoat = this?.boat?.copy(skipperId = skipper?.id) ?: Boat(skipperId = this?.skipper?.id),
+            isValid = true,
             addSkipper = this?.skipper
         )
     }
@@ -173,7 +175,25 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     fun setEditBoatName(name: String) {
         setState {
             val boat = addEditState.addBoat.copy(name = name)
-            copy(addEditState = addEditState.copy(addBoat = boat))
+            copy(
+                addEditState = addEditState.copy(
+                    addBoat = boat,
+                    isValid = isEditBoatValid(boat)
+                )
+            )
+        }
+    }
+
+    fun isEditBoatValid(boat: Boat): Boolean {
+        if (boat.name.isBlank()) {
+            return false;
+        }
+        return when (boat.ratingType) {
+            RatingType.ORC -> boat.orcCerts.isNotEmpty()
+            RatingType.ORC_PHRF -> boat.orcCerts.isNotEmpty() && boat.phrfRating != null
+            RatingType.PHRF -> boat.phrfRating != null
+            RatingType.CruisingFlyingSails,
+            RatingType.CruisingNonFlyingSails -> true
         }
     }
 
@@ -183,7 +203,8 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
             copy(
                 addEditState = addEditState.copy(
                     addBoat = boat,
-                    addSkipper = person
+                    addSkipper = person,
+                    isValid = isEditBoatValid(boat),
                 )
             )
         }
@@ -192,45 +213,40 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
     fun setEditBoatSailNumber(sailNumber: String) {
         setState {
             val boat = addEditState.addBoat.copy(sailNumber = sailNumber)
-            copy(addEditState = addEditState.copy(addBoat = boat))
+            copy(
+                addEditState = addEditState.copy(
+                    addBoat = boat,
+                    isValid = isEditBoatValid(boat),
+                )
+            )
         }
     }
 
     fun setSetEditBoatType(type: String) {
         setState {
             val boat = addEditState.addBoat.copy(boatType = type)
-            copy(addEditState = addEditState.copy(addBoat = boat))
+            copy(
+                addEditState = addEditState.copy(
+                    addBoat = boat,
+                    isValid = isEditBoatValid(boat),
+                )
+            )
         }
     }
 
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {
         withState {
-            val boat = when (ratingType) {
-                RatingType.ORC_PHRF-> it.addEditState.addBoat.copy(
-                    ratingType = ratingType,
-                    phrfRating = rating,
-                    orcCerts = listOf(OrcCertificate())
-                )
-                RatingType.ORC -> it.addEditState.addBoat.copy(
-                    ratingType = ratingType,
-                    phrfRating = null,
-                    orcCerts = listOf(OrcCertificate())
-                )
-                RatingType.PHRF -> it.addEditState.addBoat.copy(
-                    ratingType = ratingType,
-                    phrfRating = rating
-                )
-                RatingType.CruisingFlyingSails -> it.addEditState.addBoat.copy(
-                    ratingType = ratingType,
-                    phrfRating = null
-                )
-                RatingType.CruisingNonFlyingSails -> it.addEditState.addBoat.copy(
-                    ratingType = ratingType,
-                    phrfRating = null
-                )
-            }
+            val boat = it.addEditState.addBoat.copy(
+                ratingType = ratingType,
+                phrfRating = rating,
+            )
             setState {
-                copy(addEditState = addEditState.copy(addBoat = boat))
+                copy(
+                    addEditState = addEditState.copy(
+                        addBoat = boat,
+                        isValid = isEditBoatValid(boat),
+                    )
+                )
             }
         }
     }
