@@ -8,6 +8,7 @@ import com.mxmariner.regatta.data.Series
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 
 
 fun itemNameContainsFilter(itemName: String, filter: String) :Boolean{
@@ -145,6 +146,9 @@ fun RgSkipperDropdown(
     person: Person?,
     handler: (Person?) -> Unit
 ) {
+    Label(attrs = {
+        classes(AppStyle.marginEnd)
+    }) { B { Text("Skipper") } }
     RgDropdownNone(people.sortedBy { it.fullName() }, person, { it.fullName() }) {
         handler(it)
     }

@@ -48,9 +48,7 @@ fun RgNumberInput(
         rNumber = numberValue?.toString() ?: ""
     }
     val id = remember { "${++num}_input" }
-    if (!placeHolder) {
-        Label(id) { B { Text(label) } }
-    }
+    Label(id) { B { Text(label) } }
     Input(InputType.Text) {
         id(id)
         customClasses?.let { classes(it) }
@@ -86,11 +84,9 @@ fun RgInput(
     listener: (String) -> Unit
 ) {
     val id = remember { "${++num}_input" }
-    if (!placeHolder) {
-        Label(id, attrs = {
-            classes(AppStyle.marginEnd)
-        }) { B { Text(label) } }
-    }
+    Label(id, attrs = {
+        classes(AppStyle.marginEnd)
+    }) { B { Text(label) } }
     Input(InputType.Text) {
         id(id)
         customClasses?.let { classes(it) }
@@ -101,6 +97,40 @@ fun RgInput(
         value(value)
         onInput {
             listener(it.value.trimStart())
+        }
+    }
+}
+
+@Composable
+fun RgInputWithButton(
+    label: String,
+    value: String,
+    btnLabel: String,
+    listener: (String, Boolean) -> Unit,
+) {
+    val id = remember { "${++num}_input" }
+    Label(id, attrs = {
+        classes(AppStyle.marginEnd)
+    }) { B { Text(label) } }
+    Div(attrs = {
+        classes("input-group", "mb-3")
+    }) {
+        Input(type = InputType.Text) {
+            classes("form-control")
+            id(id)
+            placeholder(label)
+            value(value)
+            onInput {
+                listener(it.value.trimStart(), false)
+            }
+        }
+        Button(attrs = {
+            classes("btn", "btn-outline-secondary")
+            onClick {
+                listener(value.trimStart(), true)
+            }
+        }) {
+            Text(btnLabel)
         }
     }
 }
