@@ -10,10 +10,9 @@ import kotlin.math.max
 
 data class RaceResultAddState(
     val id: Long = 0,
-    val raceSchedule: RaceSchedule? = null,
+    val raceId: Long = 0,
     val boatSkipper: BoatSkipper? = null,
     val phrfRating: String = ratingDefault.toInt().toString(),
-    val wsFlying: Boolean = false,
     val ratingType: RatingType = RatingType.PHRF,
     val raceClassId: Long? = null,
     val bracketId: Long? = null,
@@ -64,10 +63,10 @@ data class RaceResultAddState(
                 true
             }
         }
-        return if (boatSkipper?.boat?.id != null && raceSchedule?.race?.id != null && valid) {
+        return if (boatSkipper?.boat?.id != null &&  valid) {
             RaceResult(
                 id = id,
-                raceId = raceSchedule.race.id,
+                raceId = raceId,
                 boatId = boatSkipper.boat?.id ?: 0L,
                 finish = finish,
                 phrfRating = phrfRating,
@@ -92,8 +91,8 @@ class RaceResultAddViewModel(
             val race = Api.getRaceSchedule(raceId).toAsync()
             val ft = race.value?.endTime
             RaceResultAddState(
+                raceId = this@RaceResultAddViewModel.raceId,
                 boatSkipper = null,
-                raceSchedule = race.value,
                 finish = ft,
                 finishCode = ft?.let { FinishCode.TIME } ?: FinishCode.RET,
             )
@@ -111,7 +110,6 @@ class RaceResultAddViewModel(
             copy(
                 boatSkipper = boatSkipper,
                 phrfRating = boatSkipper?.boat?.phrfRating?.toString() ?: "",
-                wsFlying = boatSkipper?.boat?.ratingType == RatingType.CruisingFlyingSails,
                 ratingType = type,
             )
         }
@@ -141,10 +139,8 @@ class RaceResultAddViewModel(
                 id = card?.resultRecord?.result?.id ?: 0L,
                 boatSkipper = card?.resultRecord?.boatSkipper,
                 phrfRating = card?.resultRecord?.result?.phrfRating?.toString() ?: "",
-                wsFlying = card?.resultRecord?.result?.ratingType == RatingType.CruisingFlyingSails,
                 ratingType = type,
-                raceSchedule = card?.resultRecord?.raceSchedule ?: raceSchedule,
-                finish = card?.finishTime ?: raceSchedule?.endTime,
+                finish = card?.finishTime, // ?: raceSchedule?.endTime,
                 hocPosition = card?.hocPosition,
                 penalty = card?.penalty,
                 finishCode = card?.resultRecord?.result?.finishCode ?: FinishCode.TIME,
@@ -177,7 +173,6 @@ class RaceResultAddViewModel(
                 ratingType = type,
                 raceClassId = null,
                 bracketId = null,
-                wsFlying = type == RatingType.CruisingFlyingSails,
                 phrfRating = rating.toString()
             )
         }

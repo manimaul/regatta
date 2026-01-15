@@ -172,12 +172,7 @@ data class Boat(
     val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true
-) {
-
-//    //todo: deprecate
-//    @Transient
-//    val windseeker: Windseeker? = ratingType.windseeker
-}
+)
 
 @Serializable
 data class BoatSkipper(
@@ -225,7 +220,6 @@ data class RaceResult(
 @Serializable
 data class RaceResultBoatBracket(
     val result: RaceResult = RaceResult(),
-    val raceSchedule: RaceSchedule = RaceSchedule(),
     val boatSkipper: BoatSkipper = BoatSkipper(),
     val bracket: Bracket = Bracket(),
 )
@@ -308,7 +302,6 @@ data class RaceReportCard(
     val skipper: String = "",
     val boatType: String = "",
     val phrfRating: Int? = null,
-//    val windseeker: Windseeker? = null,
     val startTime: Instant? = null,
     val finishTime: Instant? = null,
     val elapsedTime: Duration? = null,

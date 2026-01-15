@@ -103,7 +103,6 @@ object RaceResultsTable : Table() {
         val bracket = findBoatBracket(raceSchedule, result)
         return RaceResultBoatBracket(
             result = result,
-            raceSchedule = raceSchedule,
             boatSkipper = BoatSkipper(
                 boat = resultRowToBoat(row)
                     .copy(

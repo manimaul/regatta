@@ -155,12 +155,11 @@ object RaceResultReporter {
         phrfRecords: Sequence<RaceReportCard>,
     ): List<StandingsBoatSkipper> {
 
-        val classRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
-            .map { it.bracketReport }.flatten().map { it.cards }.flatten()
+        val classRecords = raceReports.flatMap { it.classReports.filter { it.raceClass.id == raceClass.id } }
+            .flatMap { it.bracketReport }.flatMap { it.cards }
 
-        val bracketRecords = raceReports.map { it.classReports.filter { it.raceClass.id == raceClass.id } }.flatten()
-            .map { it.bracketReport }.flatten().filter { it.bracket.id == bracket.id }
-            .map { it.cards }.flatten()
+        val bracketRecords = raceReports.flatMap { it.classReports.filter { it.raceClass.id == raceClass.id } }
+            .flatMap { it.bracketReport }.filter { it.bracket.id == bracket.id }.flatMap { it.cards }
 
 
         val result = bracketRecords.groupBy { it.resultRecord.boatSkipper }.map {
@@ -168,11 +167,11 @@ object RaceResultReporter {
             val raceReportCards = it.value
             val standings = races.map { race ->
                 val overallRecords = if (boatSkipper.boat?.ratingType?.isCruising == true) {
-                    windseekerRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+                    windseekerRecords.filter { it.resultRecord.result.raceId == race.id }
                 } else {
-                    phrfRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+                    phrfRecords.filter { it.resultRecord.result.raceId == race.id }
                 }
-                raceReportCards.find { it.resultRecord.raceSchedule.race.id == race.id }?.let {
+                raceReportCards.find { it.resultRecord.result.raceId == race.id }?.let {
                     StandingsRace(
                         nonStarter = false,
                         placeInBracket = it.placeInBracket,
@@ -274,13 +273,13 @@ object RaceResultReporter {
         classRecords: Sequence<RaceReportCard>,
         overAllRecords: Sequence<RaceReportCard>,
     ): StandingsRace {
-        val bracketStarters = bracketRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+        val bracketStarters = bracketRecords.filter { it.resultRecord.result.raceId == race.id }
             .map { it.placeInBracket }
             .count()
-        val classStarters = classRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+        val classStarters = classRecords.filter { it.resultRecord.result.raceId == race.id }
             .map { it.placeInBracket }
             .count()
-        val overallStarters = overAllRecords.filter { it.resultRecord.raceSchedule.race.id == race.id }
+        val overallStarters = overAllRecords.filter { it.resultRecord.result.raceId == race.id }
             .map { it.placeInBracket }
             .count()
 
@@ -299,7 +298,13 @@ object RaceResultReporter {
         val classReportList = mutableListOf<ClassReportCards>()
         RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule ->
             val schedules = raceSchedule.schedule.associateBy { it.raceClass.id }
-            val boatCards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map { reduceToCard(it, schedules) }
+            val boatCards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map {
+                reduceToCard(
+                    record = it,
+                    correctionFactor = raceSchedule.race.correctionFactor,
+                    classSchedules = schedules
+                )
+            }
 
             //PHRF Overall Places
             boatCards.filter { it.phrfRating != null }.place { p, card ->
@@ -375,7 +380,10 @@ object RaceResultReporter {
         return null
     }
 
-    private fun reduceToCard(record: RaceResultBoatBracket, classSchedules: Map<Long, ClassSchedule>): RaceReportCard {
+    private fun reduceToCard(
+        record: RaceResultBoatBracket,
+        correctionFactor: Int,
+        classSchedules: Map<Long, ClassSchedule>): RaceReportCard {
         val schedule = classSchedules[record.bracket.classId]
         val result = record.result
         val boat = record.boatSkipper.boat
@@ -396,9 +404,12 @@ object RaceResultReporter {
             startTime = schedule?.startDate,
             finishTime = result.finish,
             elapsedTime = time,
-            correctionFactor = correctionFactor(record.raceSchedule.race.correctionFactor, result.phrfRating),
+            correctionFactor = correctionFactor(
+                factor = correctionFactor,
+                phrfRating = result.phrfRating
+            ),
             correctedTime = boatCorrectedTime(
-                record.raceSchedule.race.correctionFactor,
+                correctionFactor,
                 schedule?.startDate,
                 result.finish,
                 result.phrfRating,

@@ -2,18 +2,13 @@ package components.routes
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.mxmariner.regatta.data.Race
 import com.mxmariner.regatta.data.RaceSchedule
 import components.*
 import org.jetbrains.compose.web.dom.B
-import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
 import utils.display
-import viewmodel.Operation
-import viewmodel.RacesEditViewModel
 import viewmodel.RacesViewModel
 import viewmodel.complete
 
