@@ -141,10 +141,10 @@ enum class RatingType(val label: String) {
         this == ORC || this == ORC_PHRF
     }
 
-    fun ratedLabel(phrfRating: Int? = null, orcRefs: List<String>? = emptyList()) : String {
+    fun ratedLabel(phrfRating: Int? = null) : String {
         return when (this) {
-            ORC -> "$label ($orcRefs)"
-            ORC_PHRF -> "ORC $orcRefs PHRF ($phrfRating)"
+            ORC -> label
+            ORC_PHRF -> "ORC, PHRF ($phrfRating)"
             PHRF -> "$label ($phrfRating)"
             CruisingFlyingSails,
             CruisingNonFlyingSails -> label

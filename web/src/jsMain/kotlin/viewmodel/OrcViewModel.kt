@@ -2,22 +2,24 @@ package viewmodel
 
 import OrcCertificate
 import OrcResponse
+import components.Action
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
 import org.w3c.fetch.RequestInit
 import utils.Async
-import utils.Complete
 import utils.Network.networkResponse
 import utils.Uninitialized
-import utils.map
+import utils.mapNotNull
 import utils.toAsync
 import kotlin.js.json
 
 
 data class OrcState(
     val refNumber: String = "",
-    val cert: Async<OrcCertificate> = Uninitialized
+    val cert: Async<OrcCertificate> = Uninitialized,
+    val certs: List<OrcCertificate> = emptyList(),
+    val readyToAdd: Boolean = false,
 ) : VmState
 
 private val withUnknownKeys = Json { ignoreUnknownKeys = true }
@@ -29,10 +31,18 @@ class OrcViewModel : BaseViewModel<OrcState>(OrcState()) {
     }
 
     fun refNumber(ref: String) {
-        setState { copy(refNumber = ref) }
+        setState {
+            val ready = certs.count { it.refNo.startsWith(ref) } == 0 && ref.isNotBlank()
+            copy(
+                refNumber = ref,
+                readyToAdd = ready
+            )
+        }
     }
 
-    fun confirmRef() {
+    fun confirmRef(
+        onComplete: (Action, OrcCertificate) -> Unit,
+    ) {
         setState {
             copy(cert = cert.loading())
         }
@@ -46,19 +56,24 @@ class OrcViewModel : BaseViewModel<OrcState>(OrcState()) {
                     ),
                 )
             ).await()
-            val value = response.networkResponse<OrcResponse>(json = withUnknownKeys).toAsync().map {
-                it.rms.first()
+            val value = response.networkResponse<OrcResponse>(json = withUnknownKeys).toAsync().mapNotNull{
+                it.rms.firstOrNull()
             }
-            copy(cert = value)
-        }
-    }
-
-    fun setCert(c: OrcCertificate?) {
-        setState {
+            value.value?.let { onComplete(Action.Add, it) }
             copy(
-                cert = c?.let { Complete(it) } ?: Uninitialized
+                refNumber = "",
+                cert = value
             )
         }
     }
 
+    fun setCerts(certList: List<OrcCertificate>) {
+        withState { state ->
+            if (certList.map { it.refNo }.toSet() != state.certs.map { it.refNo }.toSet()) {
+                setState {
+                    copy(certs = certList)
+                }
+            }
+        }
+    }
 }

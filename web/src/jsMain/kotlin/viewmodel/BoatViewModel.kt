@@ -234,22 +234,42 @@ class BoatViewModel : BaseViewModel<BoatState>(BoatState()) {
         }
     }
 
-    fun setOrcCertificate(orcCertificate: OrcCertificate? )  {
-        println("set orc cert ${orcCertificate?.refNo}")
-        withState {
-            val boat = it.addEditState.addBoat.copy(
-                orcCerts = orcCertificate?.let { listOf(orcCertificate) } ?: emptyList(),
-            )
-            setState {
-                copy(
-                    addEditState = addEditState.copy(
-                        addBoat = boat,
-                        isValid = isEditBoatValid(boat),
-                    )
+    fun addOrcCertificate(orcCertificate: OrcCertificate)  {
+        withState { state ->
+            if (state.addEditState.addBoat.orcCerts.count { it.refNo == orcCertificate.refNo } == 0) {
+                val boat = state.addEditState.addBoat.copy(
+                    orcCerts = state.addEditState.addBoat.orcCerts.toMutableList().apply {
+                        add(orcCertificate)
+                    }
                 )
+                setState {
+                    copy(
+                        addEditState = addEditState.copy(
+                            addBoat = boat,
+                            isValid = isEditBoatValid(boat),
+                        )
+                    )
+                }
             }
         }
+    }
 
+    fun deleteOrcCertificate(cert: OrcCertificate) {
+        withState { state ->
+                val boat = state.addEditState.addBoat.copy(
+                    orcCerts = state.addEditState.addBoat.orcCerts.toMutableList().apply {
+                        removeAll { it.refNo == cert.refNo }
+                    }
+                )
+                setState {
+                    copy(
+                        addEditState = addEditState.copy(
+                            addBoat = boat,
+                            isValid = isEditBoatValid(boat),
+                        )
+                    )
+                }
+        }
     }
 
     fun setEditBoatRatingType(ratingType: RatingType, rating: Int) {

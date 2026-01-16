@@ -43,7 +43,7 @@ object BoatTable : Table() {
 
     fun upsertBoat(boat: Boat): Boat? {
         if (boat.id > 0) {
-            OrcTable.deleteCerts(boat.id)
+            OrcTable.unlinkCerts(boat.id)
         }
         boat.orcCerts.forEach {
             OrcTable.upsertCert(boat.id, it)
@@ -63,7 +63,7 @@ object BoatTable : Table() {
     }
 
     fun deleteBoat(boatId: Long): Int {
-        OrcTable.deleteCerts(boatId)
+        OrcTable.unlinkCerts(boatId)
         return BoatTable.deleteWhere {
             id eq boatId
         }

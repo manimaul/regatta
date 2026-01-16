@@ -96,6 +96,10 @@ fun AddResult(viewModel: RaceResultEditViewModel) {
             RatingSelections(
                 boatType = addState.ratingType,
                 phrfRating = addState.phrfRating.toIntOrNull(),
+                certs = addState.boatSkipper?.boat?.orcCerts ?: emptyList(),
+                onOrc = { a, c ->
+
+                },
                 typeChange = { t, r ->
                     viewModel.addViewModel.setType(t, r)
                 },
@@ -148,6 +152,10 @@ fun EditResultRow(viewModel: RaceResultEditViewModel) {
             RatingSelections(
                 boatType = addState.ratingType,
                 phrfRating = addState.phrfRating.toIntOrNull(),
+                certs = addState.boatSkipper?.boat?.orcCerts ?: emptyList(),
+                onOrc = { a, c, ->
+
+                },
                 typeChange = { t, r, -> viewModel.addViewModel.setType(t, r) },
             )
 

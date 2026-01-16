@@ -103,31 +103,41 @@ fun RgInput(
 
 @Composable
 fun RgInputWithButton(
-    label: String,
+    label: String? = null,
     value: String,
     btnLabel: String,
+    disabled: Boolean = false,
+    btnDisabled: Boolean = false,
     listener: (String, Boolean) -> Unit,
 ) {
     val id = remember { "${++num}_input" }
-    Label(id, attrs = {
-        classes(AppStyle.marginEnd)
-    }) { B { Text(label) } }
+    label?.let {
+        Label(id, attrs = {
+            classes(AppStyle.marginEnd)
+        }) { B { Text(label) } }
+    }
     Div(attrs = {
         classes("input-group", "mb-3")
     }) {
         Input(type = InputType.Text) {
             classes("form-control")
             id(id)
-            placeholder(label)
+            label?.let { placeholder(it) }
+            if (disabled) {
+                disabled()
+            }
             value(value)
             onInput {
-                listener(it.value.trimStart(), false)
+                listener(it.value.trim(), false)
             }
         }
         Button(attrs = {
-            classes("btn", "btn-outline-secondary")
+            classes("btn", "btn-outline-primary")
+            if (btnDisabled) {
+                disabled()
+            }
             onClick {
-                listener(value.trimStart(), true)
+                listener(value.trim(), true)
             }
         }) {
             Text(btnLabel)

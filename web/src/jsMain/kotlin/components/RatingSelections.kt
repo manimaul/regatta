@@ -5,9 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import com.mxmariner.regatta.data.Boat
 import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.ratingDefault
 import org.jetbrains.compose.web.dom.B
+import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
@@ -16,15 +18,30 @@ import utils.Complete
 import utils.Error
 import utils.Loading
 import utils.Uninitialized
+import utils.display
 import viewmodel.OrcViewModel
-import viewmodel.complete
+
+enum class Action {
+    Add,
+    Delete
+}
+
+@Composable
+fun RatingSelections(
+    boat: Boat,
+    onOrc: ((Action, OrcCertificate) -> Unit)? = null,
+    typeChange: (RatingType, Int) -> Unit,
+) {
+    RatingSelections(boat.ratingType, boat.phrfRating, boat.orcCerts, onOrc, typeChange)
+}
+
 
 @Composable
 fun RatingSelections(
     boatType: RatingType,
     phrfRating: Int?,
-    cert: OrcCertificate? = null,
-    onOrc: ((OrcCertificate?) -> Unit)? = null,
+    certs: List<OrcCertificate> = emptyList(),
+    onOrc: ((Action, OrcCertificate) -> Unit)? = null,
     typeChange: (RatingType, Int) -> Unit,
 ) {
     P {
@@ -37,7 +54,7 @@ fun RatingSelections(
     }
     when (boatType) {
         RatingType.ORC -> {
-            P { OrcInfo(cert = cert) { onOrc?.invoke(it) } }
+            P { OrcInfo(certs = certs) { c, a -> onOrc?.invoke(c, a) } }
         }
 
         RatingType.ORC_PHRF -> {
@@ -49,7 +66,7 @@ fun RatingSelections(
                     typeChange(boatType, it.toInt())
                 }
             }
-            P { OrcInfo(cert = cert) { onOrc?.invoke(it) } }
+            P { OrcInfo(certs = certs) { c, a -> onOrc?.invoke(c, a) } }
         }
 
         RatingType.PHRF -> {
@@ -70,34 +87,42 @@ fun RatingSelections(
 @Composable
 fun OrcInfo(
     viewModel: OrcViewModel = remember { OrcViewModel() },
-    cert: OrcCertificate? = null,
-    onOrc: (OrcCertificate?) -> Unit ,
+    certs: List<OrcCertificate> = emptyList(),
+    onOrc: (Action, OrcCertificate) -> Unit,
 ) {
-    viewModel.setCert(cert)
+    viewModel.setCerts(certs)
     val state by viewModel.flow.collectAsState()
+    B {
+        Text("ORC Certificates")
+    }
+    state.certs.forEach {
+        OrcDisplay(it, onOrc)
+    }
     when (val event = state.cert) {
         is Complete<OrcCertificate> -> {
-            onOrc(event.value)
-            OrcDisplay(event.value)
+            OrcFetch(onOrc, viewModel)
         }
+
         is Error<OrcCertificate> -> ErrorDisplay(event) { viewModel.reload() }
         is Loading<OrcCertificate> -> RgSpinner()
-        Uninitialized -> OrcFetch(viewModel)
+        Uninitialized -> OrcFetch(onOrc, viewModel)
     }
 }
 
 @Composable
 fun OrcFetch(
+    onOrc: (Action, OrcCertificate) -> Unit,
     viewModel: OrcViewModel = remember { OrcViewModel() }
 ) {
     val state by viewModel.flow.collectAsState()
     RgInputWithButton(
         label = "ORC Reference Number",
-        btnLabel = "Add",
+        btnLabel = "Add Cert",
         value = state.refNumber,
+        btnDisabled = !state.readyToAdd,
     ) { change, clicked ->
         if (clicked) {
-            viewModel.confirmRef()
+            viewModel.confirmRef(onOrc)
         } else {
             viewModel.refNumber(change)
         }
@@ -106,7 +131,24 @@ fun OrcFetch(
 
 @Composable
 fun OrcDisplay(
-    certificate: OrcCertificate
+    certificate: OrcCertificate,
+    onOrc: (Action, OrcCertificate) -> Unit,
 ) {
-    Text("Cert: ${certificate.refNo} ${certificate.certNo}")
+    P {
+        Text("Reference Number: ${certificate.refNo} ")
+        RgButton(
+            label = "Remove",
+            style = RgButtonStyle.SecondaryOutline
+        ) {
+            onOrc(Action.Delete, certificate)
+        }
+        Br { }
+        Text("${certificate.yachtName} ${certificate.sailNo}")
+        Br { }
+        Text("Certificate Number: ${certificate.certNo}")
+        Br { }
+        Text("Issue Date: ${certificate.issueDate.display()}")
+        Br { }
+        Text("Type: ${certificate.cType} Division: ${certificate.division}")
+    }
 }

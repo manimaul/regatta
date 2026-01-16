@@ -1,3 +1,4 @@
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
@@ -74,7 +75,7 @@ data class OrcCertificate(
     @SerialName("Designer") val designer: String = "",
     @SerialName("C_Type") val cType: String = "",
     @SerialName("Division") val division: String = "",
-    @SerialName("IssueDate") val issueDate: String = "",
+    @SerialName("IssueDate") val issueDate: Instant = Instant.DISTANT_FUTURE,
 
     // Single Number All Purpose
     @SerialName("APHD") val allPurposeTod: Double = 0.0,

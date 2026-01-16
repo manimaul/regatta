@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.json.jsonb
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.update
 
 
 object OrcTable : Table() {
@@ -26,14 +27,14 @@ object OrcTable : Table() {
     }
 
     fun findCertificates(boat: Long): List<OrcCertificate> {
-        return OrcTable.select { boatId eq boat }.map { ref->
-           ref[cert]
+        return OrcTable.select { boatId eq boat }.map { ref ->
+            ref[cert]
         }
     }
 
-    fun deleteCerts(boat: Long): Int {
-        return OrcTable.deleteWhere {
-            boatId eq boat
+    fun unlinkCerts(boat: Long) {
+        update(where = { boatId eq boat }) {
+            it[boatId] = null
         }
     }
 
