@@ -1,6 +1,8 @@
+import com.mxmariner.regatta.correctionFactorDefault
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import kotlin.math.roundToInt
 
 @Serializable
 sealed interface OrcBand {
@@ -182,5 +184,41 @@ data class OrcCertificate(
     @SerialName("US_AP_MH_TOD") val fiveBandAllPurposeMedHiTod: Double = 0.0,
     @SerialName("US_AP_H_TOT") val fiveBandAllPurposeHiTot: Double = 0.0,
     @SerialName("US_AP_H_TOD") val fiveBandAllPurposeHiTod: Double = 0.0,
-)
+) {
+
+    fun virtualPhrf() : Int {
+        /*
+        Coefficient A (The Numerator)
+        Purpose: A is a constant used to scale the resulting TCF so that a "middle-of-the-fleet" boat has a multiplier near 1.000.
+        Impact: Changing the A coefficient does not change the finishing order of the race; it only affects the margins between boats.
+        Standard Value: The most commonly used value for A is 650.
+         */
+        val a = 500.0
+
+        /*
+        Coefficient B (The Denominator)
+        480: Heavy air (15+ knots) or all off-the-wind sailing.
+        550: Average/Moderate conditions (10–15 knots).
+        600: Light air (5–10 knots) or all windward work.
+        650: Very light air/Calm (1–5 knots).
+         */
+        val b = 550.0
+
+        /*
+        Low("Low", "7 kts or less"),
+        LowMedium("Low/Medium", "7 to 10 kts"),
+        Medium("Medium", "10 to 13 kts"),
+        MediumHigh("Medium/High", "13 to 17 kts"),
+        High("High", "17 kts or more");
+         */
+        val tcf = fiveBandWlLowMedTot
+
+        /*
+        PHRF formula "tcf = a / ( b + phrf)"
+         */
+        val phrf = (a / tcf) - b
+
+        return phrf.roundToInt()
+    }
+}
 

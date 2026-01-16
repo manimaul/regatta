@@ -2,7 +2,6 @@ package com.mxmariner.regatta.data
 
 import OrcCertificate
 import com.mxmariner.regatta.correctionFactorDefault
-import com.mxmariner.regatta.ratingDefault
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -141,10 +140,10 @@ enum class RatingType(val label: String) {
         this == ORC || this == ORC_PHRF
     }
 
-    fun ratedLabel(phrfRating: Int? = null) : String {
+    fun ratedLabel(phrfRating: Int? = null, orcInfo: String? = null) : String {
         return when (this) {
             ORC -> label
-            ORC_PHRF -> "ORC, PHRF ($phrfRating)"
+            ORC_PHRF -> "PHRF ($phrfRating), ORC${orcInfo?.let { " ($it)" } ?: ""}"
             PHRF -> "$label ($phrfRating)"
             CruisingFlyingSails,
             CruisingNonFlyingSails -> label
@@ -172,7 +171,15 @@ data class Boat(
     val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
     val numberOfRaces: Long = 0,
     val active: Boolean = true
-)
+) {
+
+    fun orcInfo() : String? {
+        return orcCerts.takeIf { it.isNotEmpty() }?.let {
+            "~${orcCerts.minOf { it.virtualPhrf() }}"
+        }
+    }
+
+}
 
 @Serializable
 data class BoatSkipper(

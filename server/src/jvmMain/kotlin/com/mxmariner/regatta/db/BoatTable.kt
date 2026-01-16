@@ -94,15 +94,14 @@ object BoatTable : Table() {
         }).sortedWith { lhs, rhs ->
             val left = lhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
             val right = rhs.boat?.ratingType ?: RatingType.CruisingNonFlyingSails
-            if (left.isORC && right.isORC) {
-                (rhs.boat?.orcCerts?.maxOf{ it.allPurposeTot } ?: 0.0).compareTo(
-                    lhs.boat?.orcCerts?.maxOf { it.allPurposeTot } ?: 0.0
-                )
-            }
-            if (left == RatingType.PHRF && right == RatingType.PHRF) {
+            if (left.isPHRF && right.isPHRF) {
                 (lhs.boat?.phrfRating ?: ratingDefault.toInt()).compareTo(
-                   rhs.boat?.phrfRating ?: ratingDefault.toInt()
+                    rhs.boat?.phrfRating ?: ratingDefault.toInt()
                 )
+            } else if (left.isORC && right.isORC) {
+                val rmin = rhs.boat?.orcCerts?.maxOf { it.virtualPhrf() } ?: 0
+                val lmin = lhs.boat?.orcCerts?.maxOf { it.virtualPhrf() } ?: 0
+                lmin.compareTo(rmin)
             } else {
                 left.compareTo(right)
             }

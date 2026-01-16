@@ -75,7 +75,7 @@ fun BoatList(
                         }
                         RgTd { Text(boat.boat?.sailNumber ?: "") }
                         RgTd { Text(boat.boat?.boatType ?: "") }
-                        RgTd { Text(boat.boat?.ratingType?.ratedLabel(boat.boat?.phrfRating) ?: "") }
+                        RgTd { Text(boat.boat?.ratingType?.ratedLabel(boat.boat?.phrfRating, boat.boat?.orcInfo()) ?: "") }
                         RgTd { Text(boat.boat?.numberOfRaces?.toString() ?: "") }
                         RgTd {
                             AddEditBoatModalButton(
