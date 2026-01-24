@@ -46,6 +46,9 @@ object RegattaDatabase {
             execInBatch(
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
+        }
+        transaction(database) {
+            SchemaUtils.create(*tables)
             execInBatch(
                 SchemaUtils.statementsRequiredToActualizeScheme(*tables, withLogs = true)
             )
