@@ -44,11 +44,10 @@ tasks.findByPath(":server:shadowDistTar")?.apply {
     mustRunAfter(":web:jsBrowserProductionWebpack")
 }
 
-tasks.findByPath(":server:installDist")?.apply {
+tasks.findByPath(":server:installJvmDist")?.apply {
     dependsOn(":web:jsBrowserProductionWebpack")
     mustRunAfter(":web:jsBrowserProductionWebpack")
 }
-
 
 tasks.findByPath(":server:jvmProcessResources")?.let { it as? Copy }?.apply {
     tasks.findByPath(":web:jsBrowserProductionWebpack")?.let {
@@ -60,8 +59,8 @@ tasks.findByPath(":server:jvmProcessResources")?.let { it as? Copy }?.apply {
 }
 
 tasks.register<Exec>("makeImg") {
-    dependsOn(":server:installDist")
-    mustRunAfter(":server:installDist")
+    dependsOn(":server:installJvmDist")
+    mustRunAfter(":server:installJvmDist")
     commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
 }
 

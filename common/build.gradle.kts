@@ -1,4 +1,3 @@
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -12,9 +11,7 @@ version = "1.0"
 kotlin {
     jvmToolchain(17)
 
-    jvm {
-//        withJava()
-    }
+    jvm { }
     js(IR) {
         browser {
             testTask(Action {
@@ -32,7 +29,7 @@ kotlin {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:${serializationVersion}")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:${serializationVersion}")
-//                api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
             }
         }
         val commonTest by getting {

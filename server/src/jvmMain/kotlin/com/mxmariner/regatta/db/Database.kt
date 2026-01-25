@@ -15,7 +15,6 @@ import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
-import java.sql.ResultSet
 
 
 class DbConfig {

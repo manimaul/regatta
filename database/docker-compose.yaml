@@ -2,6 +2,18 @@
 version: '3.8'
 services:
 
+  regatta:
+    image: ghcr.io/manimaul/regatta:latest
+    networks:
+      - overlay
+    ports:
+      - "8888:8888"
+    environment:
+      JAVA_OPTS: "-Djdbcurl=jdbc:postgresql://postgres:5432/regatta -Duser=regatta_admin -Dpassword=mysecretpassword"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: 'postgres:16-bookworm'
     networks:
