@@ -44,8 +44,6 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-//                implementation("io.ktor:ktor-server-tests-jvm")
-//                implementation(kotlin("test-junit5"))
                 implementation(kotlin("test"))
             }
         }

@@ -19,7 +19,9 @@ cd database
 docker-compose up
 ```
 ```shell
-./gradlew :server:run
+./gradlew :server:jvmRun
+# OR
+./gradlew :server:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
 ```
 
 ```shell
