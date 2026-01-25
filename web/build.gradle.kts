@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
 
-    js(IR) {
+    js {
         browser {
             commonWebpackConfig {
                 cssSupport { enabled.set(true) } // Add this

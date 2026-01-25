@@ -19,13 +19,12 @@ cd database
 docker-compose up
 ```
 ```shell
-./gradlew :server:jvmRun
-# OR
+# ./gradlew :server:jvmRun
 ./gradlew :server:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
 ```
 
 ```shell
-./gradlew :web:jsRun --continuous
+./gradlew :web:jsBrowserDevelopmentRun --continuous
 ```
 
 ### Run in container 
