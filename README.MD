@@ -1,5 +1,8 @@
 # Regatta
-Software for scoring sailing regattas utilizing [PHRF](https://www.ussailing.org/competition/offshore/phrf/) scoring.
+Software for scoring sailing regattas utilizing [ORC](https://orc.org/), [PHRF](https://www.ussailing.org/competition/offshore/phrf/), Cruising Class Flying and Cruising class Non-Flying scoring.
+
+ORC Scoring supports the [US scoring options](common/src/commonMain/kotlin/com/mxmariner/regatta/data/OrcCertificate.kt) 
+
 Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacoma](https://cyct.com/).
 
 ![Sailing Vessel Waymaker](./sv_waymaker.jpeg "SV Waymaker")
