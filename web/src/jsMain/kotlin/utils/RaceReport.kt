@@ -32,12 +32,12 @@ fun RaceReportCard.elapsedText(): String {
     return elapsedTime?.display() ?: "n/a"
 }
 
-fun RaceReportCard.cfText(): String {
-    return "${phrfTcf.asDynamic().toFixed(3)}"
+private fun cfText(tcf: Double): String {
+    return "${tcf.asDynamic().toFixed(4)}"
 }
 
-fun RaceReportCard.corTimePhrfText() = corTimeText(correctedPhrfTime, "PHRF")
-fun RaceReportCard.corTimeOrcText() = corTimeText(correctedOrcTime, "ORC")
-fun RaceReportCard.corTimeText(duration: Duration?, label: String): String {
-    return duration?.display()?.let { "$it (${cfText()} $label)" } ?: "n/a"
+fun RaceReportCard.corTimePhrfText() = corTimeText(phrfTcf, correctedPhrfTime, "PHRF")
+fun RaceReportCard.corTimeOrcText() = corTimeText(orcTcf,correctedOrcTime, "ORC")
+private fun corTimeText(tcf: Double, duration: Duration?, label: String): String {
+    return duration?.display()?.let { "$it (${cfText(tcf)} $label)" } ?: "n/a"
 }
