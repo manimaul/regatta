@@ -7,13 +7,15 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
+const val currentDbVersion = 4
+
 private const val sqlDbMetaDataSetup = """
 CREATE TABLE IF NOT EXISTS metadata (
     name varchar(128) PRIMARY KEY,
     value varchar(128) NOT NULL
 );
 INSERT INTO metadata (name, value) 
-VALUES ('version', '0')
+VALUES ('version', '${currentDbVersion + 10}')
 ON CONFLICT (name) DO NOTHING;
 """
 
@@ -151,7 +153,7 @@ private fun dbVersion3To4Upgrade(database: Database) {
             }
         }
     }
-    updateVersion(database, 4)
+    updateVersion(database, currentDbVersion)
 }
 
 

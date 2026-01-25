@@ -2,52 +2,23 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version ktorVersion
-//    id("com.netflix.nebula.ospackage-application") version osPackageVersion
 }
 
 
 group = "com.mxmariner.regatta"
 version = "1.0"
 
-//application.applicationName = "regatta"
-
-//ospackage {
-//    packageName = "regatta"
-//    version = "1.0-${gitShortHash()}"
-//    release = "1"
-//    from("debpkg/regatta.service", closureOf<CopySpec> {
-//        into("/etc/systemd/system/")
-//    })
-//    from("debpkg/regatta_exec.sh", closureOf<CopySpec> {
-//        into("/usr/bin/")
-//    })
-//    from("debpkg/regatta.env", closureOf<CopySpec> {
-//        into("/etc/")
-//    })
-//    preDepends("systemd")
-//    requires("openjdk-17-jre-headless")
-//    postInstall(file("debpkg/postInstall.sh"))
-//    preUninstall(file("debpkg/preUninstall.sh"))
-//    postUninstall(file("debpkg/postUninstall.sh"))
-//}
-
-//application {
-//    mainClass.set("com.mxmariner.regatta.ApplicationKt")
-//
-//    val isDevelopment: Boolean = project.ext.has("development")
-//    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
-//}
 
 kotlin {
     jvmToolchain(17)
 
     jvm {
-//        withJava()
-//        testRuns.named("test") {
-//            executionTask.configure {
-//                useJUnitPlatform()
-//            }
-//        }
+        binaries {
+            executable {
+                mainClass.set("com.mxmariner.regatta.ApplicationKt")
+                applicationName = "regatta"
+            }
+        }
     }
     sourceSets {
         val jvmMain by getting {
