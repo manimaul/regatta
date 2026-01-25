@@ -1,9 +1,6 @@
 - ORC scoring support
-  - Boats can be either (PHRF, PHRF + ORC, ORC, Windseeker FS, Windseeker)
-    - PHRF+ORC boats will be bracketed based on ORC ratings
-    - ORC boats will be bracketed on ORC ratings
-    - PHRF boats will be bracketed on PHRF ratings
-  - Race classes can be either (PHRF, ORC, Windseeker FS, Windseeker)
+  - adding new ORC only boat breaks (have to add as PHRF first) 
+  - ORC series standings
 
 - Race config set ORC scoring type (upwind/downwind general purpose) or ()
 - Add wind speed to RC and results editor

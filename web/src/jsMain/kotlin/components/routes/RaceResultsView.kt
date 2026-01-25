@@ -8,6 +8,7 @@ import com.mxmariner.regatta.data.ClassReportCards
 import com.mxmariner.regatta.data.PhrfBFactor
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
+import com.mxmariner.regatta.data.RatingType
 import components.*
 import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
@@ -118,9 +119,13 @@ fun RaceResultsClassTable(
                         RgTd { Text(card.elapsedText()) }
                         if (classReportCards.raceClass.ratingType.isORCorPHRF) {
                             RgTd {
-                                Text(card.corTimePhrfText())
-                                if (showOrc && card.ratingType().isORC) {
+                                if (card.ratingType().isPHRF) {
+                                    Text(card.corTimePhrfText())
+                                }
+                                if (card.ratingType() == RatingType.ORC_PHRF) {
                                     Br { }
+                                }
+                                if (showOrc && card.ratingType().isORC) {
                                     Text(card.corTimeOrcText())
                                 }
                             }
@@ -128,16 +133,20 @@ fun RaceResultsClassTable(
                         if (totalBracketInClassCount > 1) {
                             if (showOrc && classReportCards.raceClass.ratingType.isORC) {
                                 RgTd {
-                                    Text("${card.placeInBracket} PHRF")
-                                    if (card.placeInBracketOrc != 0) {
+                                    if (card.ratingType().isPHRF) {
+                                        Text("${card.placeInBracket} PHRF")
                                         Br {  }
+                                    }
+                                    if (card.placeInBracketOrc != 0 && card.ratingType().isORC) {
                                         Text("${card.placeInBracketOrc} ORC")
                                     }
                                 }
                                 RgTd {
-                                    Text("${card.placeInClass} PHRF")
-                                    if (card.placeInClassOrc != 0) {
+                                    if (card.ratingType().isPHRF) {
+                                        Text("${card.placeInClass} PHRF")
                                         Br {  }
+                                    }
+                                    if (card.placeInClassOrc != 0 && card.ratingType().isORC) {
                                         Text("${card.placeInClassOrc} ORC")
                                     }
                                 }
@@ -148,9 +157,11 @@ fun RaceResultsClassTable(
                         } else {
 
                             if (showOrc && classReportCards.raceClass.ratingType.isORC) {
-                                Text("${card.placeInBracket} PHRF")
-                                if (card.placeInBracketOrc != 0) {
+                                if (card.ratingType().isPHRF) {
+                                    Text("${card.placeInBracket} PHRF")
                                     Br {  }
+                                }
+                                if (card.placeInBracketOrc != 0) {
                                     Text("${card.placeInBracketOrc} ORC")
                                 }
                             } else {
