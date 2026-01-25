@@ -28,9 +28,9 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(project(":common"))
-                implementation(compose.html.core)
-                implementation(compose.runtime)
-                implementation(compose.html.svg)
+                implementation("org.jetbrains.compose.html:html-core:$composeVersion")
+                implementation("org.jetbrains.compose.runtime:runtime:$composeVersion")
+                implementation("org.jetbrains.compose.html:html-svg:$composeVersion")
                 implementation(npm("maplibre-gl", "4.7.1"))
                 implementation(npm("sortablejs", "1.15.2"))
                 implementation(npm("bootstrap", "5.3.3"))
@@ -38,14 +38,14 @@ kotlin {
                 implementation("io.madrona:geojson:1.0-SNAPSHOT")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
             }
         }
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test-js"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
             }
         }
     }
