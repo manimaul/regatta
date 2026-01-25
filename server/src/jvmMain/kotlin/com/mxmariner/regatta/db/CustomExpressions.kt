@@ -1,6 +1,6 @@
 package com.mxmariner.regatta.db
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.*
 
 //https://www.postgresql.org/docs/current/functions-matching.html
 infix fun <T : String?> Expression<T>.ilike(pattern: LikePattern): ILikeEscapeOp =

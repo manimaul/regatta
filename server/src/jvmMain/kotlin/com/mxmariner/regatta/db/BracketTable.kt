@@ -1,9 +1,14 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Bracket
-import com.mxmariner.regatta.data.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import com.mxmariner.regatta.data.RaceClass
+import com.mxmariner.regatta.data.RaceClassBrackets
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
  * Each [RaceClassFull] / [RaceClassTable] has a list of [Bracket]s / [BracketTable].
@@ -53,11 +58,11 @@ object BracketTable : Table() {
     }
 
     fun findClassBrackets(rId: Long): List<Bracket> {
-        return select { raceClass.eq(rId) }.map(::resultRowToBracket).sortedBy { it.minRating }
+        return selectAll().where { raceClass.eq(rId) }.map(::resultRowToBracket).sortedBy { it.minRating }
     }
 
     fun findBracket(bracketId: Long): Bracket? {
-        return select { id.eq(bracketId) }.map(::resultRowToBracket).singleOrNull()
+        return selectAll().where { id.eq(bracketId) }.map(::resultRowToBracket).singleOrNull()
     }
 
     fun resultRowToBracket(row: ResultRow) = Bracket(

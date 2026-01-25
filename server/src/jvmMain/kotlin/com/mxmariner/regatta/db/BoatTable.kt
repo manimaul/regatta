@@ -5,8 +5,13 @@ import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.db.PersonTable.resultRowToPerson
 import com.mxmariner.regatta.ratingDefault
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object BoatTable : Table() {
     val id = long("id").autoIncrement()
@@ -28,12 +33,12 @@ object BoatTable : Table() {
     }
 
     fun findBoatSkipper(boatId: Long): BoatSkipper? {
-        return innerJoin(PersonTable).select { id eq boatId }.singleOrNull()?.let { row ->
+        return innerJoin(PersonTable).selectAll().where { id eq boatId }.singleOrNull()?.let { row ->
             BoatSkipper(
                 boat = resultRowToBoat(row),
                 skipper = resultRowToPerson(row)
             )
-        } ?: select { id.eq(boatId) }.singleOrNull()?.let { row ->
+        } ?: selectAll().where { id.eq(boatId) }.singleOrNull()?.let { row ->
             BoatSkipper(
                 boat = resultRowToBoat(row),
                 skipper = null
@@ -70,7 +75,7 @@ object BoatTable : Table() {
     }
 
     fun findBoatForSkipper(personId: Long): BoatSkipper? {
-        return innerJoin(PersonTable).select { skipper eq personId }.singleOrNull()?.let { row ->
+        return innerJoin(PersonTable).selectAll().where { skipper eq personId }.singleOrNull()?.let { row ->
             BoatSkipper(
                 boat = resultRowToBoat(row),
                 skipper = resultRowToPerson(row)
@@ -84,7 +89,7 @@ object BoatTable : Table() {
                 boat = resultRowToBoat(row),
                 skipper = resultRowToPerson(row)
             )
-        }.plus(BoatTable.select {
+        }.plus(BoatTable.selectAll().where {
             (skipper eq null)
         }.map {
             BoatSkipper(

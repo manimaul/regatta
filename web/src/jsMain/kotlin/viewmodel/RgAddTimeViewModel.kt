@@ -1,7 +1,7 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.*
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import utils.*
 import kotlin.time.Duration.Companion.hours
 

@@ -5,8 +5,7 @@ import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
 import com.mxmariner.regatta.db.RegattaDatabase
 import io.ktor.server.auth.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream

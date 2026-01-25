@@ -2,7 +2,11 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object RaceTable : Table() {
     val id = long("id").autoIncrement()
@@ -22,7 +26,7 @@ object RaceTable : Table() {
     )
 
     fun raceCountForSeries(seriesId: Long) : Long {
-        return RaceTable.select { RaceTable.seriesId eq seriesId}.count()
+        return RaceTable.selectAll().where { RaceTable.seriesId eq seriesId}.count()
     }
 
     fun upsertRace(race: Race): Race? {
@@ -90,7 +94,7 @@ object RaceTable : Table() {
     }
 
     fun findRace(raceId: Long): Race? {
-        return select { id eq raceId }.map { row ->
+        return selectAll().where { id eq raceId }.map { row ->
             rowToRace(row)
         }.singleOrNull()
     }

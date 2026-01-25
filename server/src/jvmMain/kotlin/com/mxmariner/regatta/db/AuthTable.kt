@@ -1,8 +1,9 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.AuthRecord
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object AuthTable : Table() {
     val id = long("id").autoIncrement()
@@ -13,11 +14,11 @@ object AuthTable : Table() {
     override val primaryKey = PrimaryKey(id)
 
     fun getAuth(name: String): AuthRecord? {
-        return AuthTable.select { userName eq name }.singleOrNull()?.let(::resultRowToAuth)
+        return AuthTable.selectAll().where { userName eq name }.singleOrNull()?.let(::resultRowToAuth)
     }
 
     fun getAuth(authId: Long): AuthRecord? {
-        return AuthTable.select { id eq authId }.singleOrNull()?.let(::resultRowToAuth)
+        return AuthTable.selectAll().where { id eq authId }.singleOrNull()?.let(::resultRowToAuth)
     }
 
     fun saveAuth(record: AuthRecord): AuthRecord? {

@@ -1,10 +1,10 @@
 package com.mxmariner.regatta.db
 
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object ImageTable : Table() {
     val fileName = varchar("hash", 128)
@@ -13,13 +13,13 @@ object ImageTable : Table() {
     override val primaryKey = PrimaryKey(fileName)
 
     fun getImage(name: String): ByteArray? {
-        return ImageTable.select { fileName.eq(name) }.singleOrNull()?.let { row ->
+        return ImageTable.selectAll().where { fileName eq name }.singleOrNull()?.let { row ->
             return row[data]
         }
     }
 
     fun getRaceReportImageName(id: Long): String? {
-        return ImageTable.select { raceId.eq(id) }.singleOrNull()?.let { row ->
+        return ImageTable.selectAll().where { raceId.eq(id) }.singleOrNull()?.let { row ->
             return row[fileName]
         }
     }

@@ -13,7 +13,7 @@ kotlin {
     jvmToolchain(17)
 
     jvm {
-        withJava()
+//        withJava()
     }
     js(IR) {
         browser {
@@ -30,8 +30,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-                api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:${serializationVersion}")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:${serializationVersion}")
+//                api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             }
         }
         val commonTest by getting {

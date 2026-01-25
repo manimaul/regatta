@@ -3,8 +3,13 @@ package com.mxmariner.regatta.db
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.RatingType
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object RaceClassTable : Table() {
     val id = long("id").autoIncrement()
@@ -76,7 +81,7 @@ object RaceClassTable : Table() {
     }
 
     fun selectById(id: Long): RaceClass? {
-        return RaceClassTable.select {
+        return RaceClassTable.selectAll().where {
             RaceClassTable.id eq id
         }.map(::resultRowToClass).singleOrNull()
     }

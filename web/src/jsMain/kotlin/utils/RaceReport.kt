@@ -2,7 +2,7 @@ package utils
 
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.display
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.Duration
 
 fun RaceResultFull.finishText(startTime: Instant?): String {

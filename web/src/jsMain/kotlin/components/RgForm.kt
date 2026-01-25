@@ -1,7 +1,7 @@
 package components
 
 import androidx.compose.runtime.*
-import kotlinx.datetime.*
+import kotlin.time.*
 import org.jetbrains.compose.web.attributes.*
 import org.jetbrains.compose.web.css.maxWidth
 import org.jetbrains.compose.web.css.px

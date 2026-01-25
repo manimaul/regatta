@@ -2,10 +2,10 @@ package utils
 
 import com.mxmariner.regatta.data.LoginResponse
 import kotlinx.browser.window
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.time.Clock
 
 
 fun localStoreSet(key: String, value: String) {
@@ -72,5 +72,5 @@ fun token(): String {
     return localStoreGetEncoded<LoginResponse>() ?: "none"
 }
 fun LoginResponse.isExpired() : Boolean {
-    return expires.minus(kotlinx.datetime.Clock.System.now()).isNegative()
+    return expires.minus(Clock.System.now()).isNegative()
 }

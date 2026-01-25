@@ -1,9 +1,12 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RaceTime
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlinx.coroutines.selects.select
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object RaceTimeTable : Table() {
     val raceId = (long("race_id") references RaceTable.id)
@@ -54,10 +57,10 @@ object RaceTimeTable : Table() {
     }
 
     fun selectByRaceId(raceId: Long): List<RaceTime> {
-        return select { RaceTimeTable.raceId eq raceId }.map(::rowToTime)
+        return selectAll().where { RaceTimeTable.raceId eq raceId }.map(::rowToTime)
     }
 
     fun findByRaceAndClassId(rId: Long, cId: Long): RaceTime? {
-        return select { classId.eq(cId).and(raceId.eq(rId)) }.map(::rowToTime).singleOrNull()
+        return selectAll().where { classId.eq(cId).and(raceId.eq(rId)) }.map(::rowToTime).singleOrNull()
     }
 }

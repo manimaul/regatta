@@ -1,8 +1,11 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Bracket
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object RaceBracketJunction : Table() {
     val bracket = (long("bracket_id") references BracketTable.id)
@@ -10,11 +13,11 @@ object RaceBracketJunction : Table() {
     val raceClass = (long("class_id") references RaceClassTable.id)
 
     fun raceCountForBracket(bracketId: Long): Long {
-        return slice(race.countDistinct()).select { bracket eq bracketId }.first()[race.countDistinct()]
+        return select(race.countDistinct()).where { bracket eq bracketId }.first()[race.countDistinct()]
     }
 
     fun raceCountForClass(raceClassId: Long): Long {
-        return slice(race.countDistinct()).select { raceClass eq raceClassId }.first()[race.countDistinct()]
+        return select(race.countDistinct()).where { raceClass eq raceClassId }.first()[race.countDistinct()]
     }
 
     fun setBrackets(raceId: Long, classId: Long, list: List<Bracket>): Int {
@@ -32,7 +35,7 @@ object RaceBracketJunction : Table() {
     }
 
     fun selectBrackets(raceId: Long): List<Bracket> {
-        return RaceBracketJunction.select { race eq raceId }.mapNotNull { row ->
+        return RaceBracketJunction.selectAll().where { race eq raceId }.mapNotNull { row ->
             val bracketId = row[bracket]
             BracketTable.findBracket(bracketId)
         }

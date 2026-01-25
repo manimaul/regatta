@@ -23,7 +23,7 @@ import viewmodel.RaceResultAddViewModel
 import viewmodel.ResultsViewModel
 import viewmodel.complete
 import viewmodel.routeViewModel
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import utils.finishText
 import viewmodel.alertsViewModel
 

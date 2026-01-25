@@ -5,7 +5,7 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.ratingDefault
 import components.Action
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import utils.Api
 import utils.Async
 import utils.Complete
