@@ -6,7 +6,6 @@ plugins {
     kotlin("plugin.compose") version kotlinVersion apply false
     id("org.jetbrains.compose") version composeVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
-//    id("com.netflix.nebula.ospackage-application") version osPackageVersion apply false
 }
 
 allprojects {
@@ -56,6 +55,11 @@ tasks.findByPath(":server:jvmProcessResources")?.let { it as? Copy }?.apply {
         }
         exclude("webpack.config.js")
     }
+}
+
+tasks.register<Exec>("run") {
+    dependsOn(":server:installJvmDist")
+    commandLine("bash", "-c", "./server/build/install/regatta-jvm/bin/regatta")
 }
 
 tasks.register<Exec>("makeImg") {
