@@ -4,9 +4,17 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.BoatTable.resultRowToBoat
 import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
 import com.mxmariner.regatta.db.RaceTable.rowToRace
-import kotlinx.datetime.Instant
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Instant
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
@@ -29,7 +37,7 @@ object RaceResultsTable : Table() {
     override val primaryKey = PrimaryKey(id)
 
     fun count(raceId: Long): Long {
-        return RaceResultsTable.select { RaceResultsTable.raceId eq raceId }.count()
+        return RaceResultsTable.selectAll().where { RaceResultsTable.raceId eq raceId }.count()
     }
 
     fun upsertResult(result: RaceResult): RaceResult? {
@@ -53,24 +61,24 @@ object RaceResultsTable : Table() {
     }
 
     fun raceCount(boatId: Long): Long {
-        return RaceResultsTable.select { RaceResultsTable.boatId eq boatId }.count()
+        return RaceResultsTable.selectAll().where { RaceResultsTable.boatId eq boatId }.count()
     }
 
     fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
-        return innerJoin(RaceTable).innerJoin(BoatTable).select {
+        return innerJoin(RaceTable).innerJoin(BoatTable).selectAll().where {
             raceId.eq(rId)
         }.map(::rowToRaceResultBoatBracket)
     }
 
     fun resultsByRaceId(rId: Long): List<RaceResult> {
-        return RaceResultsTable.select { raceId.eq(rId) }.map(::rowToResult)
+        return RaceResultsTable.selectAll().where { raceId.eq(rId) }.map(::rowToResult)
     }
 
     fun scheduleResultsByRaceId(rId: Long): RaceScheduleResults? {
         return findRaceSchedule(rId)?.let { raceSchedule ->
             RaceScheduleResults(
                 raceSchedule = raceSchedule,
-                results = RaceResultsTable.select { raceId.eq(rId) }.map(::rowToResultFull)
+                results = RaceResultsTable.selectAll().where { raceId.eq(rId) }.map(::rowToResultFull)
             )
         }
     }
@@ -78,7 +86,7 @@ object RaceResultsTable : Table() {
     fun getResults(year: Int): List<RaceResultBoatBracket> {
         val start = Instant.parse("$year-01-01")
         val end = Instant.parse("${year + 1}-01-01")
-        return innerJoin(RaceTable).innerJoin(BoatTable).select {
+        return innerJoin(RaceTable).innerJoin(BoatTable).selectAll().where {
             finish.greaterEq(start) and finish.less(end)
         }.map(::rowToRaceResultBoatBracket)
     }

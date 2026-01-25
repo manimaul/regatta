@@ -1,6 +1,11 @@
 package utils
 
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.*
+import kotlin.time.Instant
 
 fun Int.doubleDigit(): String {
     return "$this".padStart(2, '0')
@@ -16,9 +21,9 @@ fun LocalDateTime.dateStr() = "${monthNumber}/${dayOfMonth}/${year}"
 
 fun LocalDateTime.inputStr() = "${year.quadDigit()}-${monthNumber.doubleDigit()}-${dayOfMonth.doubleDigit()}"
 
-fun LocalDateTime.instant() = toInstant(TimeZone.currentSystemDefault())
+fun LocalDateTime.instant() = Instant.fromEpochSeconds(toInstant(TimeZone.currentSystemDefault()).epochSeconds)
 
-fun Instant.localDateTime() = toLocalDateTime(TimeZone.currentSystemDefault())
+fun Instant.localDateTime(): LocalDateTime = kotlinx.datetime.Instant.fromEpochSeconds(this.epochSeconds).toLocalDateTime(TimeZone.currentSystemDefault())
 
 fun getClockValue(): String {
     return now().localDateTime().timeStr()

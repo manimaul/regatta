@@ -1,6 +1,7 @@
-const val kotlinVersion = "2.1.10"
-const val ktorVersion = "3.3.1"
+const val kotlinVersion = "2.3.0" //2.3.0
+const val ktorVersion = "3.4.0" //3.4.0
 const val logbackVersion = "1.4.11"
-const val composeVersion = "1.9.0"
-const val exposedVersion = "0.44.0"
-const val osPackageVersion = "11.11.1"
+const val composeVersion = "1.10.0"
+const val serializationVersion = "1.10.0"
+const val exposedVersion = "1.0.0"
+//const val osPackageVersion = "11.11.1"

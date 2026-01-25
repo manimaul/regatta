@@ -2,9 +2,10 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.ratingDefault
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 private const val sqlDbMetaDataSetup = """
 CREATE TABLE IF NOT EXISTS metadata (
@@ -107,7 +108,7 @@ private fun dbVersion2To3Upgrade(database: Database) {
 private fun dbVersion3To4Upgrade(database: Database) {
     transaction(database) {
 
-        RaceResultsTable.select { RaceResultsTable.raceClass.isNull() }.forEach { row ->
+        RaceResultsTable.selectAll().where { RaceResultsTable.raceClass.isNull() }.forEach { row ->
             val race = RaceTable.findRaceSchedule(row[RaceResultsTable.raceId])
             val ratingType = RatingType.valueOf(row[RaceResultsTable.ratingType])
             val resultId = row[RaceResultsTable.id]
@@ -129,7 +130,7 @@ private fun dbVersion3To4Upgrade(database: Database) {
             }
         }
 
-        RaceResultsTable.select { RaceResultsTable.bracket.isNull() }.forEach { row ->
+        RaceResultsTable.selectAll().where { RaceResultsTable.bracket.isNull() }.forEach { row ->
             val race = RaceTable.findRaceSchedule(row[RaceResultsTable.raceId])
             val ratingType = RatingType.valueOf(row[RaceResultsTable.ratingType])
             val resultId = row[RaceResultsTable.id]

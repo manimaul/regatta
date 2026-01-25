@@ -2,11 +2,13 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.OrcCertificate
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.json.jsonb
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.upsert
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.upsert
+import org.jetbrains.exposed.v1.json.jsonb
 
 
 object OrcTable : Table() {
@@ -29,14 +31,14 @@ object OrcTable : Table() {
 
     fun findCertificate(ref: String?): OrcCertificate? {
         return ref?.let {
-            OrcTable.select { refNo eq ref }.map { ref ->
+            OrcTable.selectAll().where { refNo eq ref }.map { ref ->
                 ref[cert]
             }.singleOrNull()
         }
     }
 
     fun findCertificates(boat: Long): List<OrcCertificate> {
-        return OrcTable.select { boatId eq boat }.map { ref ->
+        return OrcTable.selectAll().where { boatId eq boat }.map { ref ->
             ref[cert]
         }
     }

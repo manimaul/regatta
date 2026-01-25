@@ -36,8 +36,8 @@ kotlin {
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("@popperjs/core", "2.11.8"))
                 implementation("io.madrona:geojson:1.0-SNAPSHOT")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
             }

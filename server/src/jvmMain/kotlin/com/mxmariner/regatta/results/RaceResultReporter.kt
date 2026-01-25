@@ -2,9 +2,8 @@ package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.min
 import kotlin.math.roundToInt

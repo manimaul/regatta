@@ -1,7 +1,7 @@
 package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.RaceReportCard
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,7 +25,7 @@ class RaceResultReporterKtTest {
                 finishTime = finish,
                 correctedPhrfTime = finish.minus(start)
             ), //finish
-        ).sortedWith(cardCompare)
+        ).sortedWith(cardComparePhrf)
 
         val results = cards.place { i, raceReportCard ->
             raceReportCard.placeInClass = i

@@ -1,45 +1,13 @@
 package components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.display
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
-import utils.display
 import utils.now
-import viewmodel.RcViewModel
-
-//@Composable
-//fun RcTimeRow(
-//    viewModel: RcViewModel,
-//) {
-//    val state by viewModel.flow.collectAsState()
-//    state.focus?.let { f ->
-//        TimeRow(
-//            maxHoc = f.maxHoc,
-//            finish = f.finish,
-//            finishCode = f.finishCode,
-//            showHocOption = true,
-//            hocPosition = f.hocPosition,
-//            penalty = f.penalty,
-//            start = f.raceStart,
-//            onFinish = { code, time ->
-//                viewModel.setFinish(code, time)
-//            },
-//            onPenalty = {
-//                viewModel.penalty(it)
-//            },
-//            onHoc = {
-//                viewModel.hoc(it)
-//            }
-//        )
-//    }
-//}
 
 @Composable
 fun TimeRow(

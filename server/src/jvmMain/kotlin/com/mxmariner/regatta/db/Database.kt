@@ -3,12 +3,18 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Instant
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.kotlin.datetime.KotlinInstantColumnType
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.IColumnType
+import org.jetbrains.exposed.v1.core.LongColumnType
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.datetime.KotlinInstantColumnType
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import kotlin.time.Instant
 import java.sql.ResultSet
 
 
@@ -59,8 +65,8 @@ object RegattaDatabase {
 
     private suspend fun <T> dbRawQuery(
         sql: String,
-        args: Iterable<Pair<IColumnType, Any?>>? = null,
-        queryHandler: suspend (ResultSet) -> T,
+        args: Iterable<Pair<IColumnType<*>, Any?>>? = null,
+        queryHandler: suspend (JdbcResult) -> T,
     ): T {
         return newSuspendedTransaction(Dispatchers.IO) {
 
@@ -126,11 +132,13 @@ object RegattaDatabase {
         return dbRawQuery(
             sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date >= ? AND start_date < ?;",
             args = listOf(KotlinInstantColumnType() to start, KotlinInstantColumnType() to end)
-        ) {
+        ) { result ->
             val raceIds = mutableListOf<Long>()
-            while (it.next()) {
-                val raceId = it.getLong(1)
-                raceIds.add(raceId)
+            result.use {
+                while (it.next()) {
+                    val raceId = it.result.getLong(1)
+                    raceIds.add(raceId)
+                }
             }
             raceIds.mapNotNull {
                 RaceTable.findRaceSchedule(it)
@@ -148,11 +156,13 @@ object RegattaDatabase {
                 KotlinInstantColumnType() to start,
                 KotlinInstantColumnType() to end,
             )
-        ) {
+        ) { result ->
             val raceIds = mutableListOf<Long>()
-            while (it.next()) {
-                val raceId = it.getLong(1)
-                raceIds.add(raceId)
+            result.use {
+                while (it.next()) {
+                    val raceId = it.result.getLong(1)
+                    raceIds.add(raceId)
+                }
             }
             raceIds
         }

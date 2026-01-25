@@ -1,7 +1,7 @@
 package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.time.Duration

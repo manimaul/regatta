@@ -1,8 +1,14 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Person
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.LikePattern
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object PersonTable : Table() {
     val id = long("id").autoIncrement()
@@ -14,7 +20,7 @@ object PersonTable : Table() {
     val compoundIdx = uniqueIndex(first, last)
 
     fun selectPerson(personId: Long): Person? {
-        return select { id eq personId }.map(::resultRowToPerson).singleOrNull()
+        return selectAll().where { id eq personId }.map(::resultRowToPerson).singleOrNull()
     }
 
     fun resultRowToPerson(row: ResultRow) = Person(
@@ -27,7 +33,7 @@ object PersonTable : Table() {
 
 
     fun findPerson(name: String): List<Person> {
-        return select {
+        return selectAll().where {
             (first ilike LikePattern("%$name%")) or (last ilike LikePattern("%$name%"))
         }.map(::resultRowToPerson)
     }

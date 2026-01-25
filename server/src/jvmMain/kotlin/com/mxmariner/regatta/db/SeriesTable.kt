@@ -1,8 +1,11 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.Series
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 object SeriesTable : Table() {
     val id = long("id").autoIncrement()
@@ -28,7 +31,7 @@ object SeriesTable : Table() {
     }
 
     fun selectSeries(seriesId: Long): Series? {
-        return select { id eq seriesId }.map(::resultRowToSeries).singleOrNull()
+        return selectAll().where { id eq seriesId }.map(::resultRowToSeries).singleOrNull()
     }
 
     fun deleteSeries(seriesId: Long): Int {
@@ -36,7 +39,7 @@ object SeriesTable : Table() {
     }
 
     fun selectByName(name: String): List<Series> {
-        return select { SeriesTable.name ilike LikePattern("%$name%") }.map(::resultRowToSeries)
+        return selectAll().where { SeriesTable.name ilike LikePattern("%$name%") }.map(::resultRowToSeries)
     }
 
     fun upsertSeries(seriesList: List<Series>): List<Series> {
