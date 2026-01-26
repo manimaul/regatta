@@ -3,10 +3,15 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-
 group = "com.mxmariner.regatta"
 version = "1.0"
 
+
+apply<VersionPlugin>()
+
+configure<VersionPluginExtension> {
+    versionOutDir.set(layout.projectDirectory.dir("src/commonMain/kotlin"))
+}
 
 kotlin {
     jvmToolchain(17)

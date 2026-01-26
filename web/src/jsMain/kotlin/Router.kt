@@ -4,8 +4,15 @@ import androidx.compose.runtime.getValue
 import components.*
 import components.routes.*
 import org.jetbrains.compose.web.css.Style
+import org.jetbrains.compose.web.dom.A
+import org.jetbrains.compose.web.dom.Br
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Footer
+import org.jetbrains.compose.web.dom.Img
+import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
+import utils.currentYear
 import viewmodel.Route
 import viewmodel.RouteViewModel
 import viewmodel.routeViewModel
@@ -47,6 +54,34 @@ fun Router(
                 Route.Admin -> Admin(create = false)
                 Route.AdminCreate -> Admin(create = true)
                 Route.NotFound -> Text("womp womp, something's missing")
+            }
+        }
+        Div(attrs = {
+            classes("container")
+        }) {
+            Footer {
+                P(attrs = {
+                    classes("text-center")
+                }) {
+                    Text("Build ${VersionInfo.buildDate} ")
+                    A(
+                        attrs = { classes("link-secondary", "link-underline-opacity-0") },
+                        href = "https://github.com/manimaul/regatta/commit/${VersionInfo.gitHash}"
+                    ) {
+                        Text(VersionInfo.gitHash)
+                    }
+                    Br { }
+                    A(
+                        href = "https://github.com/manimaul/regatta",
+                        attrs = {
+                            classes("link-secondary", "link-underline-opacity-0")
+                        }
+                    ) {
+                        Img(src = "https://img.shields.io/badge/License-Apache_2.0-blue.svg")
+                        Text(" ")
+                        Img(src = "https://img.shields.io/badge/github-repo-blue?logo=github")
+                    }
+                }
             }
         }
     }
