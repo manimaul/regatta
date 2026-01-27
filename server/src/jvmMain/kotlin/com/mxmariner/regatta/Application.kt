@@ -16,7 +16,7 @@ import io.ktor.server.response.*
 import java.util.*
 
 fun main() {
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     embeddedServer(Netty, port = 8888, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }

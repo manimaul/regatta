@@ -1,7 +1,6 @@
 package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.RaceTime
-import kotlinx.coroutines.selects.select
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.datetime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
