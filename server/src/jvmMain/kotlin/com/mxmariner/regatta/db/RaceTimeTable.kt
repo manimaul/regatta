@@ -56,10 +56,6 @@ object RaceTimeTable : Table() {
         )
     }
 
-    fun selectByRaceId(raceId: Long): List<RaceTime> {
-        return selectAll().where { RaceTimeTable.raceId eq raceId }.map(::rowToTime)
-    }
-
     fun findByRaceAndClassId(rId: Long, cId: Long): RaceTime? {
         return selectAll().where { classId.eq(cId).and(raceId.eq(rId)) }.map(::rowToTime).singleOrNull()
     }

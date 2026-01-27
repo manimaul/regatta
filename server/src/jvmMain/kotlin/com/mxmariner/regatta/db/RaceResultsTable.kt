@@ -4,15 +4,10 @@ import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.BoatTable.resultRowToBoat
 import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
 import com.mxmariner.regatta.db.RaceTable.rowToRace
-import kotlin.time.Instant
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greaterEq
-import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.datetime.timestamp
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
 
@@ -56,9 +51,9 @@ object RaceResultsTable : Table() {
         }.resultedValues?.map(::rowToResult)?.singleOrNull()
     }
 
-    fun allResults(): List<RaceResult> {
-        return RaceResultsTable.selectAll().map(::rowToResult)
-    }
+//    fun allResults(): List<RaceResult> {
+//        return RaceResultsTable.selectAll().map(::rowToResult)
+//    }
 
     fun raceCount(boatId: Long): Long {
         return RaceResultsTable.selectAll().where { RaceResultsTable.boatId eq boatId }.count()
@@ -81,14 +76,6 @@ object RaceResultsTable : Table() {
                 results = RaceResultsTable.selectAll().where { raceId.eq(rId) }.map(::rowToResultFull)
             )
         }
-    }
-
-    fun getResults(year: Int): List<RaceResultBoatBracket> {
-        val start = Instant.parse("$year-01-01")
-        val end = Instant.parse("${year + 1}-01-01")
-        return innerJoin(RaceTable).innerJoin(BoatTable).selectAll().where {
-            finish.greaterEq(start) and finish.less(end)
-        }.map(::rowToRaceResultBoatBracket)
     }
 
     fun rowToRaceResultBoatBracket(row: ResultRow): RaceResultBoatBracket {

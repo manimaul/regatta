@@ -24,12 +24,14 @@ private fun dbVersionSetup(database: Database) {
 }
 
 private fun dbVersion(database: Database): Int {
-    return transaction(database) {
+    val version = transaction(database) {
         requireNotNull(exec("SELECT cast(value as INT) from metadata where name='version';") { rs ->
             require(rs.next()) { "metadata version next was not present"}
             rs.getInt(1)
         }) { "metadata version was null" }
     }
+    println("db migration version = $version")
+    return version
 }
 
 private fun updateVersion(database: Database, newVersion: Int) {

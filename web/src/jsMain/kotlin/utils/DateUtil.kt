@@ -2,6 +2,7 @@ package utils
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.*
@@ -17,13 +18,13 @@ fun Int.quadDigit(): String {
 
 fun LocalDateTime.timeStr() = "${hour.doubleDigit()}:${minute.doubleDigit()}:${second.doubleDigit()}"
 
-fun LocalDateTime.dateStr() = "${monthNumber}/${dayOfMonth}/${year}"
+fun LocalDateTime.dateStr() = "${month.number}/${day}/${year}"
 
-fun LocalDateTime.inputStr() = "${year.quadDigit()}-${monthNumber.doubleDigit()}-${dayOfMonth.doubleDigit()}"
+fun LocalDateTime.inputStr() = "${year.quadDigit()}-${month.number.doubleDigit()}-${day.doubleDigit()}"
 
 fun LocalDateTime.instant() = Instant.fromEpochSeconds(toInstant(TimeZone.currentSystemDefault()).epochSeconds)
 
-fun Instant.localDateTime(): LocalDateTime = kotlinx.datetime.Instant.fromEpochSeconds(this.epochSeconds).toLocalDateTime(TimeZone.currentSystemDefault())
+fun Instant.localDateTime(): LocalDateTime = toLocalDateTime(TimeZone.currentSystemDefault())
 
 fun getClockValue(): String {
     return now().localDateTime().timeStr()

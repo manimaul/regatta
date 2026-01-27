@@ -1,6 +1,7 @@
 package viewmodel
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.number
 import kotlin.time.*
 import utils.instant
 import utils.localDateTime
@@ -17,7 +18,7 @@ class RgTimeViewModel(
     instant: Instant,
     val seconds: Boolean
 ) : BaseViewModel<RgTimeState>(RgTimeState(instant.localDateTime().let {
-    if (seconds) it else LocalDateTime(it.year, it.month, it.dayOfMonth, it.hour, it.minute, 0)
+    if (seconds) it else LocalDateTime(it.year, it.month, it.day, it.hour, it.minute, 0)
 
 })) {
     override fun reload() {}
@@ -26,7 +27,7 @@ class RgTimeViewModel(
         setState {
             copy(
                 localTime = instant.localDateTime().let {
-                    if (seconds) it else LocalDateTime(it.year, it.month, it.dayOfMonth, it.hour, it.minute, 0)
+                    if (seconds) it else LocalDateTime(it.year, it.month, it.day, it.hour, it.minute, 0)
                 }
             )
         }
@@ -74,8 +75,8 @@ class RgTimeViewModel(
             withState { state ->
                 val localTime = LocalDateTime(
                     state.localTime.year,
-                    state.localTime.monthNumber,
-                    state.localTime.dayOfMonth,
+                    state.localTime.month.number,
+                    state.localTime.day,
                     hour,
                     state.localTime.minute,
                     state.localTime.second,
@@ -97,8 +98,8 @@ class RgTimeViewModel(
             withState { state ->
                 val localTime = LocalDateTime(
                     state.localTime.year,
-                    state.localTime.monthNumber,
-                    state.localTime.dayOfMonth,
+                    state.localTime.month.number,
+                    state.localTime.day,
                     state.localTime.hour,
                     minute,
                     state.localTime.second,
@@ -120,8 +121,8 @@ class RgTimeViewModel(
             withState { state ->
                 val localTime = LocalDateTime(
                     state.localTime.year,
-                    state.localTime.monthNumber,
-                    state.localTime.dayOfMonth,
+                    state.localTime.month.number,
+                    state.localTime.day,
                     state.localTime.hour,
                     state.localTime.minute,
                     second,

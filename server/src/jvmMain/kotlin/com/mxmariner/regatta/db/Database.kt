@@ -3,6 +3,7 @@ package com.mxmariner.regatta.db
 
 import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.IColumnType
 import org.jetbrains.exposed.v1.core.LongColumnType
 import org.jetbrains.exposed.v1.core.eq
@@ -12,7 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
 
@@ -52,25 +53,28 @@ object RegattaDatabase {
                 SchemaUtils.addMissingColumnsStatements(*tables, withLogs = true)
             )
         }
-        transaction(database) {
-            SchemaUtils.create(*tables)
-            execInBatch(
-                SchemaUtils.statementsRequiredToActualizeScheme(*tables, withLogs = true)
-            )
-        }
+//        transaction(database) {
+//            SchemaUtils.create(*tables)
+//            execInBatch(
+//                MigrationUtils.statementsRequiredForDatabaseMigration(*tables, withLogs = true)
+//            )
+//        }
     }
 
-    private suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
+    private suspend fun <T> dbQuery(block: suspend () -> T): T = suspendTransaction {
+        withContext(Dispatchers.IO) { block() }
+    }
 
     private suspend fun <T> dbRawQuery(
         sql: String,
         args: Iterable<Pair<IColumnType<*>, Any?>>? = null,
         queryHandler: suspend (JdbcResult) -> T,
     ): T {
-        return newSuspendedTransaction(Dispatchers.IO) {
-
-            val statement = connection.prepareStatement(sql, false).apply { args?.let { fillParameters(args) } }
-            queryHandler(statement.executeQuery())
+        return suspendTransaction {
+            withContext(Dispatchers.IO) {
+                val statement = connection.prepareStatement(sql, false).apply { args?.let { fillParameters(args) } }
+                queryHandler(statement.executeQuery())
+            }
         }
     }
 
@@ -189,12 +193,11 @@ object RegattaDatabase {
     // Race Times ------------------------
 
     suspend fun allYears(): List<String> = dbQuery { RaceTimeTable.allYears() }
-    suspend fun findRaceTimes(raceId: Long): List<RaceTime> = dbQuery { RaceTimeTable.selectByRaceId(raceId) }
 
     // Results ------------------------
 
     suspend fun deleteResult(id: Long) = dbQuery { RaceResultsTable.deleteWhere { RaceResultsTable.id eq id } }
-    suspend fun getResults(year: Int) = dbQuery { RaceResultsTable.getResults(year) }
+
     suspend fun resultsByRaceId(raceId: Long): List<RaceResult> =
         dbQuery { RaceResultsTable.resultsByRaceId(raceId) }
 
@@ -204,7 +207,6 @@ object RegattaDatabase {
     suspend fun resultsBoatBracketByRaceId(raceId: Long): List<RaceResultBoatBracket> =
         dbQuery { RaceResultsTable.resultsBoatBracketByRaceId(raceId) }
 
-    suspend fun allResults() = dbQuery { RaceResultsTable.allResults() }
     suspend fun upsertResult(result: RaceResult): RaceResult? = dbQuery { RaceResultsTable.upsertResult(result) }
 
     suspend fun resultCount(raceId: Long) = dbQuery { RaceResultsTable.count(raceId) }
