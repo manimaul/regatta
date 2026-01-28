@@ -131,23 +131,27 @@ fun RaceResultsClassTable(
                             }
                         }
                         if (totalBracketInClassCount > 1) {
-                            if (showOrc && classReportCards.raceClass.ratingType.isORC) {
+                            if (showOrc) {
                                 RgTd {
-                                    if (card.ratingType().isPHRF) {
-                                        Text("${card.placeInBracket} PHRF")
+                                    if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
+                                        Text("${card.placeInBracket}(PHRF), ")
                                         Br {  }
-                                    }
-                                    if (card.placeInBracketOrc != 0 && card.ratingType().isORC) {
-                                        Text("${card.placeInBracketOrc} ORC")
+                                        Text("${card.placeInBracketOrc}(ORC)")
+                                    } else if (card.ratingType().isPHRF) {
+                                        Text("${card.placeInBracket}(PHRF)")
+                                    } else if (card.ratingType() == RatingType.ORC) {
+                                        Text("${card.placeInBracketOrc}(ORC)")
                                     }
                                 }
                                 RgTd {
-                                    if (card.ratingType().isPHRF) {
-                                        Text("${card.placeInClass} PHRF")
+                                    if (card.placeInClassOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
+                                        Text("${card.placeInClass}(PHRF), ")
                                         Br {  }
-                                    }
-                                    if (card.placeInClassOrc != 0 && card.ratingType().isORC) {
-                                        Text("${card.placeInClassOrc} ORC")
+                                        Text("${card.placeInBracketOrc}(ORC)")
+                                    } else if (card.ratingType().isPHRF) {
+                                        Text("${card.placeInClass}(PHRF)")
+                                    } else if (card.ratingType() == RatingType.ORC) {
+                                        Text("${card.placeInClassOrc}(ORC)")
                                     }
                                 }
                             } else {
@@ -155,15 +159,14 @@ fun RaceResultsClassTable(
                                 RgTd { Text(card.placeInClass.toString()) }
                             }
                         } else {
-
-                            if (showOrc && classReportCards.raceClass.ratingType.isORC) {
-                                if (card.ratingType().isPHRF) {
-                                    Text("${card.placeInBracket} PHRF")
-                                    Br {  }
-                                }
-                                if (card.placeInBracketOrc != 0) {
-                                    Text("${card.placeInBracketOrc} ORC")
-                                }
+                            if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
+                                Text("${card.placeInBracket}(PHRF), ")
+                                Br {  }
+                                Text("${card.placeInBracketOrc}(ORC)")
+                            } else if (card.ratingType().isPHRF) {
+                                Text("${card.placeInBracket}(PHRF)")
+                            } else if (card.ratingType() == RatingType.ORC) {
+                                Text("${card.placeInBracketOrc}(ORC)")
                             } else {
                                 RgTd { Text(card.placeInBracket.toString()) }
                             }

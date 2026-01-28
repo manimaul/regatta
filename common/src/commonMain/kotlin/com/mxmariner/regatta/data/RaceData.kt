@@ -124,9 +124,6 @@ data class Race(
     val orc5Band: Orc5Band = Orc5Band.fromPhrfBFactor(phrfBFactor),
 ) {
 
-    fun orcBandLabel() : String? {
-        return orcScoringOption.orcBandLabel(orc5Band, orc3Band)
-    }
 }
 
 @Serializable

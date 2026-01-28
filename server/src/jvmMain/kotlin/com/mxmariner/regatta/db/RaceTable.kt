@@ -14,6 +14,10 @@ object RaceTable : Table() {
     val seriesId = (long("series_id") references SeriesTable.id).nullable()
     val rcId = (long("rc_id") references PersonTable.id).nullable()
     val correctionFactor = integer("correction_factor").nullable()
+    val orcScoringOption = varchar("orc_option", 128).nullable()
+    val orc3Band = varchar("orc_3", 128).nullable()
+    val orc5Band = varchar("orc_5", 128).nullable()
+
     override val primaryKey = PrimaryKey(id)
 
     fun rowToRace(row: ResultRow) = Race(
@@ -23,6 +27,9 @@ object RaceTable : Table() {
         rcId = row[rcId],
         reportImage = ImageTable.getRaceReportImageName(row[id]),
         phrfBFactor = row[correctionFactor] ?: correctionFactorDefault,
+        orcScoringOption = row[orcScoringOption]?.let { OrcScoringOption.valueOf(it) } ?: OrcScoringOption.FiveBandWindwardLeeward,
+        orc3Band = row[orc3Band]?.let { Orc3Band.valueOf(it) } ?: Orc3Band.fromPhrfBFactor(correctionFactorDefault),
+        orc5Band = row[orc5Band]?.let { Orc5Band.valueOf(it) } ?: Orc5Band.fromPhrfBFactor(correctionFactorDefault)
     )
 
     fun raceCountForSeries(seriesId: Long) : Long {
@@ -38,6 +45,9 @@ object RaceTable : Table() {
             it[seriesId] = race.seriesId
             it[rcId] = race.rcId
             it[correctionFactor] = race.phrfBFactor
+            it[orcScoringOption] = race.orcScoringOption.name
+            it[orc3Band] = race.orc3Band.name
+            it[orc5Band] = race.orc5Band.name
         }.resultedValues?.map { row ->
             rowToRace(row)
         }?.singleOrNull()

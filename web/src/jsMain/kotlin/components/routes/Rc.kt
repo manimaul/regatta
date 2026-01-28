@@ -1,12 +1,17 @@
 package components.routes
 
 import androidx.compose.runtime.*
+import com.mxmariner.regatta.data.Orc3Band
+import com.mxmariner.regatta.data.Orc5Band
+import com.mxmariner.regatta.data.OrcScoringOption
+import com.mxmariner.regatta.data.PhrfBFactor
 import com.mxmariner.regatta.data.RaceSchedule
 import components.*
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
+import styles.AppStyle
 import utils.*
 import viewmodel.*
 
@@ -22,15 +27,15 @@ fun Rc() {
 
 @Composable
 fun RcLoggedIn(viewModel: RcViewModel = remember { RcViewModel() }) {
-    val state = viewModel.flow.collectAsState()
+    val state by viewModel.flow.collectAsState()
     //race name and date
-    state.value.selectedRace?.let { selectedRace ->
+    state.selectedRace?.let { selectedRace ->
         H1 { Text("RC Race Day - ${selectedRace.startTime.dateStr()}") }
     } ?: run {
         H1 { Text("RC Race Day") }
     }
-    state.value.races.complete(viewModel) { races ->
-        RgDropdown(races, state.value.selectedRace ?: races.first(), { it.race.name }, { viewModel.selectRace(it) })
+    state.races.complete(viewModel) { races ->
+        RgDropdown(races, state.selectedRace ?: races.first(), { it.race.name }, { viewModel.selectRace(it) })
     }
     RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s4, side = RgSide.y) }) {
         Ul(attrs = { classes("nav", "nav-pills") }) {
@@ -38,7 +43,7 @@ fun RcLoggedIn(viewModel: RcViewModel = remember { RcViewModel() }) {
                 Li {
                     A(href = "#", attrs = {
                         onClick { viewModel.selectTab(tab) }
-                        classes("nav-link", if (tab == state.value.tab) "active" else "inactive")
+                        classes("nav-link", if (tab == state.tab) "active" else "inactive")
                     }) {
                         Text(tab.title)
                     }
@@ -46,9 +51,9 @@ fun RcLoggedIn(viewModel: RcViewModel = remember { RcViewModel() }) {
             }
         }
     }
-    state.value.selectedRace?.let { selectedRace ->
-        when (state.value.tab) {
-            RcTab.RaceConfig -> RcRaceConfig(viewModel, selectedRace, state.value.syncState)
+    state.selectedRace?.let { selectedRace ->
+        when (state.tab) {
+            RcTab.RaceConfig -> RcRaceConfig(viewModel, selectedRace, state.syncState)
             RcTab.Checkin -> RcCheckin(viewModel)
             RcTab.FinishLine -> RcFinish(viewModel)
         }
@@ -71,22 +76,63 @@ fun RcRaceConfig(viewModel: RcViewModel, selectedRace: RaceSchedule, syncState: 
             }
         }
     }
+
     RgInput("PHRF B Factor", "${selectedRace.race.phrfBFactor}") {
         viewModel.selectPhrfBFactor(it.toIntOrNull() ?: 0)
     }
 
-    selectedRace.race.orcBandLabel()?.let {
-        RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s3, side = RgSide.t) }) {
-            H6 { Text("ORC Settings") }
-            P {
-                Text(selectedRace.race.orcScoringOption.label)
-                I { Text(" (* not currently selectable)") }
-                Br { }
-                Text(it)
-                I { Text(" (* based on PHRF B Factor)") }
+    PhrfBFactor.fromBFactor(selectedRace.race.phrfBFactor).let { factor ->
+        P {
+            Text("${factor.label} - ${factor.desc}")
+        }
+    }
+
+    RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s3, side = RgSide.t) }) {
+        OrcScoringOptionSelect(
+            selectedRace.race.orcScoringOption,
+            selectedRace.race.orc3Band,
+            selectedRace.race.orc5Band,
+            viewModel::selectOrcOption
+        )
+    }
+}
+
+@Composable
+fun OrcScoringOptionSelect(
+    selected: OrcScoringOption,
+    selected3Band: Orc3Band,
+    selected5Band: Orc5Band,
+    onSelect: (OrcScoringOption, Orc3Band, Orc5Band) -> Unit
+) {
+    P {
+
+        Label("orc_option", attrs = {
+            classes(AppStyle.marginEnd)
+        }) { B { Text("ORC Scoring Option") } }
+        RgIdDropdown("orc_option", OrcScoringOption.entries, selected, { it.label }) {
+            onSelect(it, selected3Band, selected5Band)
+        }
+    }
+    if (selected.uses3Band) {
+        P {
+            Label("orc_wind", attrs = {
+                classes(AppStyle.marginEnd)
+            }) { B { Text("ORC Wind / Conditions") } }
+            RgIdDropdown("orc_wind", Orc3Band.entries, selected3Band, { "${it.label} - ${it.desc}" }) {
+                onSelect(selected, it, selected5Band)
+            }
+        }
+    } else if (selected.uses5Band) {
+        P {
+            Label("orc_wind", attrs = {
+                classes(AppStyle.marginEnd)
+            }) { B { Text("ORC Wind / Conditions") } }
+            RgIdDropdown("orc_wind",Orc5Band.entries, selected5Band, { "${it.label} - ${it.desc}" }) {
+                onSelect(selected, selected3Band, it)
             }
         }
     }
+
 }
 
 
@@ -214,7 +260,7 @@ fun RcFinish(viewModel: RcViewModel) {
                                 id = "rc-finish-time",
                                 style = style,
                                 buttonLabel = { ea.result?.finishText(ea.startTime) ?: "Finish" }) {
-                                viewModel.focus(ea)
+                                viewModel.focusBoatFinish(ea)
                             }
                         }
                         RgTd {

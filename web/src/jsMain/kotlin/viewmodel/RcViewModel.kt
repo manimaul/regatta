@@ -8,6 +8,7 @@ import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.Orc3Band
 import com.mxmariner.regatta.data.Orc5Band
 import com.mxmariner.regatta.data.OrcCertificate
+import com.mxmariner.regatta.data.OrcScoringOption
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceResultFull
 import com.mxmariner.regatta.data.RaceSchedule
@@ -193,16 +194,13 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
         }
     }
 
-    fun focus(checkin: CheckIn) {
-        val t = withState {
-            it.selectedRace?.endTime
-        }
+    fun focusBoatFinish(checkin: CheckIn) {
         checkin.result?.let {
             println("focusing result $checkin")
             addVm.focusResultForEdit(it)
         } ?: run {
             addVm.selectBoat(checkin.bs, false)
-            addVm.setFinish(FinishCode.TIME, t, null)
+            addVm.setFinish(FinishCode.TIME, now(), null)
         }
     }
 
@@ -252,6 +250,32 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
 
     fun setFinish(code: FinishCode, finish: Instant?, hoc: Int?) {
         addVm.setFinish(code, finish, hoc)
+    }
+
+    fun selectOrcOption(option: OrcScoringOption, orc3Band: Orc3Band, orc5Band: Orc5Band) {
+        setState {
+            val bFactor = if (option.uses3Band) {
+                orc3Band.phrfBFactor
+            } else if (option.uses5Band) {
+                orc5Band.phrfBFactor
+            } else {
+               selectedRace?.race?.phrfBFactor ?: correctionFactorDefault
+            }
+            val sr = selectedRace?.let {
+                it.copy(
+                    race = it.race.copy(
+                        phrfBFactor = bFactor,
+                        orcScoringOption = option,
+                        orc3Band = orc3Band,
+                        orc5Band = orc5Band,
+                    )
+                )
+            }
+            copy(
+                syncState = SyncState.Dirty,
+                selectedRace = sr
+            )
+        }
     }
 
     fun selectPhrfBFactor(cf: Int?) {

@@ -11,15 +11,15 @@ enum class PhrfBFactor(
     val desc: String,
     val cf: Int,
 ) {
-    Calm("Calm / Drifting 1 to 5 knots", "Very light air, highest handicap allowance", 650),
-    Light("Light 5 to 10 knots", "Light air or all windward work", 600 ),
-    Avg("Average 10 to15 knots", "Medium racing conditions",  550),
+    Calm("Calm / Drifting 1 to 5 knots", "Very light air", 650),
+    Light("Light 5 to 10 knots", "Light air or all windward work", 600),
+    Avg("Average 10 to 15 knots", "Medium racing conditions", 550),
     Hvy("Heavy 15 to 20+ knots", "Heavy air or all off-the-wind sailing", 480);
 
 
     companion object {
 
-        fun fromBFactor(cf: Int) : PhrfBFactor {
+        fun fromBFactor(cf: Int): PhrfBFactor {
             if (cf <= Hvy.cf) {
                 return Hvy
             } else if (cf >= 650) {
@@ -54,19 +54,22 @@ enum class PhrfBFactor(
 enum class Orc3Band(
     val label: String,
     val desc: String,
+    val phrfBFactor: Int,
 ) {
-    Low("Low", "9 kts or less (8.9 kts avg)"),
-    Medium("Medium", "9 to 14 kts (13.5 kts avg)"),
-    High("High", "14 kts or more (17 kts avg");
+    Low("Low", "9 kts or less", 600),
+    Medium("Medium", "9 to 14 kts", 550),
+    High("High", "14 kts or more", 480);
+
 
     companion object {
-        fun fromPhrfBFactor(cf: Int) : Orc3Band {
+        fun fromPhrfBFactor(cf: Int): Orc3Band {
             return when {
-                cf >= 625 -> Low
-                cf in 525 .. 625-> Medium
+                cf >= Low.phrfBFactor -> Low
+                cf in Medium.phrfBFactor..Low.phrfBFactor -> Medium
                 else -> High
             }
         }
+
     }
 }
 
@@ -74,20 +77,21 @@ enum class Orc3Band(
 enum class Orc5Band(
     val label: String,
     val desc: String,
+    val phrfBFactor: Int,
 ) {
-    Low("Low", "7 kts or less"),
-    LowMedium("Low/Medium", "7 to 10 kts"),
-    Medium("Medium", "10 to 13 kts"),
-    MediumHigh("Medium/High", "13 to 17 kts"),
-    High("High", "17 kts or more");
+    Low("Low", "7 kts or less", 650),
+    LowMedium("Low/Medium", "7 to 10 kts", 600),
+    Medium("Medium", "10 to 13 kts", 550),
+    MediumHigh("Medium/High", "13 to 17 kts", 510),
+    High("High", "17 kts or more", 480);
 
     companion object {
-        fun fromPhrfBFactor(cf: Int) : Orc5Band {
+        fun fromPhrfBFactor(cf: Int): Orc5Band {
             return when {
-                cf >= 650 -> Low
-                cf in 600..650 -> LowMedium
-                cf in 550 .. 600 -> Medium
-                cf in 500 .. 550 -> MediumHigh
+                cf >= Low.phrfBFactor -> Low
+                cf in LowMedium.phrfBFactor..Low.phrfBFactor -> LowMedium
+                cf in Medium.phrfBFactor..LowMedium.phrfBFactor -> Medium
+                cf in MediumHigh.phrfBFactor..Medium.phrfBFactor -> MediumHigh
                 else -> High
             }
         }
@@ -110,13 +114,34 @@ enum class OrcScoringOption(val label: String) {
     WindwardLeeward60_40("Windward/Leeward 60-40"),
     FiveBandAllPurpose("5-Band All Purpose");
 
-    fun orcBandLabel(orc5Band: Orc5Band, orc3Band: Orc3Band) : String? {
+    val uses3Band: Boolean
+        get() = when (this) {
+            TripleNumberAllPurpose,
+            TripleNumberWindwardLeeward -> true
+
+            else -> false
+        }
+
+    val uses5Band: Boolean
+        get() = when (this) {
+            PredominantUpwind,
+            PredominantDownwind,
+            PredominantReaching,
+            FiveBandWindwardLeeward,
+            WindwardLeeward60_40,
+            FiveBandAllPurpose -> true
+
+            else -> false
+        }
+
+    fun orcBandLabel(orc5Band: Orc5Band, orc3Band: Orc3Band): String? {
         return when (this) {
             SingleNumberAllPurpose,
             SingleNumberWindwardLeeward,
             SingleNumberPredominantUpwind,
             SingleNumberPredominantReaching,
             SingleNumberPredominantDownwind -> null
+
             TripleNumberAllPurpose,
             TripleNumberWindwardLeeward -> "${orc3Band.label} - ${orc3Band.desc}"
 
@@ -128,6 +153,7 @@ enum class OrcScoringOption(val label: String) {
             FiveBandAllPurpose -> "${orc5Band.label} - ${orc5Band.desc}"
         }
     }
+
     companion object {
 
     }
@@ -139,7 +165,7 @@ data class OrcResponse(
     @SerialName("rms") val rms: List<OrcCertificate> = emptyList(),
 )
 
-fun List<OrcCertificate>.findPreferred() : OrcCertificate? {
+fun List<OrcCertificate>.findPreferred(): OrcCertificate? {
     return sortedWith { lhs, rhs ->
         if (lhs.cType != rhs.cType) {
             if (lhs.cType.equals("CLUB", false)) {
@@ -281,7 +307,7 @@ data class OrcCertificate(
         return "$yachtName $refNo $cType $division"
     }
 
-    fun virtualPhrf() : Int {
+    fun virtualPhrf(): Int {
         /*
         Coefficient A (The Numerator)
         Purpose: A is a constant used to scale the resulting TCF so that a "middle-of-the-fleet" boat has a multiplier near 1.000.

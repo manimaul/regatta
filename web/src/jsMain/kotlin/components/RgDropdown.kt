@@ -89,10 +89,28 @@ fun <T> RgDropdown(
     name: (T) -> String,
     handler: (T) -> Unit
 ) {
+    RgIdDropdown(
+        items = items,
+        selectedItem = selectedItem,
+        name = name,
+        handler = handler
+    )
+}
+
+@Composable
+fun <T> RgIdDropdown(
+    id: String? = null,
+    items: List<T>,
+    selectedItem: T,
+    name: (T) -> String,
+    handler: (T) -> Unit
+) {
 
     var toggle by remember { mutableStateOf(false) }
     val selected = selectedItem?.let(name) ?: "None"
-    Div {
+    Div(attrs = {
+        id?.let { id(it) }
+    }) {
         Button(attrs = {
             classes("btn", "btn-primary", "dropdown-toggle")
             if (items.size <= 1) {
