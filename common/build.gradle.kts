@@ -14,7 +14,7 @@ configure<VersionPluginExtension> {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 
     jvm { }
     js(IR) {

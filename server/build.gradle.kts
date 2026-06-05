@@ -10,7 +10,7 @@ version = "1.0"
 
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(25)
 
     jvm {
         binaries {

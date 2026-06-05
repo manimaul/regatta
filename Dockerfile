@@ -1,7 +1,7 @@
 FROM debian:stable
 RUN apt update && \
     apt upgrade -y && \
-    apt install -y openjdk-17-jre-headless
+    apt install -y openjdk-25-jre-headless
 
 COPY server/build/install/regatta-jvm /opt/regatta
 

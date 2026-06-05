@@ -84,7 +84,7 @@ The `database/` directory is **not** a Gradle subproject — it only contains Do
 
 | Layer | Technology |
 |---|---|
-| Language | Kotlin (JVM 17, JS IR) |
+| Language | Kotlin (JVM 25, JS IR) |
 | Build | Gradle Kotlin DSL, Kotlin Multiplatform |
 | Server | Ktor 3.4.0 (Netty) |
 | Database ORM | Jetbrains Exposed 1.0.0 |

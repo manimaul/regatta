@@ -1,4 +1,4 @@
-const val kotlinVersion = "2.3.0"
+const val kotlinVersion = "2.3.21"
 const val ktorVersion = "3.4.0"
 const val logbackVersion = "1.4.11"
 const val composeVersion = "1.10.0"

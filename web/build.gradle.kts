@@ -24,6 +24,10 @@ kotlin {
         }
         binaries.executable()
     }
+    repositories {
+        mavenLocal()
+    }
+
     sourceSets {
         val jsMain by getting {
             dependencies {
@@ -35,7 +39,7 @@ kotlin {
                 implementation(npm("sortablejs", "1.15.2"))
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("@popperjs/core", "2.11.8"))
-                implementation("io.madrona:geojson:1.0-SNAPSHOT")
+                implementation("io.madrona:geojson:1.3-SNAPSHOT")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
