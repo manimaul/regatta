@@ -10,7 +10,7 @@ Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacom
 ### Build and run 
 ```shell
 cd database
-docker-compose up
+podman-compose up
 ```
 ```shell
 ./gradlew :server:run
@@ -19,7 +19,7 @@ docker-compose up
 ### Run in browser hot loading
 ```shell
 cd database
-docker-compose up
+podman-compose up
 ```
 ```shell
 # ./gradlew :server:jvmRun
@@ -33,7 +33,7 @@ docker-compose up
 ### Run in container 
 ```shell
 cd database
-docker-compose up
+podman-compose up
 ```
 
 ```shell

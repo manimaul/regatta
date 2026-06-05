@@ -65,13 +65,13 @@ tasks.register<Exec>("run") {
 tasks.register<Exec>("makeImg") {
     dependsOn(":server:installJvmDist")
     mustRunAfter(":server:installJvmDist")
-    commandLine("bash", "-c", "docker build -t ghcr.io/manimaul/regatta:latest .")
+    commandLine("bash", "-c", "podman build -t ghcr.io/manimaul/regatta:latest .")
 }
 
 tasks.register<Exec>("pubImg") {
     dependsOn(":makeImg")
     mustRunAfter(":makeImg")
-    commandLine("bash", "-c", "docker push ghcr.io/manimaul/regatta:latest")
+    commandLine("bash", "-c", "podman push ghcr.io/manimaul/regatta:latest")
 }
 
 tasks.register<Exec>("k8sApplyServer") {

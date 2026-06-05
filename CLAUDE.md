@@ -13,7 +13,7 @@ Regatta is a web application for scoring sailing regattas, supporting ORC, PHRF 
 
 Start the database first (required):
 ```shell
-cd database && docker-compose up
+cd database && podman-compose up
 ```
 
 Run the server:
