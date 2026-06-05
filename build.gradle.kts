@@ -65,7 +65,7 @@ tasks.register<Exec>("run") {
 tasks.register<Exec>("makeImg") {
     dependsOn(":server:installJvmDist")
     mustRunAfter(":server:installJvmDist")
-    commandLine("bash", "-c", "podman build -t ghcr.io/manimaul/regatta:latest .")
+    commandLine("bash", "-c", "podman build --platform linux/amd64 -t ghcr.io/manimaul/regatta:latest .")
 }
 
 tasks.register<Exec>("pubImg") {

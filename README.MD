@@ -38,7 +38,7 @@ podman-compose up
 
 ```shell
 ./gradlew makeImg
-docker run --network=host ghcr.io/manimaul/regatta:latest
+podman run -p 8888:8888 -e JAVA_OPTS=-Djdbcurl=jdbc:postgresql://host.containers.internal:5432/regatta  ghcr.io/manimaul/regatta:latest
 ```
 
 ### Useful links:
