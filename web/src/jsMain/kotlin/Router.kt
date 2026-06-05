@@ -12,7 +12,6 @@ import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
-import utils.currentYear
 import viewmodel.Route
 import viewmodel.RouteViewModel
 import viewmodel.routeViewModel
@@ -65,7 +64,11 @@ fun Router(
                 }) {
                     Text("Build ${VersionInfo.buildDate} ")
                     A(
-                        attrs = { classes("link-secondary", "link-underline-opacity-0") },
+                        attrs = {
+                            classes("link-secondary", "link-underline-opacity-0")
+                            attr("target", "_blank")
+                            attr("rel", "noopener noreferrer")
+                        },
                         href = "https://github.com/manimaul/regatta/commit/${VersionInfo.gitHash}"
                     ) {
                         Text(VersionInfo.gitHash)
@@ -75,6 +78,8 @@ fun Router(
                         href = "https://github.com/manimaul/regatta",
                         attrs = {
                             classes("link-secondary", "link-underline-opacity-0")
+                            attr("target", "_blank")
+                            attr("rel", "noopener noreferrer")
                         }
                     ) {
                         Img(src = "https://img.shields.io/badge/License-Apache_2.0-blue.svg")
