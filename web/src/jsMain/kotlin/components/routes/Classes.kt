@@ -110,7 +110,12 @@ fun ClassList(
                     }
                     RgTd {
                         each.brackets.takeIf { it.isNotEmpty() }?.let { brackets ->
-                            Text(  "[${brackets.map { "'${it.name}'" }.reduce{ l, r -> "$l, $r" }}]")
+                            brackets.map {
+                                Div {
+                                    Text(it.label())
+                                    Br()
+                                }
+                            }
                         }
                     }
                     RgTd {

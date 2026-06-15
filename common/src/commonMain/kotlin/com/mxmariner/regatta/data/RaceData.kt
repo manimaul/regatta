@@ -70,9 +70,9 @@ data class Bracket(
         if (minRating <= -1000 && maxRating >= 1000) {
             return name
         } else if (minRating <= -1000) {
-            return "$name up to $maxRating"
+            return "$name $maxRating -"
         } else if (maxRating >= 1000) {
-            return "$name ${minRating}+"
+            return "$name $minRating +"
         }
         return "$name $minRating to $maxRating"
     }
