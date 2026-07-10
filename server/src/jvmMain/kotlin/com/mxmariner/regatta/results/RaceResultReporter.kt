@@ -394,7 +394,7 @@ object RaceResultReporter {
         }
         val phrfBFactor = raceSchedule.race.phrfBFactor
 
-        val phrfTcf = phrfTcf(phrfBFactor, result.phrfRating)
+        val phrfTcf = if (result.ratingType.isCruising) 1.0 else phrfTcf(phrfBFactor, result.phrfRating)
 
         val orcTcf = record.result.orcRef?.let { ref ->
             orcTcf(
