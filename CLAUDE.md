@@ -29,11 +29,19 @@ Run the web frontend with hot reload:
 ### Tests
 
 ```shell
+./gradlew :common:jvmTest   # ORC/PHRF scoring tests (OrcTest, PhrfTest)
+./gradlew :server:jvmTest   # TokenTest, RaceResultReporterKtTest
 ./gradlew :common:jsTest
 ./gradlew :web:jsBrowserTest
 ```
 
-Tests run in Chrome Headless and Firefox via Karma.
+Run a single JVM test class or method with `--tests`:
+```shell
+./gradlew :server:jvmTest --tests "com.mxmariner.regatta.results.RaceResultReporterKtTest"
+./gradlew :common:jvmTest --tests "com.mxmariner.regatta.OrcTest.someTestName"
+```
+
+JS tests run in Chrome Headless and Firefox via Karma.
 
 ### Production Build & Deploy
 
@@ -56,7 +64,8 @@ Targets both JVM and JS. Contains all `@Serializable` domain data classes (`Race
 ### `server` — Ktor HTTP Server (JVM, port 8888)
 - **Entry point:** `Application.kt` — Ktor/Netty setup with auth, compression, content negotiation
 - **Routing:** `plugins/Routing.kt` — all HTTP routes calling directly into `RegattaDatabase`
-- **Database:** `db/RegattaDatabase.kt` — singleton using Jetbrains Exposed ORM with suspend transactions against PostgreSQL 16. Table objects live in `db/` alongside the database class.
+- **Database:** `db/Database.kt` — `RegattaDatabase` singleton using Jetbrains Exposed ORM with suspend transactions against PostgreSQL 16. Table objects live in `db/` alongside it. Connection settings come from JVM system properties `jdbcurl`, `user`, `password` (defaults match `database/docker-compose.yaml`; pass via `JAVA_OPTS=-Djdbcurl=...`).
+- **Schema changes:** on startup, `Migration.runMigration` (`db/Migration.kt`) runs hand-written versioned SQL upgrades (tracked in a `metadata` table, `currentDbVersion`), then `SchemaUtils.create` + `addMissingColumnsStatements` auto-create tables/columns. New tables must be added to the `tables` array in `RegattaDatabase.init()`. Anything Exposed can't do automatically (drops, renames, data backfills, type changes) needs a new `dbVersionNToN+1Upgrade` step and a bump of `currentDbVersion`.
 - **Auth:** `auth/Token.kt` — stateless SHA-512 salted bearer tokens with 30-day expiry. All admin mutations require a bearer token. **Bootstrap behavior:** if the `auth` table is empty, `validateAdminToken` returns admin unconditionally so the first admin can be created.
 - **Scoring:** `results/RaceResultReporter.kt` — corrected time calculations and standings generation
 - **SPA serving:** The compiled web frontend is embedded as classpath resources under `static/`. The `StatusPages` unhandled handler returns `static/index.html` for all unmatched routes, enabling client-side routing.

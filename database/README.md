@@ -31,9 +31,9 @@ ln -s "$stamp.sql" ./backup/dev_current.sql
 app=regatta-postgres-service
 pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
 stamp=prod_dump`date +%Y-%m-%d"_"%H_%M_%S`
-kubectl -n regatta exec "$pod" -- pg_dump -U regatta_admin regatta > "./backup/$stamp.sql"
-rm ./backup/prod_current.sql
-ln -s "$stamp.sql" ./backup/prod_current.sql
+kubectl -n regatta exec "$pod" -- pg_dump -U regatta_admin regatta > "./database/backup/$stamp.sql"
+rm ./database/backup/prod_current.sql
+ln -s "$stamp.sql" ./database/backup/prod_current.sql
 ```
 
 # Restore Prod
