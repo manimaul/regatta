@@ -165,7 +165,7 @@ enum class RatingType(val label: String) {
 
     fun ratedLabel(phrfRating: Int? = null, orcInfo: String? = null) : String {
         return when (this) {
-            ORC -> "$label${orcInfo?.let { "($it)" }}"
+            ORC -> "$label${orcInfo?.let { "($it)" } ?: ""}"
             ORC_PHRF -> "PHRF ($phrfRating), ORC${orcInfo?.let { " ($it)" } ?: ""}"
             PHRF -> "$label ($phrfRating)"
             CruisingFlyingSails,
@@ -214,7 +214,7 @@ data class BoatSkipper(
 
     fun dropLabel(): String {
         val sail = boat?.sailNumber?.let { " ($it)" } ?: ""
-        return "${label()}$sail ${boat?.ratingType?.label ?: ""}}"
+        return "${label()}$sail ${boat?.ratingType?.label ?: ""}"
     }
 
     fun shortLabel(): String {

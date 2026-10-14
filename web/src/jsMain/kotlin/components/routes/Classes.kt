@@ -158,7 +158,7 @@ fun AddEditClassModal(
     val state by viewModel.flow.collectAsState()
     RgModalBody(
         id = "add-edit-class",
-        modalTitle = { "Add Race Class" },
+        modalTitle = { if (state.editClass.raceClass.id == 0L) "Add Race Class" else "Edit Race Class" },
         content = {
             RgForm {
                 Fieldset {
