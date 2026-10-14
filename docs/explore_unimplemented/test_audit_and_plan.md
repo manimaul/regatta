@@ -170,6 +170,10 @@ next-to-last race. The other 53 ties were broken by the last race in the right d
 - A PHRF result with a `null` rating silently gets TCF 1.0.
 - Year boundaries differ: `seriesRaces` uses UTC, while the ORC/PHRF switch uses `America/Los_Angeles`.
 - ORC places (2026, `ORC_PHRF`) are shown per race but never used in series standings, and the GSI says nothing about ORC.
+- The 2025→2026 switch only relabels the class as PHRF, which hides the ORC columns in the web
+  view. `classCard` still computes ORC places from each result's own rating type, so
+  `hasOrcResults` and the `*Orc` places are set on 2025 reports too. Harmless, since nothing
+  reads them for 2025, and pinned by `CorrectedTimeTest.seasonSwitchRelabelsTheClassButStillComputesOrcPlaces`.
 - **Label bug:** `RaceResultsView` shows `placeInBracketOrc` in the "Place In Class" column for
   `ORC_PHRF` cards. It should be `placeInClassOrc`.
 - **Label ambiguity:** `Duration.display()` truncates to whole seconds, so boats with different
@@ -546,32 +550,32 @@ file; for them the `deviations.json` diff is the only isolation check (see §5).
   overstated it. The DSL port builds real records, and the two DNS cards were dropped because DNS has
   no race record; DNS is covered by the standings test `gsi_14_1_2_dns_scores_starters_plus_one`.
 
-### Phase 2: Rating math, times and labels
+### Phase 2: Rating math, times and labels — done 2026-10-14
 
-- [ ] `:common:jvmTest` covers:
+- [x] `:common:jvmTest` covers (`RatingBandsTest`, `LabelsTest`):
   - `PhrfBFactor`, `Orc3Band` and `Orc5Band` band edges;
   - `virtualPhrf`;
   - `orcBandLabel` for every option;
   - `Bracket.label`, including open-ended ranges;
   - `RatingType.ratedLabel`;
   - `Duration.display`, including over 24 h. The rounding test (D7) starts out ignored.
-- [ ] `:server:jvmTest` has a table-driven `orcTcf` test: every `OrcScoringOption` × band maps to the right certificate field.
-- [ ] `:server:jvmTest` covers elapsed and corrected time:
+- [x] `:server:jvmTest` has a table-driven `orcTcf` test (`OrcTcfTest`): every `OrcScoringOption` × band maps to the right certificate field, and a banded option without its band fails.
+- [x] `:server:jvmTest` covers elapsed and corrected time (`CorrectedTimeTest`):
   - per-class start;
   - ToT for each B-factor;
   - cruising TCF = 1;
   - null rating on a legacy row (TCF 1.0);
   - finish before start;
-  - over 24 h;
-  - millisecond precision;
+  - over 24 h (the DSL's `finishes` now accepts "2026-06-18 10:00:00" for a later day);
+  - millisecond precision (the DSL's `finishes` accepts fractional seconds);
   - ORC alongside PHRF for `ORC_PHRF`;
-  - the 2025→2026 switch through `effectiveRaceClass`, in the Pacific time zone;
-  - the NULL `finish_code` fallback in `RaceResultsTable.rowToResult`: a finish time gives TIME, none gives RET.
-- [ ] `:web:jsBrowserTest` covers:
+  - the 2025→2026 switch through `effectiveRaceClass`, in the Pacific time zone, including the note above that it only relabels the class;
+  - the NULL `finish_code` fallback in `RaceResultsTable.rowToResult`, through `ResultRow.createAndFillValues` with no database.
+- [x] `:web:jsBrowserTest` covers (`RaceReportLabelsTest`, `StandingsLabelsTest`):
   - `finishText` for every code, `HOC n`, `P+n` and no start time;
   - `elapsedText` / `corTime*Text`, including TCF to 4 decimals and `n/a`;
   - standings cell decoration (throw-out, RC strike-through, existing code suffixes);
-  - race view place columns for PHRF / ORC / `ORC_PHRF` × single/multi bracket. The D7 column test starts out ignored.
+  - race view place columns for PHRF / ORC / `ORC_PHRF` × single/multi bracket. The D7 column test starts out ignored (`kotlin.test.Ignore` takes no reason on JS, so the reason is in its KDoc).
 
 ### Phase 3: Golden regression (DB snapshot)
 

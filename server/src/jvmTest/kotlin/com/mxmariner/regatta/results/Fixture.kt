@@ -32,11 +32,22 @@ import kotlin.time.Instant
 
 internal val pacificZone = TimeZone.of("America/Los_Angeles")
 
-/** "2026-06-17" and "18:00[:ss]" in America/Los_Angeles. */
+/**
+ * "2026-06-17" and "18:00[:ss[.SSS]]" in America/Los_Angeles. A time with its own date,
+ * "2026-06-18 10:00:00", overrides [date], for finishes on a later day.
+ */
 internal fun pacific(date: String, time: String): Instant {
-    val parts = time.split(":").map { it.trim().toInt() }
-    val localTime = LocalTime(parts[0], parts.getOrElse(1) { 0 }, parts.getOrElse(2) { 0 })
-    return LocalDateTime(LocalDate.parse(date), localTime).toInstant(pacificZone)
+    val trimmed = time.trim()
+    val (day, clock) = if (" " in trimmed) {
+        trimmed.split(" ", limit = 2).let { it[0] to it[1] }
+    } else {
+        date to trimmed
+    }
+    val parts = clock.split(":")
+    val seconds = parts.getOrElse(2) { "0" }
+    val nanos = seconds.substringAfter(".", "").padEnd(9, '0').take(9).toInt()
+    val localTime = LocalTime(parts[0].toInt(), parts.getOrElse(1) { "0" }.toInt(), seconds.substringBefore(".").toInt(), nanos)
+    return LocalDateTime(LocalDate.parse(day), localTime).toInstant(pacificZone)
 }
 
 /** Ids and shared entities, so the same boat, class and bracket keep their ids across the races of a series. */
@@ -121,7 +132,7 @@ class BoatEntry internal constructor(
     }
 }
 
-/** Timed finish at a Pacific local time on the race date, e.g. "20:51:26". */
+/** Timed finish at a Pacific local time on the race date, e.g. "20:51:26", "20:51:26.250", or "2026-06-18 10:00:00" for a later day. */
 infix fun BoatEntry.finishes(time: String): BoatEntry = apply { finish = time; hocPosition = null }
 
 /** Horned on course at the given position. */
