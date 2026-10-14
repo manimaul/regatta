@@ -54,7 +54,7 @@ class RacePlacingTest {
         report.assertBracketScores("A" to 1, "B" to 2, "H" to 3, "DNF" to 4, "RET" to 4)
     }
 
-    /** GSI 14.1.4 / D3: NSC scores starters + 1, one worse than the DNF score when every starter but one finished. */
+    /** GSI 14.1.4 / D3: NSC scores the other starters + 1, the same as DNS, one worse than DNF when every other starter but one finished. */
     @Test
     fun gsi_14_1_4_nsc_scores_starters_plus_one() {
         val report = race {
@@ -65,7 +65,7 @@ class RacePlacingTest {
                 boat("NSC") code NSC
             } }
         }.report()
-        report.assertBracketScores("DNF" to 3, "NSC" to 5)
+        report.assertBracketScores("DNF" to 3, "NSC" to 4)
     }
 
     /** D3: an RC volunteer is not a starter, so it does not raise the NSC score. */
@@ -80,10 +80,10 @@ class RacePlacingTest {
                 boat("RC 2") code DNS_RC
             } }
         }.report()
-        report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 4)
+        report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 3)
     }
 
-    /** GSI 14.1.5 / D6: DSQ scores starters + 2, and a DSQ boat is a starter. */
+    /** GSI 14.1.5 / D6: DSQ scores the other starters + 2, one worse than DNS; the DSQ boat is a starter for the others, not for itself. */
     @Test
     fun gsi_14_1_5_dsq_scores_starters_plus_two() {
         val report = race {
@@ -95,10 +95,10 @@ class RacePlacingTest {
                 boat("RC") code DNS_RC
             } }
         }.report()
-        report.assertBracketScores("A" to 1, "B" to 2, "DNF" to 3, "DSQ" to 6)
+        report.assertBracketScores("A" to 1, "B" to 2, "DNF" to 3, "DSQ" to 5)
     }
 
-    /** GSI 14.1.2 / D6: a DNS record scores starters + 1 and is not a starter, the same as having no record. */
+    /** GSI 14.1.2 / D6: a DNS record scores starters + 1 and is not a starter, the same as having no record; the NSC boat is a starter for it. */
     @Test
     fun gsi_14_1_2_dns_record_scores_starters_plus_one_and_is_not_a_starter() {
         val report = race {
@@ -109,7 +109,7 @@ class RacePlacingTest {
                 boat("DNS") code DNS
             } }
         }.report()
-        report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 4, "DNS" to 4)
+        report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 3, "DNS" to 4)
     }
 
     /** D6 / D4: neither new code carries a penalty. */
@@ -122,7 +122,7 @@ class RacePlacingTest {
                 boat("DSQ") code DSQ penalty 2
             } }
         }.report()
-        report.assertBracketScores("A" to 1, "DNS" to 3, "DSQ" to 4)
+        report.assertBracketScores("A" to 1, "DNS" to 3, "DSQ" to 3)
     }
 
     /** GSI 14.2: HOC boats are numbered by position on the course, after every timed finisher, whatever the input order. */

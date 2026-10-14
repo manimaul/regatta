@@ -249,7 +249,7 @@ class SeriesStandingsTest {
         standings.assertClassTotals("B" to 9)
     }
 
-    /** D1: the average is fractional and not rounded. */
+    /** D1: the average is fractional, to the nearest tenth of a point (RRS A10(a)). */
     @Test
     fun d1_rc_average_is_fractional() {
         val standings = series {
@@ -301,9 +301,26 @@ class SeriesStandingsTest {
             fastRace("A", "C", "B")   // B 3
             rcVolunteer("B", race = 2)
         }.standings()
-        // one 3 is thrown out; the average of 2, 3, 3 is 2.67
+        // one 3 is thrown out; the average of 2, 3, 3 is 2.67, rounded to 2.7
         assertEquals(false, standings.row("B").raceStandings[1].throwOut)
-        standings.assertBracketTotals("B" to 2 + 8.0 / 3 + 3 + 3)
+        standings.assertBracketTotals("B" to 2 + 2.7 + 3 + 3)
+    }
+
+    /** D1 / RRS A10(a): the average is rounded to the nearest tenth of a point, 0.05 upward. */
+    @Test
+    fun d1_rc_average_rounds_to_the_nearest_tenth_half_up() {
+        val standings = series {
+            fastRace("A", "B", "C", "D", "E")   // B 2
+            fastRace("A", "C", "D", "E")        // B RC
+            fastRace("A", "C", "B", "D", "E")   // B 3
+            fastRace("A", "C", "B", "D", "E")   // B 3
+            fastRace("A", "C", "B", "D", "E")   // B 3
+            fastRace("A", "C", "D", "E", "B")   // B 5, the throw-out
+            rcVolunteer("B", race = 2)
+        }.standings()
+        // the average of 2, 3, 3, 3 is 2.75, which rounds up to 2.8, not to 2.7 or 2.75
+        assertEquals(listOf(2.0, 2.8, 3.0, 3.0, 3.0, 5.0), standings.bracketRaceScores("B"))
+        standings.assertBracketTotals("B" to 2 + 2.8 + 3 + 3 + 3)
     }
 
     /** D1: with no other scored race, the RC race scores DNS (starters + 1), not DNF (finishers + 1). */

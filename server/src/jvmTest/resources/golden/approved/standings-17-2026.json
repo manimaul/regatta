@@ -2701,8 +2701,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 1.3333333333333333,
-                                    "placeInClass": 1.3333333333333333,
+                                    "placeInBracket": 1.3,
+                                    "placeInClass": 1.3,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -2763,8 +2763,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 5.333333333333333,
-                            "totalScoreClass": 5.333333333333333,
+                            "totalScoreBracket": 5.3,
+                            "totalScoreClass": 5.3,
                             "placeInBracket": 1,
                             "placeInClass": 1
                         },

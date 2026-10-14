@@ -10,7 +10,7 @@ or was broken, or because every boat shifted together.
 
 Notes name the decision from the plan:
 
-- **D1** RC volunteer average counted in the total, fractional and unrounded.
+- **D1** RC volunteer average counted in the total, to the nearest tenth of a point (RRS A10(a)).
 - **D2** an unsailed race scores nothing; the throw-out is chosen per bracket and per class.
 - **D3** NSC and DNS score starters + 1, and an RC volunteer is not a starter.
 - **D4** a penalty adds points to the boat's own place, others unchanged, capped at DNF.
@@ -30,16 +30,16 @@ Notes name the decision from the plan:
 |  | Fast (72-) | Kahuna (class) | 6 | 5 | D4 |
 | [2024 Summer Series Windseekers #4](https://regatta.mxmariner.com/races/results/view/31) | Windseekers NFS / All | Gardyloo | 6 | 5 | D4 |
 |  | Windseekers NFS | Gardyloo (class) | 6 | 5 | D4 |
-| [2025 Early Spring Windseekers #3](https://regatta.mxmariner.com/races/results/view/55) | Half Fast (73+) / III | Obsession | 7 | 8 | D3 |
-| [2025 Late Spring Windseekers #1](https://regatta.mxmariner.com/races/results/view/58) | Half Fast (73+) / IV | Bella Rose | 6 | 7 | D3 |
-|  | Windseekers NFS / All | Thane | 4 | 5 | D3 |
-|  | Windseekers NFS | Thane (class) | 4 | 5 | D3 |
-| [2025 Late Spring Windseekers #2](https://regatta.mxmariner.com/races/results/view/59) | Half Fast (73+) / III | Sidewinder | 6 | 7 | D3 |
-|  | Half Fast (73+) | Sidewinder (class) | 13 | 14 | D3 |
-| [2025 Awards Race](https://regatta.mxmariner.com/races/results/view/79) | Half Fast (73+) / III | Keet | 5 | 6 | D3 |
-|  | Half Fast (73+) | Keet (class) | 8 | 9 | D3 |
-| [2026 Late Spring Windseekers #2](https://regatta.mxmariner.com/races/results/view/96) | Half Fast (73+) / III | Athena | 6 | 7 | D3 |
-|  | Half Fast (73+) | Athena (class) | 12 | 13 | D3 |
+| [2025 Early Spring Windseekers #3](https://regatta.mxmariner.com/races/results/view/55) | Half Fast (73+) / IV | Work Release | 8 | 7 | D3 |
+|  | Half Fast (73+) / IV | Bella Rose | 8 | 7 | D3 |
+|  | Half Fast (73+) / IV | Strider | 8 | 7 | D3 |
+|  | Half Fast (73+) / IV | Aleshanee | 8 | 7 | D3 |
+|  | Half Fast (73+) | Work Release (class) | 15 | 14 | D3 |
+|  | Half Fast (73+) | Bella Rose (class) | 15 | 14 | D3 |
+|  | Half Fast (73+) | Strider (class) | 15 | 14 | D3 |
+|  | Half Fast (73+) | Obsession (class) | 15 | 14 | D3 |
+|  | Half Fast (73+) | Aleshanee (class) | 15 | 14 | D3 |
+| [2025 Late Spring Windseekers #1](https://regatta.mxmariner.com/races/results/view/58) | Half Fast (73+) | Bella Rose (class) | 12 | 11 | D3 |
 
 ## Series standings
 
@@ -57,8 +57,8 @@ Notes name the decision from the plan:
 | [2024 Early Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/13/2024) | Half Fast (73+) (class) | **Work Release** | **8** | **9** | 29 | 29 | others: D2; order flips with Slick |
 |  | Half Fast (73+) (class) | **Slick** | **9** | **8** | 30 | 29 | own total: D2; order flips with Work Release |
 | [2025 Early Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/13/2025) | Half Fast (73+) (class) | **Work Release** | **5** | **7** | 22 | 22 | others: D1, D3; order flips with Out of the Blue, Slick |
-|  | Half Fast (73+) (class) | **Slick** | **6** | **5** | 24 | 21.33 | own total: D1, D3; order flips with Work Release |
-|  | Half Fast (73+) (class) | **Out of the Blue** | **7** | **6** | 25 | 21.33 | own total: D1, D3; order flips with Work Release |
+|  | Half Fast (73+) (class) | **Slick** | **6** | **5** | 24 | 21.3 | own total: D1, D3; order flips with Work Release |
+|  | Half Fast (73+) (class) | **Out of the Blue** | **7** | **6** | 25 | 21.3 | own total: D1, D3; order flips with Work Release |
 |  | Half Fast (73+) (class) | **Aleshanee** | **11** | **13** | 33 | 33 | others: D1, D3; order flips with Scoundrel, Waymaker |
 |  | Half Fast (73+) (class) | **Scoundrel** | **13** | **11** | 34 | 32 | own total: D3; order flips with Aleshanee, Waymaker |
 | [2026 Early Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/13/2026) | Half Fast (73+) / III | **Bucket List** | **5** | **6** | 14 | 20 | own total: D2; order flips with Amidala |
@@ -81,25 +81,21 @@ Notes name the decision from the plan:
 |  | Windseekers NFS / All | **Bella** | **4** | **5** | 12 | 12 | D5; order flips with Saoirse |
 |  | Windseekers NFS (class) | **Saoirse** | **5** | **4** | 12 | 12 | D5; order flips with Bella |
 |  | Windseekers NFS (class) | **Bella** | **4** | **5** | 12 | 12 | D5; order flips with Saoirse |
-| [2025 Late Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/14/2025) | Half Fast (73+) / III | **Keet** | **5** | **4** | 17 | 14.67 | own total: D1; order flips with Scoundrel |
-|  | Half Fast (73+) / III | **Scoundrel** | **4** | **5** | 15 | 15 | others: D1; order flips with Keet |
+| [2025 Late Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/14/2025) | Half Fast (73+) / III | **Keet** | **5** | **4** | 17 | 14.7 | own total: D1; order flips with Scoundrel |
+|  | Half Fast (73+) / III | **Scoundrel** | **4** | **5** | 15 | 15 | others: D1, D3; order flips with Keet |
 |  | Half Fast (73+) (class) | **Waymaker** | **11** | **13** | 42 | 42 | others: D1, D2, D3; order flips with Boginka, Work Release |
 |  | Half Fast (73+) (class) | **Boginka** | **13** | **11** | 43 | 41 | own total: D2; order flips with Waymaker, Work Release |
 |  | Half Fast (73+) (class) | **Bella Rose** | **9** | **10** | 32 | 32 | others: D1, D2, D3; order flips with Keet |
 |  | Half Fast (73+) (class) | **Strider** | **6** | **7** | 27 | 27 | others: D1, D2, D3; order flips with Keet |
-|  | Half Fast (73+) (class) | **Keet** | **10** | **6** | 32 | 25.33 | own total: D1; order flips with Bella Rose, DYNO, Scoundrel, Strider |
+|  | Half Fast (73+) (class) | **Keet** | **10** | **6** | 32 | 25.3 | own total: D1; order flips with Bella Rose, DYNO, Scoundrel, Strider |
 |  | Half Fast (73+) (class) | **DYNO** | **7** | **8** | 28 | 28 | others: D1, D2, D3; order flips with Keet |
 |  | Half Fast (73+) (class) | **Scoundrel** | **8** | **9** | 30 | 30 | others: D1, D2, D3; order flips with Keet |
-|  | Windseekers NFS / All | **Thane** | **3** | **4** | 11 | 12 | own total: D3; order flips with Windswept |
-|  | Windseekers NFS / All | **Windswept** | **4** | **3** | 12 | 12 | others: D1, D3; order flips with Thane |
-|  | Windseekers NFS (class) | **Thane** | **3** | **4** | 11 | 12 | own total: D3; order flips with Windswept |
-|  | Windseekers NFS (class) | **Windswept** | **4** | **3** | 12 | 12 | others: D1, D3; order flips with Thane |
-| [2026 Late Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/14/2026) | Half Fast (73+) (class) | **Work Release** | **7** | **6** | 25 | 22.67 | own total: D1; order flips with Zephyr |
+| [2026 Late Spring Windseekers](https://regatta.mxmariner.com/series/standings/view/14/2026) | Half Fast (73+) (class) | **Work Release** | **7** | **6** | 25 | 22.7 | own total: D1; order flips with Zephyr |
 |  | Half Fast (73+) (class) | **Zephyr** | **6** | **7** | 24 | 23 | own total: D2; order flips with Work Release |
 | [2024 Summer Series Windseekers](https://regatta.mxmariner.com/series/standings/view/15/2024) | Fast (72-) (class) | **Flicka** | **3** | **4** | 14 | 14 | others: D2; order flips with Zulu Tango |
 |  | Fast (72-) (class) | **Zulu Tango** | **4** | **3** | 15 | 13 | own total: D2; order flips with Flicka |
 | [2026 Summer Series Windseekers](https://regatta.mxmariner.com/series/standings/view/15/2026) | Fast (93-) / II | **Flicka** | **2** | **3** | 9 | 9 | others: D1, D8; order flips with Goes to 11 |
-|  | Fast (93-) / II | **Goes to 11** | **3** | **2** | 9 | 6.67 | own total: D1; order flips with Flicka |
+|  | Fast (93-) / II | **Goes to 11** | **3** | **2** | 9 | 6.7 | own total: D1; order flips with Flicka |
 |  | Fast (93-) / II | **Short Circuit** | **5** | **4** | 18 | 14 | D8 row merge; order flips with Bucket List |
 |  | Fast (93-) / II | **Bucket List** | **4** | **5** | 15 | 15 | others: D1, D8; order flips with Short Circuit |
 |  | Fast (93-) / II | Athena | 8 | 7 | 24 | 24 | others: D1, D8 |
@@ -117,7 +113,7 @@ Notes name the decision from the plan:
 |  | Half Fast (94+) (class) | **Zephyr** | **6** | **5** | 19 | 17 | own total: D2; order flips with Klatawa |
 |  | Half Fast (94+) (class) | **Sidewinder** | **1** | **2** | 9 | 9 | others: D1, D2, D3; order flips with Slick |
 | [2025 Three Hour Tour](https://regatta.mxmariner.com/series/standings/view/16/2025) | Half Fast (73+) / IV | **Solitaire** | **4** | **3** | 10 | 9 | own total: D3; order flips with Slick |
-|  | Half Fast (73+) / IV | **Slick** | **3** | **4** | 10 | 10.50 | own total: D1; order flips with Solitaire |
+|  | Half Fast (73+) / IV | **Slick** | **3** | **4** | 10 | 10.5 | own total: D1; order flips with Solitaire |
 |  | Half Fast (73+) (class) | **Solitaire** | **9** | **8** | 21 | 20 | own total: D3; order flips with Slick |
 |  | Half Fast (73+) (class) | **Slick** | **8** | **9** | 21 | 21 | others: D3; order flips with Solitaire |
 | [2024 Late Summer Windseekers](https://regatta.mxmariner.com/series/standings/view/17/2024) | Fast (72-) (class) | **Zulu Tango** | **3** | **4** | 13 | 13 | others: D2; order flips with Gardyloo |
@@ -126,16 +122,16 @@ Notes name the decision from the plan:
 |  | Half Fast (73+) (class) | **Aleshanee** | **12** | **13** | 36 | 36 | D5; order flips with Skosh |
 | [2025 Late Summer Windseekers](https://regatta.mxmariner.com/series/standings/view/17/2025) | Fast (72-) / I | **Flash** | **3** | **4** | 10 | 10 | D5; order flips with Zulu Tango |
 |  | Fast (72-) / I | **Zulu Tango** | **4** | **3** | 10 | 10 | D5; order flips with Flash |
-|  | Half Fast (73+) / IV | **Slick** | **3** | **1** | 9 | 5.33 | own total: D1; order flips with Strider, Zephyr |
+|  | Half Fast (73+) / IV | **Slick** | **3** | **1** | 9 | 5.3 | own total: D1; order flips with Strider, Zephyr |
 |  | Half Fast (73+) / IV | **Strider** | **1** | **2** | 8 | 8 | others: D1, D3; order flips with Slick |
 |  | Half Fast (73+) / IV | **Zephyr** | **2** | **3** | 8 | 8 | others: D1, D3; order flips with Slick |
-|  | Half Fast (73+) (class) | **Goes to 11** | **2** | **3** | 12 | 10.67 | own total: D1; order flips with Slick |
+|  | Half Fast (73+) (class) | **Goes to 11** | **2** | **3** | 12 | 10.7 | own total: D1; order flips with Slick |
 |  | Half Fast (73+) (class) | **Slick** | **3** | **2** | 16 | 8 | own total: D1; order flips with Goes to 11 |
 | [2026 Late Summer Windseekers](https://regatta.mxmariner.com/series/standings/view/17/2026) | Fast (93-) / II | **Goes to 11** | **5** | **3** | 14 | 12 | own total: D1; order flips with Bucket List, Short Circuit |
 |  | Fast (93-) / II | **Short Circuit** | **3** | **4** | 12 | 12 | others: D1, D3; order flips with Goes to 11 |
 |  | Fast (93-) / II | **Bucket List** | **4** | **5** | 13 | 13 | others: D1, D3; order flips with Goes to 11 |
 
-8 race reports and 15 series standings differ; the order of boats flips in 0 race reports and 13 series standings.
+5 race reports and 15 series standings differ; the order of boats flips in 0 race reports and 13 series standings.
 
 Generated by comparing the two APIs boat by boat; notes come from `database/audit_scoring.py` run on the
 outputs of the original code. The local database is a clone of production taken 2026-10-14, so every

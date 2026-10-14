@@ -6,6 +6,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.floor
 import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -224,6 +225,9 @@ object RaceResultReporter {
 
     internal class GroupScores(val scores: List<Double?>, val throwOut: Int?, val total: Double)
 
+    /** RRS A10(a): to the nearest tenth of a point, 0.05 rounded upward. The epsilon absorbs binary representation error. */
+    internal fun roundToTenth(score: Double): Double = floor(score * 10 + 0.5 + 1e-9) / 10
+
     /**
      * Scores one group (bracket or class) of a boat's series row, by race index.
      *
@@ -231,10 +235,11 @@ object RaceResultReporter {
      * - GSI 14.4 / D2: with 5 or more sailed races, the worst scored race is thrown out. Among
      *   equal worst scores the one with the worse [tieScore] goes, the first on a full tie.
      * - GSI 1.4.1.2 / D1: the boat's first RC volunteer race scores the average of its other
-     *   sailed races, the throw-out left out, fractional and unrounded; later RC races score
-     *   DNS ([dns]) and count in that average; with no other race to average, the RC race scores
-     *   DNS too. The RC race is never the throw-out, since the average cannot be worse than the
-     *   worst of the races it is taken from.
+     *   sailed races, the throw-out left out, rounded to the nearest tenth of a point with 0.05
+     *   rounded up (RRS A10(a), [roundToTenth]); later RC races score DNS ([dns]) and count in
+     *   that average; with no other race to average, the RC race scores DNS too. The RC race is
+     *   never the throw-out, since the average cannot be worse than the worst of the races it is
+     *   taken from.
      * - The total is the sum of the sailed races that were not thrown out.
      */
     internal fun groupScores(
@@ -260,7 +265,7 @@ object RaceResultReporter {
 
         rcIdx.firstOrNull()?.let { rc ->
             val others = scoredIdx.filter { it != throwOut }
-            scores[rc] = if (others.isEmpty()) dns(rc) else others.sumOf { scores[it]!! } / others.size
+            scores[rc] = if (others.isEmpty()) dns(rc) else roundToTenth(others.sumOf { scores[it]!! } / others.size)
         }
 
         val total = sailedIdx.filter { it != throwOut }.sumOf { scores[it]!! }
@@ -605,8 +610,11 @@ fun Iterable<RaceReportCard>.place(
     val cardList = if (orc) this.filter { it.ratingType().isORC } else this
     // GSI 14.1 with D3 (test_audit_and_plan.md): starters are every entry except RC volunteers and DNS;
     // finishers are timed finishers and HOC, so DNF = RET = finishers + 1 and NSC = starters + 1.
+    // A boat's own score counts the *other* starters, as a DNF boat is not among the finishers it
+    // is scored against: an NSC or DSQ boat is a starter for everyone else, not for itself.
     val starters = cardList.count { it.isStarter() }
     val finishers = cardList.count { it.isFinisher() }
+    fun RaceReportCard.otherStarters() = if (isStarter()) starters - 1 else starters
 
     val cardCompare = if (orc) cardCompareOrc else cardComparePhrf
     //sorted by corrected time then HOC
@@ -635,11 +643,11 @@ fun Iterable<RaceReportCard>.place(
 
                 FinishCode.NSC,
                 FinishCode.DNS -> {
-                    TempPlace(place = starters + 1, card = ea)
+                    TempPlace(place = ea.otherStarters() + 1, card = ea)
                 }
 
                 FinishCode.DSQ -> {
-                    TempPlace(place = starters + 2, card = ea)
+                    TempPlace(place = ea.otherStarters() + 2, card = ea)
                 }
             }
         }

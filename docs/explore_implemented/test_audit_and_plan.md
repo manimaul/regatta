@@ -119,17 +119,21 @@ race, and the race counts toward the `size >= 5` throw-out rule.
   22 boat-series class totals like this, e.g. 2024 Early Spring WS Slick: class total 30, but 29
   with the worst class score dropped. D2 decides the throw-out per scoring group.
 
-### F3. NSC scored as starters, not starters + 1 (GSI 14.1.4)
+### F3. NSC and the starter count (GSI 14.1.4)
 
-`place()` gives NSC `starters` (the count of all cards, including the NSC boat itself). The GSI
-says starters + 1, which is the same as DNS. This applies to all 10 NSC scores in the data, for
-example 2025 Early Spring WS #3 Obsession: 7, but the rule gives 8. 2025 Awards Race Keet: class
-8, but the rule gives 9. Right now an NSC scores one point *better* than not showing up.
+`place()` gives NSC the count of all cards, including the NSC boat itself and any RC volunteer.
+Read as "the other starters + 1" this is right whenever no RC volunteer is in the group, so the
+10 NSC scores in the data are correct on their own (2025 Early Spring WS #3 Obsession 7, 2025
+Awards Race Keet class 8, 2026 Late Spring WS #2 Athena 6).
 
-Related: both `place()` and `nonStarterPlace` count the DNS_RC card as a starter. Under the D3
-definition it is not one, so the DNS and NSC scores of every *other* boat drop by one in each race
-with an RC volunteer. The dump has 19 DNS_RC rows across 18 races (race 78 has two). These shifts
-belong in `deviations.json` under D3, or the per-decision isolation check in §5 fails on D3.
+*Revised 2026-10-14.* The first version of this finding read "starters + 1" as including the NSC
+boat, which would have made every NSC score one worse than DNS: Athena would score 7 for starting
+and not sailing the course but 6 for staying home. D3 now counts the other starters, see there.
+
+The real defect: both `place()` and `nonStarterPlace` count the DNS_RC card as a starter. Under the
+D3 definition it is not one, so the DNS and NSC scores of every *other* boat drop by one in each
+race with an RC volunteer. The dump has 19 DNS_RC rows across 18 races (race 78 has two). These
+shifts belong in `deviations.json` under D3, or the per-decision isolation check in §5 fails on D3.
 
 ### F4. Penalty moves other boats up (GSI 9.2/14.2, RRS 44.3(c))
 
@@ -402,10 +406,16 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
 - The total uses the average in place of the raw DNF score.
 - The average is taken over every *other* race in the series, excluding cancelled or unsailed
   races and the throw-out. DNS scores count in the average.
-- The average is **fractional and not rounded**, e.g. 3.5. The race and series score fields
-  (`StandingsRace.placeInBracket/Class(Corrected)`, `StandingsBoatSkipper.totalScoreBracket/Class`)
-  become `Double` in `common`. Labels show whole numbers without a decimal (`4`), and others with
-  one or two decimals (`3.5`, `3.33`).
+- The average is **rounded to the nearest tenth of a point, 0.05 upward** (revised 2026-10-14),
+  e.g. 2.67 becomes 2.7 and 2.75 becomes 2.8. GSI 1.4.1.2 says nothing about rounding and amends
+  only 14.4, 14.5 and the Appendix A sections they cite; 14.1 applies RRS Appendix A, so the
+  rule in force for scoring a boat by an average is A10(a), which rounds this way. Whole-number
+  rounding was considered and rejected: it is in no rule, and nearest-whole or round-up would
+  manufacture ties against the volunteer in the data (2025 Early Spring WS Slick / Work Release,
+  2025 Late Spring WS Keet / Scoundrel). `roundToTenth` in `RaceResultReporter.kt`. The race and
+  series score fields (`StandingsRace.placeInBracket/Class`, `StandingsBoatSkipper.totalScoreBracket/Class`)
+  are `Double` in `common`. Labels show whole numbers without a decimal (`4`), and others with
+  one decimal (`3.5`, `2.7`).
 - The bracket score and the class score are each averaged separately, from the bracket and
   class race scores.
 - Order of operations:
@@ -446,10 +456,17 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
 - **Starters** means every entry except RC volunteers and DNS: finishers, HOC, DNF, RET, NSC and
   DSQ. DNS_RC entries, DNS entries (D6) and boats with no record are not starters. The same
   definition is used for DNS, NSC and DSQ.
+- **A boat's own score counts the other starters** (revised 2026-10-14). A DNF boat is not among
+  the finishers it is scored against, and a DNS boat is not among the starters; the same reading
+  applies to NSC and DSQ, so an NSC or DSQ boat is a starter for everyone else but not for itself.
+  NSC therefore equals DNS from the boat's own point of view, and DSQ is one point worse than DNS.
+  With `n` other starters: DNS = NSC = n + 1, DSQ = n + 2. Counting the boat itself would make NSC
+  one worse than staying home and DSQ two worse than DNS, which the GSI ladder does not suggest.
 - **Finishers** are TIME plus HOC entries, so DNF = RET = finishers + 1, and HOC boats rank after
   all timed finishers.
-- Data effect: besides the 10 NSC rows, this lowers the DNS and NSC scores of other boats in the
-  18 races that have an RC volunteer (see F3). `audit_scoring.py` lists them under D3.
+- Data effect: the 10 NSC rows keep their scores where no RC volunteer is in the group; the change
+  lowers the DNS and NSC scores of other boats in the 18 races that have an RC volunteer (see F3).
+  `audit_scoring.py` lists them under D3.
 
 **D4. Penalties (F4, GSI 9.2/14.2, RRS 44.3(c))**
 - Score = finishing place + n, and **no other boat's score changes**, so ties are allowed. This
@@ -671,6 +688,8 @@ D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
 ### Phase 6: Fixes (in this order)
 
 - [x] **D3:** NSC = starters + 1, using the D3 definitions of starters and finishers in `place()` and `nonStarterPlace` (`FinishCode.isStarter` / `isFinisher`). Golden: 5 NSC races and 10 standings files re-approved; `deviations.json` lost exactly the 116 D3 entries plus 14 totals that needed only D3, and the `+D3` labels dropped their D3 part.
+  - [x] *2026-10-14 revision (D1):* the RC average is rounded to the nearest tenth, 0.05 up (RRS A10(a)), in `groupScores` and `audit_scoring.py`. 7 standings files re-approved; only the RC cells and their totals moved (e.g. 2.67 to 2.7), no series place changed, `deviations.json` stayed empty.
+  - [x] *2026-10-14 revision:* NSC and DSQ score the **other** starters + 1 / + 2 (the boat is not counted against itself). `place()`, `RacePlacingTest`, `audit_scoring.py` and the 5 NSC races plus 3 standings files re-approved; every NSC score dropped by one and `deviations.json` stayed empty. `test_audit_results.md` regenerated: the 10 NSC race rows now match prod and are gone, Thane/Windswept no longer flip in 2025 Late Spring WS.
 - [x] **D7:**
   - equal corrected times score 1, 1, 3;
   - `Duration.display` rounds to the nearest second;

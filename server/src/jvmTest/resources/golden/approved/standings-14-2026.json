@@ -1614,8 +1614,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 7.0,
-                                    "placeInClass": 13.0,
+                                    "placeInBracket": 6.0,
+                                    "placeInClass": 12.0,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "NSC",
@@ -1663,8 +1663,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 23.0,
-                            "totalScoreClass": 51.0,
+                            "totalScoreBracket": 22.0,
+                            "totalScoreClass": 50.0,
                             "placeInBracket": 7,
                             "placeInClass": 16
                         }
@@ -1842,8 +1842,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 2.6666666666666665,
-                                    "placeInClass": 5.666666666666667,
+                                    "placeInBracket": 2.7,
+                                    "placeInClass": 5.7,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -1865,8 +1865,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 10.666666666666666,
-                            "totalScoreClass": 22.666666666666668,
+                            "totalScoreBracket": 10.7,
+                            "totalScoreClass": 22.7,
                             "placeInBracket": 2,
                             "placeInClass": 6
                         },

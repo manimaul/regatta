@@ -875,8 +875,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 1.6666666666666667,
-                                    "placeInClass": 2.6666666666666665,
+                                    "placeInBracket": 1.7,
+                                    "placeInClass": 2.7,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -885,8 +885,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 6.666666666666667,
-                            "totalScoreClass": 10.666666666666666,
+                            "totalScoreBracket": 6.7,
+                            "totalScoreClass": 10.7,
                             "placeInBracket": 2,
                             "placeInClass": 4
                         },
@@ -2487,8 +2487,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 5.333333333333333,
-                                    "placeInClass": 9.666666666666666,
+                                    "placeInBracket": 5.3,
+                                    "placeInClass": 9.7,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -2523,8 +2523,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 21.333333333333332,
-                            "totalScoreClass": 38.666666666666664,
+                            "totalScoreBracket": 21.3,
+                            "totalScoreClass": 38.7,
                             "placeInBracket": 6,
                             "placeInClass": 11
                         },

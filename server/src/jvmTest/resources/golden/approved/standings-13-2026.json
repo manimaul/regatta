@@ -2394,7 +2394,7 @@
                                     "hocPosition": null,
                                     "finish": false,
                                     "placeInBracket": 7.0,
-                                    "placeInClass": 12.666666666666666,
+                                    "placeInClass": 12.7,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -2430,7 +2430,7 @@
                                 }
                             ],
                             "totalScoreBracket": 28.0,
-                            "totalScoreClass": 50.666666666666664,
+                            "totalScoreClass": 50.7,
                             "placeInBracket": 8,
                             "placeInClass": 15
                         }
@@ -2727,8 +2727,8 @@
                                     "nonStarter": false,
                                     "hocPosition": null,
                                     "finish": false,
-                                    "placeInBracket": 2.3333333333333335,
-                                    "placeInClass": 2.3333333333333335,
+                                    "placeInBracket": 2.3,
+                                    "placeInClass": 2.3,
                                     "throwOut": false,
                                     "throwOutClass": false,
                                     "finishCode": "DNS_RC",
@@ -2737,8 +2737,8 @@
                                     "status": "Sailed"
                                 }
                             ],
-                            "totalScoreBracket": 9.333333333333334,
-                            "totalScoreClass": 9.333333333333334,
+                            "totalScoreBracket": 9.3,
+                            "totalScoreClass": 9.3,
                             "placeInBracket": 3,
                             "placeInClass": 3
                         }

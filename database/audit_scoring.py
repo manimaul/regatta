@@ -14,14 +14,15 @@ golden files and re-running this script must remove only that decision's entries
 
 Rules implemented (test_audit_and_plan.md, "Decisions"):
   D3  starters = all entries except DNS_RC / DNS; finishers = TIME + HOC;
-      DNF = RET = finishers + 1; NSC = DNS = starters + 1; DSQ = starters + 2.
+      DNF = RET = finishers + 1; NSC = DNS = starters + 1; DSQ = starters + 2, where a boat's
+      own score counts the other starters (an NSC or DSQ boat is a starter for everyone else).
   D4  penalty = place + n, capped at DNF, only on TIME / HOC; no other boat changes.
   D7  equal corrected times share the place and the next place skips (no data case).
   D2  a race is sailed for a group (bracket or class) when the group has a starter; unsailed
       races score nothing and count toward neither the throw-out threshold nor the tiebreak;
       the throw-out is chosen per group (worst bracket score / worst class score).
   D1  RC volunteer: average of the other sailed races (DNS included, throw-out excluded),
-      fractional; once per series.
+      to the nearest tenth of a point, 0.05 up (RRS A10(a)); once per series.
   D5  tiebreak: last sailed race, then earlier races; RC races skipped; full ties share a place.
   D8  standings rows grouped by boat id; race years by the Pacific calendar.
 
@@ -30,6 +31,7 @@ No dependencies beyond the standard library.
 import functools
 import glob
 import json
+import math
 import os
 import re
 import sys
@@ -114,9 +116,9 @@ def score_group(cards, warnings):
         elif code in ("DNF", "RET"):
             scores[i] = dnf
         elif code in ("NSC", "DNS"):
-            scores[i] = starters + 1  # D3
+            scores[i] = starters - (1 if is_starter(c) else 0) + 1  # D3: the other starters + 1
         elif code == "DSQ":
-            scores[i] = starters + 2
+            scores[i] = starters - 1 + 2  # D3: the other starters + 2
         elif code == RC:
             scores[i] = None
         else:
@@ -199,7 +201,8 @@ def boat_series(race_ids, per_race, boat):
             cells[rid]["score"] = per_race[rid]["starters"] + 1
             continue
         # the average of the remaining races is never worse than the thrown-out score, so the RC race is never the throw-out
-        cells[rid]["score"] = sum(cells[r]["score"] for r in others) / len(others)
+        avg = sum(cells[r]["score"] for r in others) / len(others)
+        cells[rid]["score"] = math.floor(avg * 10 + 0.5 + 1e-9) / 10  # RRS A10(a): nearest tenth, 0.05 up
 
     total = 0
     for rid in sailed:
