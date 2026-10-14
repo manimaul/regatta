@@ -160,16 +160,18 @@ fun RaceResultsClassTable(
                                 RgTd { Text(card.placeInClass.toString()) }
                             }
                         } else {
-                            if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
-                                Text("${card.placeInBracket}(PHRF), ")
-                                Br {  }
-                                Text("${card.placeInBracketOrc}(ORC)")
-                            } else if (card.ratingType().isPHRF) {
-                                Text("${card.placeInBracket}(PHRF)")
-                            } else if (card.ratingType() == RatingType.ORC) {
-                                Text("${card.placeInBracketOrc}(ORC)")
-                            } else {
-                                RgTd { Text(card.placeInBracket.toString()) }
+                            RgTd {
+                                if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
+                                    Text("${card.placeInBracket}(PHRF), ")
+                                    Br {  }
+                                    Text("${card.placeInBracketOrc}(ORC)")
+                                } else if (card.ratingType().isPHRF) {
+                                    Text("${card.placeInBracket}(PHRF)")
+                                } else if (card.ratingType() == RatingType.ORC) {
+                                    Text("${card.placeInBracketOrc}(ORC)")
+                                } else {
+                                    Text(card.placeInBracket.toString())
+                                }
                             }
                         }
                     }
