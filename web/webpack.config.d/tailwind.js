@@ -1,4 +1,4 @@
-// Runs Tailwind (via PostCSS) over app.css only. Other CSS (maplibre-gl) keeps the plain Kotlin-generated rule.
+// Runs Tailwind (via PostCSS) over app.css only. Any other bundled CSS keeps the plain Kotlin-generated rule.
 ;(function (config) {
     const path = require('path');
     const appCss = /app\.css$/;

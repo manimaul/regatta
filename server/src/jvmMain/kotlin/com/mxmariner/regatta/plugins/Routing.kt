@@ -249,7 +249,9 @@ fun Application.configureRouting() {
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
         }
-        staticResources("/", "static", "index.html")
+        staticResources("/", "static", "index.html") {
+            preCompressed(CompressedFileType.BROTLI, CompressedFileType.GZIP)
+        }
     }
 }
 

@@ -53,8 +53,8 @@ kubectl -n regatta exec --stdin --tty "$pod" -- /bin/bash
 # Restore Prod Backup to Dev
 ```shell
 id=$(podman ps --filter name=database_postgres_1 --format json | jq -r '.[0].Id')
-df=$(readlink ./backup/prod_current.sql)
-podman cp "./backup/$df" "$id:/dump.sql"
-podman cp "./restore_dev.sh" "$id:/restore_dev.sh"
+df=$(readlink ./database/backup/prod_current.sql)
+podman cp "./database/backup/$df" "$id:/dump.sql"
+podman cp "./database/restore_dev.sh" "$id:/restore_dev.sh"
 podman exec "$id" /restore_dev.sh
 ```

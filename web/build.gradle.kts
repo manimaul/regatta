@@ -42,6 +42,7 @@ kotlin {
                 implementation(devNpm("@tailwindcss/forms", "0.5.11"))
                 implementation(devNpm("postcss", "8.5.30"))
                 implementation(devNpm("postcss-loader", "8.2.1"))
+                implementation(devNpm("compression-webpack-plugin", "11.1.0"))
                 implementation("io.madrona:geojson:1.3-SNAPSHOT")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
