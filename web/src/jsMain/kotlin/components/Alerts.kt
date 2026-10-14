@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.jetbrains.compose.web.ExperimentalComposeWebSvgApi
-import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H6
 import org.jetbrains.compose.web.dom.Text
@@ -42,19 +40,19 @@ fun Alerts(
     )
     state.message?.let { message ->
         Div(attrs = {
-            classes("alert", "alert-success", "d-flex", "align-items-center", "fixed-top")
-            style { marginTop(80.px )}
+            classes("rg-alert-success")
             attr("role", "alert")
         }) {
             Svg(attrs = {
-                classes("bi", "bi-check2-circle")
+                attr("aria-hidden", "true")
+                attr("fill", "currentColor")
                 width(16)
                 height(16)
             }) {
                 Path(d = "M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0")
                 Path(d = "M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z")
             }
-            Div(attrs = { classes(AppStyle.marginStart) }) {
+            Div {
                 Text(message)
             }
         }

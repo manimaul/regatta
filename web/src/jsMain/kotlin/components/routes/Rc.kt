@@ -38,12 +38,15 @@ fun RcLoggedIn(viewModel: RcViewModel = remember { RcViewModel() }) {
         RgDropdown(races, state.selectedRace ?: races.first(), { it.race.name }, { viewModel.selectRace(it) })
     }
     RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s4, side = RgSide.y) }) {
-        Ul(attrs = { classes("nav", "nav-pills") }) {
+        Ul(attrs = { classes("rg-pills") }) {
             RcTab.entries.forEach { tab ->
                 Li {
                     A(href = "#", attrs = {
                         onClick { viewModel.selectTab(tab) }
-                        classes("nav-link", if (tab == state.tab) "active" else "inactive")
+                        classes("rg-pill")
+                        if (tab == state.tab) {
+                            attr("aria-current", "page")
+                        }
                     }) {
                         Text(tab.title)
                     }

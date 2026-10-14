@@ -101,14 +101,16 @@ class ModalTest {
     @Test
     fun confirmationAnswersAndDismissal() = runTest {
         composition { Alerts() }
-        val dlg = dialog(confirmationModalId)
-        eventually("confirmation dialog registered") { alertsViewModel.flow.value.confirmationModal != null }
+        // other tests' Alerts() compositions may still be in the document with the same id: look inside this root
+        val dlg = root.querySelector("#$confirmationModalId") as HTMLDialogElement
+        // alertsViewModel is a global: wait for *this* composition's dialog, not one left by another test's Alerts()
+        eventually("confirmation dialog registered") { alertsViewModel.flow.value.confirmationModal == dlg }
 
         var answer: Boolean? = null
         alertsViewModel.confirm("Are you sure?", "Delete Kahuna?") { answer = it }
         eventually("confirmation shown") { dlg.open && alertsViewModel.flow.value.confirmation != null }
         eventually("title shows the question") {
-            document.getElementById("$confirmationModalId-title")?.textContent == "Are you sure?"
+            root.querySelector("#$confirmationModalId-title")?.textContent == "Are you sure?"
         }
 
         dlg.button("Yes").click()

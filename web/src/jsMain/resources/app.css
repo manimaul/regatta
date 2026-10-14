@@ -12,6 +12,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
+/* RgDiv's Customizer builds spacing classes at runtime (space x side x size), which the scanner can't see.
+   Sizes are Bootstrap's 0-5 + auto mapped onto Tailwind's scale (s3 = 4, s4 = 6, s5 = 12) to keep the same look. */
+@source inline("{m,p}{,t,b,s,e,x,y}-{0,1,2,4,6,12,auto}");
+
 @theme {
     /* Bootstrap breakpoints, so navbar collapse (lg) and containers behave as they do today */
     --breakpoint-sm: 576px;
@@ -494,6 +498,122 @@
     }
     .rg-nav-link:hover { color: var(--color-slate-900); }
     .rg-nav-link[aria-current="page"] { color: var(--color-primary-900); font-weight: 600; }
+
+    /* ---------- layout (RgGrid / RgContainerType / RgPosition): Bootstrap's containers and positions ---------- */
+    .rg-container, .rg-container-sm, .rg-container-md, .rg-container-lg, .rg-container-xl, .rg-container-xxl {
+        width: 100%;
+        padding-right: .75rem;
+        padding-left: .75rem;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    .rg-container, .rg-container-sm { @variant sm { max-width: 540px; } }
+    .rg-container, .rg-container-sm, .rg-container-md { @variant md { max-width: 720px; } }
+    .rg-container, .rg-container-sm, .rg-container-md, .rg-container-lg { @variant lg { max-width: 960px; } }
+    .rg-container, .rg-container-sm, .rg-container-md, .rg-container-lg, .rg-container-xl { @variant xl { max-width: 1140px; } }
+    .rg-container, .rg-container-sm, .rg-container-md, .rg-container-lg, .rg-container-xl, .rg-container-xxl {
+        @variant xxl { max-width: 1320px; }
+    }
+    /* Router's RgGrid(container_fluid) never matched a Bootstrap class (the enum name has an underscore), so the app
+       has always rendered edge to edge: keep that look rather than adding container-fluid's padding now. */
+    .rg-container-fluid {
+        width: 100%;
+    }
+    .rg-fixed-top, .rg-fixed-bottom {
+        position: fixed;
+        right: 0;
+        left: 0;
+        z-index: var(--z-fixed);
+    }
+    .rg-fixed-top { top: 0; }
+    .rg-fixed-bottom { bottom: 0; }
+    .rg-sticky-sm-top { @variant sm { position: sticky; top: 0; z-index: var(--z-sticky); } }
+    .rg-sticky-md-top { @variant md { position: sticky; top: 0; z-index: var(--z-sticky); } }
+    .rg-sticky-lg-top { @variant lg { position: sticky; top: 0; z-index: var(--z-sticky); } }
+    .rg-sticky-xl-top { @variant xl { position: sticky; top: 0; z-index: var(--z-sticky); } }
+
+    /* ---------- success banner (Alerts): margins on phones, centered from sm up ---------- */
+    .rg-alert-success {
+        position: fixed;
+        top: 80px;
+        right: .5rem;
+        left: .5rem;
+        z-index: var(--z-fixed);
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: 1rem;
+        color: var(--color-green-800);
+        background-color: var(--color-success-100);
+        border: 1px solid var(--color-success-200);
+        border-radius: .375rem;
+        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+        @variant sm {
+            right: 0;
+            left: 0;
+            max-width: 28rem;
+            margin-right: auto;
+            margin-left: auto;
+        }
+    }
+
+    /* ---------- pills (RC tabs) ---------- */
+    .rg-pills {
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+    }
+    .rg-pill {
+        display: block;
+        padding: .5rem 1rem;
+        color: var(--color-info-700);
+        text-decoration: none;
+        border-radius: .375rem;
+        transition: color .15s, background-color .15s;
+    }
+    .rg-pill:hover {
+        color: var(--color-primary-900);
+    }
+    .rg-pill[aria-current="page"] {
+        color: white;
+        background-color: var(--color-primary-900);
+    }
+
+    /* ---------- sortable list (RgSortable; Bootstrap .list-group) ---------- */
+    .rg-list-group {
+        display: flex;
+        flex-direction: column;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+        border-radius: .375rem;
+    }
+    .rg-list-group-item {
+        position: relative;
+        display: block;
+        padding: .5rem 1rem;
+        color: var(--color-slate-900);
+        background-color: white;
+        border: 1px solid rgb(0 0 0 / .175);
+        cursor: move;
+    }
+    .rg-list-group-item + .rg-list-group-item {
+        border-top-width: 0;
+    }
+    .rg-list-group-item:first-child {
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+    }
+    .rg-list-group-item:last-child {
+        border-bottom-left-radius: inherit;
+        border-bottom-right-radius: inherit;
+    }
+    /* SortableJS ghostClass: the placeholder where the dragged item will land */
+    .rg-sortable-ghost {
+        background-color: var(--color-info-200);
+    }
 
     /* ---------- tables: Bootstrap-style layering so hover > striping > cell color ---------- */
     .rg-table {

@@ -27,9 +27,9 @@ fun Router(
         Alerts()
         RgDiv(id = "route_content", customizer = {
             set(space = RgSpace.m, size = RgSz.s2)
-            addCustom("flex-grow-1")
-            addCustom("d-flex")
-            addCustom("flex-column")
+            addCustom("grow")
+            addCustom("flex")
+            addCustom("flex-col")
         }) {
             when (state.current.route) {
                 Route.Home -> Home()
