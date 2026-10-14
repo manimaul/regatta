@@ -7,9 +7,9 @@ class RouteMatcherTest {
 
     @Test
     fun routeArgMatch() {
-        val path = "/boat/1"
+        val path = "/race/1"
         val route = Routing.from(path)
-        assertEquals(Route.BoatEdit, route.route)
+        assertEquals(Route.RaceEdit, route.route)
         assertEquals("1", route.args?.get("id"))
     }
 
