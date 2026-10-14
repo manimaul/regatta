@@ -412,8 +412,10 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
   1. If the series has 5 or more started races (D2), choose the throw-out from the boat's other
      scored races. Otherwise there is no throw-out.
   2. Average the remaining races, leaving out the throw-out.
-  3. If the RC average is worse than the chosen throw-out, the RC race becomes the throw-out instead.
-     The average does not change. *(interpretation)*
+
+  The RC race is never the throw-out: the average of the remaining races cannot be worse than
+  the worst of them, so an earlier "if the average is worse, throw out the RC race instead" step
+  could never apply and was dropped (Phase 4, `d1_rc_race_is_never_the_throw_out`).
 - If the boat has no other scored race to average, the RC race scores **DNS** (starters + 1).
   Standings are computed on every request, so the average appears once the boat races again.
 - Use is limited to once per series. The earliest DNS_RC race (by class start) gets the average,
@@ -620,30 +622,34 @@ file; for them the `deviations.json` diff is the only isolation check (see §5).
 - [x] Commit `deviations.json`: 682 entries (D1 66, D1+D2 4, D1+D2+D3 25, D1+D2+D8 7, D1+D3 27, D1+D8 7, D2 376, D2+D3 8, D3 116, D4 20, D5 23, D8 3). They match findings F1–F5, the D3 DNS/NSC shifts in the RC-volunteer races, the Short Circuit skipper split (D8), and the class throw-out gap added to F2 above. No entry is unattributed, and no D7 or D8 year-boundary case exists in the data.
 - [x] `:server:jvmGoldenTest` passes locally on podman (about 45 s, container start included).
 
-### Phase 4: Rule tests (tests the code fails start out `@Ignore("Dn: …")`)
+### Phase 4: Rule tests (tests the code fails start out `@Ignore("Dn: …")`) — done 2026-10-14
 
 These cover everything that compiles against today's API. Tests for DNS/DSQ codes, D2 status
 fields and their labels are written in the D6 and D2 fix tasks (§6).
 
-- [ ] Race placing:
+Every ignored test was run once with its `@Ignore` stripped and fails on today's code, so
+un-ignoring it in a fix task is a real check. 25 tests are ignored: D1 7, D2 3, D3 4, D4 4, D5 4,
+D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
+
+- [x] Race placing (`RacePlacingTest`):
   - ordering (corrected time → HOC → code weight);
   - the 14.1.1–14.1.4 formulas, with finishers and starters as in D3;
   - HOC numbering;
-  - penalties (D4): others unchanged, DNF cap, several penalties, non-finishers;
-  - equal times (D7);
+  - penalties (D4): others unchanged, DNF cap, several penalties, non-finishers, and a penalty on HOC;
+  - equal times (D7), and times a millisecond apart not being equal;
   - starters but no finishers;
   - class vs. bracket placing;
   - ORC placing among ORC entries only;
-  - the orphan bucket.
-- [ ] Series standings:
+  - the orphan bucket (orphans have no class start, so no elapsed time and no meaningful place; the test pins the bucket, not the places).
+- [x] Series standings (`SeriesStandingsTest`):
   - DNS = starters + 1;
-  - scores and throw-out for races that weren't sailed per bracket or class, and throw-out at 5 or more started races (D2), checked through scores and totals;
-  - RC volunteer (D1): average, order of operations, no other races, once per series, fractional;
-  - tiebreak (D5): back through earlier races, a shared place, RC and unsailed races skipped, three-way ties, class and bracket;
+  - scores and throw-out for races that weren't sailed per bracket or class, throw-out at 5 or more started races, and the throw-out chosen per scoring group (D2), checked through scores and totals;
+  - RC volunteer (D1): average, order of operations, no other races, once per series, fractional, never the throw-out;
+  - tiebreak (D5): back through earlier races, a shared place, RC races skipped, three-way ties, class and bracket, input order. Unsailed races are skipped by construction once D2 lands (an unsailed race has no score to compare), so no separate test;
   - class vs. bracket totals;
   - grouping by boat (D8);
   - a single-race series.
-- [ ] `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating (D8).
+- [x] `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating (D8) (`ResultValidationTest`).
 - [ ] Web label rule tests for fractional scores (D1). These compile against `Double` once D1 lands, so they are written in the D1 fix task. Note it here so it isn't forgotten.
 
 ### Phase 5: Invariants

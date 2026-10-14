@@ -97,6 +97,7 @@ class BoatEntry internal constructor(
     internal var penaltyPoints: Int? = null
     internal var orcRef: String? = null
     internal var legacy: Boolean = false
+    internal var orphan: Boolean = false
 
     internal fun result(registry: FixtureRegistry, raceId: Long, date: String): RaceResultBoatBracket {
         val finishInstant = finish?.let { pacific(date, it) }
@@ -125,9 +126,9 @@ class BoatEntry internal constructor(
             )
         }
         return RaceResultBoatBracket(
-            result = result,
+            result = if (orphan) result.copy(bracketId = 0, raceClassId = 0) else result,
             boatSkipper = BoatSkipper(skipper = skipper, boat = boat),
-            bracket = bracket,
+            bracket = if (orphan) Bracket() else bracket,
         )
     }
 }
@@ -149,6 +150,9 @@ infix fun BoatEntry.orc(ref: String): BoatEntry = apply { orcRef = ref }
 
 /** A legacy row with no finish code stored: the result keeps the RaceResult default (TIME with a finish, else RET). */
 fun BoatEntry.legacy(): BoatEntry = apply { legacy = true }
+
+/** A result whose bracket no longer matches the race (bracket id 0), which the report lists under "Incorrectly classed". */
+fun BoatEntry.orphan(): BoatEntry = apply { orphan = true }
 
 class BracketBuilder internal constructor(
     private val registry: FixtureRegistry,

@@ -21,7 +21,7 @@ Rules implemented (test_audit_and_plan.md, "Decisions"):
       races score nothing and count toward neither the throw-out threshold nor the tiebreak;
       the throw-out is chosen per group (worst bracket score / worst class score).
   D1  RC volunteer: average of the other sailed races (DNS included, throw-out excluded),
-      fractional; the RC race becomes the throw-out when the average is worse; once per series.
+      fractional; once per series.
   D5  tiebreak: last sailed race, then earlier races; RC races skipped; full ties share a place.
   D8  standings rows grouped by boat id; race years by the Pacific calendar.
 
@@ -198,10 +198,8 @@ def boat_series(race_ids, per_race, boat):
         if not others:
             cells[rid]["score"] = per_race[rid]["starters"] + 1
             continue
-        avg = sum(cells[r]["score"] for r in others) / len(others)
-        cells[rid]["score"] = avg
-        if throw_out is not None and avg > cells[throw_out]["score"]:  # D1 step 3
-            throw_out = rid
+        # the average of the remaining races is never worse than the thrown-out score, so the RC race is never the throw-out
+        cells[rid]["score"] = sum(cells[r]["score"] for r in others) / len(others)
 
     total = 0
     for rid in sailed:
