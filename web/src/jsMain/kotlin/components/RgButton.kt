@@ -3,10 +3,7 @@ package components
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.ContentBuilder
-import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
-import org.w3c.dom.HTMLDivElement
 
 enum class RgButtonStyle(val classes:  Array<String>) {
     Default(arrayOf("rg-btn")),
@@ -51,15 +48,4 @@ fun RgButton(
     }) {
         Text(label)
     }
-}
-
-
-@Composable
-fun RgButtonGroup(
-    content: ContentBuilder<HTMLDivElement>? = null
-) {
-    Div(attrs = {
-        classes("btn-group")
-        attr("role", "group")
-    }, content)
 }

@@ -1,14 +1,9 @@
 /*
  * Tailwind entry point. See doc/explore_tailwind.md.
  *
- * Layer order: theme < base (Preflight) < bootstrap < components (.rg-*) < utilities.
- * While the migration is in progress Bootstrap is imported into its own cascade layer so that
- *  - Reboot still wins over Preflight for screens that haven't been migrated, and
- *  - our .rg-* component classes always win over Bootstrap.
- * Remove the bootstrap layer and import once every component is migrated (Phase 5).
+ * Layers: theme < base (Preflight + the Reboot replacement below) < components (.rg-*) < utilities.
+ * Component looks live here as .rg-* classes; Kotlin uses Tailwind utilities only for one-off layout.
  */
-@layer theme, base, bootstrap, components, utilities;
-@import "bootstrap/dist/css/bootstrap.css" layer(bootstrap);
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
@@ -74,8 +69,7 @@
 
 /*
  * Reboot replacement. Preflight strips heading sizes, paragraph/list spacing and bullets; the screens use raw
- * H1-H6, P, Ul, Label and links, so restore Bootstrap 5.3's Reboot values for them. (While the bootstrap layer is
- * still imported it wins over this layer; these rules take over in Phase 5.)
+ * H1-H6, P, Ul, Label and links, so restore Bootstrap 5.3's Reboot values for them.
  */
 @layer base {
     body {
@@ -134,6 +128,12 @@
     a:hover { color: var(--color-primary-900); }
 
     label { display: inline-block; }
+
+    /* browsers center <th>; Reboot made header cells follow their row's alignment */
+    th {
+        text-align: inherit;
+        text-align: -webkit-match-parent;
+    }
 
     button:not(:disabled), [role="button"]:not(:disabled) {
         cursor: pointer;
@@ -259,6 +259,15 @@
         border: 1px solid var(--color-slate-300);
         border-radius: .375rem;
     }
+    /* compact variant (Bootstrap .input-group-sm), but keep 16px text below sm so iOS doesn't zoom.
+       Must come before the corner rules below: same specificity, so they win and inner corners stay square. */
+    .rg-input-group-sm > :is(.rg-input, .rg-input-addon, .rg-btn) {
+        padding: .25rem .5rem;
+        border-radius: .25rem;
+        @variant sm {
+            font-size: .875rem;
+        }
+    }
     .rg-input-group > :not(:first-child) {
         margin-left: -1px;
         border-top-left-radius: 0;
@@ -271,14 +280,6 @@
     .rg-input-group > .rg-btn {
         position: relative;
         z-index: 2;
-    }
-    /* compact variant (Bootstrap .input-group-sm), but keep 16px text below sm so iOS doesn't zoom */
-    .rg-input-group-sm > :is(.rg-input, .rg-input-addon, .rg-btn) {
-        padding: .25rem .5rem;
-        border-radius: .25rem;
-        @variant sm {
-            font-size: .875rem;
-        }
     }
 
     /* ---------- checkbox and switch (RgCheck, RgSwitch) ---------- */

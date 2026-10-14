@@ -27,7 +27,7 @@ fun Course() {
     }
     Div(
         attrs = {
-            classes("flex-grow-1")
+            classes("grow")
             ref { element ->
                 chartViewModel.controller.createMapView(element)
                 object : DisposableEffectResult {

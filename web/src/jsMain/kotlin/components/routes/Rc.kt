@@ -144,13 +144,13 @@ fun RcCheckin(viewModel: RcViewModel) {
     val state by viewModel.flow.collectAsState()
     var filter by remember { mutableStateOf("") }
     Div(attrs = {
-        classes("input-group", "input-group-sm")
+        classes("rg-input-group", "rg-input-group-sm")
     }) {
         RgButton(label = "X", style = RgButtonStyle.SecondaryOutline) {
             filter = ""
         }
         Input(InputType.Text) {
-            classes("form-control")
+            classes("rg-input")
             placeholder("Filter")
             value(filter)
             onInput {

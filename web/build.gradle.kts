@@ -37,8 +37,6 @@ kotlin {
                 implementation("org.jetbrains.compose.html:html-svg:$composeVersion")
                 implementation(npm("maplibre-gl", "4.7.1"))
                 implementation(npm("sortablejs", "1.15.2"))
-                implementation(npm("bootstrap", "5.3.3"))
-                implementation(npm("@popperjs/core", "2.11.8"))
                 implementation(devNpm("tailwindcss", "4.3.3"))
                 implementation(devNpm("@tailwindcss/postcss", "4.3.3"))
                 implementation(devNpm("@tailwindcss/forms", "0.5.11"))

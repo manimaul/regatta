@@ -56,7 +56,7 @@ fun Router(
             }
         }
         Div(attrs = {
-            classes("container")
+            classes(RgContainerType.container.cls)
         }) {
             Footer {
                 P(attrs = {
@@ -65,7 +65,7 @@ fun Router(
                     Text("Build ${VersionInfo.buildDate} ")
                     A(
                         attrs = {
-                            classes("link-secondary", "link-underline-opacity-0")
+                            classes("text-slate-600", "no-underline", "hover:text-slate-900")
                             attr("target", "_blank")
                             attr("rel", "noopener noreferrer")
                         },
@@ -77,7 +77,7 @@ fun Router(
                     A(
                         href = "https://github.com/manimaul/regatta",
                         attrs = {
-                            classes("link-secondary", "link-underline-opacity-0")
+                            classes("text-slate-600", "no-underline", "hover:text-slate-900")
                             attr("target", "_blank")
                             attr("rel", "noopener noreferrer")
                         }

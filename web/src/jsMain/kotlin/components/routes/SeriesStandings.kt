@@ -74,7 +74,8 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
         }
         RgTbody {
             standingsClass.standings.forEach { standingsBracket ->
-                RgTr(classes = listOf("table-light", "table-borderless")) {
+                // (Bootstrap's table-borderless only works on <table>, so it was a no-op on this row)
+                RgTr(classes = listOf(TableColor.light.cls)) {
                     RgTdColor(
                         colSpan = col1.size + standingsSeries.races.size + 3,
                         color = TableColor.warning
@@ -99,30 +100,30 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                             RgTd {
                                 B(attrs = {
                                     if (it.placeInBracketCorrected != null && it.throwOut) {
-                                        classes("text-danger", "text-decoration-line-through")
+                                        classes("text-danger-600", "line-through")
                                     } else if (it.throwOut) {
-                                        classes("text-danger")
+                                        classes("text-danger-600")
                                     } else if (it.placeInBracketCorrected != null) {
-                                        classes("text-decoration-line-through")
+                                        classes("line-through")
                                     }
                                 }) { Text("${it.placeInBracket}") }
                                 it.placeInBracketCorrected?.let { pbc ->
-                                    B(attrs = { if (it.throwOut) classes("text-danger") }) {
+                                    B(attrs = { if (it.throwOut) classes("text-danger-600") }) {
                                         Text(" $pbc")
                                     }
                                 }
                                 if (multiBracket) {
                                     B(attrs = {
                                         if (it.placeInClassCorrected != null && it.throwOut) {
-                                            classes("text-danger", "text-decoration-line-through")
+                                            classes("text-danger-600", "line-through")
                                         } else if (it.throwOut) {
-                                            classes("text-danger")
+                                            classes("text-danger-600")
                                         } else if (it.placeInClassCorrected != null) {
-                                            classes("text-decoration-line-through")
+                                            classes("line-through")
                                         }
                                     }) { Text(", ${it.placeInClass}") }
                                     it.placeInClassCorrected?.let { pcc ->
-                                        B(attrs = { if (it.throwOut) classes("text-danger") }) {
+                                        B(attrs = { if (it.throwOut) classes("text-danger-600") }) {
                                             Text(" $pcc")
                                         }
                                     }

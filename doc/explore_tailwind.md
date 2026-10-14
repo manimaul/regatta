@@ -664,11 +664,60 @@ so map these to `flex`/`flex-col`/`grow`. Then: `Rc.kt` pills, the `Alerts` bann
 - **Found:** the `!important` collision described in
   [Coexistence](#coexistence-via-cascade-layers-spike-finding). It's resolved by Phase 5.
 
-**Phase 5: [ ] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind loses its styling once the import is gone),
+**Phase 5: [x] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind loses its styling once the import is gone),
 remove the Bootstrap `@import` and `bootstrap` layer from `app.css`, remove the `bootstrap`/`@popperjs/core` npm deps
 (`utils/Bootstrap.kt` and the `require`s are already gone), delete unused
 `RgRow`/`RgCol`/`RgButtonGroup`. Do a visual pass of every route at phone and desktop widths and inside the
 CYCT iframe embed, in Chrome, Firefox and iOS Safari.
+
+### Phase 5 results (2026-10-13)
+
+- **Route-level class sweep.** Every remaining Bootstrap name was replaced:
+
+  | Where | Was | Now |
+  |---|---|---|
+  | `RaceResultsView` class box | `border-top border-2 border` | `border-2 border-slate-200` (Tailwind's default border color is `currentColor`) |
+  | results/standings bracket rows | `table-light table-borderless` on `<tr>` | `TableColor.light.cls`. `table-borderless` only applies to `<table>`, so it was a no-op on a row. |
+  | `Router` footer | `container`, `link-secondary link-underline-opacity-0` | `RgContainerType.container.cls`, `text-slate-600 no-underline hover:text-slate-900` |
+  | `Classes` bracket min/max row | `flex-fill d-flex justify-content-between` | `flex-auto flex justify-between` |
+  | `Course` map | `flex-grow-1` | `grow` |
+  | RC check-in filter | `input-group input-group-sm`, `form-control` | `rg-input-group rg-input-group-sm`, `rg-input` |
+  | `Admin` login fields | `form-control` | `rg-input` |
+  | `SeriesStandings` throw-outs | `text-danger`, `text-decoration-line-through` | `text-danger-600`, `line-through` |
+
+  `float-start`, `flex-wrap` and `text-center` mean the same in Tailwind and stay. Every raw
+  `Input`/`Select`/checkbox carries an `rg-*` class, so the forms plugin's defaults never show unstyled.
+- **Bootstrap removed:**
+  - the `@import` and `bootstrap` layer are gone from `app.css`;
+  - the `bootstrap` and `@popperjs/core` npm dependencies are gone (yarn lock refreshed);
+  - no Bootstrap CSS is in the bundle;
+  - unused `RgRow`, `RgCol`, `RowCustomizer`, `ColCustomizer`, `RgBp`, `RgColType` and `RgButtonGroup` were
+    deleted;
+  - remaining mentions of Bootstrap are explanatory comments only.
+- **Base layer:** added Reboot's `th { text-align: inherit }`, since browsers center `<th>` by default.
+- **Bug found and fixed (from Phase 2):** in compact input groups (`RgTime`, the RC filter) the inner corners were
+  rounded. `.rg-input-group-sm > …` had the same specificity as the corner-squaring rules and came later in the
+  file. It now comes first, so the X button and filter field share a square seam (−1px overlap) and only the
+  outer corners are rounded.
+- **The `!important` collision is resolved:** `mb-4`/`mt-4`/`mx-4`/`px-4` are Tailwind's 16px now, and links use
+  `info-700` instead of Bootstrap blue.
+- **Size:** the production `web.js` is 2.77 MiB, down from 3.4 MiB at Phase 0.
+- **Tests:** all 22 pass in Chrome Headless.
+- **Visual pass** (Chrome, logged in): every route at 390px and at a real 1280px (a scaled frame).
+  - Routes: Home, Skippers, Boats, Series, Classes, Races, Edit Race, Create Race, Race Results view, Results
+    Editor, Series Standings, RC (Race Config and Check-In), Course, Admin.
+  - On each one, the script checked for no horizontal page overflow at 390px (wide tables scroll inside their
+    wrapper) and no leftover Bootstrap class names.
+  - On the nine routes measured while the listener was attached, the `regatta_scroll_height` message the app posts
+    to its parent for the CYCT iframe embed matched the document height (within 1px). Course, Create Race and
+    Admin were checked after the dev server's live reload dropped my listener, so their heights weren't recorded.
+  - Course's map canvas fills the space (`grow`) at both widths.
+- **Not verified:**
+  - **Firefox and iOS Safari:** neither is available on this machine. Karma's Firefox launcher needs Firefox
+    installed.
+  - **On the CYCT site itself:** the embed was simulated with same-origin iframes and the height messages.
+  - **The logged-out Admin login form:** its fields use the same verified `rg-input`, but I didn't log you out to
+    look at it.
 
 ## Decisions
 

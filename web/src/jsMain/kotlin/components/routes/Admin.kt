@@ -73,7 +73,7 @@ fun Login(
             }
             Input(type = InputType.Text) {
                 id("username")
-                classes("form-control")
+                classes("rg-input")
                 onInput {
                     viewModel.setUserName(it.value)
                 }
@@ -87,7 +87,7 @@ fun Login(
             }
             Input(type = InputType.Password) {
                 id("password")
-                classes("form-control")
+                classes("rg-input")
                 onInput {
                     viewModel.setPassword(it.value)
                 }

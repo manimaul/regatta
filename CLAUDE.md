@@ -41,7 +41,7 @@ Run a single JVM test class or method with `--tests`:
 ./gradlew :common:jvmTest --tests "com.mxmariner.regatta.OrcTest.someTestName"
 ```
 
-JS tests run in Chrome Headless and Firefox via Karma.
+JS tests run in Chrome Headless and Firefox via Karma (Firefox must be installed, or `FIREFOX_BIN` set). Web component tests use `org.jetbrains.compose.html:html-test-utils` (`runTest { composition { ... } }`); prefer polling or `delay` over `waitForRecompositionComplete()` when nothing is expected to recompose, since it never returns in that case.
 
 ### Production Build & Deploy
 
@@ -78,14 +78,14 @@ Targets both JVM and JS. Contains all `@Serializable` domain data classes (`Race
 - **API client:** `utils/Api.kt` (typed) → `utils/Network.kt` (fetch API interop)
 - **Auth:** Token stored in browser `localStorage` via `utils/Auth.kt` / `utils/LocalStorage.kt`
 - **Maps:** `utils/MapLibre.kt` — MapLibre GL JS interop for course display
-- **Styles:** `styles/AppStyle.kt` — CSS-in-Kotlin
+- **Styles:** Tailwind CSS v4, entry point `src/jsMain/resources/app.css` (theme tokens, Reboot-like base layer, and all `.rg-*` component classes), run through PostCSS by `webpack.config.d/tailwind.js`. Components keep their look in `.rg-*` classes; Kotlin uses Tailwind utilities only for one-off layout. Tailwind finds classes by scanning the `.kt` sources, so **class names must be literal strings** — never build them with templates (`"table-${x}"`); runtime-built spacing from `RgDiv`'s `Customizer` is covered by an `@source inline(...)` safelist in `app.css`. `styles/AppStyle.kt` (CSS-in-Kotlin margins) is still used alongside it. Modals are native `<dialog>`s (`components/Modal.kt`); there is no Bootstrap. Background and decisions: `doc/explore_tailwind.md`.
 
 ### `buildSrc`
 - `VersionPlugin` generates `VersionInfo.kt` from git hash/date at build time
 - `Versions.kt` — all dependency version constants (Kotlin 2.3.0, Ktor 3.4.0, Compose 1.10.0, Exposed 1.0.0)
 
 ### How the web build integrates with the server
-The root `build.gradle.kts` wires `jsBrowserProductionWebpack` output into `jvmProcessResources` under `static/`. During production webpack, `build.gradle.kts` temporarily renames `dev_server_config.js` to exclude it from the production bundle, then restores it.
+The root `build.gradle.kts` wires `jsBrowserProductionWebpack` output into `jvmProcessResources` under `static/`. During production webpack, `build.gradle.kts` temporarily renames `dev_server_config.js` to exclude it from the production bundle, then restores it. (That rename is now belt-and-braces: `dev_server_config.js` is wrapped in `if (config.devServer)`, so plain webpack builds and Karma tests skip it anyway. `tailwind.js` must stay active in every build.)
 
 The `database/` directory is **not** a Gradle subproject — it only contains Docker Compose files for local dev and backup/restore scripts.
 
@@ -101,7 +101,7 @@ The `database/` directory is **not** a Gradle subproject — it only contains Do
 | Serialization | kotlinx.serialization (JSON) |
 | Frontend | Compose HTML (Jetbrains Compose for Web) |
 | Bundler | webpack 5 via Kotlin/JS plugin |
-| UI | Bootstrap 5.3.3 |
+| UI | Tailwind CSS 4 (+ `@tailwindcss/forms`) |
 | Maps | MapLibre GL JS 4.7.1 |
 | Drag-and-drop | SortableJS 1.15.2 |
 | Deployment | Kubernetes (`k8s_deploy/`) or `.deb` package |

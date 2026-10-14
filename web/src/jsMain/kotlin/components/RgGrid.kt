@@ -30,26 +30,6 @@ fun RgGrid(
     }, content)
 }
 
-//https://getbootstrap.com/docs/5.0/layout/breakpoints/
-enum class RgBp {
-    sm,
-    md,
-    lg,
-    xl,
-    xxl,
-}
-
-
-@Composable
-fun RgRow(
-    customizer: (@Composable RowCustomizer.() -> Unit)? = null,
-    content: ContentBuilder<HTMLDivElement>? = null
-) {
-    val c = remember { RowCustomizer() }
-    customizer?.invoke(c)
-    Div(attrs = { c.getClasses().takeIf { it.isNotEmpty() }?.let { classes(it) } }, content)
-}
-
 // one class per entry (classList.add rejects names with spaces); defined in app.css
 enum class RgPosition(val cls: String) {
     fixed_bottom("rg-fixed-bottom"),
@@ -58,16 +38,6 @@ enum class RgPosition(val cls: String) {
     sticky_md_top("rg-sticky-md-top"),
     sticky_lg_top("rg-sticky-lg-top"),
     sticky_xl_top("rg-sticky-xl-top"),
-}
-
-//https://getbootstrap.com/docs/5.0/layout/grid/
-enum class RgColType {
-    col,
-    col_sm,
-    col_md,
-    col_lg,
-    col_xl,
-    col_xxl,
 }
 
 open class Customizer {
@@ -94,35 +64,6 @@ open class Customizer {
         classes.add(style)
     }
 
-}
-
-class RowCustomizer : Customizer() {
-    var bp: RgBp? = null
-    override fun getClasses(): List<String> {
-        val base = bp?.let { "row-${it.name}" } ?: "row"
-        return super.getClasses() + listOfNotNull(base)
-    }
-}
-
-class ColCustomizer : Customizer() {
-    var bucket: Int? = null
-    var bp: RgBp? = null
-
-    override fun getClasses(): List<String> {
-        val first = bp?.let { "col-${it.name}" } ?: "col"
-        val cls = bucket?.let { "$first-$it" } ?: first
-        return super.getClasses() + listOfNotNull(cls)
-    }
-}
-
-@Composable
-fun RgCol(
-    customizer: (@Composable ColCustomizer.() -> Unit)? = null,
-    content: ContentBuilder<HTMLDivElement>? = null
-) {
-    val c = remember { ColCustomizer() }
-    customizer?.invoke(c)
-    Div(attrs = { c.getClasses().takeIf { it.isNotEmpty() }?.let { classes(it) } }, content)
 }
 
 enum class RgSpace {
