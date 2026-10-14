@@ -65,7 +65,7 @@ fun Router(
                     Text("Build ${VersionInfo.buildDate} ")
                     A(
                         attrs = {
-                            classes("text-slate-600", "no-underline", "hover:text-slate-900")
+                            classes("text-muted", "no-underline", "hover:text-fg")
                             attr("target", "_blank")
                             attr("rel", "noopener noreferrer")
                         },
@@ -77,7 +77,7 @@ fun Router(
                     A(
                         href = "https://github.com/manimaul/regatta",
                         attrs = {
-                            classes("text-slate-600", "no-underline", "hover:text-slate-900")
+                            classes("text-muted", "no-underline", "hover:text-fg")
                             attr("target", "_blank")
                             attr("rel", "noopener noreferrer")
                         }

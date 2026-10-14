@@ -53,7 +53,7 @@ fun RaceResultsClassTable(
         Div(attrs = { style { marginBottom(32.px) } })
     }
     Div(attrs = {
-        classes("border-2", "border-slate-200")
+        classes("border-2", "border-line")
     }) {
         H4 { Text(classReportCards.raceClass.label()) }
         H6 {

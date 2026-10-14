@@ -67,6 +67,107 @@
     --color-secondary-700: var(--color-slate-700);
 }
 
+/* `dark:` utilities follow the toggle (html[data-theme="dark"]), not the OS setting: the site defaults to light */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Semantic tokens as utilities, so Kotlin markup follows the theme: text-fg, text-muted, border-line, text-danger-fg */
+@theme inline {
+    --color-fg: var(--rg-fg);
+    --color-muted: var(--rg-muted);
+    --color-line: var(--rg-border-subtle);
+    --color-danger-fg: var(--rg-danger-fg);
+}
+
+/*
+ * Light / dark themes. Components read only these --rg-* tokens, never the palette directly, so a theme is just a
+ * set of values. Light is the site's original look; dark is built on the burgee navy, with the burgee light blue
+ * taking over as the accent (navy on navy would vanish) and navy as the text on it.
+ */
+:root {
+    color-scheme: light;
+    --rg-bg: white;
+    --rg-surface: var(--color-surface);          /* navbar */
+    --rg-raised: white;                          /* modals, dropdown menus, list items */
+    --rg-field: white;                           /* inputs, checkboxes */
+    --rg-subtle: var(--color-slate-100);         /* hover fills, input addons, disabled inputs */
+    --rg-fg: var(--color-slate-900);
+    --rg-muted: var(--color-slate-600);
+    --rg-border: var(--color-slate-300);
+    --rg-border-subtle: var(--color-slate-200);
+    --rg-border-strong: var(--color-slate-400);
+    --rg-border-overlay: rgb(0 0 0 / .175);
+    --rg-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+    --rg-link: var(--color-info-700);
+    --rg-link-hover: var(--color-primary-900);
+    --rg-accent: var(--color-primary-900);
+    --rg-accent-hover: var(--color-primary-700);
+    --rg-on-accent: white;
+    --rg-nav-active: var(--color-primary-900);
+    --rg-check: var(--color-primary-900);
+    --rg-focus: var(--color-primary-500);
+    --rg-focus-ring: color-mix(in oklab, var(--color-primary-500) 35%, transparent);
+    --rg-overlay-stripe: rgb(0 0 0 / .05);
+    --rg-overlay-hover: rgb(0 0 0 / .075);
+    --rg-danger-fg: var(--color-danger-600);
+    --rg-success-fg: var(--color-green-800);
+    --rg-success-bg: var(--color-success-100);
+    --rg-success-border: var(--color-success-200);
+    --rg-tint-primary: var(--color-primary-100);
+    --rg-tint-primary-border: var(--color-primary-200);
+    --rg-tint-secondary: var(--color-secondary-200);
+    --rg-tint-secondary-border: var(--color-secondary-300);
+    --rg-tint-danger: var(--color-danger-100);
+    --rg-tint-danger-border: var(--color-danger-200);
+    --rg-tint-warning: var(--color-warning-100);
+    --rg-tint-warning-border: var(--color-warning-300);
+    --rg-tint-info: var(--color-info-100);
+    --rg-tint-info-border: var(--color-info-200);
+    --rg-tint-light: var(--color-slate-50);
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;                          /* native date/time pickers, scrollbars */
+    --rg-navy: #131340;
+    --rg-bg: color-mix(in oklab, var(--rg-navy) 72%, black);
+    --rg-surface: var(--rg-navy);
+    --rg-raised: color-mix(in oklab, var(--rg-navy) 92%, white);
+    --rg-field: color-mix(in oklab, var(--rg-navy) 85%, black);
+    --rg-subtle: color-mix(in oklab, var(--rg-navy) 84%, white);
+    --rg-fg: color-mix(in oklab, #fafaff 92%, var(--rg-navy));
+    --rg-muted: color-mix(in oklab, #fafaff 66%, var(--rg-navy));
+    --rg-border: color-mix(in oklab, #fafaff 26%, var(--rg-navy));
+    --rg-border-subtle: color-mix(in oklab, #fafaff 16%, var(--rg-navy));
+    --rg-border-strong: color-mix(in oklab, #fafaff 42%, var(--rg-navy));
+    --rg-border-overlay: rgb(255 255 255 / .14);
+    --rg-shadow: 0 .5rem 1rem rgb(0 0 0 / .5);
+    --rg-link: var(--color-info-500);            /* burgee light blue: 8:1 on the dark background */
+    --rg-link-hover: var(--color-info-200);
+    --rg-accent: var(--color-info-500);
+    --rg-accent-hover: color-mix(in oklab, #5eb2db 80%, white);
+    --rg-on-accent: var(--rg-navy);              /* 7.6:1 on the light blue */
+    --rg-nav-active: var(--color-info-500);
+    --rg-check: var(--color-info-700);           /* darker so the forms plugin's white tick still shows */
+    --rg-focus: var(--color-info-500);
+    --rg-focus-ring: color-mix(in oklab, #5eb2db 45%, transparent);
+    --rg-overlay-stripe: rgb(255 255 255 / .04);
+    --rg-overlay-hover: rgb(255 255 255 / .08);
+    --rg-danger-fg: color-mix(in oklab, #ef4137 70%, white);
+    --rg-success-fg: var(--color-green-300);
+    --rg-success-bg: color-mix(in oklab, var(--color-green-600) 28%, var(--rg-navy));
+    --rg-success-border: color-mix(in oklab, var(--color-green-600) 50%, var(--rg-navy));
+    --rg-tint-primary: color-mix(in oklab, #5eb2db 20%, var(--rg-navy));
+    --rg-tint-primary-border: color-mix(in oklab, #5eb2db 38%, var(--rg-navy));
+    --rg-tint-secondary: color-mix(in oklab, #fafaff 14%, var(--rg-navy));
+    --rg-tint-secondary-border: color-mix(in oklab, #fafaff 26%, var(--rg-navy));
+    --rg-tint-danger: color-mix(in oklab, #ef4137 26%, var(--rg-navy));
+    --rg-tint-danger-border: color-mix(in oklab, #ef4137 45%, var(--rg-navy));
+    --rg-tint-warning: color-mix(in oklab, var(--color-amber-500) 24%, var(--rg-navy));
+    --rg-tint-warning-border: color-mix(in oklab, var(--color-amber-500) 42%, var(--rg-navy));
+    --rg-tint-info: color-mix(in oklab, #5eb2db 30%, var(--rg-navy));
+    --rg-tint-info-border: color-mix(in oklab, #5eb2db 50%, var(--rg-navy));
+    --rg-tint-light: color-mix(in oklab, #fafaff 7%, var(--rg-navy));
+}
+
 /*
  * Reboot replacement. Preflight strips heading sizes, paragraph/list spacing and bullets; the screens use raw
  * H1-H6, P, Ul, Label and links, so restore Bootstrap 5.3's Reboot values for them.
@@ -76,8 +177,8 @@
         font-size: 1rem;
         font-weight: 400;
         line-height: 1.5;
-        color: var(--color-slate-900);
-        background-color: white;
+        color: var(--rg-fg);
+        background-color: var(--rg-bg);
         -webkit-text-size-adjust: 100%;
         -webkit-tap-highlight-color: transparent;
     }
@@ -122,10 +223,10 @@
 
     /* burgee light blue, darkened for contrast (5.7:1 on white); navy would read as body text */
     a {
-        color: var(--color-info-700);
+        color: var(--rg-link);
         text-decoration: underline;
     }
-    a:hover { color: var(--color-primary-900); }
+    a:hover { color: var(--rg-link-hover); }
 
     label { display: inline-block; }
 
@@ -171,31 +272,31 @@
     }
     .rg-btn:focus-visible {
         outline: 0;
-        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 40%, transparent);
+        box-shadow: 0 0 0 .25rem var(--rg-focus-ring);
     }
     .rg-btn:disabled {
         opacity: .65;
         pointer-events: none;
     }
-    .rg-btn-primary { background-color: var(--color-primary-900); border-color: var(--color-primary-900); color: white; }
-    .rg-btn-primary:hover { background-color: var(--color-primary-700); border-color: var(--color-primary-700); }
+    .rg-btn-primary { background-color: var(--rg-accent); border-color: var(--rg-accent); color: var(--rg-on-accent); }
+    .rg-btn-primary:hover { background-color: var(--rg-accent-hover); border-color: var(--rg-accent-hover); }
     .rg-btn-secondary { background-color: var(--color-secondary-600); border-color: var(--color-secondary-600); color: white; }
     .rg-btn-secondary:hover { background-color: var(--color-secondary-700); border-color: var(--color-secondary-700); }
     .rg-btn-danger { background-color: var(--color-danger-600); border-color: var(--color-danger-600); color: white; }
     .rg-btn-danger:hover { background-color: var(--color-danger-700); border-color: var(--color-danger-700); }
     .rg-btn-success { background-color: var(--color-success-600); border-color: var(--color-success-600); color: white; }
     .rg-btn-success:hover { background-color: var(--color-success-700); border-color: var(--color-success-700); }
-    .rg-btn-light { background-color: var(--color-secondary-100); border-color: var(--color-secondary-100); color: var(--color-slate-900); }
-    .rg-btn-light:hover { background-color: var(--color-secondary-200); border-color: var(--color-secondary-200); }
+    .rg-btn-light { background-color: var(--rg-subtle); border-color: var(--rg-subtle); color: var(--rg-fg); }
+    .rg-btn-light:hover { background-color: var(--rg-border-subtle); border-color: var(--rg-border-subtle); }
     .rg-btn-dark { background-color: var(--color-slate-900); border-color: var(--color-slate-900); color: white; }
     .rg-btn-dark:hover { background-color: var(--color-slate-700); border-color: var(--color-slate-700); }
-    .rg-btn-link { color: var(--color-primary-700); text-decoration: underline; }
-    .rg-btn-link:hover { color: var(--color-primary-900); }
-    .rg-btn-outline-primary { border-color: var(--color-primary-900); color: var(--color-primary-900); }
-    .rg-btn-outline-primary:hover { background-color: var(--color-primary-900); color: white; }
-    .rg-btn-outline-secondary { border-color: var(--color-secondary-600); color: var(--color-secondary-600); }
+    .rg-btn-link { color: var(--rg-link); text-decoration: underline; }
+    .rg-btn-link:hover { color: var(--rg-link-hover); }
+    .rg-btn-outline-primary { border-color: var(--rg-accent); color: var(--rg-accent); }
+    .rg-btn-outline-primary:hover { background-color: var(--rg-accent); color: var(--rg-on-accent); }
+    .rg-btn-outline-secondary { border-color: var(--rg-muted); color: var(--rg-muted); }
     .rg-btn-outline-secondary:hover { background-color: var(--color-secondary-600); color: white; }
-    .rg-btn-outline-success { border-color: var(--color-success-600); color: var(--color-success-600); }
+    .rg-btn-outline-success { border-color: var(--rg-success-fg); color: var(--rg-success-fg); }
     .rg-btn-outline-success:hover { background-color: var(--color-success-600); color: white; }
 
     /* ---------- form controls (RgInput, RgNumberInput, RgYearSelect, RgTime) ---------- */
@@ -206,9 +307,9 @@
         padding: .375rem .75rem;
         font-size: 1rem;            /* never below 16px on phones: iOS Safari zooms into smaller inputs */
         line-height: 1.5;
-        color: var(--color-slate-900);
-        background-color: white;
-        border: 1px solid var(--color-slate-300);
+        color: var(--rg-fg);
+        background-color: var(--rg-field);
+        border: 1px solid var(--rg-border);
         border-radius: .375rem;
         transition: border-color .15s, box-shadow .15s;
     }
@@ -216,16 +317,16 @@
         padding-right: 2.25rem;
     }
     .rg-input:focus, .rg-select:focus {
-        border-color: var(--color-primary-500);
+        border-color: var(--rg-focus);
         outline: 0;
-        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 30%, transparent);
+        box-shadow: 0 0 0 .25rem var(--rg-focus-ring);
     }
     .rg-input::placeholder {
-        color: var(--color-slate-500);
+        color: var(--rg-muted);
         opacity: 1;
     }
     .rg-input:disabled, .rg-select:disabled {
-        background-color: var(--color-slate-100);
+        background-color: var(--rg-subtle);
         opacity: 1;
     }
 
@@ -252,11 +353,11 @@
         padding: .375rem .75rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: var(--color-slate-900);
+        color: var(--rg-fg);
         text-align: center;
         white-space: nowrap;
-        background-color: var(--color-slate-100);
-        border: 1px solid var(--color-slate-300);
+        background-color: var(--rg-subtle);
+        border: 1px solid var(--rg-border);
         border-radius: .375rem;
     }
     /* compact variant (Bootstrap .input-group-sm), but keep 16px text below sm so iOS doesn't zoom.
@@ -298,22 +399,23 @@
     .rg-checkbox {
         width: 1em;
         height: 1em;
-        color: var(--color-primary-900);   /* the forms plugin fills checked boxes with currentColor */
-        border: 1px solid var(--color-slate-400);
+        color: var(--rg-check);   /* the forms plugin fills checked boxes with currentColor */
+        background-color: var(--rg-field);
+        border: 1px solid var(--rg-border-strong);
         border-radius: .25em;
     }
     .rg-checkbox:focus, .rg-switch:focus {
         outline: 0;
-        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 30%, transparent);
+        box-shadow: 0 0 0 .25rem var(--rg-focus-ring);
     }
     .rg-switch {
         appearance: none;
         width: 2em;
         height: 1em;
         padding: 0;
-        color: var(--color-slate-400);
-        background-color: white;
-        border: 1px solid var(--color-slate-400);
+        color: var(--rg-border-strong);
+        background-color: var(--rg-field);
+        border: 1px solid var(--rg-border-strong);
         border-radius: 2em;
         /* the knob: a circle sitting at the start, moving to the end when checked */
         background-image: radial-gradient(circle at center, currentColor 0 .3em, transparent calc(.3em + .5px));
@@ -323,9 +425,9 @@
         transition: background-position .15s ease-in-out;
     }
     .rg-switch:checked {
-        color: white;
-        background-color: var(--color-primary-900);
-        border-color: var(--color-primary-900);
+        color: var(--rg-on-accent);
+        background-color: var(--rg-accent);
+        border-color: var(--rg-accent);
         background-image: radial-gradient(circle at center, currentColor 0 .3em, transparent calc(.3em + .5px));
         background-size: 1em 1em;
         background-position: right center;
@@ -357,10 +459,10 @@
         margin-top: .125rem;
         padding: .5rem 0;
         text-align: left;
-        background-color: white;
-        border: 1px solid rgb(0 0 0 / .175);
+        background-color: var(--rg-raised);
+        border: 1px solid var(--rg-border-overlay);
         border-radius: .375rem;
-        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+        box-shadow: var(--rg-shadow);
     }
     .rg-dropdown-item {
         display: block;
@@ -368,7 +470,7 @@
         padding: .25rem 1rem;
         clear: both;
         font-weight: 400;
-        color: var(--color-slate-900);
+        color: var(--rg-fg);
         text-align: inherit;
         white-space: nowrap;
         overflow: hidden;
@@ -377,14 +479,14 @@
         border: 0;
     }
     .rg-dropdown-item:hover, .rg-dropdown-item:focus-visible {
-        background-color: var(--color-slate-100);
+        background-color: var(--rg-subtle);
         outline: 0;
     }
     .rg-dropdown-divider {
         height: 0;
         margin: .5rem 0;
         border: 0;
-        border-top: 1px solid rgb(0 0 0 / .175);
+        border-top: 1px solid var(--rg-border-overlay);
         opacity: 1;
     }
 
@@ -409,10 +511,10 @@
     .rg-modal-panel {
         position: relative;
         margin: .5rem;
-        background-color: white;
-        border: 1px solid rgb(0 0 0 / .175);
+        background-color: var(--rg-raised);
+        border: 1px solid var(--rg-border-overlay);
         border-radius: .5rem;
-        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+        box-shadow: var(--rg-shadow);
         @variant sm {
             max-width: 500px;
             margin: 1.75rem auto;
@@ -424,7 +526,7 @@
         justify-content: space-between;
         gap: .5rem;
         padding: 1rem;
-        border-bottom: 1px solid var(--color-slate-200);
+        border-bottom: 1px solid var(--rg-border-subtle);
     }
     .rg-modal-title {
         margin: 0;
@@ -451,7 +553,7 @@
         justify-content: flex-end;
         gap: .5rem;
         padding: .75rem;
-        border-top: 1px solid var(--color-slate-200);
+        border-top: 1px solid var(--rg-border-subtle);
     }
     .rg-modal-footer-row {
         display: flex;
@@ -466,8 +568,8 @@
         position: sticky;
         top: 0;
         z-index: var(--z-sticky);
-        background-color: var(--color-surface);
-        border-bottom: 1px solid var(--color-slate-200);
+        background-color: var(--rg-surface);
+        border-bottom: 1px solid var(--rg-border-subtle);
     }
     .rg-navbar-inner {
         display: flex;
@@ -479,14 +581,14 @@
     .rg-navbar-toggler {
         padding: .25rem .75rem;
         line-height: 1;
-        color: var(--color-slate-600);
+        color: var(--rg-muted);
         background: transparent;
-        border: 1px solid var(--color-slate-300);
+        border: 1px solid var(--rg-border);
         border-radius: .375rem;
     }
     .rg-navbar-toggler:focus-visible {
         outline: 0;
-        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 40%, transparent);
+        box-shadow: 0 0 0 .25rem var(--rg-focus-ring);
     }
     /* Below lg: the link list collapses to zero height and animates open, Bootstrap-style (.35s ease).
        Animating grid-template-rows 0fr -> 1fr reaches the content's natural height without measuring it in JS.
@@ -530,12 +632,73 @@
         width: 100%;
         padding: .5rem;
         text-align: left;
-        color: var(--color-slate-600);
+        color: var(--rg-muted);
         background: transparent;
         border: 0;
     }
-    .rg-nav-link:hover { color: var(--color-slate-900); }
-    .rg-nav-link[aria-current="page"] { color: var(--color-primary-900); font-weight: 600; }
+    .rg-nav-link:hover { color: var(--rg-fg); }
+    .rg-nav-link[aria-current="page"] { color: var(--rg-nav-active); font-weight: 600; }
+    /* the burgee's navy triangle sits on a navy navbar in dark mode: a faint halo keeps its edge */
+    [data-theme="dark"] .rg-navbar-logo {
+        filter: drop-shadow(0 0 1px rgb(250 250 255 / .7));
+    }
+    /* top-right controls: theme switch, then the hamburger below lg. Last in the row at lg, beside the links. */
+    .rg-navbar-end {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-left: auto;
+        @variant lg {
+            order: 1;
+        }
+    }
+
+    /* ---------- light/dark switch (ThemeToggle): a track with a sun/moon knob ---------- */
+    .rg-theme-toggle {
+        position: relative;
+        flex: none;
+        width: 3.25rem;
+        height: 1.75rem;
+        padding: 0;
+        background-color: var(--rg-subtle);
+        border: 1px solid var(--rg-border);
+        border-radius: 9999px;
+        transition: background-color .2s, border-color .2s;
+    }
+    .rg-theme-toggle:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .25rem var(--rg-focus-ring);
+    }
+    .rg-theme-toggle-knob {
+        position: absolute;
+        top: 50%;
+        left: .125rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.375rem;
+        height: 1.375rem;
+        color: var(--color-amber-500);
+        background-color: white;
+        border-radius: 9999px;
+        box-shadow: 0 1px 2px rgb(0 0 0 / .3);
+        transform: translateY(-50%);
+        transition: transform .2s ease, background-color .2s, color .2s;
+    }
+    .rg-theme-toggle[aria-checked="true"] {
+        background-color: var(--rg-accent);
+        border-color: var(--rg-accent);
+    }
+    .rg-theme-toggle[aria-checked="true"] .rg-theme-toggle-knob {
+        color: var(--color-info-200);
+        background-color: var(--rg-navy, #131340);
+        transform: translate(1.5rem, -50%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .rg-theme-toggle, .rg-theme-toggle-knob {
+            transition: none;
+        }
+    }
 
     /* ---------- layout (RgGrid / RgContainerType / RgPosition): Bootstrap's containers and positions ---------- */
     .rg-container, .rg-container-sm, .rg-container-md, .rg-container-lg, .rg-container-xl, .rg-container-xxl {
@@ -581,11 +744,11 @@
         align-items: center;
         gap: .5rem;
         padding: 1rem;
-        color: var(--color-green-800);
-        background-color: var(--color-success-100);
-        border: 1px solid var(--color-success-200);
+        color: var(--rg-success-fg);
+        background-color: var(--rg-success-bg);
+        border: 1px solid var(--rg-success-border);
         border-radius: .375rem;
-        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+        box-shadow: var(--rg-shadow);
         @variant sm {
             right: 0;
             left: 0;
@@ -606,17 +769,17 @@
     .rg-pill {
         display: block;
         padding: .5rem 1rem;
-        color: var(--color-info-700);
+        color: var(--rg-link);
         text-decoration: none;
         border-radius: .375rem;
         transition: color .15s, background-color .15s;
     }
     .rg-pill:hover {
-        color: var(--color-primary-900);
+        color: var(--rg-link-hover);
     }
     .rg-pill[aria-current="page"] {
-        color: white;
-        background-color: var(--color-primary-900);
+        color: var(--rg-on-accent);
+        background-color: var(--rg-accent);
     }
 
     /* ---------- sortable list (RgSortable; Bootstrap .list-group) ---------- */
@@ -632,9 +795,9 @@
         position: relative;
         display: block;
         padding: .5rem 1rem;
-        color: var(--color-slate-900);
-        background-color: white;
-        border: 1px solid rgb(0 0 0 / .175);
+        color: var(--rg-fg);
+        background-color: var(--rg-raised);
+        border: 1px solid var(--rg-border-overlay);
         cursor: move;
     }
     .rg-list-group-item + .rg-list-group-item {
@@ -650,16 +813,16 @@
     }
     /* SortableJS ghostClass: the placeholder where the dragged item will land */
     .rg-sortable-ghost {
-        background-color: var(--color-info-200);
+        background-color: var(--rg-tint-info);
     }
 
     /* ---------- tables: Bootstrap-style layering so hover > striping > cell color ---------- */
     .rg-table {
-        --rg-tbl-color: var(--color-slate-900);
+        --rg-tbl-color: var(--rg-fg);
         --rg-tbl-bg: transparent;
-        --rg-tbl-striped: rgb(0 0 0 / .05);
-        --rg-tbl-hover: rgb(0 0 0 / .075);
-        --rg-tbl-border: var(--color-slate-300);
+        --rg-tbl-striped: var(--rg-overlay-stripe);
+        --rg-tbl-hover: var(--rg-overlay-hover);
+        --rg-tbl-border: var(--rg-border);
         width: 100%;
         margin-bottom: 1rem;
         caption-side: top;
@@ -668,7 +831,7 @@
     }
     .rg-table > caption {
         padding: .5rem 0;
-        color: var(--color-slate-500);
+        color: var(--rg-muted);
         text-align: left;
     }
     .rg-table > :not(caption) > tr > * {
@@ -693,13 +856,13 @@
         --rg-cell-state: var(--rg-tbl-hover);
     }
     /* TableColor variants: usable on <table>, <tr> or <td> (RgTrColor / RgTdColor) */
-    .rg-table-primary   { --rg-tbl-bg: var(--color-primary-100);   --rg-tbl-border: var(--color-primary-200); }
-    .rg-table-secondary { --rg-tbl-bg: var(--color-secondary-200); --rg-tbl-border: var(--color-secondary-300); }
-    .rg-table-success   { --rg-tbl-bg: var(--color-success-100);   --rg-tbl-border: var(--color-success-200); }
-    .rg-table-danger    { --rg-tbl-bg: var(--color-danger-100);    --rg-tbl-border: var(--color-danger-200); }
-    .rg-table-warning   { --rg-tbl-bg: var(--color-warning-100);   --rg-tbl-border: var(--color-warning-300); }
-    .rg-table-info      { --rg-tbl-bg: var(--color-info-100);      --rg-tbl-border: var(--color-info-200); }
-    .rg-table-light     { --rg-tbl-bg: var(--color-slate-50);      --rg-tbl-border: var(--color-slate-200); }
+    .rg-table-primary   { --rg-tbl-bg: var(--rg-tint-primary);   --rg-tbl-border: var(--rg-tint-primary-border); }
+    .rg-table-secondary { --rg-tbl-bg: var(--rg-tint-secondary); --rg-tbl-border: var(--rg-tint-secondary-border); }
+    .rg-table-success   { --rg-tbl-bg: var(--rg-success-bg);     --rg-tbl-border: var(--rg-success-border); }
+    .rg-table-danger    { --rg-tbl-bg: var(--rg-tint-danger);    --rg-tbl-border: var(--rg-tint-danger-border); }
+    .rg-table-warning   { --rg-tbl-bg: var(--rg-tint-warning);   --rg-tbl-border: var(--rg-tint-warning-border); }
+    .rg-table-info      { --rg-tbl-bg: var(--rg-tint-info);      --rg-tbl-border: var(--rg-tint-info-border); }
+    .rg-table-light     { --rg-tbl-bg: var(--rg-tint-light);     --rg-tbl-border: var(--rg-border-subtle); }
     .rg-table-dark {
         --rg-tbl-color: white;
         --rg-tbl-bg: var(--color-slate-800);

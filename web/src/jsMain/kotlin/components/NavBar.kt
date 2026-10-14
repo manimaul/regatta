@@ -38,18 +38,22 @@ fun NavBar(
             A(href = "#") {
                 Img(src = "/cyct_burgee.svg", attrs = {
                     // a height class, not attr("height"): Preflight's img { height: auto } overrides the attribute
-                    classes("inline-block", "h-[60px]", "w-auto")
+                    classes("rg-navbar-logo", "inline-block", "h-[60px]", "w-auto")
                     alt("logo")
                 })
             }
-            Button(attrs = {
-                classes("rg-navbar-toggler", "lg:hidden")
-                attr("aria-controls", "navbarNavDropdown")
-                attr("aria-expanded", menuOpen.toString())
-                attr("aria-label", "Toggle navigation")
-                onClick { menuOpen = !menuOpen }
-            }) {
-                HamburgerIcon()
+            // top right on every screen size; at lg the links sit between the logo and here
+            Div(attrs = { classes("rg-navbar-end") }) {
+                ThemeToggle()
+                Button(attrs = {
+                    classes("rg-navbar-toggler", "lg:hidden")
+                    attr("aria-controls", "navbarNavDropdown")
+                    attr("aria-expanded", menuOpen.toString())
+                    attr("aria-label", "Toggle navigation")
+                    onClick { menuOpen = !menuOpen }
+                }) {
+                    HamburgerIcon()
+                }
             }
             // Below lg the list is a vertical menu that animates open/closed (.rg-navbar-collapse in app.css);
             // at lg and up it's always a row.

@@ -100,30 +100,30 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                             RgTd {
                                 B(attrs = {
                                     if (it.placeInBracketCorrected != null && it.throwOut) {
-                                        classes("text-danger-600", "line-through")
+                                        classes("text-danger-fg", "line-through")
                                     } else if (it.throwOut) {
-                                        classes("text-danger-600")
+                                        classes("text-danger-fg")
                                     } else if (it.placeInBracketCorrected != null) {
                                         classes("line-through")
                                     }
                                 }) { Text("${it.placeInBracket}") }
                                 it.placeInBracketCorrected?.let { pbc ->
-                                    B(attrs = { if (it.throwOut) classes("text-danger-600") }) {
+                                    B(attrs = { if (it.throwOut) classes("text-danger-fg") }) {
                                         Text(" $pbc")
                                     }
                                 }
                                 if (multiBracket) {
                                     B(attrs = {
                                         if (it.placeInClassCorrected != null && it.throwOut) {
-                                            classes("text-danger-600", "line-through")
+                                            classes("text-danger-fg", "line-through")
                                         } else if (it.throwOut) {
-                                            classes("text-danger-600")
+                                            classes("text-danger-fg")
                                         } else if (it.placeInClassCorrected != null) {
                                             classes("line-through")
                                         }
                                     }) { Text(", ${it.placeInClass}") }
                                     it.placeInClassCorrected?.let { pcc ->
-                                        B(attrs = { if (it.throwOut) classes("text-danger-600") }) {
+                                        B(attrs = { if (it.throwOut) classes("text-danger-fg") }) {
                                             Text(" $pcc")
                                         }
                                     }

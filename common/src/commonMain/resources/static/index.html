@@ -5,6 +5,10 @@
     <meta name="author" content="William Kamp - https://github.com/manimaul">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Regatta</title>
+    <script>
+        // apply the saved light/dark choice before first paint (ThemeViewModel owns it after load); default light
+        try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 </head>
 <body>
