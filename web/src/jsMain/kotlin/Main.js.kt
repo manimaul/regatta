@@ -18,8 +18,7 @@ val resizeHandler = ResizeObserver { entries, observer ->
 
 fun main() {
     require("maplibre-gl/dist/maplibre-gl.css")
-    require("bootstrap/dist/css/bootstrap.css")
-    require("bootstrap/dist/js/bootstrap.bundle.js")
+    require("./app.css")
     renderComposable(rootElementId = "root") {
         Div(attrs = {
             ref {

@@ -1,11 +1,10 @@
 package viewmodel
 
-import kotlinx.browser.document
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.w3c.dom.HTMLDialogElement
 import org.w3c.dom.events.EventListener
-import utils.Bootstrap
 
 data class Confirmation(
     val msg: String,
@@ -16,7 +15,7 @@ data class Confirmation(
 data class AlertState(
     val message: String? = null,
     val confirmation: Confirmation? = null,
-    val confirmationModal: Bootstrap.Modal? = null
+    val confirmationModal: HTMLDialogElement? = null
 ) : VmState
 
 val alertsViewModel = AlertsViewModel()
@@ -43,37 +42,32 @@ class AlertsViewModel : BaseViewModel<AlertState>(AlertState()){
         setState {
             copy(confirmation = Confirmation(msg, subTitle, handler))
         }
-        withState { it.confirmationModal?.show() }
+        withState { it.confirmationModal?.takeIf { m -> !m.open }?.showModal() }
     }
 
     fun noConfirmation() {
         withState {
             it.confirmation?.handler(false)
-            it.confirmationModal?.hide()
+            it.confirmationModal?.close()
         }
     }
 
     fun yesConfirmation() {
         withState {
             it.confirmation?.handler(true)
-            it.confirmationModal?.hide()
+            it.confirmationModal?.close()
         }
         setState { copy(confirmation = null) }
     }
 
-    fun confirmationModalCreated() {
-        document.querySelector("#$confirmationModalId")?.let { element ->
-            element.addEventListener("hidden.bs.modal", EventListener {
-                println("$confirmationModalId modal hidden")
-            })
-            element.addEventListener("shown.bs.modal", EventListener {
-                println("$confirmationModalId modal shown")
-            })
-            Bootstrap.Modal.getOrCreateInstance(element)?.let { modal ->
-                println("$confirmationModalId modal created")
-                setState { copy(confirmationModal = modal) }
-            }
-        }
+    fun confirmationModalCreated(dialog: HTMLDialogElement) {
+        // Esc / backdrop click close the dialog without answering (as with Bootstrap); drop the stale question.
+        dialog.addEventListener("close", EventListener {
+            println("$confirmationModalId modal closed")
+            setState { copy(confirmation = null) }
+        })
+        println("$confirmationModalId modal created")
+        setState { copy(confirmationModal = dialog) }
     }
 
     fun confirmationModalDestroyed() {

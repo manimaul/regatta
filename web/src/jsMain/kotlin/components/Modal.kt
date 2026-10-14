@@ -1,16 +1,28 @@
 package components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffectResult
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import kotlinx.browser.document
 import org.jetbrains.compose.web.attributes.ButtonType
 import org.jetbrains.compose.web.attributes.type
 import org.jetbrains.compose.web.dom.*
+import org.w3c.dom.Element
+import org.w3c.dom.HTMLDialogElement
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.EventListener
 import viewmodel.alertsViewModel
 import viewmodel.confirmationModalId
 
 private var num = 0
+
+/**
+ * Closes the enclosing [RgModalBody], or null outside a modal. Used by `RgButton(closesModal = true)`.
+ */
+val LocalModalClose = compositionLocalOf<(() -> Unit)?> { null }
+
+private fun dialog(id: String): HTMLDialogElement? = document.getElementById(id) as? HTMLDialogElement
 
 @Composable
 fun RgModalButton(
@@ -22,14 +34,19 @@ fun RgModalButton(
 ) {
     Button(attrs = {
         classes(*(style.classes + customClasses))
-        attr("data-bs-toggle", "modal")
-        attr("data-bs-target", "#$id")
-        onClick { openAction?.invoke() }
+        onClick {
+            openAction?.invoke()
+            dialog(id)?.takeIf { !it.open }?.showModal()
+        }
     }) {
         Text(buttonLabel())
     }
 }
 
+/**
+ * A native `<dialog>` that fills the viewport and scrolls, wrapping a centered panel that doesn't clip its content
+ * (so dropdown menus inside it aren't cut off). Mirrors Bootstrap's `.modal` > `.modal-dialog` structure.
+ */
 @Composable
 fun RgModalBody(
     id: String,
@@ -37,55 +54,61 @@ fun RgModalBody(
     content: ContentBuilder<HTMLDivElement>,
     footer: ContentBuilder<HTMLDivElement>? = null,
 ) {
-    Div(attrs = {
-        classes("modal", "fade")
+    val close = remember(id) { { dialog(id)?.close(); Unit } }
+    TagElement<HTMLDialogElement>("dialog", applyAttrs = {
+        classes("rg-modal")
         id(id)
-        attr("tabindex", "-1")
-        attr("aria-hidden", "true")
         attr("aria-labelledby", "$id-title")
-        if (id == confirmationModalId) {
-            ref {
-                alertsViewModel.confirmationModalCreated()
-                object : DisposableEffectResult {
-                    override fun dispose() {
-                        alertsViewModel.confirmationModalDestroyed()
-                    }
+        ref { element ->
+            // Backdrop click closes, like Bootstrap: only when the press both started and ended outside the panel,
+            // so dragging a text selection out of the panel doesn't dismiss it.
+            var pressedOnBackdrop = false
+            val down = EventListener { pressedOnBackdrop = it.target == element }
+            val click = EventListener { event ->
+                if (pressedOnBackdrop && event.target == element) {
+                    element.close()
+                } else if ((event.target as? Element)?.closest("[data-bs-dismiss=modal]") != null) {
+                    // TODO(tailwind phase 3): remove once footer buttons use RgButton(closesModal = true)
+                    element.close()
+                }
+            }
+            element.addEventListener("pointerdown", down)
+            element.addEventListener("click", click)
+            if (id == confirmationModalId) {
+                alertsViewModel.confirmationModalCreated(element)
+            }
+            onDispose {
+                element.removeEventListener("pointerdown", down)
+                element.removeEventListener("click", click)
+                if (id == confirmationModalId) {
+                    alertsViewModel.confirmationModalDestroyed()
                 }
             }
         }
     }) {
-        Div(attrs = {
-            classes("modal-dialog")
-        }) {
-            Div(attrs = {
-                classes("modal-content")
-            }) {
-                Div(attrs = {
-                    classes("modal-header")
-                }) {
+        CompositionLocalProvider(LocalModalClose provides close) {
+            Div(attrs = { classes("rg-modal-panel") }) {
+                Div(attrs = { classes("rg-modal-header") }) {
                     H5(attrs = {
-                        classes("modal-title")
+                        classes("rg-modal-title")
                         id("$id-title")
                     }) { Text(modalTitle()) }
                     Button(attrs = {
                         type(ButtonType.Button)
-                        classes("btn-close")
-                        attr("data-bs-dismiss", "modal")
+                        classes("rg-modal-close")
                         attr("aria-label", "Close")
-                    })
+                        onClick { close() }
+                    }) {
+                        Text("×")
+                    }
                 }
-                Div(attrs = {
-                    classes("modal-body")
-                }, content)
+                Div(attrs = { classes("rg-modal-body") }, content)
                 footer?.let {
-                    Div(attrs = {
-                        classes("modal-footer")
-                    }, footer)
+                    Div(attrs = { classes("rg-modal-footer") }, footer)
                 }
             }
         }
     }
-
 }
 
 @Composable
