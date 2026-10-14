@@ -60,24 +60,19 @@ fun RaceResultsEdit(
                 )
             },
             footer = {
-                Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
-                    Button(attrs = {
-                        classes(*RgButtonStyle.PrimaryOutline.classes)
-                        attr("data-bs-dismiss", "modal")
-                    }) {
-                        Text("Cancel")
-                    }
-                    Button(attrs = {
-                        classes(*RgButtonStyle.Success.classes)
-                        if (!state.isValid) {
-                            disabled()
-                        }
-                        attr("data-bs-dismiss", "modal")
-                        onClick {
-                            viewModel.postResult()
-                        }
-                    }) {
-                        Text("Save")
+                RgModalFooterRow {
+                    RgButton(
+                        label = "Cancel",
+                        style = RgButtonStyle.PrimaryOutline,
+                        closesModal = true,
+                    ) {}
+                    RgButton(
+                        label = "Save",
+                        style = RgButtonStyle.Success,
+                        disabled = !state.isValid,
+                        closesModal = true,
+                    ) {
+                        viewModel.postResult()
                     }
                 }
             }

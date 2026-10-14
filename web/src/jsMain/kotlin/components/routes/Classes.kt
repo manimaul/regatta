@@ -218,18 +218,14 @@ fun AddEditClassModal(
             }
         },
         footer = {
-            Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
-                Button(attrs = {
-                    classes(*RgButtonStyle.Success.classes)
-                    attr("data-bs-dismiss", "modal")
-                    onClick {
-                        viewModel.upsertClassBrackets(state.editClass)
-                    }
-                    if (!viewModel.isUpsertClassBracketsValid(state.editClass)) {
-                        disabled()
-                    }
-                }) {
-                    Text("Save")
+            RgModalFooterRow {
+                RgButton(
+                    label = "Save",
+                    style = RgButtonStyle.Success,
+                    disabled = !viewModel.isUpsertClassBracketsValid(state.editClass),
+                    closesModal = true,
+                ) {
+                    viewModel.upsertClassBrackets(state.editClass)
                 }
             }
         }

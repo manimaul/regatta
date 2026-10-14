@@ -163,20 +163,17 @@ fun RgTimeButton(
                 saveDate = it
             })
         }, footer = {
-            Button(attrs = {
-                classes(*RgButtonStyle.PrimaryOutline.classes)
-                attr("data-bs-dismiss", "modal")
-            }) {
-                Text("Cancel")
-            }
-            Button(attrs = {
-                classes(*RgButtonStyle.Success.classes)
-                attr("data-bs-dismiss", "modal")
-                onClick {
-                    listener(saveDate)
-                }
-            }) {
-                Text("Done")
+            RgButton(
+                label = "Cancel",
+                style = RgButtonStyle.PrimaryOutline,
+                closesModal = true,
+            ) {}
+            RgButton(
+                label = "Done",
+                style = RgButtonStyle.Success,
+                closesModal = true,
+            ) {
+                listener(saveDate)
             }
         })
 

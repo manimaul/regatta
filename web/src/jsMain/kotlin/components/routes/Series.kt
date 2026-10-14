@@ -133,36 +133,28 @@ fun AddEditSeries(
 
         },
         footer = {
-            Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
+            RgModalFooterRow {
                 if (state.addEditSeries.id != 0L) {
-                    Button(attrs = {
-                        classes(*RgButtonStyle.Danger.classes)
-                        if (state.addEditSeries.raceCount > 0L) {
-                            disabled()
+                    RgButton(
+                        label = "Delete",
+                        style = RgButtonStyle.Danger,
+                        disabled = state.addEditSeries.raceCount > 0L,
+                        closesModal = true,
+                    ) {
+                        viewModel.delete(state.addEditSeries) {
+                            alertsViewModel.showAlert("${it.name} deleted!")
                         }
-                        attr("data-bs-dismiss", "modal")
-                        onClick {
-                            viewModel.delete(state.addEditSeries) {
-                                alertsViewModel.showAlert("${it.name} deleted!")
-                            }
-                        }
-                    }) {
-                        Text("Delete")
                     }
                 }
-                Button(attrs = {
-                    classes(*RgButtonStyle.Success.classes)
-                    if (state.addEditSeries.name.isBlank()) {
-                        disabled()
+                RgButton(
+                    label = "Save",
+                    style = RgButtonStyle.Success,
+                    disabled = state.addEditSeries.name.isBlank(),
+                    closesModal = true,
+                ) {
+                    viewModel.upsert(state.addEditSeries) {
+                        alertsViewModel.showAlert("${it.name} saved!")
                     }
-                    attr("data-bs-dismiss", "modal")
-                    onClick {
-                        viewModel.upsert(state.addEditSeries) {
-                            alertsViewModel.showAlert("${it.name} saved!")
-                        }
-                    }
-                }) {
-                    Text("Save")
                 }
             }
         }
