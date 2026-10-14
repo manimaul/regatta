@@ -80,6 +80,10 @@ entries use DNS_RC. 13 of them have totals that differ from what the screen impl
 | 2026 Summer Series WS, Half Fast IV | Boginka | 1 → 6 | 17 | 22 |
 | 2025 Late Summer WS, Half Fast IV | Slick | 5 → 3 | 9 | 7 |
 
+The "total with avg" column uses a rounded average over all other races, as the code shows it.
+The exact D1 values (fractional, throw-out excluded) are in `golden/deviations.json`; e.g.
+Boginka's 2026 Summer Series bracket total becomes 21.33, not 22.
+
 **Final places change** in these series when the average is counted (with the last-race tiebreak):
 - 2025 Early Spring WS, Half Fast IV: Slick 2→3, Work Release 3→2
 - 2025 Three Hour Tour, Half Fast IV: Slick 3→4, Solitaire 4→3
@@ -109,6 +113,11 @@ race, and the race counts toward the `size >= 5` throw-out rule.
 - 21 class-race cells score the whole class as DNS = 1 because nobody *in that class* entered,
   even though other classes raced (e.g. 2024 Harbor #1 Windseekers FS). This follows "starters + 1"
   literally, but the committee should confirm whether the race counts for that class at all.
+- **One throw-out for two totals.** `throwOutWorst` picks the race with the worst *bracket* score
+  and flags it as the throw-out for the class total as well. When the boat's worst class score is
+  in a different race, the class total keeps a worse score than it should. The audit script found
+  22 boat-series class totals like this, e.g. 2024 Early Spring WS Slick: class total 30, but 29
+  with the worst class score dropped. D2 decides the throw-out per scoring group.
 
 ### F3. NSC scored as starters, not starters + 1 (GSI 14.1.4)
 
@@ -423,6 +432,9 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
   race's latest class end time is after `now`, and **"Cancelled"** otherwise. The label gets its
   own cell state in `StandingsRace`, e.g. `sailed: Boolean` plus the race-level status.
 - The throw-out applies when 5 or more races were **started** in that scoring group.
+- The throw-out is chosen **per scoring group**: the worst bracket score for the bracket total and
+  the worst class score for the class total. They can be different races. *(interpretation of
+  14.4 "one score will be excluded", applied to each standing separately)*
 - Starters but no finishers: if a group had starters but nobody finished (2026 race 106, bracket
   IV, all DNF or RET), the rule is applied literally: DNF/RET = 0 + 1 = **1**. This is accepted
   as GSI 14.1.1, and the race counts as sailed.
@@ -577,35 +589,36 @@ file; for them the `deviations.json` diff is the only isolation check (see §5).
   - standings cell decoration (throw-out, RC strike-through, existing code suffixes);
   - race view place columns for PHRF / ORC / `ORC_PHRF` × single/multi bracket. The D7 column test starts out ignored (`kotlin.test.Ignore` takes no reason on JS, so the reason is in its KDoc).
 
-### Phase 3: Golden regression (DB snapshot)
+### Phase 3: Golden regression (DB snapshot) — done 2026-10-14
 
-- [ ] Add `!scrub_dump.py` and `!audit_scoring.py` to `database/.gitignore`, which ignores `*.py`, `*.json` and `*.sql`.
-- [ ] Write `database/scrub_dump.py`. It:
+- [x] Add `!scrub_dump.py` and `!audit_scoring.py` to `database/.gitignore`, which ignores `*.py`, `*.json` and `*.sql`.
+- [x] Write `database/scrub_dump.py`. It:
   - empties `public.auth`;
   - strips `\restrict` / `\unrestrict`;
   - fails if `image` has rows;
   - leaves person names as they are.
-- [ ] Scrub `prod_dump2026-10-13_19_10_11.sql` and commit it as `server/src/jvmTest/resources/golden/regatta-2026-10-13.sql`.
-- [ ] Add the Testcontainers `testcontainers` + `postgresql` test dependencies (1.21.x or newer), with the version in `Versions.kt`.
-- [ ] Add the `GoldenDb` harness:
+- [x] Scrub `prod_dump2026-10-13_19_10_11.sql` and commit it as `server/src/jvmTest/resources/golden/regatta-2026-10-13.sql` (the only diff to the source is the three dropped auth rows and the two restrict lines).
+- [x] Add the Testcontainers `testcontainers` + `postgresql` test dependencies (1.21.4), with the version in `Versions.kt`.
+- [x] Add the `GoldenDb` harness (`server/src/jvmTest/.../golden/GoldenDb.kt`):
   - `postgres:16-bookworm` with `regatta_admin` / `regatta`;
   - the dump loaded with in-container `psql -v ON_ERROR_STOP=1`;
   - system properties set from the container;
   - `RegattaDatabase.init()`.
   - A test checks that the `metadata` version equals `currentDbVersion` after startup (version only, not table parity).
-- [ ] Add the approval helper:
-  - pretty-printed JSON with stable key order;
+  - `server/src/jvmTest/resources/logback-test.xml` keeps the Docker client's DEBUG chatter out of the test output.
+- [x] Add the approval helper (`Approvals.kt`):
+  - pretty-printed JSON with stable key order, defaults included (`encodeDefaults = true`), so the files are self-describing for the audit script;
   - a `.received.json` file written on mismatch;
   - `-Dgolden.approve=true` to approve;
   - `*.received.json` git-ignored.
-- [ ] Add `GoldenTest`. It covers every race from `allRaces(year)` and every series × 2024–2026, with `getStandingsReport`'s `now` pinned to `2026-10-14T02:10:11Z`.
-- [ ] Generate and commit `golden/approved/` from today's code.
-- [ ] Add the `:server:jvmGoldenTest` task:
+- [x] Add `GoldenTest`. It covers every race from `allRaces(year)` for every year in `allYears()` (so a refreshed snapshot with a new season needs no code change) and every series × year that has at least one race, with `getStandingsReport`'s `now` pinned to `2026-10-14T02:10:11Z`.
+- [x] Generate and commit `golden/approved/` from today's code: 118 race files and 22 standings files, about 11 MB pretty-printed.
+- [x] Add the `:server:jvmGoldenTest` task:
   - filtered to `*GoldenTest`, and excluded from `:server:jvmTest`;
-  - sets `DOCKER_HOST` from `podman machine inspect` (via `providers.exec`) and `TESTCONTAINERS_RYUK_DISABLED=true` when they are unset, and fails with a clear message when the machine is not running.
-- [ ] Write `database/audit_scoring.py`. It reads `golden/approved/`, re-scores with the D1–D5 rules plus the D8 grouping and year-boundary checks, and writes `golden/deviations.json`.
-- [ ] Commit `deviations.json`. Its entries match findings F1–F5 (including the D3 DNS/NSC shifts in the 18 RC-volunteer races) and any D8 cases in the data.
-- [ ] `:server:jvmGoldenTest` passes locally on podman.
+  - sets `DOCKER_HOST` from `podman machine inspect` (via `providers.exec`) and `TESTCONTAINERS_RYUK_DISABLED=true` when they are unset, skips both when `/var/run/docker.sock` exists, and fails with a clear message when the machine is not running.
+- [x] Write `database/audit_scoring.py`. It reads `golden/approved/`, re-scores with the D1–D5 rules plus the D8 grouping and year-boundary checks, and writes `golden/deviations.json`. Each entry names one decision, or a `+`-joined set when a total or place depends on several (those entries disappear once the last of them lands).
+- [x] Commit `deviations.json`: 682 entries (D1 66, D1+D2 4, D1+D2+D3 25, D1+D2+D8 7, D1+D3 27, D1+D8 7, D2 376, D2+D3 8, D3 116, D4 20, D5 23, D8 3). They match findings F1–F5, the D3 DNS/NSC shifts in the RC-volunteer races, the Short Circuit skipper split (D8), and the class throw-out gap added to F2 above. No entry is unattributed, and no D7 or D8 year-boundary case exists in the data.
+- [x] `:server:jvmGoldenTest` passes locally on podman (about 45 s, container start included).
 
 ### Phase 4: Rule tests (tests the code fails start out `@Ignore("Dn: …")`)
 

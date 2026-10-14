@@ -1,0 +1,1179 @@
+{
+    "year": 2024,
+    "series": {
+        "id": 1,
+        "name": "Harbor Series",
+        "sort": 0,
+        "raceCount": 9,
+        "active": true
+    },
+    "standings": [
+        {
+            "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "PHRF",
+                "numberOfRaces": 81,
+                "active": true
+            },
+            "standings": [
+                {
+                    "bracket": {
+                        "id": 16,
+                        "name": "I/II",
+                        "description": "Rating 10 to 72",
+                        "active": true,
+                        "numberOfRaces": 17,
+                        "minRating": 10.0,
+                        "maxRating": 72.0,
+                        "classId": 1
+                    },
+                    "standings": [
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 2,
+                                    "first": "John",
+                                    "last": "Leitzinger",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 11,
+                                    "name": "Kahuna",
+                                    "sailNumber": "USA 27",
+                                    "boatType": "Aerodyne 38",
+                                    "phrfRating": 48,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 79,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 4,
+                            "totalScoreClass": 4,
+                            "placeInBracket": 1,
+                            "placeInClass": 1
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 4,
+                                    "first": "Eric",
+                                    "last": "Johnson",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 12,
+                                    "name": "Flicka",
+                                    "sailNumber": "69262",
+                                    "boatType": "J/35",
+                                    "phrfRating": 72,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 73,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 6,
+                            "totalScoreClass": 6,
+                            "placeInBracket": 2,
+                            "placeInClass": 2
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 1,
+                                    "first": "Ed",
+                                    "last": "Pinkham",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 22,
+                                    "name": "Jeopardy",
+                                    "sailNumber": "161",
+                                    "boatType": "J/109",
+                                    "phrfRating": 69,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 59,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 8,
+                            "totalScoreClass": 8,
+                            "placeInBracket": 3,
+                            "placeInClass": 3
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 5,
+                                    "first": "Pat",
+                                    "last": "Robinson",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 20,
+                                    "name": "Intrepid",
+                                    "sailNumber": "97848",
+                                    "boatType": "J/35",
+                                    "phrfRating": 72,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 14,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 8,
+                            "totalScoreClass": 8,
+                            "placeInBracket": 4,
+                            "placeInClass": 4
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "PHRF",
+                "numberOfRaces": 81,
+                "active": true
+            },
+            "standings": [
+                {
+                    "bracket": {
+                        "id": 17,
+                        "name": "III/IV",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 17,
+                        "minRating": 73.0,
+                        "maxRating": 200.0,
+                        "classId": 2
+                    },
+                    "standings": [
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 29,
+                                    "first": "Gordon",
+                                    "last": "Kells-Murphy",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 14,
+                                    "name": "Les Chevaux Blancs",
+                                    "sailNumber": "79052",
+                                    "boatType": "BENE35S5-1",
+                                    "phrfRating": 132,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 9,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 5,
+                            "totalScoreClass": 5,
+                            "placeInBracket": 1,
+                            "placeInClass": 1
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 13,
+                                    "first": "Chris",
+                                    "last": "Caudill",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 13,
+                                    "name": "Solitaire",
+                                    "sailNumber": "52",
+                                    "boatType": "Santa Cruz 27",
+                                    "phrfRating": 159,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 12,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 6,
+                            "totalScoreClass": 6,
+                            "placeInBracket": 2,
+                            "placeInClass": 2
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 11,
+                                    "first": "Jeremy",
+                                    "last": "Bush",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 15,
+                                    "name": "Goes to 11",
+                                    "sailNumber": "19",
+                                    "boatType": "Antrim 27",
+                                    "phrfRating": 93,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 86,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 8,
+                            "totalScoreClass": 8,
+                            "placeInBracket": 3,
+                            "placeInClass": 3
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 30,
+                                    "first": "Tony",
+                                    "last": "Polizzi",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 17,
+                                    "name": "Bella Rose",
+                                    "sailNumber": "70925",
+                                    "boatType": "Beneteau First 375",
+                                    "phrfRating": 129,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 21,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 12,
+                            "totalScoreClass": 12,
+                            "placeInBracket": 4,
+                            "placeInClass": 4
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 12,
+                                    "first": "Jay",
+                                    "last": "Pyles",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 18,
+                                    "name": "Short Circuit",
+                                    "sailNumber": "69800",
+                                    "boatType": "Tripp 33",
+                                    "phrfRating": 86,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 78,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 13,
+                            "totalScoreClass": 13,
+                            "placeInBracket": 5,
+                            "placeInClass": 5
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 19,
+                                    "first": "Aaron",
+                                    "last": "Milligan",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 21,
+                                    "name": "Ripley",
+                                    "sailNumber": "1210",
+                                    "boatType": "Thunderbird",
+                                    "phrfRating": 195,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 24,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 14,
+                            "totalScoreClass": 14,
+                            "placeInBracket": 6,
+                            "placeInClass": 6
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 14,
+                                    "first": "Charles",
+                                    "last": "Hendrick",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 23,
+                                    "name": "Blue Max",
+                                    "sailNumber": "18715",
+                                    "boatType": "Aphrodite 101",
+                                    "phrfRating": 144,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 10,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 18,
+                            "totalScoreClass": 18,
+                            "placeInBracket": 7,
+                            "placeInClass": 7
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 25,
+                                    "first": "Ross",
+                                    "last": "Chamberlain",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 5,
+                                    "name": "Work Release",
+                                    "sailNumber": "61396",
+                                    "boatType": "Jeaneau SO 37",
+                                    "phrfRating": 162,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 67,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 18,
+                            "totalScoreClass": 18,
+                            "placeInBracket": 8,
+                            "placeInClass": 8
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 17,
+                                    "first": "Nelson",
+                                    "last": "Grove",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 19,
+                                    "name": "Slick",
+                                    "sailNumber": "69299",
+                                    "boatType": "J/29",
+                                    "phrfRating": 120,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 64,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 9,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 9,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 19,
+                            "totalScoreClass": 19,
+                            "placeInBracket": 9,
+                            "placeInClass": 9
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 18,
+                                    "first": "Jean",
+                                    "last": "Fedor",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 16,
+                                    "name": "Boginka",
+                                    "sailNumber": "59746",
+                                    "boatType": "J/30",
+                                    "phrfRating": 141,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 86,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 9,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 9,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 21,
+                            "totalScoreClass": 21,
+                            "placeInBracket": 10,
+                            "placeInClass": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+            },
+            "standings": [
+                {
+                    "bracket": {
+                        "id": 19,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 4
+                    },
+                    "standings": [
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 22,
+                                    "first": "Rick",
+                                    "last": "Garrity",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 3,
+                                    "name": "Blue Jay",
+                                    "sailNumber": "",
+                                    "boatType": "Beneteau",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "numberOfRaces": 26,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": 2,
+                                    "finish": false,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "HOC"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 4,
+                            "totalScoreClass": 4,
+                            "placeInBracket": 1,
+                            "placeInClass": 1
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 21,
+                                    "first": "Greg",
+                                    "last": "Greene",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 2,
+                                    "name": "Whisper",
+                                    "sailNumber": "343",
+                                    "boatType": "Islander 36",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "numberOfRaces": 40,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "RET"
+                                }
+                            ],
+                            "totalScoreBracket": 5,
+                            "totalScoreClass": 5,
+                            "placeInBracket": 2,
+                            "placeInClass": 2
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 23,
+                                    "first": "William",
+                                    "last": "Kamp",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 1,
+                                    "name": "Waymaker",
+                                    "sailNumber": "USA 59793",
+                                    "boatType": "Tartan 37 DK",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "numberOfRaces": 53,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": 1,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "HOC"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 5,
+                            "totalScoreClass": 5,
+                            "placeInBracket": 3,
+                            "placeInClass": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "races": [
+        {
+            "id": 1,
+            "name": "Harbor Series #1",
+            "seriesId": 1,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 2,
+            "name": "Harbor Series #2",
+            "seriesId": 1,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 3,
+            "name": "Harbor Series #3",
+            "seriesId": 1,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        }
+    ]
+}

@@ -1,0 +1,424 @@
+{
+    "raceSchedule": {
+        "race": {
+            "id": 134,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        "resultCount": 5,
+        "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+        },
+        "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+        },
+        "schedule": [
+            {
+                "raceClass": {
+                    "id": 40,
+                    "name": "Lido 14",
+                    "sort": 12,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 15,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 72,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 15,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 40
+                    }
+                ],
+                "startDate": "2026-09-24T08:10:00Z",
+                "endDate": "2026-09-24T08:19:00Z"
+            }
+        ]
+    },
+    "classReports": [
+        {
+            "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 72,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 15,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 40
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2382,
+                                    "raceId": 134,
+                                    "boatId": 112,
+                                    "finish": "2026-09-24T08:11:00Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 72,
+                                    "raceClassId": 40,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 136,
+                                        "first": "Brian",
+                                        "last": "Lido",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 112,
+                                        "name": "2181",
+                                        "sailNumber": "2181",
+                                        "boatType": "Lido",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 13,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 72,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 15,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 40
+                                }
+                            },
+                            "boatName": "2181",
+                            "sail": "2181",
+                            "skipper": "Brian Lido",
+                            "boatType": "Lido",
+                            "phrfRating": null,
+                            "startTime": "2026-09-24T08:10:00Z",
+                            "finishTime": "2026-09-24T08:11:00Z",
+                            "elapsedTime": "PT1M",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1M",
+                            "correctedOrcTime": "PT1M",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2383,
+                                    "raceId": 134,
+                                    "boatId": 115,
+                                    "finish": "2026-09-24T08:12:00Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 72,
+                                    "raceClassId": 40,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 139,
+                                        "first": "Breanna",
+                                        "last": "Lido",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 115,
+                                        "name": "4231",
+                                        "sailNumber": "4231",
+                                        "boatType": "Lido",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 10,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 72,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 15,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 40
+                                }
+                            },
+                            "boatName": "4231",
+                            "sail": "4231",
+                            "skipper": "Breanna Lido",
+                            "boatType": "Lido",
+                            "phrfRating": null,
+                            "startTime": "2026-09-24T08:10:00Z",
+                            "finishTime": "2026-09-24T08:12:00Z",
+                            "elapsedTime": "PT2M",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2M",
+                            "correctedOrcTime": "PT2M",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2384,
+                                    "raceId": 134,
+                                    "boatId": 113,
+                                    "finish": "2026-09-24T08:13:00Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 72,
+                                    "raceClassId": 40,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 137,
+                                        "first": "Travis",
+                                        "last": "Lido",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 113,
+                                        "name": "6102",
+                                        "sailNumber": "6102",
+                                        "boatType": "Lido",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 12,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 72,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 15,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 40
+                                }
+                            },
+                            "boatName": "6102",
+                            "sail": "6102",
+                            "skipper": "Travis Lido",
+                            "boatType": "Lido",
+                            "phrfRating": null,
+                            "startTime": "2026-09-24T08:10:00Z",
+                            "finishTime": "2026-09-24T08:13:00Z",
+                            "elapsedTime": "PT3M",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT3M",
+                            "correctedOrcTime": "PT3M",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 3,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2385,
+                                    "raceId": 134,
+                                    "boatId": 111,
+                                    "finish": "2026-09-24T08:14:00Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 72,
+                                    "raceClassId": 40,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 135,
+                                        "first": "Todd",
+                                        "last": "Lido",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 111,
+                                        "name": "90",
+                                        "sailNumber": "90",
+                                        "boatType": "Lido",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 13,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 72,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 15,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 40
+                                }
+                            },
+                            "boatName": "90",
+                            "sail": "90",
+                            "skipper": "Todd Lido",
+                            "boatType": "Lido",
+                            "phrfRating": null,
+                            "startTime": "2026-09-24T08:10:00Z",
+                            "finishTime": "2026-09-24T08:14:00Z",
+                            "elapsedTime": "PT4M",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT4M",
+                            "correctedOrcTime": "PT4M",
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2386,
+                                    "raceId": 134,
+                                    "boatId": 110,
+                                    "finish": "2026-09-24T08:15:00Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 72,
+                                    "raceClassId": 40,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 134,
+                                        "first": "Chuck",
+                                        "last": "Lido",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 110,
+                                        "name": "3187",
+                                        "sailNumber": "3187",
+                                        "boatType": "Lido",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 13,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 72,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 15,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 40
+                                }
+                            },
+                            "boatName": "3187",
+                            "sail": "3187",
+                            "skipper": "Chuck Lido",
+                            "boatType": "Lido",
+                            "phrfRating": null,
+                            "startTime": "2026-09-24T08:10:00Z",
+                            "finishTime": "2026-09-24T08:15:00Z",
+                            "elapsedTime": "PT5M",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT5M",
+                            "correctedOrcTime": "PT5M",
+                            "placeInBracket": 5,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 5,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        }
+    ]
+}

@@ -42,3 +42,6 @@ out/
 
 local.properties
 kotlin-js-store/yarn.lock
+
+# golden test output written on a mismatch (server/src/jvmTest/resources/golden/approved)
+*.received.json

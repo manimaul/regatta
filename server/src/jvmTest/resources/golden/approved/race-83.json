@@ -1,0 +1,735 @@
+{
+    "raceSchedule": {
+        "race": {
+            "id": 83,
+            "name": "Memorial Single/Double Handed Race",
+            "seriesId": null,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        "resultCount": 9,
+        "series": null,
+        "rc": null,
+        "schedule": [
+            {
+                "raceClass": {
+                    "id": 35,
+                    "name": "Windseekers NFS Double Handed",
+                    "sort": 10,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 3,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 62,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 3,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 35
+                    }
+                ],
+                "startDate": "2025-10-05T01:20:00Z",
+                "endDate": "2025-10-05T04:20:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 36,
+                    "name": "Windseekers NFS Single Handed",
+                    "sort": 11,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 3,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 63,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 3,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 36
+                    }
+                ],
+                "startDate": "2025-10-05T01:15:00Z",
+                "endDate": "2025-10-05T04:15:00Z"
+            }
+        ]
+    },
+    "classReports": [
+        {
+            "raceClass": {
+                "id": 35,
+                "name": "Windseekers NFS Double Handed",
+                "sort": 10,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 62,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 3,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 35
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1509,
+                                    "raceId": 83,
+                                    "boatId": 15,
+                                    "finish": "2025-10-05T02:44:46Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 11,
+                                        "first": "Jeremy",
+                                        "last": "Bush",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 15,
+                                        "name": "Goes to 11",
+                                        "sailNumber": "19",
+                                        "boatType": "Antrim 27",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 86,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Goes to 11",
+                            "sail": "19",
+                            "skipper": "Jeremy Bush",
+                            "boatType": "Antrim 27",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T02:44:46Z",
+                            "elapsedTime": "PT1H24M46S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H24M46S",
+                            "correctedOrcTime": "PT1H24M46S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1510,
+                                    "raceId": 83,
+                                    "boatId": 90,
+                                    "finish": "2025-10-05T02:51:41Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 110,
+                                        "first": "Kurt",
+                                        "last": "Kulesza",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 90,
+                                        "name": "DYNO",
+                                        "sailNumber": "69174",
+                                        "boatType": "Soverel 33",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 37,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "DYNO",
+                            "sail": "69174",
+                            "skipper": "Kurt Kulesza",
+                            "boatType": "Soverel 33",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T02:51:41Z",
+                            "elapsedTime": "PT1H31M41S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H31M41S",
+                            "correctedOrcTime": "PT1H31M41S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1511,
+                                    "raceId": 83,
+                                    "boatId": 100,
+                                    "finish": "2025-10-05T02:54:56Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 121,
+                                        "first": "Greg",
+                                        "last": "Overton",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 100,
+                                        "name": "Afterglow",
+                                        "sailNumber": "62",
+                                        "boatType": "Beneteau First 36",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 5,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Afterglow",
+                            "sail": "62",
+                            "skipper": "Greg Overton",
+                            "boatType": "Beneteau First 36",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T02:54:56Z",
+                            "elapsedTime": "PT1H34M56S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H34M56S",
+                            "correctedOrcTime": "PT1H34M56S",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 3,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1512,
+                                    "raceId": 83,
+                                    "boatId": 36,
+                                    "finish": "2025-10-05T02:56:57Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 10,
+                                        "first": "Barker",
+                                        "last": "Glassley",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 36,
+                                        "name": "Zephyr",
+                                        "sailNumber": "69097",
+                                        "boatType": "J/30",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 95,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Zephyr",
+                            "sail": "69097",
+                            "skipper": "Barker Glassley",
+                            "boatType": "J/30",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T02:56:57Z",
+                            "elapsedTime": "PT1H36M57S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H36M57S",
+                            "correctedOrcTime": "PT1H36M57S",
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1514,
+                                    "raceId": 83,
+                                    "boatId": 16,
+                                    "finish": "2025-10-05T03:18:22Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 18,
+                                        "first": "Jean",
+                                        "last": "Fedor",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 16,
+                                        "name": "Boginka",
+                                        "sailNumber": "59746",
+                                        "boatType": "J/30",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 86,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Boginka",
+                            "sail": "59746",
+                            "skipper": "Jean Fedor",
+                            "boatType": "J/30",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T03:18:22Z",
+                            "elapsedTime": "PT1H58M22S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H58M22S",
+                            "correctedOrcTime": "PT1H58M22S",
+                            "placeInBracket": 5,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 5,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1515,
+                                    "raceId": 83,
+                                    "boatId": 98,
+                                    "finish": "2025-10-05T03:49:40Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 120,
+                                        "first": "Dana",
+                                        "last": "Bachellerie",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 98,
+                                        "name": "Black Elise II",
+                                        "sailNumber": "",
+                                        "boatType": "Hanse 400e",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 20,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Black Elise II",
+                            "sail": "",
+                            "skipper": "Dana Bachellerie",
+                            "boatType": "Hanse 400e",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T03:49:40Z",
+                            "elapsedTime": "PT2H29M40S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2H29M40S",
+                            "correctedOrcTime": "PT2H29M40S",
+                            "placeInBracket": 6,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 6,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1516,
+                                    "raceId": 83,
+                                    "boatId": 99,
+                                    "finish": "2025-10-05T04:05:58Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 62,
+                                    "raceClassId": 35,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 79,
+                                        "first": "Emily",
+                                        "last": "Wood",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 99,
+                                        "name": "Yonder Star",
+                                        "sailNumber": "24601",
+                                        "boatType": "Catalina 320",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 27,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 62,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 35
+                                }
+                            },
+                            "boatName": "Yonder Star",
+                            "sail": "24601",
+                            "skipper": "Emily Wood",
+                            "boatType": "Catalina 320",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:20:00Z",
+                            "finishTime": "2025-10-05T04:05:58Z",
+                            "elapsedTime": "PT2H45M58S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2H45M58S",
+                            "correctedOrcTime": "PT2H45M58S",
+                            "placeInBracket": 7,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 7,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        },
+        {
+            "raceClass": {
+                "id": 36,
+                "name": "Windseekers NFS Single Handed",
+                "sort": 11,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 63,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 3,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 36
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1517,
+                                    "raceId": 83,
+                                    "boatId": 21,
+                                    "finish": "2025-10-05T03:15:05Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 63,
+                                    "raceClassId": 36,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 19,
+                                        "first": "Aaron",
+                                        "last": "Milligan",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 21,
+                                        "name": "Ripley",
+                                        "sailNumber": "1210",
+                                        "boatType": "Thunderbird",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 24,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 63,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 36
+                                }
+                            },
+                            "boatName": "Ripley",
+                            "sail": "1210",
+                            "skipper": "Aaron Milligan",
+                            "boatType": "Thunderbird",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:15:00Z",
+                            "finishTime": "2025-10-05T03:15:05Z",
+                            "elapsedTime": "PT2H0M5S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2H0M5S",
+                            "correctedOrcTime": "PT2H0M5S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 1518,
+                                    "raceId": 83,
+                                    "boatId": 102,
+                                    "finish": "2025-10-05T04:00:17Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 63,
+                                    "raceClassId": 36,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 31,
+                                        "first": "Danny",
+                                        "last": "Kenck",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 102,
+                                        "name": "Lucia",
+                                        "sailNumber": "",
+                                        "boatType": "Cal 29",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 6,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 63,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 3,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 36
+                                }
+                            },
+                            "boatName": "Lucia",
+                            "sail": "",
+                            "skipper": "Danny Kenck",
+                            "boatType": "Cal 29",
+                            "phrfRating": null,
+                            "startTime": "2025-10-05T01:15:00Z",
+                            "finishTime": "2025-10-05T04:00:17Z",
+                            "elapsedTime": "PT2H45M17S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2H45M17S",
+                            "correctedOrcTime": "PT2H45M17S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        }
+    ]
+}

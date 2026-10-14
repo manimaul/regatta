@@ -1,0 +1,1757 @@
+{
+    "year": 2026,
+    "series": {
+        "id": 19,
+        "name": "Lido 14 Late-Summer/Fall Windsday Series",
+        "sort": 7,
+        "raceCount": 15,
+        "active": true
+    },
+    "standings": [
+        {
+            "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+            },
+            "standings": [
+                {
+                    "bracket": {
+                        "id": 72,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 15,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 40
+                    },
+                    "standings": [
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 136,
+                                    "first": "Brian",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 112,
+                                    "name": "2181",
+                                    "sailNumber": "2181",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 13,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 17,
+                            "totalScoreClass": 17,
+                            "placeInBracket": 1,
+                            "placeInClass": 1
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 134,
+                                    "first": "Chuck",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 110,
+                                    "name": "3187",
+                                    "sailNumber": "3187",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 13,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 36,
+                            "totalScoreClass": 36,
+                            "placeInBracket": 2,
+                            "placeInClass": 2
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 139,
+                                    "first": "Breanna",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 115,
+                                    "name": "4231",
+                                    "sailNumber": "4231",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 10,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 44,
+                            "totalScoreClass": 44,
+                            "placeInBracket": 3,
+                            "placeInClass": 3
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 135,
+                                    "first": "Todd",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 111,
+                                    "name": "90",
+                                    "sailNumber": "90",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 13,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 51,
+                            "totalScoreClass": 51,
+                            "placeInBracket": 4,
+                            "placeInClass": 4
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 137,
+                                    "first": "Travis",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 113,
+                                    "name": "6102",
+                                    "sailNumber": "6102",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 12,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 51,
+                            "totalScoreClass": 51,
+                            "placeInBracket": 5,
+                            "placeInClass": 5
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 138,
+                                    "first": "Aaron",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 114,
+                                    "name": "2181A",
+                                    "sailNumber": "2181A",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 7,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 2,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 5,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 5,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 58,
+                            "totalScoreClass": 58,
+                            "placeInBracket": 6,
+                            "placeInClass": 6
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 141,
+                                    "first": "Erica",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 117,
+                                    "name": "4231A",
+                                    "sailNumber": "4231A",
+                                    "boatType": "Lido",
+                                    "phrfRating": 200,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 3,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 8,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 8,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 3,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 4,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 4,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                }
+                            ],
+                            "totalScoreBracket": 75,
+                            "totalScoreClass": 75,
+                            "placeInBracket": 7,
+                            "placeInClass": 7
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 140,
+                                    "first": "Michael",
+                                    "last": "Lido",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 116,
+                                    "name": "4839",
+                                    "sailNumber": "4839",
+                                    "boatType": "Lido",
+                                    "phrfRating": null,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "numberOfRaces": 4,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": true,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": "TIME"
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 1,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 1,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 7,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 7,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                },
+                                {
+                                    "nonStarter": true,
+                                    "hocPosition": null,
+                                    "finish": false,
+                                    "placeInBracket": 6,
+                                    "placeInBracketCorrected": null,
+                                    "placeInClass": 6,
+                                    "placeInClassCorrected": null,
+                                    "throwOut": false,
+                                    "finishCode": null
+                                }
+                            ],
+                            "totalScoreBracket": 77,
+                            "totalScoreClass": 77,
+                            "placeInBracket": 8,
+                            "placeInClass": 8
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "races": [
+        {
+            "id": 123,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 129,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 130,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 131,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1D",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 124,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #2",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 125,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 132,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 133,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 126,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #4",
+            "seriesId": 19,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 127,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 134,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 135,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 128,
+            "name": "Lido 14 Late-Summer/Fall Series #6A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 136,
+            "name": "Lido 14 Late-Summer/Fall Series #6B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        {
+            "id": 137,
+            "name": "Lido 14 Late-Summer/Fall Series #6C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        }
+    ]
+}

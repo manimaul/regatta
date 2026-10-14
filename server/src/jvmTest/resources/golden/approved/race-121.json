@@ -1,0 +1,123 @@
+{
+    "raceSchedule": {
+        "race": {
+            "id": 121,
+            "name": "Point Series #4",
+            "seriesId": 18,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        "resultCount": 0,
+        "series": {
+            "id": 18,
+            "name": "Point Series",
+            "sort": 1,
+            "raceCount": 11,
+            "active": true
+        },
+        "rc": null,
+        "schedule": [
+            {
+                "raceClass": {
+                    "id": 37,
+                    "name": "Fast (93-)",
+                    "sort": 0,
+                    "ratingType": "ORC_PHRF",
+                    "numberOfRaces": 18,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 66,
+                        "name": "I & II",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 4,
+                        "minRating": -1000.0,
+                        "maxRating": 93.0,
+                        "classId": 37
+                    }
+                ],
+                "startDate": "2026-11-01T00:00:00Z",
+                "endDate": "2026-11-01T06:00:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 38,
+                    "name": "Half Fast (94+)",
+                    "sort": 1,
+                    "ratingType": "ORC_PHRF",
+                    "numberOfRaces": 18,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 69,
+                        "name": "III & IV",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 4,
+                        "minRating": 94.0,
+                        "maxRating": 1000.0,
+                        "classId": 38
+                    }
+                ],
+                "startDate": "2026-11-01T00:05:00Z",
+                "endDate": "2026-11-01T06:05:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 4,
+                    "name": "Windseekers FS",
+                    "sort": 6,
+                    "ratingType": "CruisingFlyingSails",
+                    "numberOfRaces": 99,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 19,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 4
+                    }
+                ],
+                "startDate": "2026-11-01T00:10:00Z",
+                "endDate": "2026-11-01T06:10:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 3,
+                    "name": "Windseekers NFS",
+                    "sort": 7,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 99,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 18,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 3
+                    }
+                ],
+                "startDate": "2026-11-01T00:10:00Z",
+                "endDate": "2026-11-01T06:10:00Z"
+            }
+        ]
+    },
+    "classReports": []
+}

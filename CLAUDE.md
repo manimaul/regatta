@@ -35,6 +35,14 @@ Run the web frontend with hot reload:
 ./gradlew :web:jsBrowserTest
 ```
 
+Golden regression against a scrubbed production snapshot (needs podman or docker; excluded from `:server:jvmTest`):
+```shell
+./gradlew :server:jvmGoldenTest                         # compare to server/src/jvmTest/resources/golden/approved
+./gradlew :server:jvmGoldenTest -Dgolden.approve=true   # re-approve on purpose, then review the diff
+python3 -I database/audit_scoring.py                    # re-score the approved files, writes golden/deviations.json
+```
+The task sets `DOCKER_HOST` from `podman machine inspect` when unset. `database/scrub_dump.py` produces the committed snapshot from a `pg_dump`. Details: `docs/explore_unimplemented/test_audit_and_plan.md` §5.
+
 Run a single JVM test class or method with `--tests`:
 ```shell
 ./gradlew :server:jvmTest --tests "com.mxmariner.regatta.results.RaceResultReporterKtTest"

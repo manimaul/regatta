@@ -1,0 +1,57 @@
+{
+    "raceSchedule": {
+        "race": {
+            "id": 124,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #2",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        "resultCount": 0,
+        "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+        },
+        "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+        },
+        "schedule": [
+            {
+                "raceClass": {
+                    "id": 40,
+                    "name": "Lido 14",
+                    "sort": 12,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 15,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 72,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 15,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 40
+                    }
+                ],
+                "startDate": "2026-09-03T08:00:00Z",
+                "endDate": "2026-09-03T09:30:00Z"
+            }
+        ]
+    },
+    "classReports": []
+}

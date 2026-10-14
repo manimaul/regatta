@@ -2,3 +2,5 @@
 *.py
 *.sql
 backup/
+!scrub_dump.py
+!audit_scoring.py

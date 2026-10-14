@@ -1,0 +1,1870 @@
+{
+    "raceSchedule": {
+        "race": {
+            "id": 111,
+            "name": "Late Summer Windseekers  #3",
+            "seriesId": 17,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+        },
+        "resultCount": 22,
+        "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+        },
+        "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+        },
+        "schedule": [
+            {
+                "raceClass": {
+                    "id": 37,
+                    "name": "Fast (93-)",
+                    "sort": 0,
+                    "ratingType": "ORC_PHRF",
+                    "numberOfRaces": 18,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 64,
+                        "name": "I",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": -1000.0,
+                        "maxRating": 69.0,
+                        "classId": 37
+                    },
+                    {
+                        "id": 65,
+                        "name": "II",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 70.0,
+                        "maxRating": 93.0,
+                        "classId": 37
+                    }
+                ],
+                "startDate": "2026-08-06T09:20:00Z",
+                "endDate": "2026-08-06T10:50:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 38,
+                    "name": "Half Fast (94+)",
+                    "sort": 1,
+                    "ratingType": "ORC_PHRF",
+                    "numberOfRaces": 18,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 67,
+                        "name": "III",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 94.0,
+                        "maxRating": 139.0,
+                        "classId": 38
+                    },
+                    {
+                        "id": 68,
+                        "name": "IV",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 140.0,
+                        "maxRating": 1000.0,
+                        "classId": 38
+                    }
+                ],
+                "startDate": "2026-08-06T09:25:00Z",
+                "endDate": "2026-08-06T10:55:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 4,
+                    "name": "Windseekers FS",
+                    "sort": 6,
+                    "ratingType": "CruisingFlyingSails",
+                    "numberOfRaces": 99,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 19,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 4
+                    }
+                ],
+                "startDate": "2026-08-06T09:30:00Z",
+                "endDate": "2026-08-06T11:00:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 3,
+                    "name": "Windseekers NFS",
+                    "sort": 7,
+                    "ratingType": "CruisingNonFlyingSails",
+                    "numberOfRaces": 99,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 18,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 3
+                    }
+                ],
+                "startDate": "2026-08-06T09:15:00Z",
+                "endDate": "2026-08-06T10:45:00Z"
+            }
+        ]
+    },
+    "classReports": [
+        {
+            "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 64,
+                        "name": "I",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": -1000.0,
+                        "maxRating": 69.0,
+                        "classId": 37
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2132,
+                                    "raceId": 111,
+                                    "boatId": 11,
+                                    "finish": "2026-08-06T10:04:28Z",
+                                    "phrfRating": 48,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 64,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 2,
+                                        "first": "John",
+                                        "last": "Leitzinger",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 11,
+                                        "name": "Kahuna",
+                                        "sailNumber": "USA 27",
+                                        "boatType": "Aerodyne 38",
+                                        "phrfRating": 48,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 79,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 64,
+                                    "name": "I",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": -1000.0,
+                                    "maxRating": 69.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Kahuna",
+                            "sail": "USA 27",
+                            "skipper": "John Leitzinger",
+                            "boatType": "Aerodyne 38",
+                            "phrfRating": 48,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:04:28Z",
+                            "elapsedTime": "PT44M28S",
+                            "phrfTcf": 1.0030864197530864,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT44M36.234567901S",
+                            "correctedOrcTime": "PT44M28S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2129,
+                                    "raceId": 111,
+                                    "boatId": 63,
+                                    "finish": "2026-08-06T10:03:47Z",
+                                    "phrfRating": 18,
+                                    "orcRef": "04560004KI4",
+                                    "hocPosition": null,
+                                    "bracketId": 64,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "ORC_PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 6,
+                                        "first": "Jerry",
+                                        "last": "McKay",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 63,
+                                        "name": "Wicked Sister",
+                                        "sailNumber": "USA 3",
+                                        "boatType": "Farr 36",
+                                        "phrfRating": 18,
+                                        "orcCerts": [
+                                            {
+                                                "NatAuth": "USA",
+                                                "BIN": "US3603",
+                                                "CertNo": "US3603",
+                                                "RefNo": "04560004KI4",
+                                                "SailNo": "USA 3",
+                                                "YachtName": "WICKED SISTER",
+                                                "Class": "FARR 36 OD",
+                                                "Builder": "BETTS",
+                                                "Designer": "B.FARR",
+                                                "C_Type": "CLUB",
+                                                "Division": "R",
+                                                "IssueDate": "2026-04-07T16:51:21.001Z",
+                                                "APHD": 476.0,
+                                                "APHT": 1.2606,
+                                                "ILCWA": 584.9,
+                                                "TMF_Inshore": 1.0258,
+                                                "TND_Offshore_Low": 582.7,
+                                                "TN_Offshore_Low": 1.0297,
+                                                "TND_Offshore_Medium": 477.2,
+                                                "TN_Offshore_Medium": 1.2574,
+                                                "TND_Offshore_High": 419.3,
+                                                "TN_Offshore_High": 1.4308,
+                                                "US_TN_Inshore_Low": 0.7729,
+                                                "TN_Inshore_Medium": 1.024,
+                                                "TN_Inshore_High": 1.1909,
+                                                "US_PREDUP_TOT": 1.1154,
+                                                "US_PREDUP_TOD": 537.9,
+                                                "US_PREDRC_TOT": 1.2945,
+                                                "US_PREDRC_TOD": 463.5,
+                                                "US_PREDDN_TOT": 1.2383,
+                                                "US_PREDDN_TOD": 484.5,
+                                                "US_PREDUP_L_TOT": 0.8607,
+                                                "US_PREDUP_L_TOD": 697.1,
+                                                "US_PREDUP_LM_TOT": 1.0738,
+                                                "US_PREDUP_LM_TOD": 558.8,
+                                                "US_PREDUP_M_TOT": 1.1743,
+                                                "US_PREDUP_M_TOD": 511.0,
+                                                "US_PREDUP_MH_TOT": 1.2537,
+                                                "US_PREDUP_MH_TOD": 478.6,
+                                                "US_PREDUP_H_TOT": 1.3004,
+                                                "US_PREDUP_H_TOD": 461.4,
+                                                "US_PREDDN_L_TOT": 0.8661,
+                                                "US_PREDDN_L_TOD": 692.8,
+                                                "US_PREDDN_LM_TOT": 1.1341,
+                                                "US_PREDDN_LM_TOD": 529.1,
+                                                "US_PREDDN_M_TOT": 1.3113,
+                                                "US_PREDDN_M_TOD": 457.5,
+                                                "US_PREDDN_MH_TOT": 1.5182,
+                                                "US_PREDDN_MH_TOD": 395.2,
+                                                "US_PREDDN_H_TOT": 1.718,
+                                                "US_PREDDN_H_TOD": 349.2,
+                                                "US_PREDRC_L_TOT": 0.9674,
+                                                "US_PREDRC_L_TOD": 620.2,
+                                                "US_PREDRC_LM_TOT": 1.2151,
+                                                "US_PREDRC_LM_TOD": 493.8,
+                                                "US_PREDRC_M_TOT": 1.3607,
+                                                "US_PREDRC_M_TOD": 441.0,
+                                                "US_PREDRC_MH_TOT": 1.5069,
+                                                "US_PREDRC_MH_TOD": 398.2,
+                                                "US_PREDRC_H_TOT": 1.6178,
+                                                "US_PREDRC_H_TOD": 370.9,
+                                                "US_5B_L_TOT": 0.6967,
+                                                "US_5B_L_TOD": 861.2,
+                                                "US_5B_LM_TOT": 0.9145,
+                                                "US_5B_LM_TOD": 656.1,
+                                                "US_5B_M_TOT": 1.0396,
+                                                "US_5B_M_TOD": 577.2,
+                                                "US_5B_MH_TOT": 1.163,
+                                                "US_5B_MH_TOD": 515.9,
+                                                "US_5B_H_TOT": 1.2735,
+                                                "US_5B_H_TOD": 471.1,
+                                                "US_WL6040_L_TOD": 865.5,
+                                                "US_WL6040_L_TOT": 0.6933,
+                                                "US_WL6040_LM_TOD": 665.6,
+                                                "US_WL6040_LM_TOT": 0.9014,
+                                                "US_WL6040_M_TOD": 592.0,
+                                                "US_WL6040_M_TOT": 1.0134,
+                                                "US_WL6040_MH_TOD": 538.2,
+                                                "US_WL6040_MH_TOT": 1.1148,
+                                                "US_WL6040_H_TOD": 501.9,
+                                                "US_WL6040_H_TOT": 1.1955,
+                                                "US_AP_L_TOT": 0.9397,
+                                                "US_AP_L_TOD": 638.5,
+                                                "US_AP_LM_TOT": 1.1417,
+                                                "US_AP_LM_TOD": 525.5,
+                                                "US_AP_M_TOT": 1.2742,
+                                                "US_AP_M_TOD": 470.9,
+                                                "US_AP_MH_TOT": 1.4033,
+                                                "US_AP_MH_TOD": 427.6,
+                                                "US_AP_H_TOT": 1.5094,
+                                                "US_AP_H_TOD": 397.5
+                                            }
+                                        ],
+                                        "skipperId": null,
+                                        "ratingType": "ORC_PHRF",
+                                        "numberOfRaces": 41,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 64,
+                                    "name": "I",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": -1000.0,
+                                    "maxRating": 69.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Wicked Sister",
+                            "sail": "USA 3",
+                            "skipper": "Jerry McKay",
+                            "boatType": "Farr 36",
+                            "phrfRating": 18,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:03:47Z",
+                            "elapsedTime": "PT43M47S",
+                            "phrfTcf": 1.051779935275081,
+                            "orcTcf": 0.9145,
+                            "correctedPhrfTime": "PT46M3.025889968S",
+                            "correctedOrcTime": "PT40M2.391500S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 1,
+                            "placeInClass": 7,
+                            "placeInClassOrc": 1,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2143,
+                                    "raceId": 111,
+                                    "boatId": 22,
+                                    "finish": "2026-08-06T10:32:36Z",
+                                    "phrfRating": 69,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 64,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 1,
+                                        "first": "Ed",
+                                        "last": "Pinkham",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 22,
+                                        "name": "Jeopardy",
+                                        "sailNumber": "161",
+                                        "boatType": "J/109",
+                                        "phrfRating": 69,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 59,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 64,
+                                    "name": "I",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": -1000.0,
+                                    "maxRating": 69.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Jeopardy",
+                            "sail": "161",
+                            "skipper": "Ed Pinkham",
+                            "boatType": "J/109",
+                            "phrfRating": 69,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:32:36Z",
+                            "elapsedTime": "PT1H12M36S",
+                            "phrfTcf": 0.9715994020926756,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H10M32.286995516S",
+                            "correctedOrcTime": "PT1H12M36S",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 9,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                },
+                {
+                    "bracket": {
+                        "id": 65,
+                        "name": "II",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 70.0,
+                        "maxRating": 93.0,
+                        "classId": 37
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2124,
+                                    "raceId": 111,
+                                    "boatId": 18,
+                                    "finish": "2026-08-06T10:01:40Z",
+                                    "phrfRating": 84,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 12,
+                                        "first": "Jay",
+                                        "last": "Pyles",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 18,
+                                        "name": "Short Circuit",
+                                        "sailNumber": "69800",
+                                        "boatType": "Tripp 33",
+                                        "phrfRating": 84,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 78,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Short Circuit",
+                            "sail": "69800",
+                            "skipper": "Jay Pyles",
+                            "boatType": "Tripp 33",
+                            "phrfRating": 84,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:01:40Z",
+                            "elapsedTime": "PT41M40S",
+                            "phrfTcf": 0.9502923976608187,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT39M35.730994152S",
+                            "correctedOrcTime": "PT41M40S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2127,
+                                    "raceId": 111,
+                                    "boatId": 15,
+                                    "finish": "2026-08-06T10:03:14Z",
+                                    "phrfRating": 93,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 11,
+                                        "first": "Jeremy",
+                                        "last": "Bush",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 15,
+                                        "name": "Goes to 11",
+                                        "sailNumber": "19",
+                                        "boatType": "Antrim 27",
+                                        "phrfRating": 93,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 86,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Goes to 11",
+                            "sail": "19",
+                            "skipper": "Jeremy Bush",
+                            "boatType": "Antrim 27",
+                            "phrfRating": 93,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:03:14Z",
+                            "elapsedTime": "PT43M14S",
+                            "phrfTcf": 0.937950937950938,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT40M33.044733045S",
+                            "correctedOrcTime": "PT43M14S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2131,
+                                    "raceId": 111,
+                                    "boatId": 27,
+                                    "finish": "2026-08-06T10:04:14Z",
+                                    "phrfRating": 72,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 51,
+                                        "first": "Brian",
+                                        "last": "White",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 27,
+                                        "name": "Grace E",
+                                        "sailNumber": "40622",
+                                        "boatType": "J/35",
+                                        "phrfRating": 72,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 59,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Grace E",
+                            "sail": "40622",
+                            "skipper": "Brian White",
+                            "boatType": "J/35",
+                            "phrfRating": 72,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:04:14Z",
+                            "elapsedTime": "PT44M14S",
+                            "phrfTcf": 0.9672619047619048,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT42M47.113095238S",
+                            "correctedOrcTime": "PT44M14S",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 3,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2135,
+                                    "raceId": 111,
+                                    "boatId": 12,
+                                    "finish": "2026-08-06T10:06:12Z",
+                                    "phrfRating": 72,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 4,
+                                        "first": "Eric",
+                                        "last": "Johnson",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 12,
+                                        "name": "Flicka",
+                                        "sailNumber": "69262",
+                                        "boatType": "J/35",
+                                        "phrfRating": 72,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 73,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Flicka",
+                            "sail": "69262",
+                            "skipper": "Eric Johnson",
+                            "boatType": "J/35",
+                            "phrfRating": 72,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:06:12Z",
+                            "elapsedTime": "PT46M12S",
+                            "phrfTcf": 0.9672619047619048,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT44M41.250S",
+                            "correctedOrcTime": "PT46M12S",
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 5,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2137,
+                                    "raceId": 111,
+                                    "boatId": 73,
+                                    "finish": "2026-08-06T10:07:49Z",
+                                    "phrfRating": 75,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 91,
+                                        "first": "Mike",
+                                        "last": "Clidas",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 73,
+                                        "name": "Athena",
+                                        "sailNumber": "69708",
+                                        "boatType": "Beneteau First 435",
+                                        "phrfRating": 75,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 16,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Athena",
+                            "sail": "69708",
+                            "skipper": "Mike Clidas",
+                            "boatType": "Beneteau First 435",
+                            "phrfRating": 75,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:07:49Z",
+                            "elapsedTime": "PT47M49S",
+                            "phrfTcf": 0.9629629629629629,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT46M2.740740741S",
+                            "correctedOrcTime": "PT47M49S",
+                            "placeInBracket": 5,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 6,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2140,
+                                    "raceId": 111,
+                                    "boatId": 41,
+                                    "finish": "2026-08-06T10:13:19Z",
+                                    "phrfRating": 93,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 65,
+                                    "raceClassId": 37,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 64,
+                                        "first": "Fred",
+                                        "last": "Creitz",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 41,
+                                        "name": "Bucket List",
+                                        "sailNumber": "ANTR27-2",
+                                        "boatType": "Antrum",
+                                        "phrfRating": 93,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 42,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 65,
+                                    "name": "II",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 70.0,
+                                    "maxRating": 93.0,
+                                    "classId": 37
+                                }
+                            },
+                            "boatName": "Bucket List",
+                            "sail": "ANTR27-2",
+                            "skipper": "Fred Creitz",
+                            "boatType": "Antrum",
+                            "phrfRating": 93,
+                            "startTime": "2026-08-06T09:20:00Z",
+                            "finishTime": "2026-08-06T10:13:19Z",
+                            "elapsedTime": "PT53M19S",
+                            "phrfTcf": 0.937950937950938,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT50M0.505050505S",
+                            "correctedOrcTime": "PT53M19S",
+                            "placeInBracket": 6,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 8,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": true
+        },
+        {
+            "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 67,
+                        "name": "III",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 94.0,
+                        "maxRating": 139.0,
+                        "classId": 38
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2126,
+                                    "raceId": 111,
+                                    "boatId": 30,
+                                    "finish": "2026-08-06T10:01:47Z",
+                                    "phrfRating": 126,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 67,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 53,
+                                        "first": "Paul",
+                                        "last": "Case",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 30,
+                                        "name": "Strider",
+                                        "sailNumber": "49589",
+                                        "boatType": "Hotfoot 31",
+                                        "phrfRating": 126,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 55,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 67,
+                                    "name": "III",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 94.0,
+                                    "maxRating": 139.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Strider",
+                            "sail": "49589",
+                            "skipper": "Paul Case",
+                            "boatType": "Hotfoot 31",
+                            "phrfRating": 126,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:01:47Z",
+                            "elapsedTime": "PT36M47S",
+                            "phrfTcf": 0.8953168044077136,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT32M55.964187328S",
+                            "correctedOrcTime": "PT36M47S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2125,
+                                    "raceId": 111,
+                                    "boatId": 19,
+                                    "finish": "2026-08-06T10:02:56Z",
+                                    "phrfRating": 120,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 67,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 17,
+                                        "first": "Nelson",
+                                        "last": "Grove",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 19,
+                                        "name": "Slick",
+                                        "sailNumber": "69299",
+                                        "boatType": "J/29",
+                                        "phrfRating": 120,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 64,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 67,
+                                    "name": "III",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 94.0,
+                                    "maxRating": 139.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Slick",
+                            "sail": "69299",
+                            "skipper": "Nelson Grove",
+                            "boatType": "J/29",
+                            "phrfRating": 120,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:02:56Z",
+                            "elapsedTime": "PT37M56S",
+                            "phrfTcf": 0.9027777777777778,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT34M14.722222222S",
+                            "correctedOrcTime": "PT37M56S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2130,
+                                    "raceId": 111,
+                                    "boatId": 29,
+                                    "finish": "2026-08-06T10:04:09Z",
+                                    "phrfRating": 99,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 67,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 52,
+                                        "first": "Edmond",
+                                        "last": "Jacobs",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 29,
+                                        "name": "Out of the Blue",
+                                        "sailNumber": "USA60159",
+                                        "boatType": "Landing School 30",
+                                        "phrfRating": 99,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 72,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 67,
+                                    "name": "III",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 94.0,
+                                    "maxRating": 139.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Out of the Blue",
+                            "sail": "USA60159",
+                            "skipper": "Edmond Jacobs",
+                            "boatType": "Landing School 30",
+                            "phrfRating": 99,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:04:09Z",
+                            "elapsedTime": "PT39M9S",
+                            "phrfTcf": 0.9298998569384835,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT36M24.334763948S",
+                            "correctedOrcTime": "PT39M9S",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 6,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                },
+                {
+                    "bracket": {
+                        "id": 68,
+                        "name": "IV",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 140.0,
+                        "maxRating": 1000.0,
+                        "classId": 38
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2123,
+                                    "raceId": 111,
+                                    "boatId": 36,
+                                    "finish": "2026-08-06T10:01:16Z",
+                                    "phrfRating": 141,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 68,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 10,
+                                        "first": "Barker",
+                                        "last": "Glassley",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 36,
+                                        "name": "Zephyr",
+                                        "sailNumber": "69097",
+                                        "boatType": "J/30",
+                                        "phrfRating": 141,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 95,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 68,
+                                    "name": "IV",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 140.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Zephyr",
+                            "sail": "69097",
+                            "skipper": "Barker Glassley",
+                            "boatType": "J/30",
+                            "phrfRating": 141,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:01:16Z",
+                            "elapsedTime": "PT36M16S",
+                            "phrfTcf": 0.8771929824561403,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT31M48.771929825S",
+                            "correctedOrcTime": "PT36M16S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2128,
+                                    "raceId": 111,
+                                    "boatId": 5,
+                                    "finish": "2026-08-06T10:03:42Z",
+                                    "phrfRating": 162,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 68,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 25,
+                                        "first": "Ross",
+                                        "last": "Chamberlain",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 5,
+                                        "name": "Work Release",
+                                        "sailNumber": "61396",
+                                        "boatType": "Jeaneau SO 37",
+                                        "phrfRating": 162,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 67,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 68,
+                                    "name": "IV",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 140.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Work Release",
+                            "sail": "61396",
+                            "skipper": "Ross Chamberlain",
+                            "boatType": "Jeaneau SO 37",
+                            "phrfRating": 162,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:03:42Z",
+                            "elapsedTime": "PT38M42S",
+                            "phrfTcf": 0.8530183727034121,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT33M0.708661417S",
+                            "correctedOrcTime": "PT38M42S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 3,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2134,
+                                    "raceId": 111,
+                                    "boatId": 1,
+                                    "finish": "2026-08-06T10:06:36Z",
+                                    "phrfRating": 150,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 68,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 23,
+                                        "first": "William",
+                                        "last": "Kamp",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 1,
+                                        "name": "Waymaker",
+                                        "sailNumber": "USA 59793",
+                                        "boatType": "Tartan 37 DK",
+                                        "phrfRating": 150,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 53,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 68,
+                                    "name": "IV",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 140.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Waymaker",
+                            "sail": "USA 59793",
+                            "skipper": "William Kamp",
+                            "boatType": "Tartan 37 DK",
+                            "phrfRating": 150,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:06:36Z",
+                            "elapsedTime": "PT41M36S",
+                            "phrfTcf": 0.8666666666666667,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT36M3.200S",
+                            "correctedOrcTime": "PT41M36S",
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 5,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2139,
+                                    "raceId": 111,
+                                    "boatId": 16,
+                                    "finish": "2026-08-06T10:08:52Z",
+                                    "phrfRating": 141,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 68,
+                                    "raceClassId": 38,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 18,
+                                        "first": "Jean",
+                                        "last": "Fedor",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 16,
+                                        "name": "Boginka",
+                                        "sailNumber": "59746",
+                                        "boatType": "J/30",
+                                        "phrfRating": 141,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 86,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 68,
+                                    "name": "IV",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 14,
+                                    "minRating": 140.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 38
+                                }
+                            },
+                            "boatName": "Boginka",
+                            "sail": "59746",
+                            "skipper": "Jean Fedor",
+                            "boatType": "J/30",
+                            "phrfRating": 141,
+                            "startTime": "2026-08-06T09:25:00Z",
+                            "finishTime": "2026-08-06T10:08:52Z",
+                            "elapsedTime": "PT43M52S",
+                            "phrfTcf": 0.8771929824561403,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT38M28.771929825S",
+                            "correctedOrcTime": "PT43M52S",
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 7,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        },
+        {
+            "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 19,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 4
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2133,
+                                    "raceId": 111,
+                                    "boatId": 53,
+                                    "finish": "2026-08-06T10:04:33Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 19,
+                                    "raceClassId": 4,
+                                    "penalty": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 74,
+                                        "first": "Robert",
+                                        "last": "Silvernagel",
+                                        "clubMember": false,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 53,
+                                        "name": "Origami",
+                                        "sailNumber": "063",
+                                        "boatType": "Corsair Dash 750",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingFlyingSails",
+                                        "numberOfRaces": 17,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 19,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 4
+                                }
+                            },
+                            "boatName": "Origami",
+                            "sail": "063",
+                            "skipper": "Robert Silvernagel",
+                            "boatType": "Corsair Dash 750",
+                            "phrfRating": null,
+                            "startTime": "2026-08-06T09:30:00Z",
+                            "finishTime": "2026-08-06T10:04:33Z",
+                            "elapsedTime": "PT34M33S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT34M33S",
+                            "correctedOrcTime": "PT34M33S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2141,
+                                    "raceId": 111,
+                                    "boatId": 98,
+                                    "finish": null,
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 19,
+                                    "raceClassId": 4,
+                                    "penalty": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "finishCode": "RET"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 120,
+                                        "first": "Dana",
+                                        "last": "Bachellerie",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 98,
+                                        "name": "Black Elise II",
+                                        "sailNumber": "",
+                                        "boatType": "Hanse 400e",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingFlyingSails",
+                                        "numberOfRaces": 20,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 19,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 4
+                                }
+                            },
+                            "boatName": "Black Elise II",
+                            "sail": "",
+                            "skipper": "Dana Bachellerie",
+                            "boatType": "Hanse 400e",
+                            "phrfRating": null,
+                            "startTime": "2026-08-06T09:30:00Z",
+                            "finishTime": null,
+                            "elapsedTime": null,
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": null,
+                            "correctedOrcTime": null,
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        },
+        {
+            "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+            },
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
+            "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 18,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 99,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 3
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2136,
+                                    "raceId": 111,
+                                    "boatId": 93,
+                                    "finish": "2026-08-06T10:07:10Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 18,
+                                    "raceClassId": 3,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 116,
+                                        "first": "Kurt",
+                                        "last": "Hrubant",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 93,
+                                        "name": "Scallywag",
+                                        "sailNumber": "",
+                                        "boatType": "Catalina 38",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 40,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 18,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 3
+                                }
+                            },
+                            "boatName": "Scallywag",
+                            "sail": "",
+                            "skipper": "Kurt Hrubant",
+                            "boatType": "Catalina 38",
+                            "phrfRating": null,
+                            "startTime": "2026-08-06T09:15:00Z",
+                            "finishTime": "2026-08-06T10:07:10Z",
+                            "elapsedTime": "PT52M10S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT52M10S",
+                            "correctedOrcTime": "PT52M10S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2138,
+                                    "raceId": 111,
+                                    "boatId": 31,
+                                    "finish": "2026-08-06T10:08:54Z",
+                                    "phrfRating": 93,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 18,
+                                    "raceClassId": 3,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 54,
+                                        "first": "Stephen",
+                                        "last": "Ryan",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 31,
+                                        "name": "Obsession",
+                                        "sailNumber": "69598",
+                                        "boatType": "Frers 38",
+                                        "phrfRating": 93,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 33,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 18,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 3
+                                }
+                            },
+                            "boatName": "Obsession",
+                            "sail": "69598",
+                            "skipper": "Stephen Ryan",
+                            "boatType": "Frers 38",
+                            "phrfRating": 93,
+                            "startTime": "2026-08-06T09:15:00Z",
+                            "finishTime": "2026-08-06T10:08:54Z",
+                            "elapsedTime": "PT53M54S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT53M54S",
+                            "correctedOrcTime": "PT53M54S",
+                            "placeInBracket": 2,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 2,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2144,
+                                    "raceId": 111,
+                                    "boatId": 56,
+                                    "finish": null,
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": 1,
+                                    "bracketId": 18,
+                                    "raceClassId": 3,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "HOC"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 78,
+                                        "first": "Jason",
+                                        "last": "Hanford",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 56,
+                                        "name": "Land Denial",
+                                        "sailNumber": "865",
+                                        "boatType": "Newport 30",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 41,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 18,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 3
+                                }
+                            },
+                            "boatName": "Land Denial",
+                            "sail": "865",
+                            "skipper": "Jason Hanford",
+                            "boatType": "Newport 30",
+                            "phrfRating": null,
+                            "startTime": "2026-08-06T09:15:00Z",
+                            "finishTime": null,
+                            "elapsedTime": null,
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": null,
+                            "correctedOrcTime": null,
+                            "placeInBracket": 3,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 3,
+                            "placeInClassOrc": 0,
+                            "hocPosition": 1,
+                            "penalty": null
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 2142,
+                                    "raceId": 111,
+                                    "boatId": 6,
+                                    "finish": null,
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 18,
+                                    "raceClassId": 3,
+                                    "penalty": null,
+                                    "ratingType": "CruisingNonFlyingSails",
+                                    "finishCode": "RET"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 27,
+                                        "first": "Angie",
+                                        "last": "Littleton",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 6,
+                                        "name": "Windsong",
+                                        "sailNumber": "88",
+                                        "boatType": "Mirage 30",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingNonFlyingSails",
+                                        "numberOfRaces": 39,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 18,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 3
+                                }
+                            },
+                            "boatName": "Windsong",
+                            "sail": "88",
+                            "skipper": "Angie Littleton",
+                            "boatType": "Mirage 30",
+                            "phrfRating": null,
+                            "startTime": "2026-08-06T09:15:00Z",
+                            "finishTime": null,
+                            "elapsedTime": null,
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": null,
+                            "correctedOrcTime": null,
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                }
+            ],
+            "hasOrcResults": false
+        }
+    ]
+}
