@@ -3,11 +3,16 @@ package components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import org.jetbrains.compose.web.ExperimentalComposeWebSvgApi
 import org.jetbrains.compose.web.attributes.ATarget
 import org.jetbrains.compose.web.attributes.alt
 import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.dom.*
-import utils.Bootstrap
+import org.jetbrains.compose.web.svg.Path
+import org.jetbrains.compose.web.svg.Svg
 import viewmodel.*
 
 @Composable
@@ -17,6 +22,7 @@ fun NavBar(
 ) {
     val state by viewModel.flow.collectAsState()
     val loginFlowState by loginVm.flow.collectAsState()
+    var menuOpen by remember { mutableStateOf(false) }
     if (state.current.params?.values?.containsKey("nonav") == true) {
         RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s2) }) {
             A(href = state.href.replace("nonav", "nav"), attrs = {
@@ -26,73 +32,70 @@ fun NavBar(
         }
     } else
     Nav(attrs = {
-        classes(
-            "navbar",
-            "navbar-expand-lg",
-            "bg-body-tertiary",
-            "sticky-top",
-            "border-body",
-            "border-bottom"
-        )
-        attr("data-bs-theme", "light")
+        classes("rg-navbar")
     }) {
-        Div(attrs = { classes("container-fluid") }) {
-            A(attrs = { classes("navbar-brand") }, href = "#") {
+        Div(attrs = { classes("rg-navbar-inner") }) {
+            A(href = "#") {
                 Img(src = "/cyct_burgee.svg", attrs = {
-                    classes("d-inline-block")
-                    attr("height", "60")
+                    // a height class, not attr("height"): Preflight's img { height: auto } overrides the attribute
+                    classes("inline-block", "h-[60px]", "w-auto")
                     alt("logo")
                 })
             }
             Button(attrs = {
-                classes("navbar-toggler")
-                onClick {
-                    Bootstrap.Collapse.getOrCreateInstance("#navbarNavDropdown")?.toggle()
+                classes("rg-navbar-toggler", "lg:hidden")
+                attr("aria-controls", "navbarNavDropdown")
+                attr("aria-expanded", menuOpen.toString())
+                attr("aria-label", "Toggle navigation")
+                onClick { menuOpen = !menuOpen }
+            }) {
+                HamburgerIcon()
+            }
+            // Below lg the list is a vertical menu shown only while open; at lg and up it's always a row.
+            // Both class strings are literals so Tailwind's scanner sees every class.
+            Ul(attrs = {
+                id("navbarNavDropdown")
+                if (menuOpen) {
+                    classes("m-0", "p-0", "list-none", "flex", "basis-full", "flex-col", "lg:basis-auto", "lg:grow", "lg:flex-row", "lg:ms-4")
+                } else {
+                    classes("m-0", "p-0", "list-none", "hidden", "lg:flex", "lg:grow", "lg:flex-row", "lg:ms-4")
                 }
             }) {
-                Span(attrs = { classes("navbar-toggler-icon") }) { }
-            }
-            Div(attrs = {
-                id("navbarNavDropdown")
-                classes("collapse", "navbar-collapse")
-            }) {
-                Ul(attrs = { classes("navbar-nav") }) {
-                    (loginFlowState.login?.let {
-                        arrayOf(
-                            Route.Home,
-                            Route.People,
-                            Route.Boats,
-                            Route.Series,
-                            Route.Classes,
-                            Route.Races,
-                            Route.Rc,
-                            Route.RaceResult,
-                            Route.Course,
-                        )
-                    } ?: arrayOf(
+                (loginFlowState.login?.let {
+                    arrayOf(
+                        Route.Home,
+                        Route.People,
+                        Route.Boats,
+                        Route.Series,
+                        Route.Classes,
+                        Route.Races,
+                        Route.Rc,
                         Route.RaceResult,
                         Route.Course,
-                    )).forEach { route ->
-                        Li(attrs = { classes("nav-item") }) {
-                            Button(attrs = {
-                                if (route == state.current.route) {
-                                    classes("nav-link", "active")
-                                } else {
-                                    classes("nav-link")
-                                }
-                                onClick {
-                                    viewModel.pushRoute(route)
-                                }
-                            }) {
-                                Text(route.label)
+                    )
+                } ?: arrayOf(
+                    Route.RaceResult,
+                    Route.Course,
+                )).forEach { route ->
+                    Li {
+                        Button(attrs = {
+                            classes("rg-nav-link")
+                            if (route == state.current.route) {
+                                attr("aria-current", "page")
                             }
+                            onClick {
+                                viewModel.pushRoute(route)
+                            }
+                        }) {
+                            Text(route.label)
                         }
                     }
+                }
 
                     if (loginFlowState.loginStatus == LoginStatus.LoggedIn) {
-                        Li(attrs = { classes("nav-item") }) {
+                        Li {
                             Button(attrs = {
-                                classes("nav-link")
+                                classes("rg-nav-link")
                                 onClick {
                                     loginVm.logout()
                                 }
@@ -101,9 +104,9 @@ fun NavBar(
                             }
                         }
                     } else {
-                        Li(attrs = { classes("nav-item") }) {
+                        Li {
                             Button(attrs = {
-                                classes("nav-link")
+                                classes("rg-nav-link")
                                 onClick {
                                     viewModel.pushRoute(Route.Admin)
                                 }
@@ -115,5 +118,20 @@ fun NavBar(
                 }
             }
         }
+}
+
+@OptIn(ExperimentalComposeWebSvgApi::class)
+@Composable
+private fun HamburgerIcon() {
+    Svg(viewBox = "0 0 30 30", attrs = {
+        attr("width", "30")
+        attr("height", "30")
+        attr("aria-hidden", "true")
+    }) {
+        Path("M4 7h22M4 15h22M4 23h22", attrs = {
+            attr("stroke", "currentColor")
+            attr("stroke-width", "2")
+            attr("stroke-linecap", "round")
+        })
     }
 }

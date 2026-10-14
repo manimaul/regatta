@@ -11,15 +11,18 @@ import org.w3c.dom.HTMLTableRowElement
 import org.w3c.dom.HTMLTableSectionElement
 
 
-enum class TableColor {
-    primary,
-    secondary,
-    success,
-    danger,
-    warning,
-    info,
-    light,
-    dark;
+/**
+ * @param cls the full class name, spelled out so Tailwind's scanner sees it (never build it from [name]).
+ */
+enum class TableColor(val cls: String) {
+    primary("rg-table-primary"),
+    secondary("rg-table-secondary"),
+    success("rg-table-success"),
+    danger("rg-table-danger"),
+    warning("rg-table-warning"),
+    info("rg-table-info"),
+    light("rg-table-light"),
+    dark("rg-table-dark");
 }
 
 
@@ -30,16 +33,13 @@ fun RgTable(
     stripeColumn: Boolean = false,
     content: ContentBuilder<HTMLTableElement>? = null
 ) {
-    Div(attrs = { classes("table-responsive") }) {
+    Div(attrs = { classes("overflow-x-auto") }) {
         Table(attrs = {
             classes(
-                "table",
-                "table-hover",
-                "table-${color.name}",
-                "table-sm",
-                if (stripeColumn) "table-striped-columns" else "table-striped",
-                "caption-top",
-                "table-bordered"
+                "rg-table",
+                "rg-table-hover",
+                color.cls,
+                if (stripeColumn) "rg-table-striped-columns" else "rg-table-striped",
             )
         }) {
             caption?.let { Caption { Text(it) } }
@@ -73,7 +73,7 @@ fun RgTbody(
 fun RgTrColor(
     color: TableColor? = null,
     content: ContentBuilder<HTMLTableRowElement>? = null
-) = RgTr(color?.let { listOf("table-${it.name}") }, content)
+) = RgTr(color?.let { listOf(it.cls) }, content)
 
 @Composable
 fun RgTr(
@@ -98,7 +98,7 @@ fun RgTdColor(
     colSpan: Int? = null,
     color: TableColor? = null,
     content: ContentBuilder<HTMLTableCellElement>? = null
-) = RgTd(colSpan, color?.let { listOf("table-${it.name}") }, content)
+) = RgTd(colSpan, color?.let { listOf(it.cls) }, content)
 
 @Composable
 fun RgTd(

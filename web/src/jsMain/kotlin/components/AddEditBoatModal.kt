@@ -4,12 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.mxmariner.regatta.data.Person
-import org.jetbrains.compose.web.attributes.disabled
-import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.P
-import org.jetbrains.compose.web.dom.Text
 import viewmodel.alertsViewModel
 import viewmodel.boatViewModel
 
@@ -86,35 +83,25 @@ fun AddEditBoatModal(
         },
         footer = {
             Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
-                Button(attrs = {
-                    classes(*RgButtonStyle.PrimaryOutline.classes)
-                    if (state.addEditState.addBoat.id != 0L) {
-                        disabled()
-                    }
-                    onClick {
-                        boatViewModel.clearEditBoat()
-                    }
-                }) {
-                    Text("Clear")
+                RgButton(
+                    label = "Clear",
+                    style = RgButtonStyle.PrimaryOutline,
+                    disabled = state.addEditState.addBoat.id != 0L,
+                ) {
+                    boatViewModel.clearEditBoat()
                 }
-
-                Button(attrs = {
-                    classes(*RgButtonStyle.Success.classes)
-
-                    if (!state.addEditState.isValid) {
-                        disabled()
+                RgButton(
+                    label = "Save",
+                    style = RgButtonStyle.Success,
+                    disabled = !state.addEditState.isValid,
+                    closesModal = true,
+                ) {
+                    boatViewModel.saveEditedBoat()
+                    if (state.addEditState.addBoat.id != 0L) {
+                        alertsViewModel.showAlert("${state.addEditState.addBoat.name} updated!")
+                    } else {
+                        alertsViewModel.showAlert("${state.addEditState.addBoat.name} added!")
                     }
-                    attr("data-bs-dismiss", "modal")
-                    onClick {
-                        boatViewModel.saveEditedBoat()
-                        if (state.addEditState.addBoat.id != 0L) {
-                            alertsViewModel.showAlert("${state.addEditState.addBoat.name} updated!")
-                        } else {
-                            alertsViewModel.showAlert("${state.addEditState.addBoat.name} added!")
-                        }
-                    }
-                }) {
-                    Text("Save")
                 }
             }
         }

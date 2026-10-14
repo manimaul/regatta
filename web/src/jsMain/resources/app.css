@@ -1,0 +1,293 @@
+/*
+ * Tailwind entry point. See doc/explore_tailwind.md.
+ *
+ * Layer order: theme < base (Preflight) < bootstrap < components (.rg-*) < utilities.
+ * While the migration is in progress Bootstrap is imported into its own cascade layer so that
+ *  - Reboot still wins over Preflight for screens that haven't been migrated, and
+ *  - our .rg-* component classes always win over Bootstrap.
+ * Remove the bootstrap layer and import once every component is migrated (Phase 5).
+ */
+@layer theme, base, bootstrap, components, utilities;
+@import "bootstrap/dist/css/bootstrap.css" layer(bootstrap);
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@theme {
+    /* Bootstrap breakpoints, so navbar collapse (lg) and containers behave as they do today */
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-2xl: initial;
+    --breakpoint-xxl: 1400px;
+
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+
+    /* CYCT burgee: navy #131340, light blue #5eb2db, red #ef4137, off-white #fafaff */
+    --color-primary-50: color-mix(in oklab, #131340 5%, white);
+    --color-primary-100: color-mix(in oklab, #131340 10%, white);
+    --color-primary-200: color-mix(in oklab, #131340 22%, white);
+    --color-primary-300: color-mix(in oklab, #131340 38%, white);
+    --color-primary-500: color-mix(in oklab, #131340 70%, white);
+    --color-primary-700: color-mix(in oklab, #131340 88%, white);
+    --color-primary-900: #131340;
+    --color-primary-950: color-mix(in oklab, #131340 75%, black);
+
+    --color-info-100: color-mix(in oklab, #5eb2db 20%, white);
+    --color-info-200: color-mix(in oklab, #5eb2db 38%, white);
+    --color-info-500: #5eb2db;
+    --color-info-700: color-mix(in oklab, #5eb2db 70%, black);
+
+    --color-danger-100: color-mix(in oklab, #ef4137 15%, white);
+    --color-danger-200: color-mix(in oklab, #ef4137 30%, white);
+    --color-danger-600: color-mix(in oklab, #ef4137 88%, black);
+    --color-danger-700: color-mix(in oklab, #ef4137 75%, black);
+
+    --color-surface: #fafaff;
+
+    /* Bootstrap's stacking order */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+}
+
+/* success / warning / secondary have no burgee equivalent: alias Tailwind palettes */
+@theme inline {
+    --color-success-100: var(--color-green-100);
+    --color-success-200: var(--color-green-200);
+    --color-success-600: var(--color-green-600);
+    --color-success-700: var(--color-green-700);
+    --color-warning-100: var(--color-amber-100);
+    --color-warning-200: var(--color-amber-200);
+    --color-warning-300: var(--color-amber-300);
+    --color-secondary-100: var(--color-slate-100);
+    --color-secondary-200: var(--color-slate-200);
+    --color-secondary-300: var(--color-slate-300);
+    --color-secondary-600: var(--color-slate-600);
+    --color-secondary-700: var(--color-slate-700);
+}
+
+@layer base {
+    button:not(:disabled), [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    /* Preflight makes img/svg block-level (Bootstrap keeps them inline, e.g. the footer badges and RgSpinner).
+       Note Preflight's img { height: auto } also overrides height="" attributes: size images with classes. */
+    img, svg {
+        display: inline;
+        vertical-align: middle;
+    }
+
+    /* Bootstrap scrolls-locks the page while a modal is open (.modal-open) */
+    html:has(dialog[open]) {
+        overflow: hidden;
+    }
+}
+
+@layer components {
+    /* ---------- buttons (RgButtonStyle) ---------- */
+    .rg-btn {
+        display: inline-block;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        font-weight: 400;
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid transparent;
+        border-radius: .375rem;
+        background-color: transparent;
+        color: inherit;
+        user-select: none;
+        transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s;
+    }
+    .rg-btn:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 40%, transparent);
+    }
+    .rg-btn:disabled {
+        opacity: .65;
+        pointer-events: none;
+    }
+    .rg-btn-primary { background-color: var(--color-primary-900); border-color: var(--color-primary-900); color: white; }
+    .rg-btn-primary:hover { background-color: var(--color-primary-700); border-color: var(--color-primary-700); }
+    .rg-btn-secondary { background-color: var(--color-secondary-600); border-color: var(--color-secondary-600); color: white; }
+    .rg-btn-secondary:hover { background-color: var(--color-secondary-700); border-color: var(--color-secondary-700); }
+    .rg-btn-danger { background-color: var(--color-danger-600); border-color: var(--color-danger-600); color: white; }
+    .rg-btn-danger:hover { background-color: var(--color-danger-700); border-color: var(--color-danger-700); }
+    .rg-btn-success { background-color: var(--color-success-600); border-color: var(--color-success-600); color: white; }
+    .rg-btn-success:hover { background-color: var(--color-success-700); border-color: var(--color-success-700); }
+    .rg-btn-light { background-color: var(--color-secondary-100); border-color: var(--color-secondary-100); color: var(--color-slate-900); }
+    .rg-btn-light:hover { background-color: var(--color-secondary-200); border-color: var(--color-secondary-200); }
+    .rg-btn-dark { background-color: var(--color-slate-900); border-color: var(--color-slate-900); color: white; }
+    .rg-btn-dark:hover { background-color: var(--color-slate-700); border-color: var(--color-slate-700); }
+    .rg-btn-link { color: var(--color-primary-700); text-decoration: underline; }
+    .rg-btn-link:hover { color: var(--color-primary-900); }
+    .rg-btn-outline-primary { border-color: var(--color-primary-900); color: var(--color-primary-900); }
+    .rg-btn-outline-primary:hover { background-color: var(--color-primary-900); color: white; }
+    .rg-btn-outline-secondary { border-color: var(--color-secondary-600); color: var(--color-secondary-600); }
+    .rg-btn-outline-secondary:hover { background-color: var(--color-secondary-600); color: white; }
+    .rg-btn-outline-success { border-color: var(--color-success-600); color: var(--color-success-600); }
+    .rg-btn-outline-success:hover { background-color: var(--color-success-600); color: white; }
+
+    /* ---------- modal: full-viewport scrolling <dialog> wrapping an unclipped panel ---------- */
+    .rg-modal {
+        position: fixed;
+        inset: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        overflow-y: auto;
+        background: transparent;
+        border: 0;
+        color: inherit;
+    }
+    .rg-modal::backdrop {
+        background-color: rgb(0 0 0 / .5);
+    }
+    .rg-modal-panel {
+        position: relative;
+        margin: .5rem;
+        background-color: white;
+        border: 1px solid rgb(0 0 0 / .175);
+        border-radius: .5rem;
+        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+        @variant sm {
+            max-width: 500px;
+            margin: 1.75rem auto;
+        }
+    }
+    .rg-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--color-slate-200);
+    }
+    .rg-modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    .rg-modal-close {
+        padding: .25rem .5rem;
+        font-size: 1.5rem;
+        line-height: 1;
+        opacity: .5;
+        background: transparent;
+        border: 0;
+    }
+    .rg-modal-close:hover { opacity: .75; }
+    .rg-modal-body {
+        padding: 1rem;
+    }
+    .rg-modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .5rem;
+        padding: .75rem;
+        border-top: 1px solid var(--color-slate-200);
+    }
+
+    /* ---------- navbar: links in a row at >= lg, hamburger + vertical menu below ---------- */
+    .rg-navbar {
+        position: sticky;
+        top: 0;
+        z-index: var(--z-sticky);
+        background-color: var(--color-surface);
+        border-bottom: 1px solid var(--color-slate-200);
+    }
+    .rg-navbar-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        padding: .5rem .75rem;
+    }
+    .rg-navbar-toggler {
+        padding: .25rem .75rem;
+        line-height: 1;
+        color: var(--color-slate-600);
+        background: transparent;
+        border: 1px solid var(--color-slate-300);
+        border-radius: .375rem;
+    }
+    .rg-navbar-toggler:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 40%, transparent);
+    }
+    .rg-nav-link {
+        display: block;
+        width: 100%;
+        padding: .5rem;
+        text-align: left;
+        color: var(--color-slate-600);
+        background: transparent;
+        border: 0;
+    }
+    .rg-nav-link:hover { color: var(--color-slate-900); }
+    .rg-nav-link[aria-current="page"] { color: var(--color-primary-900); font-weight: 600; }
+
+    /* ---------- tables: Bootstrap-style layering so hover > striping > cell color ---------- */
+    .rg-table {
+        --rg-tbl-color: var(--color-slate-900);
+        --rg-tbl-bg: transparent;
+        --rg-tbl-striped: rgb(0 0 0 / .05);
+        --rg-tbl-hover: rgb(0 0 0 / .075);
+        --rg-tbl-border: var(--color-slate-300);
+        width: 100%;
+        margin-bottom: 1rem;
+        caption-side: top;
+        border-collapse: collapse;
+        vertical-align: top;
+    }
+    .rg-table > caption {
+        padding: .5rem 0;
+        color: var(--color-slate-500);
+        text-align: left;
+    }
+    .rg-table > :not(caption) > tr > * {
+        padding: .25rem;
+        color: var(--rg-cell-color, var(--rg-tbl-color));
+        background-color: var(--rg-tbl-bg);
+        border: 1px solid var(--rg-tbl-border);
+        box-shadow: inset 0 0 0 9999px var(--rg-cell-state, var(--rg-cell-stripe, transparent));
+    }
+    .rg-table > thead > tr > * {
+        vertical-align: bottom;
+        text-align: left;
+    }
+    .rg-table-striped > tbody > tr:nth-of-type(odd) > * {
+        --rg-cell-stripe: var(--rg-tbl-striped);
+    }
+    .rg-table-striped-columns > :not(caption) > tr > :nth-child(even) {
+        --rg-cell-stripe: var(--rg-tbl-striped);
+    }
+    /* plain :hover (not Tailwind's hover: variant) so tapping a row highlights it on touch screens, as Bootstrap does */
+    .rg-table-hover > tbody > tr:hover > * {
+        --rg-cell-state: var(--rg-tbl-hover);
+    }
+    /* TableColor variants: usable on <table>, <tr> or <td> (RgTrColor / RgTdColor) */
+    .rg-table-primary   { --rg-tbl-bg: var(--color-primary-100);   --rg-tbl-border: var(--color-primary-200); }
+    .rg-table-secondary { --rg-tbl-bg: var(--color-secondary-200); --rg-tbl-border: var(--color-secondary-300); }
+    .rg-table-success   { --rg-tbl-bg: var(--color-success-100);   --rg-tbl-border: var(--color-success-200); }
+    .rg-table-danger    { --rg-tbl-bg: var(--color-danger-100);    --rg-tbl-border: var(--color-danger-200); }
+    .rg-table-warning   { --rg-tbl-bg: var(--color-warning-100);   --rg-tbl-border: var(--color-warning-300); }
+    .rg-table-info      { --rg-tbl-bg: var(--color-info-100);      --rg-tbl-border: var(--color-info-200); }
+    .rg-table-light     { --rg-tbl-bg: var(--color-slate-50);      --rg-tbl-border: var(--color-slate-200); }
+    .rg-table-dark {
+        --rg-tbl-color: white;
+        --rg-tbl-bg: var(--color-slate-800);
+        --rg-tbl-striped: rgb(255 255 255 / .05);
+        --rg-tbl-hover: rgb(255 255 255 / .075);
+        --rg-tbl-border: var(--color-slate-600);
+    }
+}

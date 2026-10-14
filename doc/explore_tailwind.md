@@ -65,43 +65,50 @@ Kotlin/JS already runs webpack with `cssSupport` (css-loader + style-loader). Ta
    implementation(devNpm("postcss", "8.5.30"))
    implementation(devNpm("postcss-loader", "8.2.1"))
    ```
-   Then run `./gradlew kotlinUpgradeYarnLock` to refresh `kotlin-js-store/yarn.lock`.
-2. **`web/webpack.config.d/tailwind.js`.** It inserts `postcss-loader` after `css-loader` in the existing CSS rule.
-   Files in `webpack.config.d` are concatenated into `build/js/packages/regatta-web/webpack.config.js`, so `__dirname`
-   resolves the same way it does in `dev_server_config.js`:
+   Then run `./gradlew kotlinUpgradeYarnLock` (`kotlin-js-store/yarn.lock` is gitignored in this repo, so there's
+   nothing to commit).
+2. **`web/webpack.config.d/tailwind.js`.** Files in `webpack.config.d` are concatenated into
+   `build/js/packages/regatta-web/webpack.config.js`, so `__dirname` resolves the same way it does in
+   `dev_server_config.js`. The spike **excludes `app.css` from the generated `/\.css$/` rule and adds a separate rule**
+   for it with `style-loader` → `css-loader` → `postcss-loader`. That way Tailwind only processes `app.css`, and
+   `maplibre-gl.css` keeps the plain Kotlin-generated rule:
    ```js
-   const path = require('path');
-   // match the plain-CSS rule exactly; a loose `includes('css')` would also hit the scss rule (scssSupport is on)
+   const appCss = /app\.css$/;
    const cssRule = config.module.rules.find(r => String(r.test) === String(/\.css$/));
-   cssRule.use.push({
+   cssRule.exclude = appCss;
+   config.module.rules.push({ test: appCss, use: [style-loader, css-loader, {
      loader: 'postcss-loader',
      options: { postcssOptions: { plugins: [
        require('@tailwindcss/postcss')({ base: path.resolve(__dirname, '../../../../web/src/jsMain/kotlin') }),
      ] } },
-   });
+   }] });
    ```
-   The exact rule lookup must be checked against the generated config. `postcss-loader` goes **last** in `use`
-   because loaders run right to left, so it runs before `css-loader`. Unlike `dev_server_config.js`, this file
-   must **not** be excluded from the production webpack build or `jsBrowserTest`. The test bundle is built in
-   `build/js/packages/regatta-web-test`, which is at the same depth, so the relative `base` path still resolves.
-3. **CSS entry point**, `web/src/jsMain/resources/app.css`, required from `main()` in place of the Bootstrap lines:
+   Loaders run right to left, so `postcss-loader` goes last. This file must **not** be excluded from production
+   builds or tests. The test bundle is built in `build/js/packages/regatta-web-test`, which is at the same depth, so
+   `base` still resolves.
+3. **CSS entry point**, `web/src/jsMain/resources/app.css`, required from `main()` as `require("./app.css")` in place
+   of both Bootstrap `require`s. While the migration is in progress, it also imports Bootstrap into a cascade layer
+   (see [Coexistence](#coexistence-via-cascade-layers-spike-finding)):
    ```css
+   @layer theme, base, bootstrap, components, utilities;
+   @import "bootstrap/dist/css/bootstrap.css" layer(bootstrap);   /* removed in Phase 5 */
    @import "tailwindcss";        /* source root comes from the `base` option above */
    @plugin "@tailwindcss/forms";
-   @theme { /* CYCT colors, fonts, see Theming */ }
+   @theme { /* CYCT colors, Bootstrap breakpoints, z-index */ }
    @layer base { /* Reboot replacement */ }
    @layer components { /* .rg-btn, .rg-table, … */ }
    ```
    Don't add a relative `@source "../kotlin"`. Resources are copied to `build/js/packages/regatta-web/kotlin/`
    before webpack runs, so a path relative to `app.css` would point into the build directory, not at the
    Kotlin sources. Let the `base` option in `tailwind.js` set the scan root.
-4. **Verify** that `jsBrowserDevelopmentRun --continuous` rebuilds the CSS when a `.kt` file changes. The Tailwind
-   PostCSS plugin registers its scanned files as webpack dependencies, but the Kotlin compile output may be what
-   triggers the rebuild. Also verify that `jsBrowserTest` (Karma) still bundles: tests don't import `Main.js.kt`,
-   but they share the webpack config.
-5. **Fallback** if the webpack wiring proves brittle: run the standalone Tailwind CLI from a Gradle `Exec` task
-   (`tailwindcss -i app.css -o build/…/app.css`, plus `--watch` for dev). Then wire its output into
-   `jsProcessResources` the same way the root build wires webpack output into the server's `static/`.
+4. **Verified in the spike:**
+   - `jsBrowserProductionWebpack` builds, and the server serves the bundle.
+   - `jsBrowserDevelopmentRun --continuous` picks up a new Tailwind class about 4 seconds after a `.kt` edit.
+   - `jsBrowserTest` could **not** be checked. `RouteMatcherTest.kt` references `Route.BoatEdit`, which commit
+     08953f5 removed, so test compilation already fails on `main`. Fix that test before relying on Karma.
+   - `jsBrowserDevelopmentWebpack` (no dev server) fails in `dev_server_config.js` because `config.devServer` is
+     undefined. That's also an existing problem: only the production task renames that file out of the way.
+5. **Fallback** (not needed): run the standalone Tailwind CLI from a Gradle `Exec` task.
 
 ## Styling strategy: component classes and utilities
 
@@ -360,8 +367,10 @@ Route-level cleanup (no `Rg*` API change): translate the remaining Bootstrap uti
 - **Dropdowns inside modals**: `AddEditBoatModal` hosts `RgSkipperDropdown` and `RatingSelections`. The
   full-viewport dialog with an unclipped panel ([Modals](#modals-on-small-screens)) handles this. Verify it on a
   phone with a boat that has several ORC certificates.
-- **Bootstrap/Tailwind class-name collisions** while both are loaded (see Phase 1). For example, Tailwind's
-  `collapse` is `visibility: collapse`, but `NavBar` uses `collapse` as Bootstrap's collapse class.
+- **Bootstrap/Tailwind class-name collisions** while both are loaded. Cascade layers handle this (see
+  [Coexistence](#coexistence-via-cascade-layers-spike-finding)): colliding names take Tailwind's meaning. For
+  example, Tailwind's `collapse` is `visibility: collapse`, which is why `NavBar` had to be migrated before it
+  became safe.
 - **iframe embed height**: `Main.js.kt` posts `regatta_scroll_height` to the parent. A `<dialog>` in the top layer
   doesn't add height, the same as Bootstrap's fixed modal today, but confirm on the CYCT site.
 - **Visual parity**: Bootstrap's look comes for free. With Tailwind every component's look is designed by us,
@@ -379,47 +388,113 @@ Route-level cleanup (no `Rg*` API change): translate the remaining Bootstrap uti
 
 Each phase leaves the app shippable.
 
-**Phase 0: [ ] Spike.** Wire PostCSS/Tailwind into webpack (dev, prod, test). Add `app.css` with `@theme` and a
+**Phase 0: [x] Spike.** Wire PostCSS/Tailwind into webpack (dev, prod, test). Add `app.css` with `@theme` and a
 base layer, and migrate `RgButton` + `Modal` (native `<dialog>`) on the Boats screen, including `AddEditBoatModal`
 with its skipper dropdown and `RatingSelections`. Also prototype the `NavBar` collapse and `.rg-table` layering,
 because they are the riskiest responsive pieces. Confirm `--continuous` hot reload, the iframe height, and the
 [test widths](#other-mobile-checks) in Chrome, Firefox and iOS Safari.
 
-**Phase 1:  [ ]  Foundation.** Land the build wiring, `@theme` (colors, breakpoints, z-index), the base layer, and the
-forms plugin.
+### Phase 0 results (2026-10-13)
 
-Running Bootstrap and Tailwind side by side is **not** recommended. Besides Preflight and Reboot overlapping, the
-scanner picks up the Bootstrap class names still in the Kotlin source, and some of them are also Tailwind
-utilities with different meanings:
+**Built on the `tailwind` branch** (beyond the plan's spike scope where it was cheaper to finish than to stub):
 
-- `collapse` (`NavBar`) becomes `visibility: collapse`, which hides the mobile menu.
-- `container` gets different max-widths.
-- `table` becomes `display: table`.
-- `border` changes.
-- `m-*`/`p-*` from `Customizer` use Tailwind's scale.
+- Build wiring (`web/build.gradle.kts`, `web/webpack.config.d/tailwind.js`) and `web/src/jsMain/resources/app.css`,
+  which has the burgee theme, Bootstrap breakpoints, z-index scale, base fixes, and `.rg-btn*`, `.rg-modal*`,
+  `.rg-navbar*`/`.rg-nav-link` and `.rg-table*` components.
+- `RgButton`: `rg-*` classes and `closesModal`. `RgButtonStyle.classes` is kept.
+- `Modal.kt`: `<dialog>` with the full-viewport/panel structure, backdrop click, `LocalModalClose`, and a
+  **temporary `data-bs-dismiss` shim** so footers on routes that haven't been migrated still close their modal
+  (remove in Phase 3).
+- `AlertsViewModel` on `HTMLDialogElement`, clearing the stale confirmation on `close`. `utils/Bootstrap.kt` is
+  deleted, and `bootstrap.bundle.js` is no longer loaded.
+- `NavBar`: Compose-state collapse at 992px, inline-SVG hamburger, `aria-current`.
+- `RgTable`/`TableColor`: layered `.rg-table` CSS with literal color classes.
+- `AddEditBoatModal` footer moved to `RgButton(closesModal = true)`.
 
-The results depend on cascade order. So do Phases 1–5 on the `tailwind` branch and merge once, with Bootstrap
-removed in the same merge. If a staged rollout is ever needed, load Tailwind without Preflight
-(`@import "tailwindcss/theme.css" layer(theme); @import "tailwindcss/utilities.css" layer(utilities);`) and with
-`prefix(tw)` so there are no name collisions. Note that the prefix would then have to be removed from every class
-afterwards.
+**Verified** against the production bundle served by the app server, with real race data, in Chrome. Phone and
+tablet widths were tested in same-origin iframes, which is also how the CYCT embed sees the app:
 
-**Phase 2: [ ] Leaf components (API unchanged).** `RgButton` (`rg-*` classes, `closesModal`), `RgInput`,
+- **Navbar:** at 390px and 991px the hamburger shows and opens a vertical menu. At exactly 992px the links are
+  inline and the hamburger is hidden.
+- **Tables:** the default style (grey, striped rows) and the results style (light, striped columns, amber
+  `warning` cells) both render. Hovering highlights the whole row across striped and unstriped columns. At 390px
+  the 15-column results table scrolls sideways inside its wrapper.
+- **Modal at 390px:**
+  - The panel fills the width with margins, and the dialog scrolls while the page behind is locked.
+  - An absolutely positioned menu near the panel's bottom edge extends past the panel without being clipped.
+  - A press that starts in the panel and ends on the backdrop does not close the modal; a real backdrop click
+    does, and so does a real Esc keypress.
+  - Focus goes to the close button on open.
+- **Hot reload:** a new class used in a `.kt` file appeared in the dev bundle's CSS about 4 seconds later.
+
+**Findings that change the plan:**
+
+1. **Coexistence works with cascade layers.** See [below](#coexistence-via-cascade-layers-spike-finding). This
+   replaces the "don't run side by side" advice and the `prefix(tw)` fallback.
+2. **Preflight's `img { height: auto }` overrides HTML `height=""` attributes.** The burgee grew from 60px to
+   about 104px. Size images with classes (`h-[60px] w-auto`). The base layer now restores `img, svg` to inline,
+   which fixes the stacked footer badges and inline `RgSpinner`.
+3. **Tailwind gets its own webpack rule.** Pushing `postcss-loader` into the shared CSS rule would also run Tailwind
+   over `maplibre-gl.css`; see [Build integration](#build-integration).
+4. **Existing problems found along the way, unrelated to Tailwind:**
+   - `RouteMatcherTest` doesn't compile (it uses `Route.BoatEdit`), which blocks `jsBrowserTest`.
+   - `jsBrowserDevelopmentWebpack` fails in `dev_server_config.js`.
+   - `RgGrid` emits the enum name `container_fluid` with an underscore. That isn't a Bootstrap class, so it's
+     a no-op today; keep that in mind for Phase 4 parity.
+   - The first load of results pages is slow (several seconds of spinner).
+
+**Not verified, carried forward:**
+
+- **Firefox and iOS Safari:** only Chrome was available. Karma's Firefox run is blocked by the test compile error
+  above. Check these in Phase 5.
+- **The real `AddEditBoatModal`:** the boat API needs an admin login, so the modal was tested with the confirmation
+  dialog plus a synthetic tall body and absolutely positioned menu. Re-test with `RgSkipperDropdown` and
+  `RatingSelections` when logged in (Phase 3).
+- **iframe height reporting on the CYCT site** (Phase 5).
+
+### Coexistence via cascade layers (spike finding)
+
+`app.css` declares `@layer theme, base, bootstrap, components, utilities;` and imports Bootstrap's CSS with
+`layer(bootstrap)`. Layer order beats specificity, so:
+
+- **Reboot (bootstrap) beats Preflight (base).** Screens that haven't been migrated look as they do today.
+- **`.rg-*` components and Tailwind utilities beat Bootstrap.** Migrated components aren't disturbed by Reboot's
+  element rules.
+- **Name collisions resolve to Tailwind's meaning**, because utilities are layered above Bootstrap. In practice that
+  only matters for Bootstrap names still in the source that are also Tailwind utilities. `collapse` is already gone
+  with the `NavBar` migration. The remaining collisions, such as `container`, `border` and `mb-3` in `RgForm`, are
+  small visual differences, and Phase 4/5 replaces each of them anyway.
+
+So each phase can be merged on its own, as the "each phase leaves the app shippable" goal intended, and Bootstrap's
+import is deleted in Phase 5.
+
+**Phase 1: [ ] Foundation.** Mostly done by the spike: build wiring, `@theme` (colors, breakpoints, z-index),
+the forms plugin, and coexistence layering. Remaining work:
+
+- the full base layer: responsive `h1`–`h4` sizes with `clamp()`, paragraph and list spacing, link color. It can
+  only be checked once Reboot stops winning, so check it against a page with the Bootstrap import commented out;
+- contrast checks on the burgee color scales (WCAG AA);
+- fixing `RouteMatcherTest` so `jsBrowserTest` runs in Chrome Headless and Firefox.
+
+**Phase 2: [ ] Leaf components (API unchanged).** `RgButton` is done (spike). `RgInput`,
 `RgNumberInput`, `RgInputWithButton`, `RgTime`, `RgCheck`, `RgSwitch`, `RgDropdown*` (including outside-click/Esc
 close), `RgYearSelect`, `RgSpinner`.
 `RatingSelections`, `FinishCodeDrop`, and `TimeRow` should need no edits.
 
-**Phase 3: [ ] Dialogs.** `RgModalButton`/`RgModalBody`/`RgModal` on `<dialog>`. Migrate the 18 footer buttons and
-move `AlertsViewModel` to `HTMLDialogElement`.
+**Phase 3: [ ] Dialogs.** `RgModalButton`/`RgModalBody`/`RgModal` on `<dialog>` and `AlertsViewModel` are done
+(spike). Migrate the remaining 16 footer buttons (`AddEditBoatModal`'s two are done) to `RgButton(closesModal = true)`,
+then delete the `data-bs-dismiss` shim in `RgModalBody` and the `data-bs-*` attributes. Re-test `AddEditBoatModal`
+logged in at phone width.
 
-**Phase 4: [ ] Layout, chrome & data.** `Customizer` literal tables + spacing-scale mapping, `RgGrid`, `NavBar`
-(Compose-state collapse at the 992px `lg`), `Rc.kt` pills, the `Alerts` banner, `RgTable` layered CSS + `TableColor`
-literals, `RgSortable`.
+**Phase 4: [ ] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
+still uses `nav-link`. Remaining: `Customizer` literal tables + spacing-scale mapping, `RgGrid` (note the
+`container_fluid` no-op), `Rc.kt` pills, the `Alerts` banner, `RgSortable`.
 
-**Phase 5: [ ] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind is a silent collision, see Phase 1),
-delete `utils/Bootstrap.kt`, remove the `bootstrap`/`@popperjs/core` deps and `require` lines, delete unused
+**Phase 5: [ ] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind loses its styling once the import is gone),
+remove the Bootstrap `@import` and `bootstrap` layer from `app.css`, remove the `bootstrap`/`@popperjs/core` npm deps
+(`utils/Bootstrap.kt` and the `require`s are already gone), delete unused
 `RgRow`/`RgCol`/`RgButtonGroup`. Do a visual pass of every route at phone and desktop widths and inside the
-CYCT iframe embed.
+CYCT iframe embed, in Chrome, Firefox and iOS Safari.
 
 ## Decisions
 

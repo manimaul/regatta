@@ -9,33 +9,44 @@ import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
 enum class RgButtonStyle(val classes:  Array<String>) {
-    Default(arrayOf("btn")),
-    Primary(arrayOf("btn", "btn-primary")), //btn btn-primary
-    Secondary(arrayOf("btn", "btn-secondary")),
-    Danger(arrayOf("btn", "btn-danger")),
-    Success(arrayOf("btn", "btn-success")),
-    Light(arrayOf("btn", "btn-light")),
-    Dark(arrayOf("btn", "btn-dark")),
-    Link(arrayOf("btn", "btn-link")),
-    SuccessOutline(arrayOf("btn", "btn-outline-success")),
-    SecondaryOutline(arrayOf("btn", "btn-outline-secondary")),
-    PrimaryOutline(arrayOf("btn", "btn-outline-primary")),
+    Default(arrayOf("rg-btn")),
+    Primary(arrayOf("rg-btn", "rg-btn-primary")),
+    Secondary(arrayOf("rg-btn", "rg-btn-secondary")),
+    Danger(arrayOf("rg-btn", "rg-btn-danger")),
+    Success(arrayOf("rg-btn", "rg-btn-success")),
+    Light(arrayOf("rg-btn", "rg-btn-light")),
+    Dark(arrayOf("rg-btn", "rg-btn-dark")),
+    Link(arrayOf("rg-btn", "rg-btn-link")),
+    SuccessOutline(arrayOf("rg-btn", "rg-btn-outline-success")),
+    SecondaryOutline(arrayOf("rg-btn", "rg-btn-outline-secondary")),
+    PrimaryOutline(arrayOf("rg-btn", "rg-btn-outline-primary")),
 }
+
+/**
+ * @param closesModal when true and this button is inside an [RgModalBody], the modal is closed after [click].
+ */
 @Composable
 fun RgButton(
     label: String,
     style: RgButtonStyle = RgButtonStyle.Primary,
     disabled: Boolean = false,
     customClasses: List<String>? = null,
+    closesModal: Boolean = false,
     click: () -> Unit,
 ) {
+    val closeModal = LocalModalClose.current
     Button(attrs = {
         customClasses?.let {
                it + style.classes
             }?.toTypedArray()?.let {
                 classes(*it)
         } ?: classes(*style.classes)
-        onClick { click() }
+        onClick {
+            click()
+            if (closesModal) {
+                closeModal?.invoke()
+            }
+        }
         if (disabled) { disabled() }
     }) {
         Text(label)
