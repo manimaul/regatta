@@ -652,16 +652,21 @@ D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
 - [x] `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating (D8) (`ResultValidationTest`).
 - [ ] Web label rule tests for fractional scores (D1). These compile against `Double` once D1 lands, so they are written in the D1 fix task. Note it here so it isn't forgotten.
 
-### Phase 5: Invariants
+### Phase 5: Invariants — done 2026-10-14
 
-- [ ] Seeded random-fleet tests check that:
-  - shuffling the input never changes a score;
-  - places are contiguous apart from ties;
-  - DNF/RET = finishers + 1;
-  - NSC/DNS are at least the DNF score;
-  - a penalty never changes another boat's score;
-  - a series total equals the counted scores, with at most one excluded;
-  - an RC volunteer never changes another boat's score or place.
+- [x] Seeded random-fleet tests (`InvariantsTest`, 300 races or 200 series per property, `kotlin.random.Random` with fixed seeds) check that:
+  - shuffling the input never changes a score (race level passes today; with penalties present it fails, ignored under D4: the penalty pass reuses indexes after the list has changed, so a shuffle can move a boat's score. Seed 245 shows it);
+  - places are contiguous apart from ties: timed finishers 1..k by corrected time, HOC k+1..k+h by position, no score below 1. Finish times are random milliseconds, so exact ties do not occur; the tie rule itself is D7's hand-written test;
+  - DNF/RET = finishers + 1, in bracket and class;
+  - NSC is at least the DNF score;
+  - a penalty never changes another boat's score, and adds to the penalised boat's own place capped at DNF (ignored, D4);
+  - a series total equals the counted scores, with at most one excluded and none under 5 races;
+  - series places follow totals, and every boat has one row;
+  - shuffling every race's entries never changes a standings score or place (ignored, D5);
+  - an RC volunteer never changes another boat's score or place, compared with the same series where the boat is simply absent (ignored, D3).
+
+  Each ignored invariant was run once with its `@Ignore` stripped and fails today. The
+  generator numbers HOC positions across the whole race, as GSI 14.2 does, not per bracket.
 
 ### Phase 6: Fixes (in this order)
 
