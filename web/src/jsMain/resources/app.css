@@ -871,3 +871,48 @@
         --rg-tbl-border: var(--color-slate-600);
     }
 }
+
+/* ---------- chart popups (ChartController) ----------
+   maplibre-gl.css (index.html) hard-codes a white popup; these follow the theme tokens instead.
+   Deliberately outside @layer: Tailwind emits layers as native cascade layers, and an unlayered
+   stylesheet such as maplibre-gl.css beats every layered rule whatever its order or specificity.
+   The selectors repeat maplibre's so they win on source order (style-loader injects this after the CDN link). */
+.maplibregl-popup-content {
+    background: var(--rg-raised);
+    color: var(--rg-fg);
+    border: 1px solid var(--rg-border-overlay);
+    box-shadow: var(--rg-shadow);
+}
+.maplibregl-popup-content h4 {
+    margin-right: 1rem;              /* clear the close button */
+}
+.maplibregl-popup-content h6 {
+    margin-bottom: 0;
+    color: var(--rg-muted);
+}
+.maplibregl-popup-close-button {
+    color: var(--rg-muted);
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: .25rem .5rem;
+}
+.maplibregl-popup-close-button:hover {
+    background-color: var(--rg-overlay-hover);
+    color: var(--rg-fg);
+}
+.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+    border-bottom-color: var(--rg-raised);
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+    border-top-color: var(--rg-raised);
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+    border-right-color: var(--rg-raised);
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+    border-left-color: var(--rg-raised);
+}

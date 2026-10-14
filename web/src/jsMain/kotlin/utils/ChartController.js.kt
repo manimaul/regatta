@@ -4,6 +4,16 @@ import kotlinx.browser.document
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
+import viewmodel.Theme
+import viewmodel.themeViewModel
+
+external fun encodeURIComponent(str: String): String
+
+/** OpenENC chart style for the site theme: the day palette in light mode, dusk in dark mode. */
+fun chartStyleUrl(theme: Theme): String = when (theme) {
+    Theme.Light -> "https://openenc.com/v1/style/feet/day"
+    Theme.Dark -> "https://openenc.com/v1/style/feet/dusk"
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 class ChartController {
@@ -97,7 +107,36 @@ class ChartController {
             mv.on("load") {
                 onLoad?.invoke()
             }
+            mv.on("styleimagemissing") { event ->
+                (event.id as? String)?.let { addSectorImage(mv, it) }
+            }
         }
+    }
+
+    /**
+     * Swaps the chart style in place; markers and popups are DOM elements and survive it. The
+     * light sector images are drawn in the theme's palette under theme-independent ids, so they
+     * are dropped first and `styleimagemissing` redraws them for the new theme.
+     */
+    fun setTheme(theme: Theme) {
+        mapView?.let { mv ->
+            // listImages throws "Style is not done loading" mid-load; there is nothing to drop then
+            if (mv.isStyleLoaded()) {
+                mv.listImages().filter { it.startsWith(SECTOR_IMAGE_PREFIX) }.forEach { mv.removeImage(it) }
+            }
+            mv.setStyle(chartStyleUrl(theme))
+        }
+    }
+
+    /** Rasterizes a `LIGHTS_sector` icon (see [SectorImage]) and registers it under its id. */
+    private fun addSectorImage(map: MapLibre.Map, id: String) {
+        val sector = parseSectorImageId(id) ?: return
+        val svg = sector.svg(themeViewModel.flow.value.theme)
+        val img = js("new Image(200, 200)")
+        img.onload = {
+            if (!map.hasImage(id)) map.addImage(id, img)
+        }
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)
     }
 
     fun disposeMapView() {
@@ -109,7 +148,8 @@ class ChartController {
     private fun mapLibreArgs(
         container: HTMLDivElement,
     ): dynamic {
-        val obj = js("""{"style": "https://openenc.com/v1/style/feet/day"}""")
+        val obj = js("{}")
+        obj["style"] = chartStyleUrl(themeViewModel.flow.value.theme)
         obj["container"] = container
         obj["center"] = arrayOf(-122.44511255700473, 47.28327102060851)
         obj["zoom"] = 10.5

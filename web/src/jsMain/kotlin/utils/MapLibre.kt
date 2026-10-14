@@ -77,6 +77,10 @@ external class MapLibre {
         fun unproject(point: dynamic): LngLat
         fun loadImage(url: String) : Promise<GetResourceResponse>
         fun addImage(id: String, image: dynamic)
+        fun hasImage(id: String): Boolean
+        fun isStyleLoaded(): Boolean
+        fun removeImage(id: String)
+        fun listImages(): Array<String>
         fun addSource(id: String, source: Source)
         fun addLayer(options: dynamic)
     }

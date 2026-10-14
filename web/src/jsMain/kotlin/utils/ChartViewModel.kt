@@ -1,10 +1,13 @@
 package utils
 
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import viewmodel.BaseViewModel
 import viewmodel.VmState
+import viewmodel.themeViewModel
 
 private fun mapLocation(): MapLocation? {
     return localStoreGet<MapLocation>()
@@ -188,6 +191,14 @@ class ChartViewModel : BaseViewModel<ChartState>(ChartState()) {
             flow.map { it.location }.collect {
                 println("location change: $it")
                 localStoreSet(it)
+            }
+        }
+        // follow the light/dark toggle while the chart is open. The current value is skipped:
+        // createMapView already picks the style for a fresh map, and touching the map before its
+        // style has loaded throws, which would end this collector.
+        launch {
+            themeViewModel.flow.map { it.theme }.distinctUntilChanged().drop(1).collect { theme ->
+                controller.setTheme(theme)
             }
         }
     }
