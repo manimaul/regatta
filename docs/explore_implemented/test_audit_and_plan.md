@@ -29,7 +29,7 @@ database (2024–2026 seasons) that look like they do not follow the rules.
   - **14.6** One completed race is a series.
   - Season trophies (pages 5–6): a different scoring method, with top-N races, discards for
     cancelled races and a count-back tiebreak. These are not implemented in the app, and are
-    planned separately in [`season_trophies.md`](../explore_ideas/season_trophies.md).
+    planned separately in [`season_trophies.md`](../explore_unimplemented/season_trophies.md).
 - A copy of the PDF is kept next to this doc: `2026-CYCT-General-Sailing-Instructions.pdf`.
 - RRS 2025–2028 Appendix A and rule 44.3(c), where the GSI does not override them. These cover
   tied places in a race, and a scoring penalty not being worse than DNF and not changing other
@@ -545,7 +545,7 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
    finisher definitions; D1's average leaves out the races D2 marks unsailed; D5 skips the RC race
    from D1 and the unsailed races from D2.
 
-Season trophy scoring is planned separately in `docs/explore_ideas/season_trophies.md`.
+Season trophy scoring is planned separately in `docs/explore_unimplemented/season_trophies.md`.
 
 ## Task checklist
 
