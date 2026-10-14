@@ -340,7 +340,7 @@ fun RgYearSelect(
     handler: (String?) -> Unit,
 ) {
     Select(attrs = {
-        classes(listOf("form-select") + (customClasses ?: emptyList()))
+        classes(listOf("rg-select") + (customClasses ?: emptyList()))
         onChange { change ->
             handler(change.value)
         }

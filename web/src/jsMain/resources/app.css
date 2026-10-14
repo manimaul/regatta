@@ -194,6 +194,195 @@
     .rg-btn-outline-success { border-color: var(--color-success-600); color: var(--color-success-600); }
     .rg-btn-outline-success:hover { background-color: var(--color-success-600); color: white; }
 
+    /* ---------- form controls (RgInput, RgNumberInput, RgYearSelect, RgTime) ---------- */
+    /* Sizes follow Bootstrap's .form-control / .form-select. The forms plugin (base layer) supplies the select chevron. */
+    .rg-input, .rg-select {
+        display: block;
+        width: 100%;
+        padding: .375rem .75rem;
+        font-size: 1rem;            /* never below 16px on phones: iOS Safari zooms into smaller inputs */
+        line-height: 1.5;
+        color: var(--color-slate-900);
+        background-color: white;
+        border: 1px solid var(--color-slate-300);
+        border-radius: .375rem;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .rg-select {
+        padding-right: 2.25rem;
+    }
+    .rg-input:focus, .rg-select:focus {
+        border-color: var(--color-primary-500);
+        outline: 0;
+        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 30%, transparent);
+    }
+    .rg-input::placeholder {
+        color: var(--color-slate-500);
+        opacity: 1;
+    }
+    .rg-input:disabled, .rg-select:disabled {
+        background-color: var(--color-slate-100);
+        opacity: 1;
+    }
+
+    /* input groups: controls, addons and buttons share borders (Bootstrap .input-group) */
+    .rg-input-group {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        width: 100%;
+    }
+    .rg-input-group > .rg-input {
+        position: relative;
+        flex: 1 1 auto;
+        width: 1%;
+        min-width: 0;
+    }
+    .rg-input-group > .rg-input:focus {
+        z-index: 5;
+    }
+    .rg-input-addon {
+        display: flex;
+        align-items: center;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--color-slate-900);
+        text-align: center;
+        white-space: nowrap;
+        background-color: var(--color-slate-100);
+        border: 1px solid var(--color-slate-300);
+        border-radius: .375rem;
+    }
+    .rg-input-group > :not(:first-child) {
+        margin-left: -1px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .rg-input-group > :not(:last-child) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .rg-input-group > .rg-btn {
+        position: relative;
+        z-index: 2;
+    }
+    /* compact variant (Bootstrap .input-group-sm), but keep 16px text below sm so iOS doesn't zoom */
+    .rg-input-group-sm > :is(.rg-input, .rg-input-addon, .rg-btn) {
+        padding: .25rem .5rem;
+        border-radius: .25rem;
+        @variant sm {
+            font-size: .875rem;
+        }
+    }
+
+    /* ---------- checkbox and switch (RgCheck, RgSwitch) ---------- */
+    .rg-check {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        min-height: 1.5rem;
+        margin-bottom: .125rem;
+    }
+    /* RgCheck renders the label before the input; show the box first, as Bootstrap's floated .form-check-input does */
+    .rg-check > input {
+        order: -1;
+        flex: none;
+    }
+    .rg-checkbox {
+        width: 1em;
+        height: 1em;
+        color: var(--color-primary-900);   /* the forms plugin fills checked boxes with currentColor */
+        border: 1px solid var(--color-slate-400);
+        border-radius: .25em;
+    }
+    .rg-checkbox:focus, .rg-switch:focus {
+        outline: 0;
+        box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 30%, transparent);
+    }
+    .rg-switch {
+        appearance: none;
+        width: 2em;
+        height: 1em;
+        padding: 0;
+        color: var(--color-slate-400);
+        background-color: white;
+        border: 1px solid var(--color-slate-400);
+        border-radius: 2em;
+        /* the knob: a circle sitting at the start, moving to the end when checked */
+        background-image: radial-gradient(circle at center, currentColor 0 .3em, transparent calc(.3em + .5px));
+        background-size: 1em 1em;
+        background-position: left center;
+        background-repeat: no-repeat;
+        transition: background-position .15s ease-in-out;
+    }
+    .rg-switch:checked {
+        color: white;
+        background-color: var(--color-primary-900);
+        border-color: var(--color-primary-900);
+        background-image: radial-gradient(circle at center, currentColor 0 .3em, transparent calc(.3em + .5px));
+        background-size: 1em 1em;
+        background-position: right center;
+    }
+
+    /* ---------- dropdowns (RgDropdown, RgIdDropdown, RgDropdownNone) ---------- */
+    .rg-dropdown {
+        position: relative;
+    }
+    .rg-dropdown-toggle {
+        white-space: nowrap;
+    }
+    .rg-dropdown-toggle::after {
+        display: inline-block;
+        margin-left: .255em;
+        vertical-align: .255em;
+        content: "";
+        border-top: .3em solid;
+        border-right: .3em solid transparent;
+        border-left: .3em solid transparent;
+    }
+    .rg-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: var(--z-dropdown);
+        min-width: 10rem;
+        max-width: calc(100vw - 2rem);   /* long boat / skipper names stay on a phone screen */
+        margin-top: .125rem;
+        padding: .5rem 0;
+        text-align: left;
+        background-color: white;
+        border: 1px solid rgb(0 0 0 / .175);
+        border-radius: .375rem;
+        box-shadow: 0 .5rem 1rem rgb(0 0 0 / .15);
+    }
+    .rg-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: .25rem 1rem;
+        clear: both;
+        font-weight: 400;
+        color: var(--color-slate-900);
+        text-align: inherit;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background-color: transparent;
+        border: 0;
+    }
+    .rg-dropdown-item:hover, .rg-dropdown-item:focus-visible {
+        background-color: var(--color-slate-100);
+        outline: 0;
+    }
+    .rg-dropdown-divider {
+        height: 0;
+        margin: .5rem 0;
+        border: 0;
+        border-top: 1px solid rgb(0 0 0 / .175);
+        opacity: 1;
+    }
+
     /* ---------- modal: full-viewport scrolling <dialog> wrapping an unclipped panel ---------- */
     .rg-modal {
         position: fixed;

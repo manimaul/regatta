@@ -55,7 +55,7 @@ fun RgNumberInput(
         if (placeHolder) {
             placeholder(label)
         }
-        classes("form-control")
+        classes("rg-input")
         inputMode(InputMode.Numeric)
         value(rNumber)
         onChange {
@@ -93,7 +93,7 @@ fun RgInput(
         if (placeHolder) {
             placeholder(label)
         }
-        classes("form-control")
+        classes("rg-input")
         value(value)
         onInput {
             listener(it.value.trimStart())
@@ -117,10 +117,10 @@ fun RgInputWithButton(
         }) { B { Text(label) } }
     }
     Div(attrs = {
-        classes("input-group", "mb-3")
+        classes("rg-input-group", "mb-4")
     }) {
         Input(type = InputType.Text) {
-            classes("form-control")
+            classes("rg-input")
             id(id)
             label?.let { placeholder(it) }
             if (disabled) {
@@ -132,7 +132,7 @@ fun RgInputWithButton(
             }
         }
         Button(attrs = {
-            classes("btn", "btn-outline-primary")
+            classes(*RgButtonStyle.PrimaryOutline.classes)
             if (btnDisabled) {
                 disabled()
             }
@@ -198,13 +198,13 @@ fun RgTime(
             style {
                 maxWidth(if (showDate) 600.px else 400.px)
             }
-            classes("input-group", "input-group-sm")
+            classes("rg-input-group", "rg-input-group-sm")
         }) {
             label?.let {
-                Span(attrs = { classes("input-group-text") }) { Text(label) }
+                Span(attrs = { classes("rg-input-addon") }) { Text(label) }
             }
             Input(InputType.Date) {
-                classes("form-control")
+                classes("rg-input")
                 value(state.value.localTime.inputStr())
                 onInput {
                     viewModel.setInputDate(it.value)?.let(listener)
@@ -216,30 +216,30 @@ fun RgTime(
         style {
             maxWidth(if (showDate) 600.px else 400.px)
         }
-        classes("input-group", "input-group-sm")
+        classes("rg-input-group", "rg-input-group-sm")
     }) {
         label?.takeIf { !showDate }?.let {
-            Span(attrs = { classes("input-group-text") }) { Text(label) }
+            Span(attrs = { classes("rg-input-addon") }) { Text(label) }
         }
         Input(InputType.Number) {
-            classes("form-control")
+            classes("rg-input")
             value(state.value.localTime.hour.doubleDigit())
             onInput {
                 viewModel.setInputHour(it.value)?.let(listener)
             }
         }
-        Span(attrs = { classes("input-group-text") }) { Text(":") }
+        Span(attrs = { classes("rg-input-addon") }) { Text(":") }
         Input(InputType.Number) {
-            classes("form-control")
+            classes("rg-input")
             value(state.value.localTime.minute.doubleDigit())
             onInput {
                 viewModel.setInputMinute(it.value)?.let(listener)
             }
         }
         if (showSeconds) {
-            Span(attrs = { classes("input-group-text") }) { Text(":") }
+            Span(attrs = { classes("rg-input-addon") }) { Text(":") }
             Input(InputType.Number) {
-                classes("form-control")
+                classes("rg-input")
                 value(state.value.localTime.second.doubleDigit())
                 onInput {
                     viewModel.setInputSecond(it.value)?.let(listener)
@@ -262,9 +262,9 @@ fun RgCheck(
     Div(attrs = {
         customClasses?.let {
             classes(it)
-        } ?: classes("form-check")
+        } ?: classes("rg-check")
     }) {
-        Label(id, attrs = { classes("form-check-label") }) {
+        Label(id) {
             if (bold) {
                 B { Text(label) }
             } else {
@@ -273,7 +273,7 @@ fun RgCheck(
         }
         CheckboxInput(
             attrs = {
-                classes("form-check-input")
+                classes("rg-checkbox")
                 id(id)
                 checked(checked)
                 onChange {

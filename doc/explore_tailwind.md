@@ -516,10 +516,50 @@ the forms plugin, and coexistence layering. Remaining work:
     was run with `useFirefox()` temporarily disabled, then restored. Running `jsBrowserTest` as configured needs
     Firefox installed (or `FIREFOX_BIN` set).
 
-**Phase 2: [ ] Leaf components (API unchanged).** `RgButton` is done (spike). `RgInput`,
+**Phase 2: [x] Leaf components (API unchanged).** `RgButton` is done (spike). `RgInput`,
 `RgNumberInput`, `RgInputWithButton`, `RgTime`, `RgCheck`, `RgSwitch`, `RgDropdown*` (including outside-click/Esc
 close), `RgYearSelect`, `RgSpinner`.
 `RatingSelections`, `FinishCodeDrop`, and `TimeRow` should need no edits.
+
+### Phase 2 results (2026-10-13)
+
+- **New `app.css` components:**
+  - `.rg-input`/`.rg-select` (Bootstrap `.form-control`/`.form-select` metrics, always 16px);
+  - `.rg-input-group`, `.rg-input-addon` and `.rg-input-group-sm`, which uses 16px text below `sm` so iOS doesn't
+    zoom, and 14px from 576px up;
+  - `.rg-check`, `.rg-checkbox`, and `.rg-switch` (a CSS-only knob);
+  - `.rg-dropdown*` (toggle caret, menu at `--z-dropdown` capped to `100vw - 2rem`, items, divider).
+- **Kotlin, with signatures unchanged:**
+  - `RgInput`, `RgNumberInput`, `RgInputWithButton` (its button uses `RgButtonStyle.PrimaryOutline`; `mb-3` became
+    `mb-4` to keep Bootstrap's 1rem), `RgTime`, `RgCheck`, `RgSwitch`;
+  - `RgDropdown`/`RgIdDropdown`/`RgDropdownNone`, whose filter input's `mx-3` became `mx-4`;
+  - `RgYearSelect`.
+  - `RatingSelections`, `FinishCodeDrop` and `TimeRow` needed no edits. `RgSpinner` was already Bootstrap-free and
+    is unchanged.
+- **Dropdown dismiss** (decision 5):
+  - While a menu is open, capture-phase `pointerdown`/`keydown` listeners on `document` close it on a press
+    outside its root, or on Escape.
+  - Escape is consumed (`preventDefault` + `stopPropagation`), so a dropdown inside a modal closes only itself.
+  - The listeners are added and removed with the open state, via `DisposableEffect`.
+- **Tests:** added `web/src/jsTest/kotlin/LeafComponentsTest.kt`, 10 tests using
+  `org.jetbrains.compose.html:html-test-utils`, a new test dependency. They cover:
+  - dropdown open, select and close; outside press vs inside press; Escape consumed;
+  - a dropdown with one item is disabled;
+  - `RgDropdownNone` filter, None, and filter reset;
+  - `RgButton(closesModal)`;
+  - `RgNumberInput` number validation; `RgInputWithButton`; `RgCheck`/`RgSwitch` events;
+  - the `RgTime` markup has no Bootstrap classes.
+
+  All 14 web tests pass in Chrome Headless (Firefox isn't installed here, see Phase 1). A mutation check (dismiss
+  logic disabled) failed exactly the two dismiss tests.
+- **Visual check** (Chrome, dev server, Bootstrap still layered underneath):
+  - the real `RgYearSelect` on `/races/results`;
+  - for the admin-only components, their exact markup and classes rendered with the real stylesheet: inputs, the
+    input group with button, compact time fields, checkboxes, switches on and off, both dropdowns open, and a long
+    skipper name;
+  - compact time fields compute to 16px at 392px wide and 14px at 854px.
+- **Still to see in the real app:** the logged-in forms (People, Boats, Classes, Races, RC). Check them in the
+  Phase 3 logged-in pass.
 
 **Phase 3: [ ] Dialogs.** `RgModalButton`/`RgModalBody`/`RgModal` on `<dialog>` and `AlertsViewModel` are done
 (spike). Migrate the remaining 16 footer buttons (`AddEditBoatModal`'s two are done) to `RgButton(closesModal = true)`,
