@@ -460,10 +460,15 @@ tablet widths were tested in same-origin iframes, which is also how the CYCT emb
 - **Reboot (bootstrap) beats Preflight (base).** Screens that haven't been migrated look as they do today.
 - **`.rg-*` components and Tailwind utilities beat Bootstrap.** Migrated components aren't disturbed by Reboot's
   element rules.
-- **Name collisions resolve to Tailwind's meaning**, because utilities are layered above Bootstrap. In practice that
-  only matters for Bootstrap names still in the source that are also Tailwind utilities. `collapse` is already gone
-  with the `NavBar` migration. The remaining collisions, such as `container`, `border` and `mb-3` in `RgForm`, are
-  small visual differences, and Phase 4/5 replaces each of them anyway.
+- **Name collisions mostly resolve to Tailwind's meaning**, because utilities are layered above Bootstrap.
+  `collapse` is already gone with the `NavBar` migration.
+- **Exception (found in Phase 4): Bootstrap's `!important` spacing utilities win.** For `!important`
+  declarations the layer order is reversed, so `.mb-4 { margin-bottom: 1.5rem !important }` in the `bootstrap`
+  layer beats Tailwind's `mb-4` (1rem). While Bootstrap is loaded, `mb-4`, `mt-4`, `mx-4` and `px-4` render at
+  24px instead of 16px, in `RgInputWithButton`, the `Admin`/`Rc` `RgDiv`s, the `RgDropdownNone` filter and the
+  `nonav` link. Same-sized pairs (`m-0`, `m-2`, `my-2`, `p-0`, `py-2`) are unaffected, and Bootstrap has no `-6`
+  or `-12` steps. This is 8px of extra spacing in four places until Phase 5 removes the import. If a phase is
+  ever shipped before then, use Tailwind's arbitrary values (e.g. `mb-[1rem]`), which can't collide.
 
 So each phase can be merged on its own, as the "each phase leaves the app shippable" goal intended, and Bootstrap's
 import is deleted in Phase 5.
@@ -608,11 +613,56 @@ logged in at phone width.
   - RC check-in labels end with a stray `}`, e.g. "(62) PHRF}".
 - **For Phase 4:** the success banner (`alert alert-success`) and the RC pills are still Bootstrap-styled.
 
-**Phase 4: [ ] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
+**Phase 4: [x] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
 still uses `nav-link`. Remaining: `Customizer` literal tables + spacing-scale mapping, `RgGrid` (note the
 `container_fluid` no-op). Also `Router`'s `#route_content` gets Bootstrap's `d-flex`/`flex-column`/`flex-grow-1`
 through `RgDiv`'s `addCustom`. The Phase 1 check showed the content stops being a flex column without Bootstrap,
 so map these to `flex`/`flex-col`/`grow`. Then: `Rc.kt` pills, the `Alerts` banner, `RgSortable`.
+
+### Phase 4 results (2026-10-13)
+
+- **`Customizer` / `RgDiv` spacing:** `RgSz` gained `tw`, the Tailwind step with the same size as Bootstrap's
+  (s3→`4`, s4→`6`, s5→`12`). `Customizer.set` still builds the name at runtime, and
+  `@source inline("{m,p}{,t,b,s,e,x,y}-{0,1,2,4,6,12,auto}")` in `app.css` makes Tailwind emit every
+  combination. A test checks every `RgSpace` × `RgSide` × `RgSz` combination against that pattern, so the two
+  can't drift apart. `RgSz.size` (Bootstrap's step) is kept, so the API is unchanged.
+- **`RgGrid`:**
+  - `RgContainerType` and `RgPosition` now carry one literal `rg-*` class per entry (`classList.add` rejects names
+    with spaces). `.rg-container*` and the fixed/sticky positions are reproduced in `app.css` with Bootstrap's
+    max-widths and z-index.
+  - `min-vh-100 d-flex flex-column` became `min-h-screen flex flex-col`.
+  - `container_fluid` → `.rg-container-fluid` is just `width: 100%`. The old enum name (`container_fluid`) never
+    matched Bootstrap's `container-fluid`, so the app has always rendered edge to edge; that look is kept rather
+    than adding padding now.
+- **`Router`:** `#route_content`'s `addCustom` classes are now `grow`/`flex`/`flex-col`, so the content is a flex
+  column again, as it was under Bootstrap.
+- **`nonav` link:** `nav-link` became `block px-4 py-2 no-underline`.
+- **RC pills:** `nav nav-pills` became `.rg-pills`/`.rg-pill`. The active tab uses `aria-current="page"` and is
+  navy with white text (17.6:1); inactive pills use the link color `info-700` (5.7:1).
+- **Success banner:** `.rg-alert-success` replaces `alert alert-success d-flex align-items-center fixed-top` and the
+  inline `marginTop(80px)`:
+  - fixed at 80px from the top, with 8px side margins on phones and centered at `max-width: 28rem` from `sm` up;
+  - `z-index` 1030, `green-800` on `green-100` (6.45:1);
+  - the unused Bootstrap Icons classes on the check icon are gone.
+- **`RgSortable`:** `list-group`/`list-group-item` became `.rg-list-group`/`.rg-list-group-item` (Bootstrap's
+  list-group metrics plus `cursor: move`). The SortableJS ghost class `bg-info` became `.rg-sortable-ghost`.
+- **Tests:**
+  - `web/src/jsTest/kotlin/LayoutTest.kt` adds 5 tests: the safelist guard, spacing keeping Bootstrap's sizes,
+    `RgGrid` container/position classes being single `rg-*` names, `RgSortable` classes, and the `Alerts` banner.
+  - `ModalTest` was fixed for test isolation. `alertsViewModel` is global, and another test's `Alerts()` left a
+    second `#confirmation` in the document; diagnostics showed `getElementById` returned the stale one. The test
+    now looks inside its own root.
+  - All 22 tests pass, three runs in a row (Chrome Headless).
+- **Verified in Chrome** (dev server, your saved login):
+  - `/rc`: `#route_content` is a flex column with its 8px margin; the pill row's margin is 24px (Bootstrap
+    `my-4`); active and inactive pill colors are right.
+  - `/series` → Change Sort Order: list-group styling; a real drag reordered the items; Cancel discarded it.
+  - An unchanged Edit Series → Save showed the banner: 80px from the top, 448px wide and centered at 854px, with
+    8px side margins at 390px.
+  - `?nonav`: no navbar; the "Full Regatta Results" link opens `?nav` in a new tab.
+  - The production bundle contains safelisted combinations that no source file uses (`mb-12`, `pe-auto`).
+- **Found:** the `!important` collision described in
+  [Coexistence](#coexistence-via-cascade-layers-spike-finding). It's resolved by Phase 5.
 
 **Phase 5: [ ] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind loses its styling once the import is gone),
 remove the Bootstrap `@import` and `bootstrap` layer from `app.css`, remove the `bootstrap`/`@popperjs/core` npm deps

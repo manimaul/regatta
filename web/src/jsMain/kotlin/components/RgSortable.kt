@@ -21,11 +21,11 @@ fun <T> RgSortable(
 ) {
     var arranged by remember { mutableStateOf(items) }
     Ul(attrs = {
-        classes("list-group")
+        classes("rg-list-group")
         ref {
             Sortable.create(
                 it, sortableArgs(
-                    ghostClass = "bg-info",
+                    ghostClass = "rg-sortable-ghost",
                     onSort = {
                         val a = arranged.toMutableList().apply {
                             val e = removeAt(it.oldIndex)
@@ -40,7 +40,7 @@ fun <T> RgSortable(
         }
     }) {
         items.forEach { item ->
-            Li(attrs = { classes("list-group-item") }) { Text(name(item)) }
+            Li(attrs = { classes("rg-list-group-item") }) { Text(name(item)) }
         }
     }
 }

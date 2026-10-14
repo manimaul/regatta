@@ -27,7 +27,7 @@ fun NavBar(
         RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s2) }) {
             A(href = state.href.replace("nonav", "nav"), attrs = {
                 target(ATarget.Blank)
-                classes("nav-link")
+                classes("block", "px-4", "py-2", "no-underline")
             }) { Text("Full Regatta Results") }
         }
     } else
