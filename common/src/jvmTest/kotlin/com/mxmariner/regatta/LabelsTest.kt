@@ -48,6 +48,18 @@ class LabelsTest {
         assertEquals("Cruising Non-Flying Sails", RatingType.CruisingNonFlyingSails.ratedLabel())
     }
 
+    /** D1: whole scores have no decimal, fractions one or two. */
+    @Test
+    fun scoreTextFormatsFractions() {
+        assertEquals("4", 4.0.scoreText())
+        assertEquals("0", 0.0.scoreText())
+        assertEquals("3.5", 3.5.scoreText())
+        assertEquals("3.33", (10.0 / 3).scoreText())
+        assertEquals("10.67", (32.0 / 3).scoreText())
+        assertEquals("2.1", 2.1.scoreText())
+        assertEquals("3", 2.999.scoreText())
+    }
+
     @Test
     fun displayZero() {
         assertEquals("0h:0m:0s", Duration.ZERO.display())
@@ -71,7 +83,6 @@ class LabelsTest {
     }
 
     /** D7: labels round to the nearest second instead of truncating. */
-    @Ignore("D7: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d7_display_rounds_to_nearest_second() {
         assertEquals("0h:0m:13s", (12.seconds + 900.milliseconds).display())

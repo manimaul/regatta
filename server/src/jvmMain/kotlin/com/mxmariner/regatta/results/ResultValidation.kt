@@ -4,8 +4,12 @@ import com.mxmariner.regatta.data.RaceResult
 
 /**
  * Checks a result before it is saved. Returns an error message for the client, or null when the
- * result is acceptable. Accepts everything until D8 (a PHRF or ORC_PHRF result needs a PHRF
- * rating); see docs/explore_unimplemented/test_audit_and_plan.md.
+ * result is acceptable. D8: a PHRF or ORC/PHRF result needs a PHRF rating, or it would score
+ * with a time correction factor of 1.
  */
-@Suppress("UNUSED_PARAMETER")
-fun validateResult(result: RaceResult): String? = null
+fun validateResult(result: RaceResult): String? {
+    if (result.ratingType.isPHRF && result.phrfRating == null) {
+        return "A ${result.ratingType.label} result needs a PHRF rating"
+    }
+    return null
+}

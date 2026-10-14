@@ -34,10 +34,12 @@ object Network {
         var body: T? = setBody
         var error: Exception? = null
         if (body == null) {
+            val text = text().await()
             try {
-                body = json.decodeFromString(text().await())
+                body = json.decodeFromString(text)
             } catch (e: Exception) {
-                error = e
+                // a rejected request answers with a plain-text reason (e.g. 400 from validateResult): keep it for the user
+                error = if (!ok && text.isNotBlank()) Exception(text) else e
             }
         }
         return NetworkResponse(url, ok, body, status, statusText, error)

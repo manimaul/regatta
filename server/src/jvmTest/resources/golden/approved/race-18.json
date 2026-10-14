@@ -1549,73 +1549,6 @@
                             "orcTcf": 1.0,
                             "correctedPhrfTime": "PT1H11M14S",
                             "correctedOrcTime": "PT1H11M14S",
-                            "placeInBracket": 2,
-                            "placeInBracketOrc": 0,
-                            "placeInClass": 2,
-                            "placeInClassOrc": 0,
-                            "hocPosition": null,
-                            "penalty": null
-                        },
-                        {
-                            "resultRecord": {
-                                "result": {
-                                    "id": 101,
-                                    "raceId": 18,
-                                    "boatId": 1,
-                                    "finish": "2024-04-11T10:22:14Z",
-                                    "phrfRating": null,
-                                    "orcRef": null,
-                                    "hocPosition": null,
-                                    "bracketId": 19,
-                                    "raceClassId": 4,
-                                    "penalty": null,
-                                    "ratingType": "CruisingFlyingSails",
-                                    "finishCode": "TIME"
-                                },
-                                "boatSkipper": {
-                                    "skipper": {
-                                        "id": 23,
-                                        "first": "William",
-                                        "last": "Kamp",
-                                        "clubMember": true,
-                                        "active": true
-                                    },
-                                    "boat": {
-                                        "id": 1,
-                                        "name": "Waymaker",
-                                        "sailNumber": "USA 59793",
-                                        "boatType": "Tartan 37 DK",
-                                        "phrfRating": null,
-                                        "orcCerts": [],
-                                        "skipperId": null,
-                                        "ratingType": "CruisingFlyingSails",
-                                        "numberOfRaces": 53,
-                                        "active": true
-                                    }
-                                },
-                                "bracket": {
-                                    "id": 19,
-                                    "name": "All",
-                                    "description": null,
-                                    "active": true,
-                                    "numberOfRaces": 99,
-                                    "minRating": -1000.0,
-                                    "maxRating": 1000.0,
-                                    "classId": 4
-                                }
-                            },
-                            "boatName": "Waymaker",
-                            "sail": "USA 59793",
-                            "skipper": "William Kamp",
-                            "boatType": "Tartan 37 DK",
-                            "phrfRating": null,
-                            "startTime": "2024-04-11T09:10:00Z",
-                            "finishTime": "2024-04-11T10:22:14Z",
-                            "elapsedTime": "PT1H12M14S",
-                            "phrfTcf": 1.0,
-                            "orcTcf": 1.0,
-                            "correctedPhrfTime": "PT1H12M14S",
-                            "correctedOrcTime": "PT1H12M14S",
                             "placeInBracket": 3,
                             "placeInBracketOrc": 0,
                             "placeInClass": 3,
@@ -1689,6 +1622,73 @@
                             "placeInClassOrc": 0,
                             "hocPosition": null,
                             "penalty": 2
+                        },
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 101,
+                                    "raceId": 18,
+                                    "boatId": 1,
+                                    "finish": "2024-04-11T10:22:14Z",
+                                    "phrfRating": null,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 19,
+                                    "raceClassId": 4,
+                                    "penalty": null,
+                                    "ratingType": "CruisingFlyingSails",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 23,
+                                        "first": "William",
+                                        "last": "Kamp",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 1,
+                                        "name": "Waymaker",
+                                        "sailNumber": "USA 59793",
+                                        "boatType": "Tartan 37 DK",
+                                        "phrfRating": null,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "CruisingFlyingSails",
+                                        "numberOfRaces": 53,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 19,
+                                    "name": "All",
+                                    "description": null,
+                                    "active": true,
+                                    "numberOfRaces": 99,
+                                    "minRating": -1000.0,
+                                    "maxRating": 1000.0,
+                                    "classId": 4
+                                }
+                            },
+                            "boatName": "Waymaker",
+                            "sail": "USA 59793",
+                            "skipper": "William Kamp",
+                            "boatType": "Tartan 37 DK",
+                            "phrfRating": null,
+                            "startTime": "2024-04-11T09:10:00Z",
+                            "finishTime": "2024-04-11T10:22:14Z",
+                            "elapsedTime": "PT1H12M14S",
+                            "phrfTcf": 1.0,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT1H12M14S",
+                            "correctedOrcTime": "PT1H12M14S",
+                            "placeInBracket": 4,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 4,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
                         },
                         {
                             "resultRecord": {

@@ -29,8 +29,9 @@ fun TimeRow(
         if (start != null) {
             P { Text("Elapsed time: ${(finish - start).display()}") }
         }
-
-
+    }
+    // D4: a scoring penalty only applies to a finishing place, timed or HOC
+    if (finishCode.isFinisher) {
         RgButton(label = "Penalty${penalty?.let { " $it" } ?: " 0"}", customClasses = listOf(
             AppStyle.marginTop,
             AppStyle.marginBot
@@ -56,7 +57,7 @@ fun TimeRow(
         when (it) {
             FinishCode.TIME -> onFinish(FinishCode.TIME, finish ?: now(), null) //todo: use race end time
             FinishCode.RET, FinishCode.DNF, FinishCode.DNS_RC,
-            FinishCode.NSC -> onFinish(it, null, null)
+            FinishCode.NSC, FinishCode.DNS, FinishCode.DSQ -> onFinish(it, null, null)
             FinishCode.HOC -> onFinish(it, null, maxHoc)
         }
     }

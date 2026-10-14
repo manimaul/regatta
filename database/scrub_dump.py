@@ -11,7 +11,7 @@
 - Fails if public.image has rows, so binary data never lands in the repo by accident.
 - Leaves everything else, including person names, untouched.
 
-No dependencies beyond the standard library. See docs/explore_unimplemented/test_audit_and_plan.md §5.
+No dependencies beyond the standard library. See docs/explore_implemented/test_audit_and_plan.md §5.
 """
 import sys
 

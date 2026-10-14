@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.RaceResult
 import com.mxmariner.regatta.data.RatingType
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -24,10 +25,10 @@ class ResultValidationTest {
     }
 
     /** D8: a PHRF or ORC_PHRF result needs a PHRF rating; the message is what the UI shows. */
-    @Ignore("D8: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d8_rejects_a_phrf_result_without_a_rating() {
         assertNotNull(validateResult(RaceResult(ratingType = RatingType.PHRF)))
         assertNotNull(validateResult(RaceResult(ratingType = RatingType.ORC_PHRF, orcRef = "C1")))
+        assertEquals("A PHRF result needs a PHRF rating", validateResult(RaceResult(ratingType = RatingType.PHRF)))
     }
 }

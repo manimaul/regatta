@@ -3,7 +3,6 @@ package com.mxmariner.regatta.data
 import com.mxmariner.regatta.correctionFactorDefault
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
 
@@ -293,24 +292,43 @@ data class StandingsBracket(
 data class StandingsBoatSkipper(
     val boatSkipper: BoatSkipper = BoatSkipper(),
     val raceStandings: List<StandingsRace> = emptyList(),
-    val totalScoreBracket: Int = 0,
-    val totalScoreClass: Int = 0,
+    /** Sum of the counted bracket scores; fractional when an RC volunteer average is in it (D1). */
+    val totalScoreBracket: Double = 0.0,
+    val totalScoreClass: Double = 0.0,
+    /** 1-based series place in the bracket; tied boats share it and the next place skips (D5). */
     var placeInBracket: Int = 0,
     var placeInClass: Int = 0,
-    @Transient val tiedWith: MutableSet<Long> = mutableSetOf()
 )
 
+/** D2: whether a race in a series standings column was sailed at all. */
+@Serializable
+enum class RaceStatus {
+    Sailed,
+    /** No results yet and the last class end time is still in the future. */
+    NotYetSailed,
+    /** No results and the race is over. */
+    Cancelled,
+}
+
+/**
+ * One boat's cell in a series standings row. A race is scored per group (D2): [placeInBracket]
+ * counts only when [bracketSailed], [placeInClass] only when [classSailed]; the throw-outs are
+ * chosen per group too. An RC volunteer's cell holds the average of the boat's other races (D1),
+ * which is why the scores are fractional.
+ */
 @Serializable
 data class StandingsRace(
     val nonStarter: Boolean = false,
     val hocPosition: Int? = null,
     val finish: Boolean,
-    val placeInBracket: Int = 0,
-    var placeInBracketCorrected: Int? = null,
-    val placeInClass: Int = 0,
-    var placeInClassCorrected: Int? = null,
+    val placeInBracket: Double = 0.0,
+    val placeInClass: Double = 0.0,
     var throwOut: Boolean = false,
-    val finishCode: FinishCode?
+    var throwOutClass: Boolean = false,
+    val finishCode: FinishCode?,
+    val bracketSailed: Boolean = true,
+    val classSailed: Boolean = true,
+    val status: RaceStatus = RaceStatus.Sailed,
 )
 
 @Serializable

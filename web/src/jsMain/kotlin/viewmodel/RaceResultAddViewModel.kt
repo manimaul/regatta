@@ -295,7 +295,7 @@ class RaceResultAddViewModel(
                 hocPosition = hoc,
                 finishCode = code,
                 finish = finish,
-                penalty = if (code == FinishCode.NSC) null else raceResult.penalty,
+                penalty = if (code.isFinisher) raceResult.penalty else null, // D4: no penalty on a non-finisher
             )
             copy(
                 raceResult = updateResult,

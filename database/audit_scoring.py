@@ -6,7 +6,7 @@
 Defaults: server/src/jvmTest/resources/golden/approved and
 server/src/jvmTest/resources/golden/deviations.json, relative to the repo root.
 
-The approved files (see docs/explore_unimplemented/test_audit_and_plan.md §5) hold both the inputs
+The approved files (see docs/explore_implemented/test_audit_and_plan.md §5) hold both the inputs
 (each card's resultRecord, the race schedule) and the outputs the code produced. This script
 re-scores them with decisions D1-D5 and the D8 checks and writes one entry per difference, keyed
 by race or series id, boat id and decision. When a decision is implemented, re-approving the
@@ -302,24 +302,21 @@ def audit_series(standings, race_reports, entries, warnings):
                 if any(c is not None and c["rc"] for c in cells.values()):
                     decisions.add("D1")
                     cdecisions.add("D1")
-                if unsailed:
-                    decisions.add("D2")
-                if any(not class_races[rid]["sailed"] for rid in race_ids):
-                    cdecisions.add("D2")
 
-                def check_cells(expected, races, cur_field, cor_field, label, found):
+                def check_cells(expected, races, cur_field, throw_field, label, found):
                     for rid, cur in zip(race_ids, current):
                         cell = expected[rid]
                         if cell is None:
-                            if cur[cur_field] != 0 or not cur["nonStarter"] or cur["throwOut"]:
+                            if cur[cur_field] != 0 or cur[throw_field]:
+                                found.add("D2")
                                 entries.append(dict(bloc, decision="D2", field=f"race {rid}{label}", raceId=rid,
                                                     current=cur[cur_field], expected=None, note="not sailed for this group"))
                             continue
                         if cell["rc"]:
-                            shown = cur[cor_field]
-                            if fnum(shown) != fnum(cell["score"]) or cur[cur_field] != cur[cor_field]:
+                            if fnum(cur[cur_field]) != fnum(cell["score"]):
+                                found.add("D1")
                                 entries.append(dict(bloc, decision="D1", field=f"race {rid}{label}", raceId=rid,
-                                                    current=cur[cur_field], currentShown=shown, expected=fnum(cell["score"]),
+                                                    current=cur[cur_field], expected=fnum(cell["score"]),
                                                     note="RC volunteer average"))
                             continue
                         if cur[cur_field] != cell["score"]:
@@ -339,8 +336,8 @@ def audit_series(standings, race_reports, entries, warnings):
                             entries.append(dict(bloc, decision=d, field=f"race {rid}{label}", raceId=rid,
                                                 current=cur[cur_field], expected=cell["score"], note=note))
 
-                check_cells(cells, bracket_races, "placeInBracket", "placeInBracketCorrected", "", decisions)
-                check_cells(ccells, class_races, "placeInClass", "placeInClassCorrected", " (class)", cdecisions)
+                check_cells(cells, bracket_races, "placeInBracket", "throwOut", "", decisions)
+                check_cells(ccells, class_races, "placeInClass", "throwOutClass", " (class)", cdecisions)
 
                 if fnum(row["totalScoreBracket"]) != fnum(total):
                     total_decisions[b] = decisions
@@ -351,7 +348,7 @@ def audit_series(standings, race_reports, entries, warnings):
                     if not cdecisions:
                         # the code chooses one throw-out by bracket score and applies it to the class total too;
                         # D2 scores each group on its own, so the class total drops the worst class score
-                        thrown = [rid for rid, cur in zip(race_ids, current) if cur["throwOut"]]
+                        thrown = [rid for rid, cur in zip(race_ids, current) if cur["throwOutClass"]]
                         if cthrow is not None and thrown != [cthrow]:
                             cdecisions.add("D2")
                             note = f"class throw-out: race {cthrow} (worst class score), not race {thrown} (worst bracket score)"

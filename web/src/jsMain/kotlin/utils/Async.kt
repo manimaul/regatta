@@ -59,7 +59,7 @@ fun <T> NetworkResponse<T>.toAsync(previous: Async<T>? = null): Async<T> {
     } else if (status == unauthorized) {
         Error.from(error, value = previous?.value, message = "401 - Unauthorized")
     } else {
-        Error.from(error, value = previous?.value, message = "$status - Network status")
+        Error.from(error, value = previous?.value, message = "$status - ${error?.message?.takeIf { it.isNotBlank() } ?: "Network status"}")
     }
 }
 

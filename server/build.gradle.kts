@@ -52,7 +52,7 @@ kotlin {
     }
 }
 
-// Golden regression tests (docs/explore_unimplemented/test_audit_and_plan.md §5) need a container
+// Golden regression tests (docs/explore_implemented/test_audit_and_plan.md §5) need a container
 // runtime, so they run in their own task and are excluded from the everyday jvmTest.
 tasks.named<Test>("jvmTest") {
     filter.excludeTestsMatching("*GoldenTest")

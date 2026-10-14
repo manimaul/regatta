@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 
 /**
  * Race placing rules: GSI 14.1 / 14.2 with the D3, D4 and D7 decisions in
- * docs/explore_unimplemented/test_audit_and_plan.md. Tests the code fails today are ignored with
+ * docs/explore_implemented/test_audit_and_plan.md. Tests the code fails today are ignored with
  * the decision that fixes them.
  */
 class RacePlacingTest {
@@ -55,7 +55,6 @@ class RacePlacingTest {
     }
 
     /** GSI 14.1.4 / D3: NSC scores starters + 1, one worse than the DNF score when every starter but one finished. */
-    @Ignore("D3: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun gsi_14_1_4_nsc_scores_starters_plus_one() {
         val report = race {
@@ -70,7 +69,6 @@ class RacePlacingTest {
     }
 
     /** D3: an RC volunteer is not a starter, so it does not raise the NSC score. */
-    @Ignore("D3: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d3_rc_volunteer_is_not_a_starter() {
         val report = race {
@@ -83,6 +81,48 @@ class RacePlacingTest {
             } }
         }.report()
         report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 4)
+    }
+
+    /** GSI 14.1.5 / D6: DSQ scores starters + 2, and a DSQ boat is a starter. */
+    @Test
+    fun gsi_14_1_5_dsq_scores_starters_plus_two() {
+        val report = race {
+            cruisingClass("WS") { bracket("All") {
+                boat("A") finishes "19:00:00"
+                boat("B") finishes "19:01:00"
+                boat("DNF") code DNF
+                boat("DSQ") code DSQ
+                boat("RC") code DNS_RC
+            } }
+        }.report()
+        report.assertBracketScores("A" to 1, "B" to 2, "DNF" to 3, "DSQ" to 6)
+    }
+
+    /** GSI 14.1.2 / D6: a DNS record scores starters + 1 and is not a starter, the same as having no record. */
+    @Test
+    fun gsi_14_1_2_dns_record_scores_starters_plus_one_and_is_not_a_starter() {
+        val report = race {
+            cruisingClass("WS") { bracket("All") {
+                boat("A") finishes "19:00:00"
+                boat("B") finishes "19:01:00"
+                boat("NSC") code NSC
+                boat("DNS") code DNS
+            } }
+        }.report()
+        report.assertBracketScores("A" to 1, "B" to 2, "NSC" to 4, "DNS" to 4)
+    }
+
+    /** D6 / D4: neither new code carries a penalty. */
+    @Test
+    fun d6_penalties_on_dns_and_dsq_are_ignored() {
+        val report = race {
+            cruisingClass("WS") { bracket("All") {
+                boat("A") finishes "19:00:00"
+                boat("DNS") code DNS penalty 2
+                boat("DSQ") code DSQ penalty 2
+            } }
+        }.report()
+        report.assertBracketScores("A" to 1, "DNS" to 3, "DSQ" to 4)
     }
 
     /** GSI 14.2: HOC boats are numbered by position on the course, after every timed finisher, whatever the input order. */
@@ -115,7 +155,6 @@ class RacePlacingTest {
     }
 
     /** D4 / RRS 44.3(c): no other boat's score changes, so ties are allowed. */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d4_penalty_leaves_other_boats_unchanged() {
         val report = race {
@@ -130,7 +169,6 @@ class RacePlacingTest {
     }
 
     /** D4: a penalty is capped at the DNF score. */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d4_penalty_is_capped_at_dnf() {
         val report = race {
@@ -144,7 +182,6 @@ class RacePlacingTest {
     }
 
     /** D4: several penalties are applied independently against each boat's own unpenalised place. */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d4_several_penalties_apply_independently() {
         val report = race {
@@ -160,7 +197,6 @@ class RacePlacingTest {
     }
 
     /** D4: a penalty on a non-finisher is ignored; DNF, RET and NSC keep their code score. */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d4_penalty_on_a_non_finisher_is_ignored() {
         val report = race {
@@ -187,7 +223,6 @@ class RacePlacingTest {
     }
 
     /** D7: equal corrected times (to the millisecond) share the place, and the next place skips. */
-    @Ignore("D7: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun d7_equal_corrected_times_share_the_place_and_the_next_skips() {
         val report = race {

@@ -2,8 +2,8 @@
 
 Idea for having the app compute the CYCT overall season trophies. These are described on pages 5–6
 of the General Sailing Instructions (GSI):
-[`../explore_unimplemented/2026-CYCT-General-Sailing-Instructions.pdf`](../explore_unimplemented/2026-CYCT-General-Sailing-Instructions.pdf).
-This was split out of [`test_audit_and_plan.md`](../explore_unimplemented/test_audit_and_plan.md). It builds on that
+[`../explore_implemented/2026-CYCT-General-Sailing-Instructions.pdf`](../explore_implemented/2026-CYCT-General-Sailing-Instructions.pdf).
+This was split out of [`test_audit_and_plan.md`](../explore_implemented/test_audit_and_plan.md). It builds on that
 plan's race and series scoring rules (D1–D8), especially the definition of starters (D3), the RC
 volunteer average (D1), unsailed races (D2) and fractional scores.
 

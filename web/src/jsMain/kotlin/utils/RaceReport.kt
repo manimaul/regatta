@@ -16,7 +16,9 @@ fun FinishCode.finishText(hocPosition: Int?) : String {
         FinishCode.TIME,
         FinishCode.RET,
         FinishCode.DNF,
-        FinishCode.NSC -> code.name
+        FinishCode.NSC,
+        FinishCode.DNS,
+        FinishCode.DSQ -> code.name
         FinishCode.HOC -> "HOC ${hocPosition ?: ""}"
         FinishCode.DNS_RC -> "DNS RC Volunteer"
     }
@@ -61,9 +63,8 @@ fun RaceReportCard.bracketPlaceLines(showOrc: Boolean): List<String> {
 fun RaceReportCard.classPlaceLines(showOrc: Boolean): List<String> {
     return when {
         !showOrc -> listOf(placeInClass.toString())
-        // D7 (test_audit_and_plan.md): the ORC line shows placeInBracketOrc here; it should be placeInClassOrc.
         ratingType() == RatingType.ORC_PHRF && placeInClassOrc != 0 ->
-            listOf("${placeInClass}(PHRF), ", "${placeInBracketOrc}(ORC)")
+            listOf("${placeInClass}(PHRF), ", "${placeInClassOrc}(ORC)")
         ratingType().isPHRF -> listOf("${placeInClass}(PHRF)")
         ratingType() == RatingType.ORC -> listOf("${placeInClassOrc}(ORC)")
         else -> emptyList()

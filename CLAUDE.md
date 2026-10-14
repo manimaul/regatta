@@ -29,8 +29,8 @@ Run the web frontend with hot reload:
 ### Tests
 
 ```shell
-./gradlew :common:jvmTest   # ORC/PHRF scoring tests (OrcTest, PhrfTest)
-./gradlew :server:jvmTest   # TokenTest, RaceResultReporterKtTest
+./gradlew :common:jvmTest   # rating bands, ORC certificate helpers, shared labels
+./gradlew :server:jvmTest   # scoring rule tests, corrected time, seeded invariants, TokenTest
 ./gradlew :common:jsTest
 ./gradlew :web:jsBrowserTest
 ```
@@ -41,7 +41,9 @@ Golden regression against a scrubbed production snapshot (needs podman or docker
 ./gradlew :server:jvmGoldenTest -Dgolden.approve=true   # re-approve on purpose, then review the diff
 python3 -I database/audit_scoring.py                    # re-score the approved files, writes golden/deviations.json
 ```
-The task sets `DOCKER_HOST` from `podman machine inspect` when unset. `database/scrub_dump.py` produces the committed snapshot from a `pg_dump`. Details: `docs/explore_unimplemented/test_audit_and_plan.md` §5.
+The task sets `DOCKER_HOST` from `podman machine inspect` when unset. `database/scrub_dump.py` produces the committed snapshot from a `pg_dump`. To refresh the snapshot: scrub the new dump into `golden/`, update `GoldenDb.DUMP` and `dumpInstant`, re-approve, and review the diff (new races appear as new files, existing files should not change). `deviations.json` must stay empty. Details: `docs/explore_implemented/test_audit_and_plan.md` §5.
+
+Scoring tests build fleets with the fixture DSL in `server/src/jvmTest/.../results/Fixture.kt` (`race { phrfClass("Fast") { bracket("I") { boat("A", rating = 48) finishes "20:51:26" } } }`, `series { ... }`) and assert scores with `assertBracketScores` / `assertBracketTotals`. Rule tests are named after the GSI section or decision they enforce (`gsi_14_1_4_...`, `d4_...`); the scoring rules and their rationale are in that doc's "Decisions" section.
 
 Run a single JVM test class or method with `--tests`:
 ```shell

@@ -1,49 +1,43 @@
 package utils
 
 import com.mxmariner.regatta.data.FinishCode
+import com.mxmariner.regatta.data.RaceStatus
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.data.StandingsRace
+import com.mxmariner.regatta.scoreText
+
+/** Text that replaces the whole cell when the race was not sailed for this bracket or class (D2), else null. */
+fun StandingsRace.statusText(): String? = when {
+    status == RaceStatus.NotYetSailed -> "Not yet sailed"
+    status == RaceStatus.Cancelled -> "Cancelled"
+    !bracketSailed && !classSailed -> "Not sailed"
+    else -> null
+}
 
 // Cell text and decoration for the series standings table. Pure, so they are covered by jsTest.
 // Class names are literal strings so Tailwind's scanner finds them.
 
-/** Raw bracket score, shown first in a race cell. */
-fun StandingsRace.bracketScoreText(): String = "$placeInBracket"
+/** Bracket score, shown first in a race cell ("4", "3.5"); a dash when the race was not sailed in the bracket. */
+fun StandingsRace.bracketScoreText(): String = if (bracketSailed) placeInBracket.scoreText() else "-"
 
-/** Raw class score, shown after the bracket score when the class has more than one bracket. */
-fun StandingsRace.classScoreText(): String = ", $placeInClass"
+/** Class score, shown after the bracket score when the class has more than one bracket; a dash when not sailed in the class. */
+fun StandingsRace.classScoreText(): String = if (classSailed) ", ${placeInClass.scoreText()}" else ", -"
 
-/** The RC volunteer average that replaces the bracket score, or null when there is none. */
-fun StandingsRace.bracketCorrectedText(): String? = placeInBracketCorrected?.let { " $it" }
+/** Decoration of the bracket score: red when thrown out of the bracket total. */
+fun StandingsRace.bracketScoreClasses(): List<String> = if (throwOut) listOf("text-danger-fg") else emptyList()
 
-/** The RC volunteer average that replaces the class score, or null when there is none. */
-fun StandingsRace.classCorrectedText(): String? = placeInClassCorrected?.let { " $it" }
+/** Decoration of the class score: red when thrown out of the class total. */
+fun StandingsRace.classScoreClasses(): List<String> = if (throwOutClass) listOf("text-danger-fg") else emptyList()
 
-/** Decoration of the raw bracket score: red when thrown out, struck through when an RC average replaces it. */
-fun StandingsRace.bracketScoreClasses(): List<String> = scoreClasses(throwOut, placeInBracketCorrected != null)
-
-/** Decoration of the raw class score: red when thrown out, struck through when an RC average replaces it. */
-fun StandingsRace.classScoreClasses(): List<String> = scoreClasses(throwOut, placeInClassCorrected != null)
-
-/** Decoration of an RC volunteer average: red when the race is thrown out. */
-fun StandingsRace.correctedScoreClasses(): List<String> = if (throwOut) listOf("text-danger-fg") else emptyList()
-
-internal fun scoreClasses(throwOut: Boolean, corrected: Boolean): List<String> {
-    return when {
-        corrected && throwOut -> listOf("text-danger-fg", "line-through")
-        throwOut -> listOf("text-danger-fg")
-        corrected -> listOf("line-through")
-        else -> emptyList()
-    }
-}
-
-/** Finish-code suffix after the scores, e.g. " DNF", " HOC3", " DNS RC Volunteer"; empty for a timed finish. */
+/** Finish-code suffix after the scores, e.g. " DNF", " HOC3", " DSQ", " DNS RC Volunteer"; " DNS" for no record; empty for a timed finish. */
 fun StandingsRace.codeSuffix(): String {
     return when (val code = finishCode) {
         FinishCode.TIME -> ""
         FinishCode.RET,
         FinishCode.DNF,
-        FinishCode.NSC -> " ${code.name}"
+        FinishCode.NSC,
+        FinishCode.DNS,
+        FinishCode.DSQ -> " ${code.name}"
         FinishCode.HOC -> " ${code.name}${hocPosition}"
         FinishCode.DNS_RC -> " DNS RC Volunteer"
         null -> " DNS"
@@ -51,7 +45,7 @@ fun StandingsRace.codeSuffix(): String {
 }
 
 /** Bracket total, shown before the class total when the class has more than one bracket. */
-fun StandingsBoatSkipper.totalBracketText(): String = "$totalScoreBracket, "
+fun StandingsBoatSkipper.totalBracketText(): String = "${totalScoreBracket.scoreText()}, "
 
 /** Class total. */
-fun StandingsBoatSkipper.totalClassText(): String = "$totalScoreClass"
+fun StandingsBoatSkipper.totalClassText(): String = totalScoreClass.scoreText()

@@ -382,7 +382,7 @@ real server code against it. This covers everything the pure-function tests can'
 ### 6. How the rule tests treat known violations
 
 Rule tests (layer 3) assert the **decided rules** below, not what the code does now. Each test for a
-finding that the code doesn't meet yet starts out `@Ignore("D3: see docs/explore_unimplemented/test_audit_and_plan.md")`.
+finding that the code doesn't meet yet starts out `@Ignore("D3: see docs/explore_implemented/test_audit_and_plan.md")`.
 It is un-ignored in the same change that fixes the code. Ignored tests still have to compile:
 - Score assertions go through `assertScores`, which compares as `Double`, so they compile before
   and after D1.
@@ -650,7 +650,7 @@ D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
   - grouping by boat (D8);
   - a single-race series.
 - [x] `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating (D8) (`ResultValidationTest`).
-- [ ] Web label rule tests for fractional scores (D1). These compile against `Double` once D1 lands, so they are written in the D1 fix task. Note it here so it isn't forgotten.
+- [x] Web label rule tests for fractional scores (D1), written in the D1 fix task.
 
 ### Phase 5: Invariants — done 2026-10-14
 
@@ -670,45 +670,52 @@ D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
 
 ### Phase 6: Fixes (in this order)
 
-- [ ] **D3:** NSC = starters + 1, using the D3 definitions of starters and finishers in `place()` and `nonStarterPlace`.
-- [ ] **D7:**
+- [x] **D3:** NSC = starters + 1, using the D3 definitions of starters and finishers in `place()` and `nonStarterPlace` (`FinishCode.isStarter` / `isFinisher`). Golden: 5 NSC races and 10 standings files re-approved; `deviations.json` lost exactly the 116 D3 entries plus 14 totals that needed only D3, and the `+D3` labels dropped their D3 part.
+- [x] **D7:**
   - equal corrected times score 1, 1, 3;
   - `Duration.display` rounds to the nearest second;
   - the `ORC_PHRF` "Place In Class" column shows `placeInClassOrc`.
-- [ ] **D4:**
+  Golden outputs unchanged, as expected.
+- [x] **D4:**
   - the penalty adds points, others unchanged, capped at DNF;
   - penalties apply only to TIME and HOC, and the scorer ignores the rest;
-  - the UI blocks the penalty for other codes.
-- [ ] **D6:**
+  - the UI blocks the penalty for other codes: `TimeRow` shows the penalty buttons only for TIME and HOC (so HOC can now take one), and `setFinish` clears the penalty when the code changes to anything else.
+  Golden: races 18, 26, 31 and their series re-approved; `deviations.json` lost exactly the 20 D4 entries.
+- [x] **D6:**
   - add `FinishCode.DNS` and `DSQ`, with the new weights;
-  - add the scoring, `FinishCodeDrop` options, `setFinish` penalty clearing, and the race and standings labels;
+  - add the scoring, `FinishCodeDrop` options (it lists every code), `setFinish` penalty clearing (D4's rule covers it), and the race and standings labels;
   - write the DSQ = starters + 2 and DNS race-scoring tests and the `DNS` / `DSQ` label tests.
-- [ ] **D2:**
+  Golden outputs unchanged, as expected.
+- [x] **D2:**
   - sailed is decided per bracket and class;
-  - unsailed races show "Cancelled" / "Not yet sailed", score nothing, and are excluded from the throw-out count and tiebreak;
-  - add the `StandingsRace` sailed/status fields, using `standings`'s `now`;
+  - unsailed races show "Cancelled" / "Not yet sailed", score nothing, and are excluded from the throw-out count and tiebreak; a race sailed by other boats but by nobody in the group shows "Not sailed", or a dash for that group's score when the other group was sailed;
+  - add the `StandingsRace` fields `bracketSailed`, `classSailed`, `status` (`RaceStatus`) and `throwOutClass` (the class total has its own throw-out), using `standings`'s `now`; `nonStarterPlace` is folded into the cell construction;
   - write the status tests and the web "Cancelled" / "Not yet sailed" cell tests.
-- [ ] **D1:**
-  - score fields become `Double` in `common`, and the web labels format decimals (`4`, `3.5`, `3.33`);
-  - the RC average follows the D1 rules, and totals use it;
-  - write the fractional-label web tests.
-- [ ] **D5:**
-  - the tiebreak goes back race by race, and fully tied boats share the place;
+  Golden: every standings file re-approved (new fields). `deviations.json` lost the 382 D2 entries and the mixed D1+D2 ones, and gained 2 pure D5 ties that the last-sailed-race rule exposed in 2024 Late Spring WS. Two stale labels in the audit script were fixed along the way: it had added D2 to any boat whose group had an unsailed race, and flagged a lone RC card in an unsailed race.
+- [x] **D1:**
+  - score fields become `Double` in `common` (`StandingsRace.placeInBracket/Class`, `StandingsBoatSkipper.totalScore*`), and the web labels format decimals through `Double.scoreText()` in `common` (`4`, `3.5`, `3.33`). The `placeIn*Corrected` fields are gone: the RC cell simply holds the average, with its " DNS RC Volunteer" suffix;
+  - the RC average follows the D1 rules in `groupScores`, which scores one group of a row (sailed, throw-out, RC average, later RC races as DNS, total), and totals use it;
+  - write the fractional-label web tests (`StandingsLabelsTest.fractionalScoresAreFormatted`, `LabelsTest.scoreTextFormatsFractions`).
+  Golden: every standings file re-approved (`Double` scores). `deviations.json` lost all 89 D1 entries, the `D1+D8` labels became `D8`, and 2 more pure D5 ties surfaced in 2025 Early Spring WS once the totals agreed.
+- [x] **D5:**
+  - the tiebreak goes back race by race, and fully tied boats share the place (the next place skips);
   - RC and unsailed races are skipped;
-  - the result does not depend on input order.
-- [ ] **D8:**
+  - the result does not depend on input order (stable sort, comparator reads only scores); `tiedWith` is gone from `StandingsBoatSkipper`.
+  Golden: the affected standings files re-approved; `deviations.json` lost exactly the 27 D5 entries.
+- [x] **D8:**
   - group standings by boat id, showing the latest skipper;
-  - `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating, the UI disables save, and the result editor shows the 400 message;
-  - `seriesRaces` selects by year in `America/Los_Angeles`.
+  - `validateResult` rejects a PHRF / `ORC_PHRF` result without a rating; the UI already disabled save through `isValid`, and the network layer now keeps a rejected request's plain-text body so the error display shows "400 - A PHRF result needs a PHRF rating";
+  - `seriesRaces`, `allRaces` and `allYears` select by year in `America/Los_Angeles`.
+  Golden: the standings with the Short Circuit skipper split re-approved; `deviations.json` lost the last 13 entries and is empty.
 
 ### Done
 
-- [ ] No `@Ignore` referencing this doc remains.
-- [ ] Re-running `database/audit_scoring.py` on the approved outputs produces an empty `golden/deviations.json`.
-- [ ] `:common:jvmTest`, `:common:jsTest`, `:server:jvmTest`, `:server:jvmGoldenTest` and `:web:jsBrowserTest` all pass.
-- [ ] Update the Tests section of `CLAUDE.md`:
+- [x] No `@Ignore` referencing this doc remains.
+- [x] Re-running `database/audit_scoring.py` on the approved outputs produces an empty `golden/deviations.json`.
+- [x] `:common:jvmTest`, `:common:jsTest`, `:server:jvmTest`, `:server:jvmGoldenTest` and `:web:jsBrowserTest` all pass (`:common:jsTest` has no test sources; the shared helpers are covered on the JVM and through the web tests).
+- [x] Update the Tests section of `CLAUDE.md`:
   - `:server:jvmGoldenTest` and its podman setup;
   - approving outputs with `-Dgolden.approve=true`;
   - `scrub_dump.py`, `audit_scoring.py` and the snapshot-refresh steps;
   - the fixture DSL.
-- [ ] Move this doc to `docs/explore_implemented/`.
+- [x] Move this doc to `docs/explore_implemented/` (2026-10-14).

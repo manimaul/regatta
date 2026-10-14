@@ -1,5 +1,7 @@
 package com.mxmariner.regatta.db
 
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import com.mxmariner.regatta.data.RaceTime
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.datetime.timestamp
@@ -13,17 +15,13 @@ object RaceTimeTable : Table() {
     val startDate = timestamp("start_date")
     val endDate = timestamp("end_date")
 
+    /** Every season year with a scheduled race, by the Pacific calendar (D8), newest first. */
     fun allYears(): List<String> {
+        val zone = TimeZone.of("America/Los_Angeles")
         val years = mutableSetOf<Int>()
         RaceTimeTable.selectAll().map { row ->
-            val startDate = row[startDate]
-            val endDate = row[endDate]
-            startDate.toString().substring(0, 4).toIntOrNull()?.let {
-                years.add(it)
-            }
-            endDate.toString().substring(0, 4).toIntOrNull()?.let {
-                years.add(it)
-            }
+            years.add(row[startDate].toLocalDateTime(zone).year)
+            years.add(row[endDate].toLocalDateTime(zone).year)
         }
         return years.sortedDescending().map { "$it" }
     }

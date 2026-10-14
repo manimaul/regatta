@@ -117,10 +117,9 @@ class InvariantsTest {
         .associate { row ->
             val boat = row.boatSkipper.boat?.name ?: ""
             boat to listOf(
-                row.raceStandings.map { it.placeInBracket.toDouble() },
-                row.raceStandings.map { it.placeInClass.toDouble() },
-                row.raceStandings.map { it.placeInBracketCorrected?.toDouble() },
-                row.totalScoreBracket.toDouble(), row.totalScoreClass.toDouble(), row.placeInBracket, row.placeInClass,
+                row.raceStandings.map { it.placeInBracket },
+                row.raceStandings.map { it.placeInClass },
+                row.totalScoreBracket, row.totalScoreClass, row.placeInBracket, row.placeInClass,
             )
         }
 
@@ -194,7 +193,6 @@ class InvariantsTest {
     }
 
     /** D4: a penalty adds to the penalised boat's own place, capped at DNF, and changes nobody else. */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun a_penalty_never_changes_another_boats_score() {
         var penalised = 0
@@ -219,7 +217,6 @@ class InvariantsTest {
     }
 
     /** Shuffling with penalties present must not change a score either (D4 reworks the penalty pass). */
-    @Ignore("D4: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun shuffling_race_entries_with_penalties_never_changes_a_score() {
         repeat(300) { i ->
@@ -240,12 +237,18 @@ class InvariantsTest {
         repeat(200) { i ->
             val standings = build(randomSeries(Random(7000 + i)))
             standings.standings.flatMap { it.standings }.flatMap { it.standings }.forEach { row ->
-                val excluded = row.raceStandings.count { it.throwOut }
-                assertTrue(excluded <= 1, "seed $i ${row.boatSkipper.boat?.name}: $excluded throw-outs")
-                if (standings.races.size < 5) assertEquals(0, excluded, "seed $i: throw-out with ${standings.races.size} races")
-                val counted = row.raceStandings.filter { !it.throwOut }
-                assertEquals(counted.sumOf { it.placeInBracket.toDouble() }, row.totalScoreBracket.toDouble(), "seed $i bracket total")
-                assertEquals(counted.sumOf { it.placeInClass.toDouble() }, row.totalScoreClass.toDouble(), "seed $i class total")
+                val boat = row.boatSkipper.boat?.name
+                // D2: each group has its own throw-out, chosen among the races sailed for that group
+                val bracketSailed = row.raceStandings.filter { it.bracketSailed }
+                val classSailed = row.raceStandings.filter { it.classSailed }
+                val excludedBracket = row.raceStandings.count { it.throwOut }
+                val excludedClass = row.raceStandings.count { it.throwOutClass }
+                assertTrue(excludedBracket <= 1 && excludedClass <= 1, "seed $i $boat: $excludedBracket / $excludedClass throw-outs")
+                if (bracketSailed.size < 5) assertEquals(0, excludedBracket, "seed $i $boat: bracket throw-out with ${bracketSailed.size} sailed races")
+                if (classSailed.size < 5) assertEquals(0, excludedClass, "seed $i $boat: class throw-out with ${classSailed.size} sailed races")
+                assertTrue(row.raceStandings.none { it.throwOut && !it.bracketSailed }, "seed $i $boat: an unsailed race thrown out")
+                assertEquals(bracketSailed.filter { !it.throwOut }.sumOf { it.placeInBracket.toDouble() }, row.totalScoreBracket.toDouble(), "seed $i bracket total")
+                assertEquals(classSailed.filter { !it.throwOutClass }.sumOf { it.placeInClass.toDouble() }, row.totalScoreClass.toDouble(), "seed $i class total")
             }
         }
     }
@@ -272,7 +275,6 @@ class InvariantsTest {
     }
 
     /** D5: shuffling the entries of every race never changes a standings score or place. */
-    @Ignore("D5: see docs/explore_unimplemented/test_audit_and_plan.md")
     @Test
     fun shuffling_series_entries_never_changes_standings() {
         repeat(200) { i ->
@@ -284,8 +286,11 @@ class InvariantsTest {
         }
     }
 
-    /** GSI 1.4.1.2 / D1 / D3: an RC volunteer entry never changes another boat's score or place, and the total counts its average. */
-    @Ignore("D3: see docs/explore_unimplemented/test_audit_and_plan.md")
+    /**
+     * GSI 1.4.1.2 / D3: an RC volunteer entry never changes another boat's scores or totals, nor
+     * the order of the other boats among themselves. (The volunteer's own total, and so its place
+     * between them, is what the rule is about, so it is left out of the comparison.)
+     */
     @Test
     fun an_rc_volunteer_never_changes_another_boat() {
         var volunteers = 0
@@ -294,12 +299,21 @@ class InvariantsTest {
             val rcBoats = spec.races.flatMap { r -> r.brackets.values.flatten().filter { it.outcome == Outcome.Code(DNS_RC) }.map { it.name } }.toSet()
             if (rcBoats.isEmpty()) return@repeat
             volunteers += rcBoats.size
-            val with = build(spec).snapshot()
+            val with = build(spec)
             // the same series with the RC entries removed, so those boats are plain DNS in those races
-            val without = build(SeriesSpec(spec.races.map { r -> r.map { _, b -> b.takeIf { it.outcome != Outcome.Code(DNS_RC) } } })).snapshot()
-            (with.keys - rcBoats).forEach { boat ->
-                assertEquals(without[boat], with[boat], "seed $i $boat changed because another boat volunteered")
+            val without = build(SeriesSpec(spec.races.map { r -> r.map { _, b -> b.takeIf { it.outcome != Outcome.Code(DNS_RC) } } }))
+            val others = with.snapshot().keys - rcBoats
+            others.forEach { boat ->
+                assertEquals(without.bracketRaceScores(boat), with.bracketRaceScores(boat), "seed $i $boat bracket scores")
+                assertEquals(without.classRaceScores(boat), with.classRaceScores(boat), "seed $i $boat class scores")
+                assertEquals(without.bracketTotals()[boat], with.bracketTotals()[boat], "seed $i $boat bracket total")
+                assertEquals(without.classTotals()[boat], with.classTotals()[boat], "seed $i $boat class total")
             }
+            // the other boats keep their order within each bracket and within each class
+            fun StandingsSeries.bracketOrders() = standings.flatMap { c -> c.standings.map { b -> b.bracket.name to b.standings.filter { it.boatSkipper.boat?.name in others }.sortedBy { it.placeInBracket }.map { it.boatSkipper.boat?.name } } }.toMap()
+            fun StandingsSeries.classOrders() = standings.associate { c -> c.raceClass.name to c.standings.flatMap { it.standings }.filter { it.boatSkipper.boat?.name in others }.sortedBy { it.placeInClass }.map { it.boatSkipper.boat?.name } }
+            assertEquals(without.bracketOrders(), with.bracketOrders(), "seed $i bracket order of the other boats")
+            assertEquals(without.classOrders(), with.classOrders(), "seed $i class order of the other boats")
         }
         assertTrue(volunteers > 30, "the generator produced too few RC volunteers: $volunteers")
     }

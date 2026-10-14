@@ -98,17 +98,16 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                         }
                         standings.raceStandings.forEach {
                             RgTd {
-                                ScoreText(it.bracketScoreText(), it.bracketScoreClasses())
-                                it.bracketCorrectedText()?.let { text ->
-                                    ScoreText(text, it.correctedScoreClasses())
-                                }
-                                if (multiBracket) {
-                                    ScoreText(it.classScoreText(), it.classScoreClasses())
-                                    it.classCorrectedText()?.let { text ->
-                                        ScoreText(text, it.correctedScoreClasses())
+                                val status = it.statusText()
+                                if (status != null) {
+                                    Span(attrs = { classes("text-muted") }) { Text(status) }
+                                } else {
+                                    ScoreText(it.bracketScoreText(), it.bracketScoreClasses())
+                                    if (multiBracket) {
+                                        ScoreText(it.classScoreText(), it.classScoreClasses())
                                     }
+                                    it.codeSuffix().takeIf { suffix -> suffix.isNotEmpty() }?.let { suffix -> Text(suffix) }
                                 }
-                                it.codeSuffix().takeIf { suffix -> suffix.isNotEmpty() }?.let { suffix -> Text(suffix) }
                             }
                         }
                         RgTd {

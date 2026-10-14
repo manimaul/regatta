@@ -2390,9 +2390,9 @@
                             "orcTcf": 1.0,
                             "correctedPhrfTime": null,
                             "correctedOrcTime": null,
-                            "placeInBracket": 6,
+                            "placeInBracket": 5,
                             "placeInBracketOrc": 0,
-                            "placeInClass": 6,
+                            "placeInClass": 5,
                             "placeInClassOrc": 0,
                             "hocPosition": null,
                             "penalty": 1

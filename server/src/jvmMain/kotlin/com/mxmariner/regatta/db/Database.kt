@@ -16,6 +16,9 @@ import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 
 
 class DbConfig {
@@ -129,9 +132,14 @@ object RegattaDatabase {
 
     // Race ------------------------
 
+    /** D8: a season's year is the Pacific calendar year, the same clock the ORC/PHRF switch in the reporter uses. */
+    private fun yearBounds(year: Int): Pair<Instant, Instant> {
+        val zone = TimeZone.of("America/Los_Angeles")
+        return LocalDate(year, 1, 1).atStartOfDayIn(zone) to LocalDate(year + 1, 1, 1).atStartOfDayIn(zone)
+    }
+
     suspend fun allRaces(year: Int): List<RaceSchedule> {
-        val start = Instant.parse("$year-01-01T00:00:00Z")
-        val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
+        val (start, end) = yearBounds(year)
         return dbRawQuery(
             sql = "SELECT DISTINCT race_id FROM racetime WHERE start_date >= ? AND start_date < ?;",
             args = listOf(KotlinInstantColumnType() to start, KotlinInstantColumnType() to end)
@@ -150,8 +158,7 @@ object RegattaDatabase {
     }
 
     suspend fun seriesRaces(seriesId: Long, year: Int): List<Long> {
-        val start = Instant.parse("$year-01-01T00:00:00Z")
-        val end = Instant.parse("${year + 1}-01-01T00:00:00Z")
+        val (start, end) = yearBounds(year)
         return dbRawQuery(
             sql = "SELECT DISTINCT race_id FROM racetime JOIN race r on r.id = racetime.race_id WHERE r.series_id = ? AND start_date >= ? AND start_date < ?;",
             args = listOf(

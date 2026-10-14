@@ -37,6 +37,8 @@ class RaceReportLabelsTest {
         assertEquals("HOC 3", FinishCode.HOC.finishText(3))
         assertEquals("HOC ", FinishCode.HOC.finishText(null))
         assertEquals("DNS RC Volunteer", FinishCode.DNS_RC.finishText(null))
+        assertEquals("DNS", FinishCode.DNS.finishText(null))
+        assertEquals("DSQ", FinishCode.DSQ.finishText(null))
         FinishCode.entries.forEach { it.finishText(1) } // every code has a label
     }
 
@@ -125,8 +127,7 @@ class RaceReportLabelsTest {
         assertEquals(listOf("2(PHRF)"), placed(RatingType.ORC_PHRF, orc = false).classPlaceLines(showOrc = true))
     }
 
-    /** D7: the class column must show the ORC place in class, not in bracket. Ignored until D7 lands, see docs/explore_unimplemented/test_audit_and_plan.md. */
-    @Ignore
+    /** D7: the class column shows the ORC place in class, not in bracket. */
     @Test
     fun d7_multiBracketOrcPhrfClassColumnShowsClassOrcPlace() {
         assertEquals(listOf("2(PHRF), ", "5(ORC)"), placed(RatingType.ORC_PHRF).classPlaceLines(showOrc = true))

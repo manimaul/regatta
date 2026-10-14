@@ -8,7 +8,7 @@ import kotlin.time.Instant
 
 /**
  * A throwaway Postgres loaded with the scrubbed production snapshot, for the golden tests.
- * See docs/explore_unimplemented/test_audit_and_plan.md §5.
+ * See docs/explore_implemented/test_audit_and_plan.md §5.
  *
  * Started once per JVM on first use: RegattaDatabase is a process-wide singleton, so all golden
  * tests share this one database. Needs a container runtime; run through `:server:jvmGoldenTest`,
