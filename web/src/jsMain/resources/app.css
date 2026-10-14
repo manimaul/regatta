@@ -55,8 +55,9 @@
 @theme inline {
     --color-success-100: var(--color-green-100);
     --color-success-200: var(--color-green-200);
-    --color-success-600: var(--color-green-600);
-    --color-success-700: var(--color-green-700);
+    /* one step darker than the name suggests: white on green-600 is only 3.2:1 (WCAG AA needs 4.5:1) */
+    --color-success-600: var(--color-green-700);
+    --color-success-700: var(--color-green-800);
     --color-warning-100: var(--color-amber-100);
     --color-warning-200: var(--color-amber-200);
     --color-warning-300: var(--color-amber-300);
@@ -67,7 +68,69 @@
     --color-secondary-700: var(--color-slate-700);
 }
 
+/*
+ * Reboot replacement. Preflight strips heading sizes, paragraph/list spacing and bullets; the screens use raw
+ * H1-H6, P, Ul, Label and links, so restore Bootstrap 5.3's Reboot values for them. (While the bootstrap layer is
+ * still imported it wins over this layer; these rules take over in Phase 5.)
+ */
 @layer base {
+    body {
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--color-slate-900);
+        background-color: white;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 0;
+        margin-bottom: .5rem;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+    /* Bootstrap's responsive font sizes: grow with the viewport, capped from 1200px (xl) up */
+    h1 { font-size: min(calc(1.375rem + 1.5vw), 2.5rem); }
+    h2 { font-size: min(calc(1.325rem + .9vw), 2rem); }
+    h3 { font-size: min(calc(1.3rem + .6vw), 1.75rem); }
+    h4 { font-size: min(calc(1.275rem + .3vw), 1.5rem); }
+    h5 { font-size: 1.25rem; }
+    h6 { font-size: 1rem; }
+
+    p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    ul, ol {
+        padding-left: 2rem;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    ul { list-style: disc; }
+    ol { list-style: decimal; }
+    :is(ul, ol) :is(ul, ol) { margin-bottom: 0; }
+
+    b, strong { font-weight: bolder; }
+    small { font-size: .875em; }
+
+    hr {
+        margin: 1rem 0;
+        border: 0;
+        border-top: 1px solid currentColor;
+        opacity: .25;
+    }
+
+    /* burgee light blue, darkened for contrast (5.7:1 on white); navy would read as body text */
+    a {
+        color: var(--color-info-700);
+        text-decoration: underline;
+    }
+    a:hover { color: var(--color-primary-900); }
+
+    label { display: inline-block; }
+
     button:not(:disabled), [role="button"]:not(:disabled) {
         cursor: pointer;
     }

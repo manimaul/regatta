@@ -468,13 +468,53 @@ tablet widths were tested in same-origin iframes, which is also how the CYCT emb
 So each phase can be merged on its own, as the "each phase leaves the app shippable" goal intended, and Bootstrap's
 import is deleted in Phase 5.
 
-**Phase 1: [ ] Foundation.** Mostly done by the spike: build wiring, `@theme` (colors, breakpoints, z-index),
+**Phase 1: [x] Foundation.** Mostly done by the spike: build wiring, `@theme` (colors, breakpoints, z-index),
 the forms plugin, and coexistence layering. Remaining work:
 
 - the full base layer: responsive `h1`–`h4` sizes with `clamp()`, paragraph and list spacing, link color. It can
   only be checked once Reboot stops winning, so check it against a page with the Bootstrap import commented out;
 - contrast checks on the burgee color scales (WCAG AA);
 - fixing `RouteMatcherTest` so `jsBrowserTest` runs in Chrome Headless and Firefox.
+
+### Phase 1 results (2026-10-13)
+
+- **Base layer** (`app.css` `@layer base`) recreates Bootstrap 5.3 Reboot for the elements the screens use:
+  - body font, line height and color;
+  - `h1`–`h6` weights and margins. `h1`–`h4` use Reboot's responsive sizes as `min(calc(…+…vw), cap)`, which
+    reaches the cap exactly at 1200px, as Bootstrap's RFS does;
+  - `p`, `ul`/`ol` (spacing and bullets), `b`/`strong`, `small`, `hr`, `label`, `a`;
+  - the earlier pointer-cursor and inline `img`/`svg` fixes.
+
+  **Verification:** with the Bootstrap import temporarily commented out, I compared computed styles (font size,
+  weight, line height, margins, list padding and style, display, decoration, cursor, vertical align) for 69
+  elements on `/races/results`, `/races/results/view/100` and `/admin`, at 1280px and 390px. Every value matched
+  Bootstrap, except one difference that isn't part of the base layer (see the Phase 4 note).
+- **Link color is a deliberate change:** burgee light blue darkened to `info-700` (`#376d87`, 5.7:1 on white),
+  replacing Bootstrap's blue. Body text is `slate-900`.
+- **Contrast:** every text/background pair the `.rg-*` classes use passes WCAG AA (4.5:1), with Tailwind's real
+  palette values and the `color-mix()` burgee shades computed exactly. The exception was **success**: white on
+  `green-600` is only 3.22:1. `--color-success-600`/`-700` now map to `green-700`/`green-800` (4.94:1 and 7.09:1).
+  Selected ratios:
+
+  | Pair | Ratio |
+  |---|---|
+  | white on primary navy `#131340` | 17.6 |
+  | white on danger-600 `#ca352d` | 5.2 |
+  | white on success (`green-700`) | 4.9 |
+  | white on secondary-600 | 7.6 |
+  | nav link `slate-600` on surface | 7.3 |
+  | table caption `slate-500` on white | 4.8 |
+  | `slate-900` on the darkest table state (secondary + hover overlay) | 12.3 |
+- **Tests:**
+  - `RouteMatcherTest` now tests path arguments with `Route.RaceEdit` (`/race/:id`), since `BoatEdit` was removed.
+  - `jsBrowserTest` also failed because `dev_server_config.js` assumed `config.devServer` exists, and the rename
+    hooks in `web/build.gradle.kts` use paths relative to the Gradle daemon's working directory, so they never
+    applied. `dev_server_config.js` is now wrapped in `if (config.devServer)`. That also fixes
+    `jsBrowserDevelopmentWebpack`, and makes the rename hooks redundant but harmless.
+  - In Chrome Headless, `RouteMatcherTest` (2/2) and `AuthTest` (2/2) pass.
+  - **Firefox is not installed on this machine**, so the Firefox launcher fails ("No binary for Firefox"). Chrome
+    was run with `useFirefox()` temporarily disabled, then restored. Running `jsBrowserTest` as configured needs
+    Firefox installed (or `FIREFOX_BIN` set).
 
 **Phase 2: [ ] Leaf components (API unchanged).** `RgButton` is done (spike). `RgInput`,
 `RgNumberInput`, `RgInputWithButton`, `RgTime`, `RgCheck`, `RgSwitch`, `RgDropdown*` (including outside-click/Esc
@@ -488,7 +528,9 @@ logged in at phone width.
 
 **Phase 4: [ ] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
 still uses `nav-link`. Remaining: `Customizer` literal tables + spacing-scale mapping, `RgGrid` (note the
-`container_fluid` no-op), `Rc.kt` pills, the `Alerts` banner, `RgSortable`.
+`container_fluid` no-op). Also `Router`'s `#route_content` gets Bootstrap's `d-flex`/`flex-column`/`flex-grow-1`
+through `RgDiv`'s `addCustom`. The Phase 1 check showed the content stops being a flex column without Bootstrap,
+so map these to `flex`/`flex-col`/`grow`. Then: `Rc.kt` pills, the `Alerts` banner, `RgSortable`.
 
 **Phase 5: [ ] Remove Bootstrap.** Route-level class sweep (`grep -rn 'classes(' web/src/jsMain`) (any Bootstrap name left behind loses its styling once the import is gone),
 remove the Bootstrap `@import` and `bootstrap` layer from `app.css`, remove the `bootstrap`/`@popperjs/core` npm deps
