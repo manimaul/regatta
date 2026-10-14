@@ -132,52 +132,26 @@ fun RaceResultsClassTable(
                             }
                         }
                         if (totalBracketInClassCount > 1) {
-                            if (showOrc) {
-                                RgTd {
-                                    if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
-                                        Text("${card.placeInBracket}(PHRF), ")
-                                        Br {  }
-                                        Text("${card.placeInBracketOrc}(ORC)")
-                                    } else if (card.ratingType().isPHRF) {
-                                        Text("${card.placeInBracket}(PHRF)")
-                                    } else if (card.ratingType() == RatingType.ORC) {
-                                        Text("${card.placeInBracketOrc}(ORC)")
-                                    }
-                                }
-                                RgTd {
-                                    if (card.placeInClassOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
-                                        Text("${card.placeInClass}(PHRF), ")
-                                        Br {  }
-                                        Text("${card.placeInBracketOrc}(ORC)")
-                                    } else if (card.ratingType().isPHRF) {
-                                        Text("${card.placeInClass}(PHRF)")
-                                    } else if (card.ratingType() == RatingType.ORC) {
-                                        Text("${card.placeInClassOrc}(ORC)")
-                                    }
-                                }
-                            } else {
-                                RgTd { Text(card.placeInBracket.toString()) }
-                                RgTd { Text(card.placeInClass.toString()) }
-                            }
+                            RgTd { CellLines(card.bracketPlaceLines(showOrc)) }
+                            RgTd { CellLines(card.classPlaceLines(showOrc)) }
                         } else {
-                            RgTd {
-                                if (card.placeInBracketOrc != 0 && card.ratingType() == RatingType.ORC_PHRF) {
-                                    Text("${card.placeInBracket}(PHRF), ")
-                                    Br {  }
-                                    Text("${card.placeInBracketOrc}(ORC)")
-                                } else if (card.ratingType().isPHRF) {
-                                    Text("${card.placeInBracket}(PHRF)")
-                                } else if (card.ratingType() == RatingType.ORC) {
-                                    Text("${card.placeInBracketOrc}(ORC)")
-                                } else {
-                                    Text(card.placeInBracket.toString())
-                                }
-                            }
+                            RgTd { CellLines(card.singleBracketPlaceLines()) }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/** Renders the lines of a place cell, separated by line breaks. */
+@Composable
+private fun CellLines(lines: List<String>) {
+    lines.forEachIndexed { i, line ->
+        if (i > 0) {
+            Br { }
+        }
+        Text(line)
     }
 }
 

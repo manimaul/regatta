@@ -3,7 +3,6 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.data.StandingsClass
 import com.mxmariner.regatta.data.StandingsSeries
@@ -12,6 +11,7 @@ import org.jetbrains.compose.web.attributes.Scope
 import org.jetbrains.compose.web.css.fontWeight
 import org.jetbrains.compose.web.dom.*
 import viewmodel.SeriesStandingsViewModel
+import utils.*
 import viewmodel.complete
 
 private val col1 = listOf(
@@ -98,53 +98,24 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                         }
                         standings.raceStandings.forEach {
                             RgTd {
-                                B(attrs = {
-                                    if (it.placeInBracketCorrected != null && it.throwOut) {
-                                        classes("text-danger-fg", "line-through")
-                                    } else if (it.throwOut) {
-                                        classes("text-danger-fg")
-                                    } else if (it.placeInBracketCorrected != null) {
-                                        classes("line-through")
-                                    }
-                                }) { Text("${it.placeInBracket}") }
-                                it.placeInBracketCorrected?.let { pbc ->
-                                    B(attrs = { if (it.throwOut) classes("text-danger-fg") }) {
-                                        Text(" $pbc")
-                                    }
+                                ScoreText(it.bracketScoreText(), it.bracketScoreClasses())
+                                it.bracketCorrectedText()?.let { text ->
+                                    ScoreText(text, it.correctedScoreClasses())
                                 }
                                 if (multiBracket) {
-                                    B(attrs = {
-                                        if (it.placeInClassCorrected != null && it.throwOut) {
-                                            classes("text-danger-fg", "line-through")
-                                        } else if (it.throwOut) {
-                                            classes("text-danger-fg")
-                                        } else if (it.placeInClassCorrected != null) {
-                                            classes("line-through")
-                                        }
-                                    }) { Text(", ${it.placeInClass}") }
-                                    it.placeInClassCorrected?.let { pcc ->
-                                        B(attrs = { if (it.throwOut) classes("text-danger-fg") }) {
-                                            Text(" $pcc")
-                                        }
+                                    ScoreText(it.classScoreText(), it.classScoreClasses())
+                                    it.classCorrectedText()?.let { text ->
+                                        ScoreText(text, it.correctedScoreClasses())
                                     }
                                 }
-                                when (val code = it.finishCode) {
-                                    FinishCode.TIME -> Unit
-                                    FinishCode.RET,
-                                    FinishCode.DNF,
-                                    FinishCode.NSC -> Text(" ${code.name}")
-
-                                    FinishCode.HOC -> Text(" ${code.name}${it.hocPosition}")
-                                    FinishCode.DNS_RC -> Text(" DNS RC Volunteer")
-                                    null -> Text(" DNS")
-                                }
+                                it.codeSuffix().takeIf { suffix -> suffix.isNotEmpty() }?.let { suffix -> Text(suffix) }
                             }
                         }
                         RgTd {
                             if (multiBracket) {
-                                B { Text("${standings.totalScoreBracket}, ") }
+                                B { Text(standings.totalBracketText()) }
                             }
-                            Text("${standings.totalScoreClass}")
+                            Text(standings.totalClassText())
                         }
 
                         if (multiBracket) {
@@ -161,6 +132,16 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
             }
         }
     }
+}
+
+/** A bold score with its decoration classes (see utils/StandingsReport.kt). */
+@Composable
+private fun ScoreText(text: String, classes: List<String>) {
+    B(attrs = {
+        if (classes.isNotEmpty()) {
+            classes(*classes.toTypedArray())
+        }
+    }) { Text(text) }
 }
 
 @Composable

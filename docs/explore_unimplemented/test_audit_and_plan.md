@@ -196,6 +196,11 @@ refactor only adds seams and does not change behavior:
 - Extract the 2025→2026 PHRF-only switch in `getReport` (the `America/Los_Angeles` year check and
   the `RatingType.PHRF` copy) into a pure `effectiveRaceClass(classSchedule): RaceClass`, so the
   time-zone test in layer 2 runs without a container.
+- Split `getReport` into a pure `report(raceSchedule, cards): RaceReport` plus the DB fetch, so the
+  fixture DSL can build `RaceReport`s for `standings` without a database. `getReport` now builds a
+  card for every result up front instead of per class; the only visible difference is that a
+  result with an `orcRef` whose certificate is missing fails even when no class would have scored
+  it, which the golden test will surface if the data has such a row.
 - Add a pure `validateResult(result: RaceResult): String?` that returns an error message or
   `null`. The `POST results` route answers 400 when it returns a message. It accepts everything
   until D8.
@@ -520,21 +525,26 @@ phase 6 includes:
 D6 and D7 should leave the golden outputs unchanged. D1, D2 and D8 re-approve every standings
 file; for them the `deviations.json` diff is the only isolation check (see §5).
 
-### Phase 1: Seams and fixtures (no behavior change)
+### Phase 1: Seams and fixtures (no behavior change) — done 2026-10-14
 
-- [ ] Extract a pure `card(record, classStart, race, orcCert?)` from `reduceToCard`, keeping a thin DB wrapper for the certificate lookup.
-- [ ] Extract a pure `standings(series, year, reports, now)` from `getStandingsReport`, keeping a thin DB wrapper. `getStandingsReport` gains `now: Instant = Clock.System.now()`, and the route keeps the default.
-- [ ] Extract the pure `effectiveRaceClass(classSchedule)` (the 2025→2026 PHRF-only switch) from `getReport`.
-- [ ] Make `throwOutWorst`, `nonStarterPlace`, `tieBreaker`, `phrfTcf`, `orcTcf` and `boatCorrectedTime` `internal`.
-- [ ] Add the pure `validateResult(result): String?`, which accepts everything for now, and wire it into the `POST results` route so a message returns 400.
-- [ ] Move the cell-text logic for the race view place columns (`RaceResultsView.kt`) and the standings cells (`SeriesStandings.kt`) into pure functions in `web/.../utils/`.
-- [ ] Add the fixture DSL in `server/src/jvmTest`:
+- [x] Extract a pure `card(record, classStart, race, orcCert?)` from `reduceToCard`, keeping a thin DB wrapper for the certificate lookup.
+- [x] Extract a pure `standings(series, year, reports, now)` from `getStandingsReport`, keeping a thin DB wrapper. `getStandingsReport` gains `now: Instant = Clock.System.now()`, and the route keeps the default.
+- [x] Extract the pure `effectiveRaceClass(classSchedule)` (the 2025→2026 PHRF-only switch) from `getReport`.
+- [x] Extract the pure `report(raceSchedule, cards)` from `getReport` (see §1).
+- [x] Make `throwOutWorst`, `nonStarterPlace`, `tieBreaker`, `phrfTcf`, `orcTcf` and `boatCorrectedTime` `internal`.
+- [x] Add the pure `validateResult(result): String?` (`results/ResultValidation.kt`), which accepts everything for now, and wire it into the `POST results` route so a message returns 400 with the message as the body.
+- [x] Move the cell-text logic for the race view place columns (`RaceResultsView.kt`) and the standings cells (`SeriesStandings.kt`) into pure functions in `web/.../utils/`: the `*PlaceLines` functions in `RaceReport.kt` and `StandingsReport.kt`. The D7 column bug is preserved there, with a comment.
+- [x] Add the fixture DSL in `server/src/jvmTest/.../results/Fixture.kt`:
   - race, class, bracket and boat builders, with times as Pacific local times;
   - a `series {}` builder;
   - `rcVolunteer`;
   - a `legacy()` result form with no finish code, for the NULL-code rows;
-  - the `assertScores` helper, which compares scores as `Double`.
-- [ ] Port `RaceResultReporterKtTest.testHoc` to the DSL. `:server:jvmTest` passes.
+  - the `assertScores` helper, which compares scores as `Double`, plus `assertBracketScores` / `assertClassScores` on a `RaceReport` and `assertBracketTotals` / `assertClassTotals` on a `StandingsSeries`.
+- [x] Port `RaceResultReporterKtTest.testHoc` to the DSL. `:server:jvmTest` passes.
+  Note: before Phase 1 `testHoc` was already failing (expected 1, got 3): its hand-built cards never
+  set `result.finish`, so `place()` scored every card as RET. The "Current coverage" table above
+  overstated it. The DSL port builds real records, and the two DNS cards were dropped because DNS has
+  no race record; DNS is covered by the standings test `gsi_14_1_2_dns_scores_starters_plus_one`.
 
 ### Phase 2: Rating math, times and labels
 

@@ -4,6 +4,7 @@ import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.results.RaceResultReporter
+import com.mxmariner.regatta.results.validateResult
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -143,9 +144,14 @@ fun Application.configureRouting() {
             }
             post(ApiPaths.results.versionedApi()) {
                 val result = call.receive<RaceResult>()
-                RegattaDatabase.upsertResult(result)?.let {
-                    call.respond(it)
-                } ?: call.respond(HttpStatusCode.Conflict)
+                val message = validateResult(result)
+                if (message != null) {
+                    call.respondText(message, status = HttpStatusCode.BadRequest)
+                } else {
+                    RegattaDatabase.upsertResult(result)?.let {
+                        call.respond(it)
+                    } ?: call.respond(HttpStatusCode.Conflict)
+                }
             }
             post(ApiPaths.race.versionedApi()) {
                 val race = call.receive<Race>()

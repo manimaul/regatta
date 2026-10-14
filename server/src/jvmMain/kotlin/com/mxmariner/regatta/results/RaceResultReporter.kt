@@ -2,6 +2,7 @@ package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
+import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -13,24 +14,37 @@ import kotlin.time.toDuration
 
 object RaceResultReporter {
 
-    suspend fun getStandingsReport(seriesId: Long, year: Int): StandingsSeries? {
+    /**
+     * DB wrapper around [standings]: fetches the series' race reports and the series itself.
+     * [now] defaults to the wall clock; the golden test pins it (see docs/explore_unimplemented/test_audit_and_plan.md §5).
+     */
+    suspend fun getStandingsReport(seriesId: Long, year: Int, now: Instant = Clock.System.now()): StandingsSeries? {
         val reports = RegattaDatabase.seriesRaces(seriesId, year).mapNotNull { raceId ->
             getReport(raceId)
-        }.asSequence()
-
-        val races = reports.map { it.raceSchedule }.sortedBy { it.startTime }.map { it.race }.toList()
-
-        val standings = RegattaDatabase.findSeries(seriesId)?.let { series ->
-            StandingsSeries(
-                year = year,
-                series = series,
-                standings = getStandingsClass(races, reports),
-                races = races
-            )
         }
+        return RegattaDatabase.findSeries(seriesId)?.let { series ->
+            standings(series, year, reports, now)
+        }
+    }
+
+    /**
+     * Pure series standings from the race reports. [now] is unused until D2, where it tells a
+     * cancelled race from one not yet sailed.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun standings(series: Series, year: Int, reports: List<RaceReport>, now: Instant): StandingsSeries {
+        val reportSequence = reports.asSequence()
+        val races = reportSequence.map { it.raceSchedule }.sortedBy { it.startTime }.map { it.race }.toList()
+
+        val standings = StandingsSeries(
+            year = year,
+            series = series,
+            standings = getStandingsClass(races, reportSequence),
+            races = races
+        )
 
         //calculate place in class
-        standings?.standings?.forEach { standingsClass: StandingsClass ->
+        standings.standings.forEach { standingsClass: StandingsClass ->
             val bracketStandings = standingsClass.standings.flatMap { it.standings }
 
             var place = 0
@@ -52,7 +66,7 @@ object RaceResultReporter {
         return standings
     }
 
-    private fun tieBreaker(
+    internal fun tieBreaker(
         numberOfRacesInSeries: Int,
         lhs: StandingsBoatSkipper,
         rhs: StandingsBoatSkipper,
@@ -213,7 +227,7 @@ object RaceResultReporter {
         return result.sortedBy { it.placeInBracket }
     }
 
-    private fun throwOutWorst(standings: List<StandingsRace>) {
+    internal fun throwOutWorst(standings: List<StandingsRace>) {
         val minBracket = standings.minOf { it.placeInBracket }
         val maxBracket = standings.maxOf { it.placeInBracket }
         if (minBracket != maxBracket) {
@@ -231,7 +245,7 @@ object RaceResultReporter {
         standings.lastOrNull()?.throwOut = true
     }
 
-    private fun nonStarterPlace(
+    internal fun nonStarterPlace(
         race: Race,
         bracketRecords: Sequence<RaceReportCard>,
         classRecords: Sequence<RaceReportCard>,
@@ -302,109 +316,122 @@ object RaceResultReporter {
         ).takeIf { it.bracketReport.isNotEmpty() }
     }
 
-    suspend fun getReport(raceId: Long): RaceReport? {
-        val classReportList = mutableListOf<ClassReportCards>()
-        RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule: RaceSchedule ->
-            val schedules: Map<Long, ClassSchedule> = raceSchedule.schedule.associateBy { it.raceClass.id }
-
-            //Calculate corrected time
-            val allResults: List<RaceResultBoatBracket> = RegattaDatabase.resultsBoatBracketByRaceId(raceId)
-
-            //Places
-            raceSchedule.schedule.forEach { classSchedule: ClassSchedule ->
-                when (val rt = classSchedule.raceClass.ratingType) {
-                    RatingType.ORC,
-                    RatingType.PHRF,
-                    RatingType.ORC_PHRF -> {
-                        val year = classSchedule.raceStart()?.toLocalDateTime(TimeZone.of("America/Los_Angeles"))?.year ?: 0
-                        val raceClass = if (year >= 2026) {
-                            classSchedule.raceClass
-                        } else {
-                            classSchedule.raceClass.copy(ratingType = RatingType.PHRF)
-                        }
-
-                        classCard(
-                            raceSchedule,
-                            classSchedule,
-                            allResults.filter { it.result.ratingType.isORCorPHRF }.map {
-                                reduceToCard(it, raceSchedule, schedules)
-                            },
-                            raceClass
-                        )?.let { classReportList.add(it) }
-                    }
-
-                    RatingType.CruisingFlyingSails,
-                    RatingType.CruisingNonFlyingSails -> classCard(
-                        raceSchedule,
-                        classSchedule,
-                        allResults.filter { it.result.ratingType == rt }.map {
-                            reduceToCard(it, raceSchedule, schedules)
-                        },
-                        classSchedule.raceClass,
-                    )?.let { classReportList.add(it) }
-                }
-            }
-
-            //Orphan results
-            val orphans = allResults.filter { it.bracket.id == 0L }.map {
-                reduceToCard(it, raceSchedule, schedules)
-            }
-            orphans.place { i, it ->
-                it.placeInBracket = i
-                it.placeInClass = i
-            }
-            if (orphans.isNotEmpty()) {
-                val orphanCards = BracketReportCards(
-                    bracket = Bracket(name = "Invalid result records"),
-                    cards = orphans
-                )
-                classReportList.add(
-                    ClassReportCards(
-                        raceClass = RaceClass(name = "Incorrectly classed"),
-                        bracketReport = listOf(orphanCards),
-                        phrfBFactor = raceSchedule.race.phrfBFactor,
-                        orcScoringOption = raceSchedule.race.orcScoringOption,
-                        orc3Band = raceSchedule.race.orc3Band,
-                        orc5Band = raceSchedule.race.orc5Band,
-                    )
-                )
-            }
-
-            return RaceReport(
-                raceSchedule = raceSchedule,
-                classReports = classReportList,
-            )
+    /**
+     * The 2025→2026 switch: ORC scoring only applies from the 2026 season on. Before that a rated
+     * class scores as PHRF only, whatever its rating type says. The season is the class start's
+     * year in America/Los_Angeles. Cruising classes are returned unchanged.
+     */
+    fun effectiveRaceClass(classSchedule: ClassSchedule): RaceClass {
+        val raceClass = classSchedule.raceClass
+        if (!raceClass.ratingType.isORCorPHRF) {
+            return raceClass
         }
-        return null
+        val year = classSchedule.raceStart()?.toLocalDateTime(TimeZone.of("America/Los_Angeles"))?.year ?: 0
+        return if (year >= 2026) {
+            raceClass
+        } else {
+            raceClass.copy(ratingType = RatingType.PHRF)
+        }
     }
 
+    /** DB wrapper around [report]: fetches the schedule and the results, and builds the cards. */
+    suspend fun getReport(raceId: Long): RaceReport? {
+        return RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule: RaceSchedule ->
+            val schedules: Map<Long, ClassSchedule> = raceSchedule.schedule.associateBy { it.raceClass.id }
+            val cards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map { reduceToCard(it, raceSchedule, schedules) }
+            report(raceSchedule, cards)
+        }
+    }
+
+    /**
+     * Pure race report: places every card in its class and bracket. Each card belongs to at most
+     * one class (by its bracket's class id), so the cards can be shared across the class loop.
+     */
+    fun report(raceSchedule: RaceSchedule, cards: List<RaceReportCard>): RaceReport {
+        val classReportList = mutableListOf<ClassReportCards>()
+
+        //Places
+        raceSchedule.schedule.forEach { classSchedule: ClassSchedule ->
+            val rt = classSchedule.raceClass.ratingType
+            val classCards = if (rt.isORCorPHRF) {
+                cards.filter { it.ratingType().isORCorPHRF }
+            } else {
+                cards.filter { it.ratingType() == rt }
+            }
+            classCard(
+                raceSchedule,
+                classSchedule,
+                classCards,
+                effectiveRaceClass(classSchedule)
+            )?.let { classReportList.add(it) }
+        }
+
+        //Orphan results
+        val orphans = cards.filter { it.resultRecord.bracket.id == 0L }
+        orphans.place { i, it ->
+            it.placeInBracket = i
+            it.placeInClass = i
+        }
+        if (orphans.isNotEmpty()) {
+            val orphanCards = BracketReportCards(
+                bracket = Bracket(name = "Invalid result records"),
+                cards = orphans
+            )
+            classReportList.add(
+                ClassReportCards(
+                    raceClass = RaceClass(name = "Incorrectly classed"),
+                    bracketReport = listOf(orphanCards),
+                    phrfBFactor = raceSchedule.race.phrfBFactor,
+                    orcScoringOption = raceSchedule.race.orcScoringOption,
+                    orc3Band = raceSchedule.race.orc3Band,
+                    orc5Band = raceSchedule.race.orc5Band,
+                )
+            )
+        }
+
+        return RaceReport(
+            raceSchedule = raceSchedule,
+            classReports = classReportList,
+        )
+    }
+
+    /** DB wrapper around [card]: looks up the ORC certificate and the class start. */
     private suspend fun reduceToCard(
         record: RaceResultBoatBracket,
         raceSchedule: RaceSchedule,
         classSchedules: Map<Long, ClassSchedule>
     ): RaceReportCard {
-        val schedule = classSchedules[record.bracket.classId]
+        val orcCert = record.result.orcRef?.let { ref ->
+            requireNotNull(RegattaDatabase.findCertificate(ref)) {
+                "could not find certificate for result id ${record.result.id} ref = $ref"
+            }
+        }
+        return card(record, classSchedules[record.bracket.classId]?.startDate, raceSchedule.race, orcCert)
+    }
+
+    /**
+     * Pure card: elapsed time from the class start, PHRF and ORC time correction factors, and
+     * corrected times. Places are left at 0 for [classCard] to fill in.
+     */
+    fun card(
+        record: RaceResultBoatBracket,
+        classStart: Instant?,
+        race: Race,
+        orcCert: OrcCertificate?,
+    ): RaceReportCard {
         val result = record.result
         val boat = record.boatSkipper.boat
         val skipper = record.boatSkipper.skipper
         val time = result.finish?.let { finish ->
-            schedule?.startDate?.let { start ->
+            classStart?.let { start ->
                 finish - start
             }
         }
-        val phrfBFactor = raceSchedule.race.phrfBFactor
 
-        val phrfTcf = if (result.ratingType.isCruising) 1.0 else phrfTcf(phrfBFactor, result.phrfRating)
+        val phrfTcf = if (result.ratingType.isCruising) 1.0 else phrfTcf(race.phrfBFactor, result.phrfRating)
 
-        val orcTcf = record.result.orcRef?.let { ref ->
-            orcTcf(
-                raceSchedule.race.orc3Band,
-                raceSchedule.race.orc5Band,
-                raceSchedule.race.orcScoringOption,
-                requireNotNull(RegattaDatabase.findCertificate(ref)) {
-                    "could not find certificate for result id ${record.result.id} ref = $ref"
-                }
-            )
+        val orcTcf = orcCert?.let {
+            orcTcf(race.orc3Band, race.orc5Band, race.orcScoringOption, it)
         } ?: 1.0
 
         return RaceReportCard(
@@ -414,19 +441,19 @@ object RaceResultReporter {
             skipper = skipper?.fullName() ?: "",
             boatType = boat?.boatType ?: "",
             phrfRating = result.phrfRating,
-            startTime = schedule?.startDate,
+            startTime = classStart,
             finishTime = result.finish,
             elapsedTime = time,
             phrfTcf = phrfTcf,
             orcTcf = orcTcf,
             correctedPhrfTime = boatCorrectedTime(
                 tcf = phrfTcf,
-                start = schedule?.startDate,
+                start = classStart,
                 finish = result.finish
             ).takeIf { result.finish != null },
             correctedOrcTime = boatCorrectedTime(
                 tcf = orcTcf,
-                start = schedule?.startDate,
+                start = classStart,
                 finish = result.finish
             ).takeIf { result.finish != null },
             placeInBracket = 0,
@@ -438,7 +465,7 @@ object RaceResultReporter {
         )
     }
 
-    private fun phrfTcf(factor: Int?, phrfRating: Int?): Double {
+    internal fun phrfTcf(factor: Int?, phrfRating: Int?): Double {
         return factor?.let { cf ->
             phrfRating?.let { rating ->
                 650.0 / (cf.toDouble() + rating.toDouble())
@@ -446,7 +473,7 @@ object RaceResultReporter {
         } ?: 1.0
     }
 
-    private fun orcTcf(
+    internal fun orcTcf(
         orc3Band: Orc3Band? = null,
         orc5Band: Orc5Band? = null,
         orcScoringOption: OrcScoringOption,
@@ -521,7 +548,7 @@ object RaceResultReporter {
 
     }
 
-    private fun boatCorrectedTime(tcf: Double, start: Instant?, finish: Instant?): Duration? {
+    internal fun boatCorrectedTime(tcf: Double, start: Instant?, finish: Instant?): Duration? {
         if (start != null && finish != null) {
             val ms = ((finish - start).inWholeMilliseconds) * tcf
             return ms.toDuration(DurationUnit.MILLISECONDS)

@@ -41,3 +41,42 @@ fun RaceReportCard.corTimeOrcText() = corTimeText(orcTcf,correctedOrcTime, "ORC"
 private fun corTimeText(tcf: Double, duration: Duration?, label: String): String {
     return duration?.display()?.let { "$it (${cfText(tcf)} $label)" } ?: "n/a"
 }
+
+// Place columns of the race results table. Each function returns the lines of one cell; the
+// view renders them separated by <br>. Pure, so they are covered by jsTest.
+
+/** "Place In Bracket" cell of a class with more than one bracket. */
+fun RaceReportCard.bracketPlaceLines(showOrc: Boolean): List<String> {
+    return when {
+        !showOrc -> listOf(placeInBracket.toString())
+        ratingType() == RatingType.ORC_PHRF && placeInBracketOrc != 0 ->
+            listOf("${placeInBracket}(PHRF), ", "${placeInBracketOrc}(ORC)")
+        ratingType().isPHRF -> listOf("${placeInBracket}(PHRF)")
+        ratingType() == RatingType.ORC -> listOf("${placeInBracketOrc}(ORC)")
+        else -> emptyList()
+    }
+}
+
+/** "Place In Class" cell of a class with more than one bracket. */
+fun RaceReportCard.classPlaceLines(showOrc: Boolean): List<String> {
+    return when {
+        !showOrc -> listOf(placeInClass.toString())
+        // D7 (test_audit_and_plan.md): the ORC line shows placeInBracketOrc here; it should be placeInClassOrc.
+        ratingType() == RatingType.ORC_PHRF && placeInClassOrc != 0 ->
+            listOf("${placeInClass}(PHRF), ", "${placeInBracketOrc}(ORC)")
+        ratingType().isPHRF -> listOf("${placeInClass}(PHRF)")
+        ratingType() == RatingType.ORC -> listOf("${placeInClassOrc}(ORC)")
+        else -> emptyList()
+    }
+}
+
+/** The single "Place In Class" cell of a class with one bracket, where bracket place equals class place. */
+fun RaceReportCard.singleBracketPlaceLines(): List<String> {
+    return when {
+        ratingType() == RatingType.ORC_PHRF && placeInBracketOrc != 0 ->
+            listOf("${placeInBracket}(PHRF), ", "${placeInBracketOrc}(ORC)")
+        ratingType().isPHRF -> listOf("${placeInBracket}(PHRF)")
+        ratingType() == RatingType.ORC -> listOf("${placeInBracketOrc}(ORC)")
+        else -> listOf(placeInBracket.toString())
+    }
+}
