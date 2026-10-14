@@ -17,16 +17,15 @@ fun RgSwitch(
     change: (Boolean) -> Unit,
 ) {
     Div(attrs = {
-        classes("form-check", "form-switch")
+        classes("rg-check")
     }) {
         Input(InputType.Checkbox) {
-            classes("form-check-input")
+            classes("rg-switch")
             id("$id$num")
             onChange { change(it.value) }
             checked(check())
         }
         Label(attrs = {
-            classes("form-check-label")
             attr("for", "$id$num")
         }) {
             Text(label)

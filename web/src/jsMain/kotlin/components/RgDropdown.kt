@@ -5,10 +5,13 @@ import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.Series
+import kotlinx.browser.document
 import org.jetbrains.compose.web.attributes.disabled
-import org.jetbrains.compose.web.css.Position
-import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.dom.*
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.events.EventListener
+import org.w3c.dom.events.KeyboardEvent
 import styles.AppStyle
 
 
@@ -16,6 +19,45 @@ fun itemNameContainsFilter(itemName: String, filter: String) :Boolean{
    return filter.trim().takeIf { it.isNotBlank() }?.split(' ')?.let {list ->
        list.any { itemName.contains(it, true) }
    } ?: true
+}
+
+/**
+ * Holds a dropdown's root element so outside clicks can be told apart from clicks inside it.
+ */
+private class DropdownRoot {
+    var element: Element? = null
+}
+
+/**
+ * While [open], closes the dropdown on a pointer press outside [root] or on Escape. Escape is consumed so that a
+ * dropdown inside an [RgModalBody] closes only itself, not the dialog.
+ */
+@Composable
+private fun DismissOnOutsideOrEscape(open: Boolean, root: DropdownRoot, dismiss: () -> Unit) {
+    if (!open) return
+    val currentDismiss by rememberUpdatedState(dismiss)
+    DisposableEffect(root) {
+        val pointer = EventListener { event ->
+            val target = event.target as? Node
+            if (target != null && root.element?.contains(target) == false) {
+                currentDismiss()
+            }
+        }
+        val key = EventListener { event ->
+            if ((event as? KeyboardEvent)?.key == "Escape") {
+                event.preventDefault()
+                event.stopPropagation()
+                currentDismiss()
+            }
+        }
+        // capture phase: runs before anything inside the page can stop the event
+        document.addEventListener("pointerdown", pointer, true)
+        document.addEventListener("keydown", key, true)
+        onDispose {
+            document.removeEventListener("pointerdown", pointer, true)
+            document.removeEventListener("keydown", key, true)
+        }
+    }
 }
 
 @Composable
@@ -29,28 +71,37 @@ fun <T> RgDropdownNone(
 ) {
     var filter by remember { mutableStateOf("") }
     var toggle by remember { mutableStateOf(false) }
+    val root = remember { DropdownRoot() }
     val selected = selectedItem?.let(name) ?: "None"
-    Div {
+    DismissOnOutsideOrEscape(toggle, root) {
+        toggle = false
+        filter = ""
+    }
+    Div(attrs = {
+        classes("rg-dropdown")
+        ref {
+            root.element = it
+            onDispose { root.element = null }
+        }
+    }) {
         Button(attrs = {
-            classes("btn", "btn-primary", "dropdown-toggle")
+            classes(*RgButtonStyle.Primary.classes, "rg-dropdown-toggle")
+            attr("aria-expanded", toggle.toString())
             onClick { toggle = !toggle }
         }) { Text(selectedItem?.let { shorName?.invoke(it) ?: name(it)} ?: "None") }
 
         if (toggle) Div(attrs = {
-            classes("dropdown-menu", "show")
-            style {
-                position(Position.Absolute)
-                property("z-index", "1000")
-            }
+            classes("rg-dropdown-menu")
         }) {
             if (showFilter) {
-                RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-3", "my-2")) {
+                // Bootstrap's mx-3 / my-2 (1rem / .5rem) in Tailwind's scale
+                RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-4", "my-2")) {
                     filter = it
                 }
-                Hr { }
+                Hr(attrs = { classes("rg-dropdown-divider") })
             }
             Button(attrs = {
-                classes("dropdown-item")
+                classes("rg-dropdown-item")
                 onClick {
                     toggle = false
                     filter = ""
@@ -63,7 +114,7 @@ fun <T> RgDropdownNone(
                 val itemName = name(item)
                 if (itemNameContainsFilter(itemName, filter)) {
                     Button(attrs = {
-                        classes("dropdown-item")
+                        classes("rg-dropdown-item")
                         onClick {
                             toggle = false
                             filter = ""
@@ -107,12 +158,20 @@ fun <T> RgIdDropdown(
 ) {
 
     var toggle by remember { mutableStateOf(false) }
+    val root = remember { DropdownRoot() }
     val selected = selectedItem?.let(name) ?: "None"
+    DismissOnOutsideOrEscape(toggle, root) { toggle = false }
     Div(attrs = {
+        classes("rg-dropdown")
         id?.let { id(it) }
+        ref {
+            root.element = it
+            onDispose { root.element = null }
+        }
     }) {
         Button(attrs = {
-            classes("btn", "btn-primary", "dropdown-toggle")
+            classes(*RgButtonStyle.Primary.classes, "rg-dropdown-toggle")
+            attr("aria-expanded", toggle.toString())
             if (items.size <= 1) {
                disabled()
             }
@@ -120,16 +179,12 @@ fun <T> RgIdDropdown(
         }) { Text(selected) }
 
         if (toggle) Div(attrs = {
-            classes("dropdown-menu", "show")
-            style {
-                position(Position.Absolute)
-                property("z-index", "1000")
-            }
+            classes("rg-dropdown-menu")
         }) {
             items.forEach { item ->
                 val itemName = name(item)
                 Button(attrs = {
-                    classes("dropdown-item")
+                    classes("rg-dropdown-item")
                     onClick {
                         toggle = false
                         handler(item)
