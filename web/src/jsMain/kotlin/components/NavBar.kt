@@ -51,46 +51,47 @@ fun NavBar(
             }) {
                 HamburgerIcon()
             }
-            // Below lg the list is a vertical menu shown only while open; at lg and up it's always a row.
-            // Both class strings are literals so Tailwind's scanner sees every class.
-            Ul(attrs = {
-                id("navbarNavDropdown")
-                if (menuOpen) {
-                    classes("m-0", "p-0", "list-none", "flex", "basis-full", "flex-col", "lg:basis-auto", "lg:grow", "lg:flex-row", "lg:ms-4")
-                } else {
-                    classes("m-0", "p-0", "list-none", "hidden", "lg:flex", "lg:grow", "lg:flex-row", "lg:ms-4")
-                }
+            // Below lg the list is a vertical menu that animates open/closed (.rg-navbar-collapse in app.css);
+            // at lg and up it's always a row.
+            Div(attrs = {
+                classes("rg-navbar-collapse")
+                attr("data-open", menuOpen.toString())
             }) {
-                (loginFlowState.login?.let {
-                    arrayOf(
-                        Route.Home,
-                        Route.People,
-                        Route.Boats,
-                        Route.Series,
-                        Route.Classes,
-                        Route.Races,
-                        Route.Rc,
+                Ul(attrs = {
+                    id("navbarNavDropdown")
+                    classes("m-0", "p-0", "list-none", "flex", "flex-col", "lg:flex-row", "lg:ms-4")
+                }) {
+                    (loginFlowState.login?.let {
+                        arrayOf(
+                            Route.Home,
+                            Route.People,
+                            Route.Boats,
+                            Route.Series,
+                            Route.Classes,
+                            Route.Races,
+                            Route.Rc,
+                            Route.RaceResult,
+                            Route.Course,
+                        )
+                    } ?: arrayOf(
                         Route.RaceResult,
                         Route.Course,
-                    )
-                } ?: arrayOf(
-                    Route.RaceResult,
-                    Route.Course,
-                )).forEach { route ->
-                    Li {
-                        Button(attrs = {
-                            classes("rg-nav-link")
-                            if (route == state.current.route) {
-                                attr("aria-current", "page")
+                    )).forEach { route ->
+                        Li {
+                            Button(attrs = {
+                                classes("rg-nav-link")
+                                if (route == state.current.route) {
+                                    attr("aria-current", "page")
+                                }
+                                onClick {
+                                    viewModel.pushRoute(route)
+                                    menuOpen = false
+                                }
+                            }) {
+                                Text(route.label)
                             }
-                            onClick {
-                                viewModel.pushRoute(route)
-                            }
-                        }) {
-                            Text(route.label)
                         }
                     }
-                }
 
                     if (loginFlowState.loginStatus == LoginStatus.LoggedIn) {
                         Li {
@@ -98,6 +99,7 @@ fun NavBar(
                                 classes("rg-nav-link")
                                 onClick {
                                     loginVm.logout()
+                                    menuOpen = false
                                 }
                             }) {
                                 Text("Logout")
@@ -109,6 +111,7 @@ fun NavBar(
                                 classes("rg-nav-link")
                                 onClick {
                                     viewModel.pushRoute(Route.Admin)
+                                    menuOpen = false
                                 }
                             }) {
                                 Text("Admin")
@@ -118,6 +121,7 @@ fun NavBar(
                 }
             }
         }
+    }
 }
 
 @OptIn(ExperimentalComposeWebSvgApi::class)

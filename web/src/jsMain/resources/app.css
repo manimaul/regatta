@@ -488,6 +488,43 @@
         outline: 0;
         box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary-500) 40%, transparent);
     }
+    /* Below lg: the link list collapses to zero height and animates open, Bootstrap-style (.35s ease).
+       Animating grid-template-rows 0fr -> 1fr reaches the content's natural height without measuring it in JS.
+       visibility (switched after the close transition) keeps the hidden links out of tab order / screen readers. */
+    .rg-navbar-collapse {
+        display: grid;
+        flex-basis: 100%;
+        grid-template-rows: 0fr;
+        visibility: hidden;
+        transition: grid-template-rows .35s ease, visibility 0s linear .35s;
+        @variant lg {
+            display: flex;
+            flex-basis: auto;
+            flex-grow: 1;
+            visibility: visible;
+            transition: none;
+        }
+    }
+    .rg-navbar-collapse[data-open="true"] {
+        grid-template-rows: 1fr;
+        visibility: visible;
+        transition: grid-template-rows .35s ease, visibility 0s linear 0s;
+        @variant lg {
+            transition: none;
+        }
+    }
+    .rg-navbar-collapse > ul {
+        min-height: 0;
+        overflow: hidden;
+        @variant lg {
+            overflow: visible;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .rg-navbar-collapse, .rg-navbar-collapse[data-open="true"] {
+            transition: none;
+        }
+    }
     .rg-nav-link {
         display: block;
         width: 100%;
