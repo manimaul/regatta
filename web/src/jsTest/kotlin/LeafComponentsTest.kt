@@ -23,7 +23,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Behavior of the Phase 2 Tailwind leaf components (doc/explore_tailwind.md): Bootstrap classes replaced by rg-*,
+ * Behavior of the Phase 2 Tailwind leaf components (docs/explore_implemented/explore_tailwind.md): Bootstrap classes replaced by rg-*,
  * public APIs unchanged, dropdowns dismiss on outside press / Escape.
  */
 @OptIn(ComposeWebExperimentalTestsApi::class)

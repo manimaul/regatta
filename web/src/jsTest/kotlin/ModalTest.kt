@@ -20,7 +20,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Phase 3 (doc/explore_tailwind.md): modals are native <dialog>s opened by id, closed by RgButton(closesModal),
+ * Phase 3 (docs/explore_implemented/explore_tailwind.md): modals are native <dialog>s opened by id, closed by RgButton(closesModal),
  * the × button, or a backdrop click; no Bootstrap JS or data-bs-* attributes.
  */
 @OptIn(ComposeWebExperimentalTestsApi::class)

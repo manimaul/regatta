@@ -1,5 +1,5 @@
 /*
- * Tailwind entry point. See doc/explore_tailwind.md.
+ * Tailwind entry point. See docs/explore_implemented/explore_tailwind.md.
  *
  * Layers: theme < base (Preflight + the Reboot replacement below) < components (.rg-*) < utilities.
  * Component looks live here as .rg-* classes; Kotlin uses Tailwind utilities only for one-off layout.

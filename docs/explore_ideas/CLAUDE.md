@@ -1,0 +1,1 @@
+This directory contains incomplete ideas. Contents in here should be considered incomplete and may be incorrect. However, these ideas may be important in the future. 

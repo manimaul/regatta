@@ -11,7 +11,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Phase 4 (doc/explore_tailwind.md): layout helpers emit Tailwind / rg-* classes with Bootstrap's sizes.
+ * Phase 4 (docs/explore_implemented/explore_tailwind.md): layout helpers emit Tailwind / rg-* classes with Bootstrap's sizes.
  */
 @OptIn(ComposeWebExperimentalTestsApi::class)
 class LayoutTest {
