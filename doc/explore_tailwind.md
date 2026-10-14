@@ -229,11 +229,16 @@ button, and the button toggles a vertical link list (`Bootstrap.Collapse`). The 
   `if (open) "flex basis-full flex-col lg:basis-auto lg:flex-row" else "hidden lg:flex lg:flex-row"`.
   At ≥ `lg` the list always shows in a row, whatever the state. That matches Bootstrap: if the menu is opened on a
   phone and the window then widens, the links appear inline. If it narrows again, the menu is still open.
-- **After choosing a route:** today the menu **stays open**, because `NavBar` only calls `pushRoute` and Bootstrap
-  collapse doesn't auto-close. Parity keeps that. Setting `open = false` in the click handler is a one-line
-  improvement worth considering.
-- **Animation:** Bootstrap animates the menu height for 0.35s. That's optional. If wanted, use the
-  `grid grid-rows-[0fr]` → `grid-rows-[1fr]` transition trick, or simply show and hide.
+- **After choosing a route:** the menu **closes** (changed 2026-10-13 at your request). Bootstrap left it
+  open. Every link (routes, Logout, Admin) sets `menuOpen = false` after navigating.
+- **Animation** (added 2026-10-13): the `Ul` sits in a `.rg-navbar-collapse` wrapper that animates
+  `grid-template-rows: 0fr ↔ 1fr` over Bootstrap's `.35s ease`. That reaches the content's natural height without
+  measuring it in JavaScript.
+  - `visibility` turns `hidden` only after the close transition, so collapsed links aren't keyboard-focusable or
+    read by screen readers.
+  - `prefers-reduced-motion` disables the animation.
+  - At ≥ `lg` the wrapper is a plain flex row with no transition.
+  - `NavBarTest` covers toggle and close-on-click.
 - **Layering:** keep Bootstrap's z-index order: dropdown menus (1000) < sticky navbar (1020) < fixed success
   banner (1030). Dialogs sit in the top layer above all of them. Put these values in `@theme` (`--z-dropdown`, …)
   rather than mixing `z-10`/`z-50` ad hoc.
