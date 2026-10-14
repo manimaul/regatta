@@ -276,7 +276,7 @@ fun EditBracket(
             viewModel.updateBracket(index, bracket().copy(description = it))
         }
     }
-    Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
+    Div(attrs = { classes("flex-auto", "flex", "justify-between") }) {
         RgNumberInput(
             label = "Min Rating",
             value = bracket().minRating,

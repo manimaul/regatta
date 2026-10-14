@@ -53,7 +53,7 @@ fun RaceResultsClassTable(
         Div(attrs = { style { marginBottom(32.px) } })
     }
     Div(attrs = {
-        classes("border-top", "border-2", "border")
+        classes("border-2", "border-slate-200")
     }) {
         H4 { Text(classReportCards.raceClass.label()) }
         H6 {
@@ -105,7 +105,8 @@ fun RaceResultsClassTable(
         }
         RgTbody {
             classReportCards.bracketReport.forEach { classReport ->
-                RgTr(classes = listOf("table-light", "table-borderless")) {
+                // (Bootstrap's table-borderless only works on <table>, so it was a no-op on this row)
+                RgTr(classes = listOf(TableColor.light.cls)) {
                     RgTdColor(colSpan = 15, color = TableColor.warning) {
                         H6 { Text("${classReport.bracket.name} ${classReport.bracket.description ?: ""}") }
                     }
