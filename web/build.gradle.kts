@@ -59,14 +59,3 @@ kotlin {
     }
 }
 
-tasks.named("jsBrowserTest") {
-    doFirst {
-        File("webpack.config.d/dev_server_config.js")
-            .renameTo(File("webpack.config.d/dev_server_config"))
-    }
-    doLast {
-        File("webpack.config.d/dev_server_config")
-            .renameTo(File("webpack.config.d/dev_server_config.js"))
-    }
-}
-

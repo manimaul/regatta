@@ -146,40 +146,6 @@ fun RgInputWithButton(
 }
 
 @Composable
-fun RgTimeButton(
-    modalTitle: String,
-    date: Instant,
-    listener: (Instant) -> Unit
-) {
-    var saveDate by remember { mutableStateOf(date) }
-    RgModal(
-        buttonLabel = date.timeStr(),
-        modalTitle = modalTitle,
-        openAction = {
-            saveDate = date
-        },
-        content = {
-            RgTime(date = saveDate, showSeconds = true, listener = {
-                saveDate = it
-            })
-        }, footer = {
-            RgButton(
-                label = "Cancel",
-                style = RgButtonStyle.PrimaryOutline,
-                closesModal = true,
-            ) {}
-            RgButton(
-                label = "Done",
-                style = RgButtonStyle.Success,
-                closesModal = true,
-            ) {
-                listener(saveDate)
-            }
-        })
-
-}
-
-@Composable
 fun RgTime(
     label: String? = null,
     date: Instant,

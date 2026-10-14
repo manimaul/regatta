@@ -446,7 +446,11 @@ tablet widths were tested in same-origin iframes, which is also how the CYCT emb
    - `jsBrowserDevelopmentWebpack` fails in `dev_server_config.js`.
    - `RgGrid` emits the enum name `container_fluid` with an underscore. That isn't a Bootstrap class, so it's
      a no-op today; keep that in mind for Phase 4 parity.
-   - The first load of results pages is slow (several seconds of spinner).
+   - The first load of results pages is slow (several seconds of spinner). **Follow-up (2026-10-13):** the
+     results API answers in 0.2–0.35s (33 KB report), so the delay is client-side. The Chrome tab used for testing
+     was in the background (`visibilityState: hidden`), and Compose renders on `requestAnimationFrame`, which
+     Chrome pauses for hidden pages. That alone produces a "stuck" spinner, so this may be a testing artifact. Not
+     yet re-measured with the window in front.
 
 **Not verified, carried forward:**
 
@@ -520,7 +524,9 @@ the forms plugin, and coexistence layering. Remaining work:
   - `jsBrowserTest` also failed because `dev_server_config.js` assumed `config.devServer` exists, and the rename
     hooks in `web/build.gradle.kts` use paths relative to the Gradle daemon's working directory, so they never
     applied. `dev_server_config.js` is now wrapped in `if (config.devServer)`. That also fixes
-    `jsBrowserDevelopmentWebpack`, and makes the rename hooks redundant but harmless.
+    `jsBrowserDevelopmentWebpack`, and makes the rename hooks redundant but harmless. The `jsBrowserTest` hook in
+    `web/build.gradle.kts` never matched its file (its paths resolve against the Gradle daemon's directory), so it
+    was removed on 2026-10-13. The root production hook does resolve and is kept.
   - In Chrome Headless, `RouteMatcherTest` (2/2) and `AuthTest` (2/2) pass.
   - **Firefox is not installed on this machine**, so the Firefox launcher fails ("No binary for Firefox"). Chrome
     was run with `useFirefox()` temporarily disabled, then restored. Running `jsBrowserTest` as configured needs
@@ -613,9 +619,12 @@ logged in at phone width.
   - **Race results editor:** Edit → Cancel; Add Result renders; a real Esc closes it.
   - **At 854px:** the modal panel is 500px wide and centered, and a real backdrop click closes it.
 - **Found along the way (existing, not changed):**
-  - `RgTimeButton` has no callers; its converted footer is only covered by compilation.
-  - The Classes edit modal's title is hard-coded as "Add Race Class".
-  - RC check-in labels end with a stray `}`, e.g. "(62) PHRF}".
+  - ~~`RgTimeButton` has no callers~~: deleted (2026-10-13).
+  - ~~The Classes edit modal's title is hard-coded as "Add Race Class"~~: it now shows "Edit Race Class" when
+    `editClass.raceClass.id != 0` (2026-10-13).
+  - ~~RC check-in labels end with a stray `}`~~: fixed in `BoatSkipper.dropLabel()` (`common`, `RaceData.kt`),
+    which had one `}` too many. The same pass fixed `RatingType.ratedLabel()` printing "ORCnull" for an ORC boat
+    without certificates (it was missing `?: ""`) (2026-10-13).
 - **For Phase 4:** the success banner (`alert alert-success`) and the RC pills are still Bootstrap-styled.
 
 **Phase 4: [x] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
