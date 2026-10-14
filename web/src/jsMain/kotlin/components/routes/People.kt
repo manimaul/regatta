@@ -144,61 +144,48 @@ fun AddEditPerson() {
             }
         },
         footer = {
-            Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
+            RgModalFooterRow {
                 if (state.showConfirmDeletePerson) {
-                    Button(attrs = {
-                        classes(*RgButtonStyle.PrimaryOutline.classes)
-                        onClick {
-                            boatViewModel.confirmDeletePerson(show = false)
-                        }
-                    }) {
-                        Text("No")
+                    RgButton(
+                        label = "No",
+                        style = RgButtonStyle.PrimaryOutline,
+                    ) {
+                        boatViewModel.confirmDeletePerson(show = false)
                     }
-                    Button(attrs = {
-                        classes(*RgButtonStyle.Danger.classes)
-                        attr("data-bs-dismiss", "modal")
-                        onClick {
-                            boatViewModel.deletePerson()
-                            alertsViewModel.showAlert("${state.addEditPerson.first} ${state.addEditPerson.last} deleted!")
-
-                        }
-                    }) {
-                        Text("Yes")
+                    RgButton(
+                        label = "Yes",
+                        style = RgButtonStyle.Danger,
+                        closesModal = true,
+                    ) {
+                        boatViewModel.deletePerson()
+                        alertsViewModel.showAlert("${state.addEditPerson.first} ${state.addEditPerson.last} deleted!")
                     }
                 } else {
                     if (state.addEditPerson.id == 0L) {
-                        Button(attrs = {
-                            classes(*RgButtonStyle.PrimaryOutline.classes)
-                            onClick {
-                                boatViewModel.setEditPerson(Person())
-                            }
-                        }) {
-                            Text("Clear")
+                        RgButton(
+                            label = "Clear",
+                            style = RgButtonStyle.PrimaryOutline,
+                        ) {
+                            boatViewModel.setEditPerson(Person())
                         }
                     } else {
-                        Button(attrs = {
-                            classes(*RgButtonStyle.Danger.classes)
-                            onClick {
-                                boatViewModel.confirmDeletePerson()
-                            }
-                        }) {
-                            Text("Delete")
+                        RgButton(
+                            label = "Delete",
+                            style = RgButtonStyle.Danger,
+                        ) {
+                            boatViewModel.confirmDeletePerson()
                         }
 
                     }
 
-                    Button(attrs = {
-                        classes(*RgButtonStyle.Success.classes)
-                        if (state.addEditPerson.first.isBlank() || (state.addEditPerson.last.isBlank())) {
-                            disabled()
-                        }
-                        attr("data-bs-dismiss", "modal")
-                        onClick {
-                            boatViewModel.upsertPerson()
-                            alertsViewModel.showAlert("${state.addEditPerson.first} ${state.addEditPerson.last} updated!")
-                        }
-                    }) {
-                        Text("Save")
+                    RgButton(
+                        label = "Save",
+                        style = RgButtonStyle.Success,
+                        disabled = state.addEditPerson.first.isBlank() || (state.addEditPerson.last.isBlank()),
+                        closesModal = true,
+                    ) {
+                        boatViewModel.upsertPerson()
+                        alertsViewModel.showAlert("${state.addEditPerson.first} ${state.addEditPerson.last} updated!")
                     }
                 }
             }

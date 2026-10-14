@@ -561,10 +561,52 @@ close), `RgYearSelect`, `RgSpinner`.
 - **Still to see in the real app:** the logged-in forms (People, Boats, Classes, Races, RC). Check them in the
   Phase 3 logged-in pass.
 
-**Phase 3: [ ] Dialogs.** `RgModalButton`/`RgModalBody`/`RgModal` on `<dialog>` and `AlertsViewModel` are done
+**Phase 3: [x] Dialogs.** `RgModalButton`/`RgModalBody`/`RgModal` on `<dialog>` and `AlertsViewModel` are done
 (spike). Migrate the remaining 16 footer buttons (`AddEditBoatModal`'s two are done) to `RgButton(closesModal = true)`,
 then delete the `data-bs-dismiss` shim in `RgModalBody` and the `data-bs-*` attributes. Re-test `AddEditBoatModal`
 logged in at phone width.
+
+### Phase 3 results (2026-10-13)
+
+- **Footers:** all 16 remaining raw footer `Button`s are now `RgButton`, converted mechanically. The converter
+  rejected any block whose shape it didn't recognize.
+  - Converted: `RgForm.RgTimeButton` 2, `RaceResults` 2, `Rc` 4, `Classes` 1, `People` 5, `Series` 2.
+  - Labels, styles, `disabled` conditions and click bodies were kept exactly. Only buttons that had `data-bs-dismiss`
+    got `closesModal = true`. `RgButton` runs `click()` before closing, the same order as Bootstrap.
+- **Bootstrap leftovers removed:** the `data-bs-dismiss` fallback in `RgModalBody` is deleted, and no `data-bs-*`
+  attributes remain in the code.
+- **`RgModalFooterRow`** (new composable; nothing existing changed) replaces the
+  `flex-fill d-flex justify-content-between` wrapper in the 5 modal footers. It spreads its buttons to both ends
+  and wraps them on narrow screens. The same Bootstrap classes in `Classes.kt`'s bracket Min/Max row are modal
+  *content*, so they're left for the Phase 4/5 sweep.
+- **Tests:** added `web/src/jsTest/kotlin/ModalTest.kt` with 3 tests:
+  - open by id; `closesModal` vs plain buttons; no `data-bs-*`;
+  - × button; backdrop click vs a press that starts in the panel;
+  - `AlertsViewModel` confirm → Yes answers and closes, and a dismissal clears the question without answering.
+
+  All 17 web tests pass in Chrome Headless. A mutation check (`RgButton` ignoring `closesModal`) failed the two
+  closing tests.
+- **Logged-in pass** (you logged in; edits allowed in this test environment), in Chrome at phone width (390px
+  iframe) and at 854px. Every throwaway record was deleted afterwards; the database was checked to confirm it:
+  - **Boats** (real clicks and typing):
+    - Add Boat → name → skipper dropdown. Its menu extends past the panel and the dialog scrolls; the filter works.
+    - A real Esc closes only the menu.
+    - Rating Type → PHRF (`RatingSelections`), rating 150 → Save. The modal closes and the boat is saved correctly.
+    - Edit Boat opens pre-filled (Clear disabled) → sail number → Save.
+    - Delete Boat → confirmation: No keeps the boat, Yes deletes it.
+  - **People:** add a skipper, then Edit → in-modal Delete → No (back to Delete/Save) → Delete → Yes deletes and
+    closes.
+  - **Series:** add (Save disabled while the name is empty) → Edit → Delete.
+  - **Classes:** the edit modal (brackets, rating fields) renders and scrolls at phone width.
+  - **RC:** check in a boat → Finish modal Cancel/Save → delete confirmation Cancel, then "Yes - Delete it!" →
+    check the boat out again.
+  - **Race results editor:** Edit → Cancel; Add Result renders; a real Esc closes it.
+  - **At 854px:** the modal panel is 500px wide and centered, and a real backdrop click closes it.
+- **Found along the way (existing, not changed):**
+  - `RgTimeButton` has no callers; its converted footer is only covered by compilation.
+  - The Classes edit modal's title is hard-coded as "Add Race Class".
+  - RC check-in labels end with a stray `}`, e.g. "(62) PHRF}".
+- **For Phase 4:** the success banner (`alert alert-success`) and the RC pills are still Bootstrap-styled.
 
 **Phase 4: [ ] Layout, chrome & data.** `NavBar` and `RgTable` are done (spike), except the `nonav` link, which
 still uses `nav-link`. Remaining: `Customizer` literal tables + spacing-scale mapping, `RgGrid` (note the

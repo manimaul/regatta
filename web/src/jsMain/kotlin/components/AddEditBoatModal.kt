@@ -82,7 +82,7 @@ fun AddEditBoatModal(
             }
         },
         footer = {
-            Div(attrs = { classes("flex-fill", "d-flex", "justify-content-between") }) {
+            RgModalFooterRow {
                 RgButton(
                     label = "Clear",
                     style = RgButtonStyle.PrimaryOutline,

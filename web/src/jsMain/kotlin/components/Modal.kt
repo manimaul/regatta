@@ -8,7 +8,6 @@ import kotlinx.browser.document
 import org.jetbrains.compose.web.attributes.ButtonType
 import org.jetbrains.compose.web.attributes.type
 import org.jetbrains.compose.web.dom.*
-import org.w3c.dom.Element
 import org.w3c.dom.HTMLDialogElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.events.EventListener
@@ -67,9 +66,6 @@ fun RgModalBody(
             val click = EventListener { event ->
                 if (pressedOnBackdrop && event.target == element) {
                     element.close()
-                } else if ((event.target as? Element)?.closest("[data-bs-dismiss=modal]") != null) {
-                    // TODO(tailwind phase 3): remove once footer buttons use RgButton(closesModal = true)
-                    element.close()
                 }
             }
             element.addEventListener("pointerdown", down)
@@ -109,6 +105,14 @@ fun RgModalBody(
             }
         }
     }
+}
+
+/**
+ * A footer row that spreads its buttons to both ends and wraps them on narrow screens.
+ */
+@Composable
+fun RgModalFooterRow(content: ContentBuilder<HTMLDivElement>) {
+    Div(attrs = { classes("rg-modal-footer-row") }, content)
 }
 
 @Composable

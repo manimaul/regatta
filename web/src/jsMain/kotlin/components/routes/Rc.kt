@@ -220,23 +220,18 @@ fun RcFinish(viewModel: RcViewModel) {
             }
         },
         footer = {
-            Button(attrs = {
-                classes(*RgButtonStyle.PrimaryOutline.classes)
-                attr("data-bs-dismiss", "modal")
-            }) {
-                Text("Cancel")
-            }
-            Button(attrs = {
-                classes(*RgButtonStyle.Success.classes)
-                attr("data-bs-dismiss", "modal")
-                if (state.addState?.isValid != true) {
-                    disabled()
-                }
-                onClick {
-                    viewModel.postResult()
-                }
-            }) {
-                Text("Save")
+            RgButton(
+                label = "Cancel",
+                style = RgButtonStyle.PrimaryOutline,
+                closesModal = true,
+            ) {}
+            RgButton(
+                label = "Save",
+                style = RgButtonStyle.Success,
+                disabled = state.addState?.isValid != true,
+                closesModal = true,
+            ) {
+                viewModel.postResult()
             }
         })
 
@@ -288,20 +283,17 @@ fun RcFinish(viewModel: RcViewModel) {
             }
 
         }, footer = {
-            Button(attrs = {
-                classes(*RgButtonStyle.PrimaryOutline.classes)
-                attr("data-bs-dismiss", "modal")
-            }) {
-                Text("Cancel")
-            }
-            Button(attrs = {
-                classes(*RgButtonStyle.Danger.classes)
-                attr("data-bs-dismiss", "modal")
-                onClick {
-                    confirmDeleteResult?.result?.let { viewModel.delete(it) }
-                }
-            }) {
-                Text("Yes - Delete it!")
+            RgButton(
+                label = "Cancel",
+                style = RgButtonStyle.PrimaryOutline,
+                closesModal = true,
+            ) {}
+            RgButton(
+                label = "Yes - Delete it!",
+                style = RgButtonStyle.Danger,
+                closesModal = true,
+            ) {
+                confirmDeleteResult?.result?.let { viewModel.delete(it) }
             }
 
         })
