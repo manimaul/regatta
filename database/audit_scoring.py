@@ -307,7 +307,7 @@ def audit_series(standings, race_reports, entries, warnings):
                     for rid, cur in zip(race_ids, current):
                         cell = expected[rid]
                         if cell is None:
-                            if cur[cur_field] != 0 or cur[throw_field]:
+                            if cur[cur_field] != 0 or cur.get(throw_field, cur["throwOut"]):  # older files have one throw-out flag
                                 found.add("D2")
                                 entries.append(dict(bloc, decision="D2", field=f"race {rid}{label}", raceId=rid,
                                                     current=cur[cur_field], expected=None, note="not sailed for this group"))
@@ -348,7 +348,7 @@ def audit_series(standings, race_reports, entries, warnings):
                     if not cdecisions:
                         # the code chooses one throw-out by bracket score and applies it to the class total too;
                         # D2 scores each group on its own, so the class total drops the worst class score
-                        thrown = [rid for rid, cur in zip(race_ids, current) if cur["throwOutClass"]]
+                        thrown = [rid for rid, cur in zip(race_ids, current) if cur.get("throwOutClass", cur["throwOut"])]
                         if cthrow is not None and thrown != [cthrow]:
                             cdecisions.add("D2")
                             note = f"class throw-out: race {cthrow} (worst class score), not race {thrown} (worst bracket score)"
