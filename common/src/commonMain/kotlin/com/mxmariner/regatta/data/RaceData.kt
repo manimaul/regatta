@@ -298,6 +298,18 @@ data class StandingsBoatSkipper(
     /** 1-based series place in the bracket; tied boats share it and the next place skips (D5). */
     var placeInBracket: Int = 0,
     var placeInClass: Int = 0,
+    /**
+     * D9: which ratings this row is scored under. In an ORC class, `ORC_PHRF` when the boat has
+     * both PHRF- and ORC-rated results in the series, else the one it has; elsewhere the rating
+     * of its most recent result. The PHRF fields are 0 for an `ORC` row and the ORC fields are 0
+     * for a `PHRF` row.
+     */
+    val ratingType: RatingType = RatingType.CruisingNonFlyingSails,
+    /** D9: the ORC series scores, from the ORC race places, by the same rules as the PHRF ones. */
+    val totalScoreBracketOrc: Double = 0.0,
+    val totalScoreClassOrc: Double = 0.0,
+    var placeInBracketOrc: Int = 0,
+    var placeInClassOrc: Int = 0,
 )
 
 /** D2: whether a race in a series standings column was sailed at all. */
@@ -329,6 +341,15 @@ data class StandingsRace(
     val bracketSailed: Boolean = true,
     val classSailed: Boolean = true,
     val status: RaceStatus = RaceStatus.Sailed,
+    /** D9: the ORC groups of the race, scored like the PHRF ones among the ORC-rated entries; 0 / false outside an ORC class. */
+    val placeInBracketOrc: Double = 0.0,
+    val placeInClassOrc: Double = 0.0,
+    var throwOutOrc: Boolean = false,
+    var throwOutClassOrc: Boolean = false,
+    val bracketSailedOrc: Boolean = false,
+    val classSailedOrc: Boolean = false,
+    /** D9: the boat had no ORC entry in a race sailed for its ORC group (no record, or raced PHRF-only that day), so it scores DNS there. */
+    val nonStarterOrc: Boolean = false,
 )
 
 @Serializable

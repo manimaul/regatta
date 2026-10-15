@@ -158,7 +158,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -171,7 +178,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -184,7 +198,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -197,7 +218,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -210,13 +238,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 6.0,
                             "totalScoreClass": 9.0,
                             "placeInBracket": 1,
-                            "placeInClass": 2
+                            "placeInClass": 2,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -252,7 +292,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -265,7 +312,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -278,7 +332,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -291,7 +352,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -304,13 +372,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 7.0,
                             "totalScoreClass": 9.0,
                             "placeInBracket": 2,
-                            "placeInClass": 3
+                            "placeInClass": 3,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -440,7 +520,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -453,7 +540,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -466,7 +560,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -479,7 +580,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -492,13 +600,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 8.0,
                             "totalScoreClass": 13.0,
                             "placeInBracket": 3,
-                            "placeInClass": 4
+                            "placeInClass": 4,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 },
@@ -548,7 +668,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -561,7 +688,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -574,7 +708,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -587,7 +728,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -600,13 +748,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 4.0,
                             "totalScoreClass": 6.0,
                             "placeInBracket": 1,
-                            "placeInClass": 1
+                            "placeInClass": 1,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -642,7 +802,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -655,7 +822,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -668,7 +842,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -681,7 +862,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -694,13 +882,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 9.0,
                             "totalScoreClass": 17.0,
                             "placeInBracket": 2,
-                            "placeInClass": 5
+                            "placeInClass": 5,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -736,7 +936,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -749,7 +956,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -762,7 +976,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -775,7 +996,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -788,13 +1016,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 12.0,
                             "totalScoreClass": 22.0,
                             "placeInBracket": 3,
-                            "placeInClass": 7
+                            "placeInClass": 7,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -830,7 +1070,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -843,7 +1090,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -856,7 +1110,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -869,7 +1130,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -882,13 +1150,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 13.0,
                             "totalScoreClass": 22.0,
                             "placeInBracket": 4,
-                            "placeInClass": 6
+                            "placeInClass": 6,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 }
@@ -950,7 +1230,14 @@
                                     "finishCode": "DNS_RC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -963,7 +1250,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -976,7 +1270,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -989,7 +1290,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1002,13 +1310,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 5.3,
                             "totalScoreClass": 6.7,
                             "placeInBracket": 1,
-                            "placeInClass": 1
+                            "placeInClass": 1,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1044,7 +1364,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1057,7 +1384,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1070,7 +1404,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1083,7 +1424,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1096,13 +1444,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 11.0,
                             "totalScoreClass": 18.0,
                             "placeInBracket": 2,
-                            "placeInClass": 3
+                            "placeInClass": 3,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1138,7 +1498,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1151,7 +1518,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1164,7 +1538,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1177,7 +1558,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1190,13 +1578,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 12.0,
                             "totalScoreClass": 18.0,
                             "placeInBracket": 3,
-                            "placeInClass": 4
+                            "placeInClass": 4,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1232,7 +1632,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1245,7 +1652,14 @@
                                     "finishCode": "DNS_RC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1258,7 +1672,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1271,7 +1692,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1284,13 +1712,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 12.0,
                             "totalScoreClass": 21.3,
                             "placeInBracket": 4,
-                            "placeInClass": 6
+                            "placeInClass": 6,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1326,7 +1766,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1339,7 +1786,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1352,7 +1806,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1365,7 +1826,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1378,13 +1846,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 15.0,
                             "totalScoreClass": 29.0,
                             "placeInBracket": 5,
-                            "placeInClass": 8
+                            "placeInClass": 8,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1420,7 +1900,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1433,7 +1920,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1446,7 +1940,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1459,7 +1960,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1472,13 +1980,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 16.0,
                             "totalScoreClass": 31.0,
                             "placeInBracket": 6,
-                            "placeInClass": 10
+                            "placeInClass": 10,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1514,7 +2034,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1527,7 +2054,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1540,7 +2074,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1553,7 +2094,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1566,13 +2114,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 17.0,
                             "totalScoreClass": 32.0,
                             "placeInBracket": 7,
-                            "placeInClass": 11
+                            "placeInClass": 11,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1608,7 +2168,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1621,7 +2188,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1634,7 +2208,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1647,7 +2228,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1660,13 +2248,25 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 19.0,
                             "totalScoreClass": 37.0,
                             "placeInBracket": 8,
-                            "placeInClass": 14
+                            "placeInClass": 14,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1702,7 +2302,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1715,7 +2322,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1728,7 +2342,14 @@
                                     "finishCode": "NSC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1741,7 +2362,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1754,13 +2382,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 22.0,
                             "totalScoreClass": 42.0,
                             "placeInBracket": 9,
-                            "placeInClass": 17
+                            "placeInClass": 17,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 },
@@ -1810,7 +2450,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1823,7 +2470,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1836,7 +2490,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1849,7 +2510,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1862,13 +2530,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 9.0,
                             "totalScoreClass": 17.0,
                             "placeInBracket": 1,
-                            "placeInClass": 2
+                            "placeInClass": 2,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1904,7 +2584,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -1917,7 +2604,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1930,7 +2624,14 @@
                                     "finishCode": "DNS_RC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1943,7 +2644,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -1956,13 +2664,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 10.7,
                             "totalScoreClass": 21.3,
                             "placeInBracket": 2,
-                            "placeInClass": 5
+                            "placeInClass": 5,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -1998,7 +2718,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2011,7 +2738,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2024,7 +2758,14 @@
                                     "finishCode": "NSC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2037,7 +2778,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2050,13 +2798,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 11.0,
                             "totalScoreClass": 22.0,
                             "placeInBracket": 3,
-                            "placeInClass": 7
+                            "placeInClass": 7,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2092,7 +2852,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2105,7 +2872,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2118,7 +2892,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2131,7 +2912,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2144,13 +2932,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 16.0,
                             "totalScoreClass": 30.0,
                             "placeInBracket": 4,
-                            "placeInClass": 9
+                            "placeInClass": 9,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2186,7 +2986,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2199,7 +3006,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2212,7 +3026,14 @@
                                     "finishCode": "NSC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2225,7 +3046,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2238,13 +3066,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 17.0,
                             "totalScoreClass": 33.0,
                             "placeInBracket": 5,
-                            "placeInClass": 13
+                            "placeInClass": 13,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2280,7 +3120,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2293,7 +3140,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2306,7 +3160,14 @@
                                     "finishCode": "DNF",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2319,7 +3180,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2332,13 +3200,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 18.0,
                             "totalScoreClass": 33.0,
                             "placeInBracket": 6,
-                            "placeInClass": 12
+                            "placeInClass": 12,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2374,7 +3254,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2387,7 +3274,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2400,7 +3294,14 @@
                                     "finishCode": "NSC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2413,7 +3314,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2426,13 +3334,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 20.0,
                             "totalScoreClass": 38.0,
                             "placeInBracket": 7,
-                            "placeInClass": 15
+                            "placeInClass": 15,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2468,7 +3388,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2481,7 +3408,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2494,7 +3428,14 @@
                                     "finishCode": "NSC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2507,7 +3448,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2520,13 +3468,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 21.0,
                             "totalScoreClass": 38.0,
                             "placeInBracket": 8,
-                            "placeInClass": 16
+                            "placeInClass": 16,
+                            "ratingType": "PHRF",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 }
@@ -2588,7 +3548,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2601,7 +3568,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2614,7 +3588,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2627,7 +3608,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2640,13 +3628,25 @@
                                     "finishCode": null,
                                     "bracketSailed": false,
                                     "classSailed": false,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 4.0,
                             "totalScoreClass": 4.0,
                             "placeInBracket": 1,
-                            "placeInClass": 1
+                            "placeInClass": 1,
+                            "ratingType": "CruisingFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2682,7 +3682,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2695,7 +3702,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2708,7 +3722,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2721,7 +3742,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2734,13 +3762,25 @@
                                     "finishCode": "DNS_RC",
                                     "bracketSailed": false,
                                     "classSailed": false,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 8.0,
                             "totalScoreClass": 8.0,
                             "placeInBracket": 2,
-                            "placeInClass": 2
+                            "placeInClass": 2,
+                            "ratingType": "CruisingFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 }
@@ -2802,7 +3842,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2815,7 +3862,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2828,7 +3882,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2841,7 +3902,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2854,13 +3922,25 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 4.0,
                             "totalScoreClass": 4.0,
                             "placeInBracket": 1,
-                            "placeInClass": 1
+                            "placeInClass": 1,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2896,7 +3976,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2909,7 +3996,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2922,7 +4016,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -2935,7 +4036,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -2948,13 +4056,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 10.0,
                             "totalScoreClass": 10.0,
                             "placeInBracket": 2,
-                            "placeInClass": 2
+                            "placeInClass": 2,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -2990,7 +4110,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3003,7 +4130,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3016,7 +4150,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3029,7 +4170,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3042,13 +4190,25 @@
                                     "finishCode": "HOC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 11.0,
                             "totalScoreClass": 11.0,
                             "placeInBracket": 3,
-                            "placeInClass": 3
+                            "placeInClass": 3,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -3084,7 +4244,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3097,7 +4264,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3110,7 +4284,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3123,7 +4304,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3136,13 +4324,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 15.0,
                             "totalScoreClass": 15.0,
                             "placeInBracket": 4,
-                            "placeInClass": 4
+                            "placeInClass": 4,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -3178,7 +4378,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3191,7 +4398,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3204,7 +4418,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3217,7 +4438,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3230,13 +4458,25 @@
                                     "finishCode": "HOC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 16.0,
                             "totalScoreClass": 16.0,
                             "placeInBracket": 5,
-                            "placeInClass": 5
+                            "placeInClass": 5,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -3272,7 +4512,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3285,7 +4532,14 @@
                                     "finishCode": "HOC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3298,7 +4552,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3311,7 +4572,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3324,13 +4592,25 @@
                                     "finishCode": "HOC",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 16.0,
                             "totalScoreClass": 16.0,
                             "placeInBracket": 6,
-                            "placeInClass": 6
+                            "placeInClass": 6,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -3366,7 +4646,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3379,7 +4666,14 @@
                                     "finishCode": "RET",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3392,7 +4686,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3405,7 +4706,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3418,13 +4726,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 17.0,
                             "totalScoreClass": 17.0,
                             "placeInBracket": 7,
-                            "placeInClass": 7
+                            "placeInClass": 7,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         },
                         {
                             "boatSkipper": {
@@ -3460,7 +4780,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": false,
@@ -3473,7 +4800,14 @@
                                     "finishCode": "TIME",
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3486,7 +4820,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3499,7 +4840,14 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 },
                                 {
                                     "nonStarter": true,
@@ -3512,13 +4860,25 @@
                                     "finishCode": null,
                                     "bracketSailed": true,
                                     "classSailed": true,
-                                    "status": "Sailed"
+                                    "status": "Sailed",
+                                    "placeInBracketOrc": 0.0,
+                                    "placeInClassOrc": 0.0,
+                                    "throwOutOrc": false,
+                                    "throwOutClassOrc": false,
+                                    "bracketSailedOrc": false,
+                                    "classSailedOrc": false,
+                                    "nonStarterOrc": false
                                 }
                             ],
                             "totalScoreBracket": 20.0,
                             "totalScoreClass": 20.0,
                             "placeInBracket": 8,
-                            "placeInClass": 8
+                            "placeInClass": 8,
+                            "ratingType": "CruisingNonFlyingSails",
+                            "totalScoreBracketOrc": 0.0,
+                            "totalScoreClassOrc": 0.0,
+                            "placeInBracketOrc": 0,
+                            "placeInClassOrc": 0
                         }
                     ]
                 }

@@ -49,11 +49,15 @@ object RaceResultReporter {
             races = races
         )
 
-        //calculate place in class
+        //calculate place in class, per rating (D9)
         standings.standings.forEach { standingsClass: StandingsClass ->
             val rows = standingsClass.standings.flatMap { it.standings }
-            assignPlaces(rows, { it.totalScoreClass }, { it.placeInClass }, { it.classSailed }) { row, place ->
+            val orcClass = standingsClass.raceClass.ratingType.isORC
+            assignPlaces(phrfRows(rows, orcClass), { it.totalScoreClass }, { it.placeInClass }, { it.classSailed }) { row, place ->
                 row.placeInClass = place
+            }
+            assignPlaces(orcRows(rows, orcClass), { it.totalScoreClassOrc }, { it.placeInClassOrc }, { it.classSailedOrc }) { row, place ->
+                row.placeInClassOrc = place
             }
         }
         return standings
@@ -142,6 +146,26 @@ object RaceResultReporter {
         }.toList()
     }
 
+    /**
+     * D9 / R1: which entries a rating's groups are scored among. In an ORC class each rating is
+     * placed among its own entries; elsewhere every entry is PHRF (or cruising) and none is ORC.
+     */
+    private fun phrfCard(card: RaceReportCard, orcClass: Boolean): Boolean = !orcClass || card.ratingType().isPHRF
+    private fun orcCard(card: RaceReportCard, orcClass: Boolean): Boolean = orcClass && card.ratingType().isORC
+
+    /** D9: the rows a rating's series places are assigned among; the others keep place 0. */
+    private fun phrfRows(rows: List<StandingsBoatSkipper>, orcClass: Boolean): List<StandingsBoatSkipper> =
+        if (orcClass) rows.filter { it.ratingType.isPHRF } else rows
+
+    private fun orcRows(rows: List<StandingsBoatSkipper>, orcClass: Boolean): List<StandingsBoatSkipper> =
+        if (orcClass) rows.filter { it.ratingType.isORC } else emptyList()
+
+    /**
+     * The rows of one bracket. Each row is scored under up to two ratings (D9): the PHRF groups
+     * (bracket, class) and, in an ORC class, the ORC groups, each with its own starters, sailed
+     * races, DNS scores, throw-out, RC average, total and tiebreak. A row is scored under a
+     * rating when any of its results in the series carries it; the other rating's fields stay 0.
+     */
     private fun getStandingsBoatBracket(
         raceClass: RaceClass,
         bracket: Bracket,
@@ -155,54 +179,77 @@ object RaceResultReporter {
 
         val bracketRecords = classRecords.filter { it.resultRecord.bracket.id == bracket.id }
 
+        val orcClass = raceClass.ratingType.isORC
+        // D2 / D3: the starters of each group per race, which decide "sailed" and the DNS score
+        fun starters(records: List<RaceReportCard>, include: (RaceReportCard) -> Boolean): List<Int> =
+            races.map { race -> records.count { it.resultRecord.result.raceId == race.id && it.isStarter() && include(it) } }
+        val bracketStarters = starters(bracketRecords) { phrfCard(it, orcClass) }
+        val classStarters = starters(classRecords) { phrfCard(it, orcClass) }
+        val bracketStartersOrc = starters(bracketRecords) { orcCard(it, orcClass) }
+        val classStartersOrc = starters(classRecords) { orcCard(it, orcClass) }
+        val unscored = GroupScores(List(races.size) { null }, null, 0.0)
+
         val raceOrder = races.withIndex().associate { (i, race) -> race.id to i }
         val result = bracketRecords.groupBy { it.resultRecord.boatSkipper.boat?.id ?: 0L }.map { (_, raceReportCards) ->
             // D8: one row per boat, shown with the skipper of its most recent race in the series
-            val boatSkipper = raceReportCards.maxBy { raceOrder[it.resultRecord.result.raceId] ?: -1 }.resultRecord.boatSkipper
-            val bracketStarters = races.map { race -> bracketRecords.count { it.resultRecord.result.raceId == race.id && it.isStarter() } }
-            val classStarters = races.map { race -> classRecords.count { it.resultRecord.result.raceId == race.id && it.isStarter() } }
+            val latest = raceReportCards.maxBy { raceOrder[it.resultRecord.result.raceId] ?: -1 }
+            val boatSkipper = latest.resultRecord.boatSkipper
+            val phrfEligible = raceReportCards.any { phrfCard(it, orcClass) }
+            val orcEligible = raceReportCards.any { orcCard(it, orcClass) }
+            val ratingType = when {
+                !orcClass -> latest.ratingType()
+                phrfEligible && orcEligible -> RatingType.ORC_PHRF
+                orcEligible -> RatingType.ORC
+                else -> RatingType.PHRF
+            }
             val raw = races.mapIndexed { i, race ->
                 val status = statuses[race.id] ?: RaceStatus.Sailed
                 // D2: a race is sailed for a group when the group had a starter
                 val bracketSailed = bracketStarters[i] > 0
                 val classSailed = classStarters[i] > 0
+                val bracketSailedOrc = bracketStartersOrc[i] > 0
+                val classSailedOrc = classStartersOrc[i] > 0
                 val card = raceReportCards.find { it.resultRecord.result.raceId == race.id }
-                if (card != null) {
-                    StandingsRace(
-                        nonStarter = false,
-                        placeInBracket = if (bracketSailed) card.placeInBracket.toDouble() else 0.0,
-                        placeInClass = if (classSailed) card.placeInClass.toDouble() else 0.0,
-                        finish = card.finishTime != null,
-                        hocPosition = card.hocPosition,
-                        finishCode = card.resultRecord.result.finishCode,
-                        bracketSailed = bracketSailed,
-                        classSailed = classSailed,
-                        status = status,
-                    )
-                } else {
-                    // GSI 14.1.2: DNS = starters + 1, per group
-                    StandingsRace(
-                        nonStarter = true,
-                        finish = false,
-                        placeInBracket = if (bracketSailed) bracketStarters[i] + 1.0 else 0.0,
-                        placeInClass = if (classSailed) classStarters[i] + 1.0 else 0.0,
-                        hocPosition = null,
-                        finishCode = null,
-                        bracketSailed = bracketSailed,
-                        classSailed = classSailed,
-                        status = status,
-                    )
+                val phrfPlaced = card != null && phrfCard(card, orcClass)
+                val orcPlaced = card != null && orcCard(card, orcClass)
+                // GSI 14.1.2: no entry in the group scores starters + 1, per group (D2 / D9)
+                fun score(eligible: Boolean, sailed: Boolean, placed: Boolean, place: Int, starters: Int): Double = when {
+                    !eligible || !sailed -> 0.0
+                    placed -> place.toDouble()
+                    else -> starters + 1.0
                 }
+                StandingsRace(
+                    nonStarter = card == null,
+                    placeInBracket = score(phrfEligible, bracketSailed, phrfPlaced, card?.placeInBracket ?: 0, bracketStarters[i]),
+                    placeInClass = score(phrfEligible, classSailed, phrfPlaced, card?.placeInClass ?: 0, classStarters[i]),
+                    finish = card?.finishTime != null,
+                    hocPosition = card?.hocPosition,
+                    finishCode = card?.resultRecord?.result?.finishCode,
+                    bracketSailed = bracketSailed,
+                    classSailed = classSailed,
+                    status = status,
+                    placeInBracketOrc = score(orcEligible, bracketSailedOrc, orcPlaced, card?.placeInBracketOrc ?: 0, bracketStartersOrc[i]),
+                    placeInClassOrc = score(orcEligible, classSailedOrc, orcPlaced, card?.placeInClassOrc ?: 0, classStartersOrc[i]),
+                    bracketSailedOrc = bracketSailedOrc,
+                    classSailedOrc = classSailedOrc,
+                    nonStarterOrc = orcEligible && !orcPlaced && (bracketSailedOrc || classSailedOrc),
+                )
             }
 
-            val bracket = groupScores(raw, { it.bracketSailed }, { it.placeInBracket }, { it.placeInClass }) { i -> bracketStarters[i] + 1.0 }
-            val klass = groupScores(raw, { it.classSailed }, { it.placeInClass }, { it.placeInBracket }) { i -> classStarters[i] + 1.0 }
+            val bracket = if (phrfEligible) groupScores(raw, { it.bracketSailed }, { it.placeInBracket }, { it.placeInClass }) { i -> bracketStarters[i] + 1.0 } else unscored
+            val klass = if (phrfEligible) groupScores(raw, { it.classSailed }, { it.placeInClass }, { it.placeInBracket }) { i -> classStarters[i] + 1.0 } else unscored
+            val bracketOrc = if (orcEligible) groupScores(raw, { it.bracketSailedOrc }, { it.placeInBracketOrc }, { it.placeInClassOrc }) { i -> bracketStartersOrc[i] + 1.0 } else unscored
+            val classOrc = if (orcEligible) groupScores(raw, { it.classSailedOrc }, { it.placeInClassOrc }, { it.placeInBracketOrc }) { i -> classStartersOrc[i] + 1.0 } else unscored
             val standings = raw.mapIndexed { i, cell ->
                 cell.copy(
                     placeInBracket = bracket.scores[i] ?: 0.0,
                     placeInClass = klass.scores[i] ?: 0.0,
                     throwOut = i == bracket.throwOut,
                     throwOutClass = i == klass.throwOut,
+                    placeInBracketOrc = bracketOrc.scores[i] ?: 0.0,
+                    placeInClassOrc = classOrc.scores[i] ?: 0.0,
+                    throwOutOrc = i == bracketOrc.throwOut,
+                    throwOutClassOrc = i == classOrc.throwOut,
                 )
             }
 
@@ -213,13 +260,22 @@ object RaceResultReporter {
                 totalScoreClass = klass.total,
                 placeInBracket = 0,
                 placeInClass = 0,
+                ratingType = ratingType,
+                totalScoreBracketOrc = bracketOrc.total,
+                totalScoreClassOrc = classOrc.total,
+                placeInBracketOrc = 0,
+                placeInClassOrc = 0,
             )
         }
 
-        assignPlaces(result, { it.totalScoreBracket }, { it.placeInBracket }, { it.bracketSailed }) { row, place ->
+        assignPlaces(phrfRows(result, orcClass), { it.totalScoreBracket }, { it.placeInBracket }, { it.bracketSailed }) { row, place ->
             row.placeInBracket = place
         }
-        return result.sortedBy { it.placeInBracket }
+        assignPlaces(orcRows(result, orcClass), { it.totalScoreBracketOrc }, { it.placeInBracketOrc }, { it.bracketSailedOrc }) { row, place ->
+            row.placeInBracketOrc = place
+        }
+        // rows with a PHRF place by it, then the ORC-only rows by their ORC place
+        return result.sortedWith(compareBy({ it.placeInBracket == 0 }, { if (it.placeInBracket == 0) it.placeInBracketOrc else it.placeInBracket }))
     }
 
     internal class GroupScores(val scores: List<Double?>, val throwOut: Int?, val total: Double)

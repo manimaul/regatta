@@ -25,6 +25,9 @@ Rules implemented (test_audit_and_plan.md, "Decisions"):
       to the nearest tenth of a point, 0.05 up (RRS A10(a)); once per series.
   D5  tiebreak: last sailed race, then earlier races; RC races skipped; full ties share a place.
   D8  standings rows grouped by boat id; race years by the Pacific calendar.
+  D9  (orc_series_standings.md) in an ORC class each rating is placed among its own entries
+      (R1), and the ORC race places are scored as a series by the same rules as the PHRF ones,
+      for ORC-rated rows only; a boat with no ORC entry in a race scores the ORC starters + 1.
 
 No dependencies beyond the standard library.
 """
@@ -43,6 +46,9 @@ PACIFIC = ZoneInfo("America/Los_Angeles")
 RC = "DNS_RC"
 NOT_STARTERS = {"DNS_RC", "DNS"}
 FINISH_CODES = {"TIME", "HOC"}
+PHRF_RATED = {"PHRF", "ORC_PHRF"}
+ORC_RATED = {"ORC", "ORC_PHRF"}
+RATED = PHRF_RATED | ORC_RATED
 
 _DURATION = re.compile(r"^(-)?PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$")
 
@@ -72,20 +78,41 @@ def is_starter(card):
     return code_of(card) not in NOT_STARTERS
 
 
+def rating_of(card):
+    return card["resultRecord"]["result"]["ratingType"]
+
+
+def rated(card, rating):
+    """R1 / D9: whether a card is among the entries a rating's group is placed among."""
+    if rating == "phrf":
+        return rating_of(card) in PHRF_RATED
+    if rating == "orc":
+        return rating_of(card) in ORC_RATED
+    return True
+
+
+def class_rating(rating_type):
+    """The rating a class's PHRF-side groups are placed among: its rated entries, or every entry in a cruising class."""
+    return "phrf" if rating_type in RATED else "all"
+
+
 # ---------------------------------------------------------------- race scoring (D3, D4, D7)
 
-def score_group(cards, warnings):
-    """Expected score per card index for one scoring group (a bracket or a class). RC cards get None."""
-    starters = sum(1 for c in cards if is_starter(c))
-    finishers = sum(1 for c in cards if code_of(c) in FINISH_CODES)
+def score_group(cards, warnings, rating="all"):
+    """Expected score per card index for one scoring group (a bracket or a class), placed among the
+    cards [rating] covers (R1 / D9). RC cards and cards outside the rating get None."""
+    idx = [i for i, c in enumerate(cards) if rated(c, rating)]
+    field = "correctedOrcTime" if rating == "orc" else "correctedPhrfTime"
+    starters = sum(1 for i in idx if is_starter(cards[i]))
+    finishers = sum(1 for i in idx if code_of(cards[i]) in FINISH_CODES)
     dnf = finishers + 1
 
-    timed = [i for i, c in enumerate(cards) if code_of(c) == "TIME"]
+    timed = [i for i in idx if code_of(cards[i]) == "TIME"]
     for i in timed:
-        if cards[i]["correctedPhrfTime"] is None:
+        if cards[i][field] is None:
             warnings.add(f"TIME card without a corrected time: result {cards[i]['resultRecord']['result']['id']}")
-    timed.sort(key=lambda i: (duration_ms(cards[i]["correctedPhrfTime"]) is None, duration_ms(cards[i]["correctedPhrfTime"]) or 0))
-    hoc = sorted((i for i, c in enumerate(cards) if code_of(c) == "HOC"), key=lambda i: cards[i]["hocPosition"] or 0)
+    timed.sort(key=lambda i: (duration_ms(cards[i][field]) is None, duration_ms(cards[i][field]) or 0))
+    hoc = sorted((i for i in idx if code_of(cards[i]) == "HOC"), key=lambda i: cards[i]["hocPosition"] or 0)
 
     place = {}
     tied = set()
@@ -95,7 +122,7 @@ def score_group(cards, warnings):
     pos = 0
     for i in timed:
         n += 1
-        ms = duration_ms(cards[i]["correctedPhrfTime"])
+        ms = duration_ms(cards[i][field])
         if ms != prev_ms:
             pos = n  # D7: equal times share the place, the next place skips
         else:
@@ -107,8 +134,9 @@ def score_group(cards, warnings):
         n += 1
         place[i] = n
 
-    scores = {}
-    for i, c in enumerate(cards):
+    scores = {i: None for i in range(len(cards))}
+    for i in idx:
+        c = cards[i]
         code = code_of(c)
         if code in FINISH_CODES:
             penalty = c["penalty"] or 0
@@ -140,8 +168,9 @@ def race_decision(card, cards, tied):
 
 # ---------------------------------------------------------------- series scoring (D1, D2, D5, D8)
 
-def group_series(race_ids, race_reports, class_id, bracket_id, warnings):
-    """Per race: the group's cards, whether it was sailed, its starters and expected scores by boat id."""
+def group_series(race_ids, race_reports, class_id, bracket_id, warnings, rating="all"):
+    """Per race: the group's cards, whether it was sailed, its starters and expected scores by boat id,
+    among the cards [rating] covers (R1 / D9); a boat whose card is outside the rating is absent."""
     per_race = {}
     for rid in race_ids:
         report = race_reports.get(rid)
@@ -153,10 +182,12 @@ def group_series(race_ids, race_reports, class_id, bracket_id, warnings):
                 for br in cr["bracketReport"]:
                     if bracket_id is None or br["bracket"]["id"] == bracket_id:
                         cards.extend(br["cards"])
-        scores, starters, tied = score_group(cards, warnings) if cards else ({}, 0, set())
+        scores, starters, tied = score_group(cards, warnings, rating) if cards else ({}, 0, set())
         sailed = starters > 0  # D2
         by_boat = {}
         for i, c in enumerate(cards):
+            if not rated(c, rating):
+                continue
             b = boat_id_of(c)
             if b in by_boat:
                 warnings.add(f"boat {b} has two results in race {rid}")
@@ -165,10 +196,24 @@ def group_series(race_ids, race_reports, class_id, bracket_id, warnings):
     return per_race
 
 
-def boat_series(race_ids, per_race, boat):
+def raw_score(per_race, rid, boat):
+    """The boat's raw race score in a group: its place, DNS when absent, 0 when the race was not sailed for the group."""
+    pr = per_race[rid]
+    if not pr["sailed"]:
+        return 0
+    entry = pr["by_boat"].get(boat)
+    if entry is None:
+        return pr["starters"] + 1
+    return entry["score"] or 0
+
+
+def boat_series(race_ids, per_race, boat, tie_race=None):
     """Expected per-race scores, throw-out and total for one boat in one group, under D1 and D2.
 
-    Returns (cells, total) where cells[rid] = {"score", "counted", "rc", "decision"} or None when unsailed.
+    Among equal worst scores the throw-out is the race with the worse raw score in the other group
+    ([tie_race], the class for a bracket and the bracket for a class), then the earliest race, as
+    RaceResultReporter.groupScores chooses it.
+    Returns (cells, throw_out, total) where cells[rid] = {"score", "counted", "rc", "code"} or None when unsailed.
     """
     cells = {}
     rc_races = []
@@ -190,7 +235,9 @@ def boat_series(race_ids, per_race, boat):
     scored = [rid for rid in sailed if not cells[rid]["rc"]]
     throw_out = None
     if len(sailed) >= 5 and scored:  # D2 threshold, D1 step 1
-        throw_out = max(scored, key=lambda rid: (cells[rid]["score"], race_ids.index(rid)))
+        def tie(rid):
+            return raw_score(tie_race, rid, boat) if tie_race is not None else 0
+        throw_out = max(scored, key=lambda rid: (cells[rid]["score"], tie(rid), -race_ids.index(rid)))
 
     for n, rid in enumerate(rc_races):
         if n > 0:  # D1: once per series, later RC races score DNS
@@ -259,7 +306,9 @@ def audit_series(standings, race_reports, entries, warnings):
     for sc in standings["standings"]:
         class_id = sc["raceClass"]["id"]
         class_name = sc["raceClass"]["name"]
-        class_races = group_series(race_ids, race_reports, class_id, None, warnings)
+        rating = class_rating(sc["raceClass"]["ratingType"])
+        orc_class = sc["raceClass"]["ratingType"] in ORC_RATED
+        class_races = group_series(race_ids, race_reports, class_id, None, warnings, rating)
         class_rows = []  # for place in class across brackets
         class_current_rows = []
         class_total_decisions = {}
@@ -267,7 +316,7 @@ def audit_series(standings, race_reports, entries, warnings):
         for sb in sc["standings"]:
             bracket_id = sb["bracket"]["id"]
             loc = dict(base, **{"class": class_name, "bracket": sb["bracket"]["name"]})
-            bracket_races = group_series(race_ids, race_reports, class_id, bracket_id, warnings)
+            bracket_races = group_series(race_ids, race_reports, class_id, bracket_id, warnings, rating)
             unsailed = [rid for rid in race_ids if not bracket_races[rid]["sailed"]]
 
             # D8: rows grouped by boat id
@@ -287,8 +336,10 @@ def audit_series(standings, race_reports, entries, warnings):
             for b, rows in by_boat.items():
                 name = rows[0]["boatSkipper"]["boat"]["name"]
                 bloc = dict(loc, boatId=b, boat=name)
-                cells, throw_out, total = boat_series(race_ids, bracket_races, b)
-                ccells, cthrow, ctotal = boat_series(race_ids, class_races, b)
+                if orc_class and all(r.get("ratingType", "PHRF") not in PHRF_RATED for r in rows):
+                    continue  # D9 / R1: an ORC-only row is not scored under PHRF (audit_series_orc checks its ORC side)
+                cells, throw_out, total = boat_series(race_ids, bracket_races, b, class_races)
+                ccells, cthrow, ctotal = boat_series(race_ids, class_races, b, bracket_races)
                 expected_rows.append({"boat": b, "total": total, "cells": cells})
                 class_rows.append({"boat": b, "total": ctotal, "cells": ccells})
 
@@ -385,26 +436,110 @@ def audit_series(standings, race_reports, entries, warnings):
                                     note="totals change in this class" if group else "tiebreak"))
 
 
+def audit_series_orc(standings, race_reports, entries, warnings):
+    """D9: the ORC side of an ORC class's standings, scored like the PHRF side among the ORC-rated entries,
+    for ORC-rated rows only. Every difference is a D9 entry."""
+    series = standings["series"]
+    sid, year = series["id"], standings["year"]
+    race_ids = [r["id"] for r in standings["races"]]
+    base = {"kind": "series", "seriesId": sid, "year": year, "series": series["name"]}
+
+    for sc in standings["standings"]:
+        if sc["raceClass"]["ratingType"] not in ORC_RATED:
+            continue
+        class_id = sc["raceClass"]["id"]
+        class_name = sc["raceClass"]["name"]
+        class_races = group_series(race_ids, race_reports, class_id, None, warnings, "orc")
+        class_rows = []
+        class_current = {}
+
+        for sb in sc["standings"]:
+            loc = dict(base, **{"class": class_name, "bracket": sb["bracket"]["name"]})
+            bracket_races = group_series(race_ids, race_reports, class_id, sb["bracket"]["id"], warnings, "orc")
+            expected_rows = []
+            current = {}
+            for row in sb["standings"]:
+                b = row["boatSkipper"]["boat"]["id"]
+                name = row["boatSkipper"]["boat"]["name"]
+                bloc = dict(loc, boatId=b, boat=name)
+                if b in current:
+                    continue  # D8: a split row; the first row is checked
+                if row.get("ratingType", "PHRF") not in ORC_RATED:
+                    if row["totalScoreBracketOrc"] or row["placeInBracketOrc"] or any(c["placeInBracketOrc"] for c in row["raceStandings"]):
+                        entries.append(dict(bloc, decision="D9", field="orc", current="scored", expected="unscored", note="row is not ORC-rated"))
+                    continue
+                current[b] = row
+                cells, throw_out, total = boat_series(race_ids, bracket_races, b, class_races)
+                ccells, cthrow, ctotal = boat_series(race_ids, class_races, b, bracket_races)
+                expected_rows.append({"boat": b, "total": total, "cells": cells})
+                if b not in class_current:
+                    class_rows.append({"boat": b, "total": ctotal, "cells": ccells})
+                    class_current[b] = row
+                for rid, cur in zip(race_ids, row["raceStandings"]):
+                    for cell, thrown, score_field, throw_field, label in (
+                        (cells[rid], throw_out, "placeInBracketOrc", "throwOutOrc", ""),
+                        (ccells[rid], cthrow, "placeInClassOrc", "throwOutClassOrc", " (class)"),
+                    ):
+                        expected = 0 if cell is None else cell["score"]
+                        if fnum(cur[score_field]) != fnum(expected):
+                            entries.append(dict(bloc, decision="D9", field=f"race {rid}{label} ORC", raceId=rid,
+                                                current=cur[score_field], expected=fnum(expected)))
+                        if cur[throw_field] != (rid == thrown):
+                            entries.append(dict(bloc, decision="D9", field=f"race {rid}{label} ORC throw-out", raceId=rid,
+                                                current=cur[throw_field], expected=rid == thrown))
+                if fnum(row["totalScoreBracketOrc"]) != fnum(total):
+                    entries.append(dict(bloc, decision="D9", field="totalScoreBracketOrc", current=row["totalScoreBracketOrc"], expected=fnum(total)))
+                if fnum(row["totalScoreClassOrc"]) != fnum(ctotal):
+                    entries.append(dict(bloc, decision="D9", field="totalScoreClassOrc", current=row["totalScoreClassOrc"], expected=fnum(ctotal)))
+
+            places = place_rows(expected_rows, race_ids)
+            for b, place in places.items():
+                if current[b]["placeInBracketOrc"] != place:
+                    entries.append(dict(loc, decision="D9", boatId=b, boat=current[b]["boatSkipper"]["boat"]["name"],
+                                        field="placeInBracketOrc", current=current[b]["placeInBracketOrc"], expected=place))
+
+        cplaces = place_rows(class_rows, race_ids)
+        for b, place in cplaces.items():
+            if class_current[b]["placeInClassOrc"] != place:
+                entries.append(dict(base, **{"class": class_name}, decision="D9", boatId=b, boat=class_current[b]["boatSkipper"]["boat"]["name"],
+                                    field="placeInClassOrc", current=class_current[b]["placeInClassOrc"], expected=place))
+
+
 def audit_race(report, entries, warnings):
     race = report["raceSchedule"]["race"]
     base = {"kind": "race", "raceId": race["id"], "race": race["name"]}
     for cr in report["classReports"]:
         if cr["raceClass"]["id"] == 0:
             continue  # orphan "Incorrectly classed" bucket
+        rating = class_rating(cr["raceClass"]["ratingType"])
         class_cards = [c for br in cr["bracketReport"] for c in br["cards"]]
-        cscores, _, ctied = score_group(class_cards, warnings)
+        cscores, _, ctied = score_group(class_cards, warnings, rating)
         for i, c in enumerate(class_cards):
             if cscores[i] is not None and c["placeInClass"] != cscores[i]:
                 entries.append(dict(base, **{"class": cr["raceClass"]["name"]}, decision=race_decision(c, class_cards, ctied),
                                     boatId=boat_id_of(c), boat=c["boatName"], field="placeInClass",
                                     current=c["placeInClass"], expected=cscores[i]))
         for br in cr["bracketReport"]:
-            bscores, _, btied = score_group(br["cards"], warnings)
+            bscores, _, btied = score_group(br["cards"], warnings, rating)
             for i, c in enumerate(br["cards"]):
                 if bscores[i] is not None and c["placeInBracket"] != bscores[i]:
                     entries.append(dict(base, **{"class": cr["raceClass"]["name"], "bracket": br["bracket"]["name"]},
                                         decision=race_decision(c, br["cards"], btied), boatId=boat_id_of(c), boat=c["boatName"],
                                         field="placeInBracket", current=c["placeInBracket"], expected=bscores[i]))
+        # D9 / R1: the ORC places, among the ORC-rated entries, on the ORC corrected times
+        if cr["raceClass"]["ratingType"] in ORC_RATED:
+            oscores, _, _ = score_group(class_cards, warnings, "orc")
+            for i, c in enumerate(class_cards):
+                if oscores[i] is not None and c["placeInClassOrc"] != oscores[i]:
+                    entries.append(dict(base, **{"class": cr["raceClass"]["name"]}, decision="D9", boatId=boat_id_of(c), boat=c["boatName"],
+                                        field="placeInClassOrc", current=c["placeInClassOrc"], expected=oscores[i]))
+            for br in cr["bracketReport"]:
+                oscores, _, _ = score_group(br["cards"], warnings, "orc")
+                for i, c in enumerate(br["cards"]):
+                    if oscores[i] is not None and c["placeInBracketOrc"] != oscores[i]:
+                        entries.append(dict(base, **{"class": cr["raceClass"]["name"], "bracket": br["bracket"]["name"]}, decision="D9",
+                                            boatId=boat_id_of(c), boat=c["boatName"], field="placeInBracketOrc",
+                                            current=c["placeInBracketOrc"], expected=oscores[i]))
     # D8: the race year by the Pacific calendar vs UTC
     for cs in report["raceSchedule"]["schedule"]:
         start = datetime.fromisoformat(cs["startDate"].replace("Z", "+00:00"))
@@ -435,6 +570,7 @@ def main(argv):
         audit_race(race_reports[rid], entries, warnings)
     for s in sorted(standings, key=lambda s: (s["year"], s["series"]["id"])):
         audit_series(s, race_reports, entries, warnings)
+        audit_series_orc(s, race_reports, entries, warnings)
 
     def key(e):
         return (e["kind"], e.get("year", 0), e.get("seriesId", 0), e.get("raceId", 0), e.get("class", ""),

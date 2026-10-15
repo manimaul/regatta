@@ -2,8 +2,10 @@ package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.FinishCode.*
+import com.mxmariner.regatta.data.OrcCertificate
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RaceReportCard
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.data.StandingsSeries
 import kotlin.random.Random
 import kotlin.test.Ignore
@@ -27,14 +29,20 @@ class InvariantsTest {
         data class Code(val code: FinishCode) : Outcome()
     }
 
-    private data class BoatSpec(val name: String, val outcome: Outcome, val penalty: Int? = null)
+    private data class BoatSpec(
+        val name: String,
+        val outcome: Outcome,
+        val penalty: Int? = null,
+        val ratingType: RatingType = RatingType.PHRF,
+        val orcRef: String? = null,
+    )
 
-    /** bracket name -> entries */
-    private class RaceSpec(val brackets: Map<String, List<BoatSpec>>) {
-        fun map(f: (String, BoatSpec) -> BoatSpec?) = RaceSpec(brackets.mapValues { (b, boats) -> boats.mapNotNull { f(b, it) } })
+    /** bracket name -> entries; [orcClass] enters them in an ORC/PHRF class instead of a PHRF one */
+    private class RaceSpec(val brackets: Map<String, List<BoatSpec>>, val orcClass: Boolean = false) {
+        fun map(f: (String, BoatSpec) -> BoatSpec?) = RaceSpec(brackets.mapValues { (b, boats) -> boats.mapNotNull { f(b, it) } }, orcClass)
     }
 
-    private class SeriesSpec(val races: List<RaceSpec>)
+    private class SeriesSpec(val races: List<RaceSpec>, val certs: Map<String, OrcCertificate> = emptyMap())
 
     private fun Long.clock(): String {
         val h = 18 + this / 3_600_000
@@ -45,7 +53,8 @@ class InvariantsTest {
     }
 
     private fun BracketBuilder.enter(spec: BoatSpec) {
-        val entry = boat(spec.name, rating = 50)
+        val entry = boat(spec.name, rating = 50.takeIf { spec.ratingType != RatingType.ORC }, ratingType = spec.ratingType)
+        spec.orcRef?.let { entry orc it }
         when (val o = spec.outcome) {
             is Outcome.Finish -> entry finishes o.ms.clock()
             is Outcome.Hoc -> entry hoc o.position
@@ -55,18 +64,19 @@ class InvariantsTest {
     }
 
     private fun RaceBuilder.enter(spec: RaceSpec, shuffle: Random?) {
-        phrfClass("Fast") {
+        val block: ClassBuilder.() -> Unit = {
             spec.brackets.forEach { (name, boats) ->
                 bracket(name) { (shuffle?.let { boats.shuffled(it) } ?: boats).forEach { enter(it) } }
             }
         }
+        if (spec.orcClass) orcPhrfClass("Fast", block = block) else phrfClass("Fast", block = block)
     }
 
     private fun build(spec: RaceSpec, shuffle: Random? = null): RaceReport =
         race(start = "18:00") { enter(spec, shuffle) }.report()
 
     private fun build(spec: SeriesSpec, shuffle: Random? = null): StandingsSeries =
-        series { spec.races.forEach { r -> race { enter(r, shuffle) } } }.standings()
+        series { spec.races.forEach { r -> race { enter(r, shuffle) } } }.standings(orcCerts = spec.certs)
 
     private val boatNames = ('A'..'L').map { it.toString() }
 
@@ -95,8 +105,13 @@ class InvariantsTest {
         })
     }
 
-    /** A random series: 1..7 races over a pool of 3..6 boats that keep their bracket; absent boats are DNS. */
-    private fun randomSeries(rnd: Random, withRc: Boolean = false): SeriesSpec {
+    /**
+     * A random series: 1..7 races over a pool of 3..6 boats that keep their bracket; absent boats
+     * are DNS. With [withOrc] the class is ORC/PHRF and each boat is ORC/PHRF, PHRF-only or
+     * ORC-only for the whole series, with a random certificate when ORC-rated. Without it no
+     * extra random numbers are drawn, so the PHRF seeds stay what they were.
+     */
+    private fun randomSeries(rnd: Random, withRc: Boolean = false, withOrc: Boolean = false): SeriesSpec {
         val pool = boatNames.shuffled(rnd).take(rnd.nextInt(3, 7))
         val bracketOf = pool.associateWith { if (pool.size >= 4 && rnd.nextBoolean()) "II" else "I" }
         val races = (1..rnd.nextInt(1, 8)).map {
@@ -106,7 +121,19 @@ class InvariantsTest {
             // regroup into the boats' fixed brackets
             RaceSpec(race.brackets.values.flatten().groupBy { bracketOf.getValue(it.name) })
         }
-        return SeriesSpec(races)
+        if (!withOrc) return SeriesSpec(races)
+        val ratingOf = pool.associateWith {
+            when (rnd.nextInt(10)) {
+                in 0..5 -> RatingType.ORC_PHRF
+                in 6..7 -> RatingType.PHRF
+                else -> RatingType.ORC
+            }
+        }
+        val certs = ratingOf.filterValues { it.isORC }.keys.associateWith { OrcCertificate(refNo = it, fiveBandWlLowMedTot = 0.5 + rnd.nextDouble() * 0.5) }
+        val orcRaces = races.map { r ->
+            RaceSpec(r.brackets.mapValues { (_, boats) -> boats.map { it.copy(ratingType = ratingOf.getValue(it.name), orcRef = certs[it.name]?.refNo) } }, orcClass = true)
+        }
+        return SeriesSpec(orcRaces, certs)
     }
 
     private fun RaceReport.cards(): List<RaceReportCard> = classReports.flatMap { it.bracketReport }.flatMap { it.cards }
@@ -120,6 +147,9 @@ class InvariantsTest {
                 row.raceStandings.map { it.placeInBracket },
                 row.raceStandings.map { it.placeInClass },
                 row.totalScoreBracket, row.totalScoreClass, row.placeInBracket, row.placeInClass,
+                row.raceStandings.map { it.placeInBracketOrc },
+                row.raceStandings.map { it.placeInClassOrc },
+                row.totalScoreBracketOrc, row.totalScoreClassOrc, row.placeInBracketOrc, row.placeInClassOrc, row.ratingType,
             )
         }
 
@@ -316,5 +346,88 @@ class InvariantsTest {
             assertEquals(without.classOrders(), with.classOrders(), "seed $i class order of the other boats")
         }
         assertTrue(volunteers > 30, "the generator produced too few RC volunteers: $volunteers")
+    }
+
+    // ---- ORC series invariants (D9)
+
+    private fun StandingsSeries.rows() = standings.flatMap { it.standings }.flatMap { it.standings }
+
+    /** D9: an ORC-rated row's ORC total follows the same rules as the PHRF one; a row not rated for a side has that side at zero. */
+    @Test
+    fun d9_orc_series_total_is_the_sum_of_counted_orc_scores_with_at_most_one_excluded() {
+        repeat(200) { i ->
+            val standings = build(randomSeries(Random(11_000 + i), withOrc = true))
+            standings.rows().forEach { row ->
+                val boat = row.boatSkipper.boat?.name
+                if (row.ratingType.isORC) {
+                    val bracketSailed = row.raceStandings.filter { it.bracketSailedOrc }
+                    val classSailed = row.raceStandings.filter { it.classSailedOrc }
+                    val excludedBracket = row.raceStandings.count { it.throwOutOrc }
+                    val excludedClass = row.raceStandings.count { it.throwOutClassOrc }
+                    assertTrue(excludedBracket <= 1 && excludedClass <= 1, "seed $i $boat: $excludedBracket / $excludedClass ORC throw-outs")
+                    if (bracketSailed.size < 5) assertEquals(0, excludedBracket, "seed $i $boat: ORC bracket throw-out with ${bracketSailed.size} sailed races")
+                    if (classSailed.size < 5) assertEquals(0, excludedClass, "seed $i $boat: ORC class throw-out with ${classSailed.size} sailed races")
+                    assertTrue(row.raceStandings.none { it.throwOutOrc && !it.bracketSailedOrc }, "seed $i $boat: an ORC-unsailed race thrown out")
+                    assertTrue(row.raceStandings.none { !it.bracketSailedOrc && it.placeInBracketOrc != 0.0 }, "seed $i $boat: an ORC-unsailed race scored")
+                    assertEquals(bracketSailed.filter { !it.throwOutOrc }.sumOf { it.placeInBracketOrc }, row.totalScoreBracketOrc, "seed $i $boat ORC bracket total")
+                    assertEquals(classSailed.filter { !it.throwOutClassOrc }.sumOf { it.placeInClassOrc }, row.totalScoreClassOrc, "seed $i $boat ORC class total")
+                } else {
+                    assertTrue(row.totalScoreBracketOrc == 0.0 && row.totalScoreClassOrc == 0.0 && row.placeInBracketOrc == 0 && row.placeInClassOrc == 0, "seed $i $boat: ORC fields on a PHRF row")
+                    assertTrue(row.raceStandings.all { it.placeInBracketOrc == 0.0 && it.placeInClassOrc == 0.0 && !it.throwOutOrc && !it.throwOutClassOrc && !it.nonStarterOrc }, "seed $i $boat: ORC cells on a PHRF row")
+                }
+                if (!row.ratingType.isPHRF) {
+                    assertTrue(row.totalScoreBracket == 0.0 && row.totalScoreClass == 0.0 && row.placeInBracket == 0 && row.placeInClass == 0, "seed $i $boat: PHRF fields on an ORC-only row")
+                    assertTrue(row.raceStandings.all { it.placeInBracket == 0.0 && it.placeInClass == 0.0 && !it.throwOut && !it.throwOutClass }, "seed $i $boat: PHRF cells on an ORC-only row")
+                }
+            }
+        }
+    }
+
+    /** D9: ORC places follow ORC totals among the ORC-rated rows, and PHRF places follow PHRF totals among the PHRF-rated rows. */
+    @Test
+    fun d9_series_places_follow_totals_per_rating() {
+        repeat(200) { i ->
+            val standings = build(randomSeries(Random(12_000 + i), withOrc = true))
+            standings.standings.forEach { sc ->
+                sc.standings.forEach { sb ->
+                    val orc = sb.standings.filter { it.ratingType.isORC }.sortedBy { it.placeInBracketOrc }
+                    assertTrue(orc.all { it.placeInBracketOrc >= 1 }, "seed $i: an ORC row without an ORC place")
+                    orc.zipWithNext().forEach { (a, b) -> assertTrue(a.totalScoreBracketOrc <= b.totalScoreBracketOrc, "seed $i ORC bracket: place order disagrees with totals") }
+                    val phrf = sb.standings.filter { it.ratingType.isPHRF }.sortedBy { it.placeInBracket }
+                    assertTrue(phrf.all { it.placeInBracket >= 1 }, "seed $i: a PHRF row without a PHRF place")
+                    phrf.zipWithNext().forEach { (a, b) -> assertTrue(a.totalScoreBracket <= b.totalScoreBracket, "seed $i PHRF bracket: place order disagrees with totals") }
+                    // row order: PHRF-placed rows by place, then the ORC-only rows by ORC place
+                    val order = sb.standings.map { if (it.placeInBracket == 0) 1 to it.placeInBracketOrc else 0 to it.placeInBracket }
+                    assertEquals(order.sortedWith(compareBy({ it.first }, { it.second })), order, "seed $i: row order")
+                }
+                val orc = sc.standings.flatMap { it.standings }.filter { it.ratingType.isORC }.sortedBy { it.placeInClassOrc }
+                orc.zipWithNext().forEach { (a, b) -> assertTrue(a.totalScoreClassOrc <= b.totalScoreClassOrc, "seed $i ORC class: place order disagrees with totals") }
+            }
+        }
+    }
+
+    /** D5 / D9: shuffling the entries never changes an ORC score or place either. */
+    @Test
+    fun d9_shuffling_orc_series_entries_never_changes_standings() {
+        repeat(200) { i ->
+            val spec = randomSeries(Random(13_000 + i), withOrc = true)
+            val base = build(spec).snapshot()
+            repeat(3) { j ->
+                assertEquals(base, build(spec, Random(i * 10 + j)).snapshot(), "seed $i")
+            }
+        }
+    }
+
+    /** D9: outside an ORC class every ORC field is zero and every row is scored under PHRF. */
+    @Test
+    fun d9_orc_fields_are_zero_outside_an_orc_class() {
+        repeat(200) { i ->
+            val standings = build(randomSeries(Random(14_000 + i)))
+            standings.rows().forEach { row ->
+                assertTrue(row.ratingType.isPHRF, "seed $i: a non-PHRF row in a PHRF class")
+                assertTrue(row.totalScoreBracketOrc == 0.0 && row.totalScoreClassOrc == 0.0 && row.placeInBracketOrc == 0 && row.placeInClassOrc == 0, "seed $i: ORC fields set")
+                assertTrue(row.raceStandings.all { it.placeInBracketOrc == 0.0 && it.placeInClassOrc == 0.0 && !it.bracketSailedOrc && !it.classSailedOrc && !it.nonStarterOrc }, "seed $i: ORC cells set")
+            }
+        }
     }
 }

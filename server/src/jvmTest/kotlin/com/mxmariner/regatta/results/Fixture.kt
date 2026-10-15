@@ -315,7 +315,7 @@ class SeriesBuilder internal constructor(
                 BoatEntry(
                     example.name, example.raceClass, example.bracket, example.boat, example.skipper,
                     example.ratingType, example.rating
-                ).also { it.finishCode = FinishCode.DNS_RC }
+                ).also { it.finishCode = FinishCode.DNS_RC; it.orcRef = example.orcRef }
             )
         }
         return SeriesFixture(series, year, builders.map { it.build() })
@@ -399,6 +399,27 @@ fun StandingsSeries.classRaceScores(boat: String): List<Double> = row(boat).race
 
 fun StandingsSeries.assertBracketTotals(vararg expected: Pair<String, Number>) = assertScores(bracketTotals(), *expected)
 fun StandingsSeries.assertClassTotals(vararg expected: Pair<String, Number>) = assertScores(classTotals(), *expected)
+
+// ---- the ORC side of the same rows (D9); 0 for a row not scored under ORC
+
+fun StandingsSeries.bracketTotalsOrc(): Map<String, Double> =
+    rows().groupBy { it.boatSkipper.boat?.name ?: "" }.mapValues { (_, r) -> r.first().totalScoreBracketOrc.toDouble() }
+
+fun StandingsSeries.classTotalsOrc(): Map<String, Double> =
+    rows().groupBy { it.boatSkipper.boat?.name ?: "" }.mapValues { (_, r) -> r.first().totalScoreClassOrc.toDouble() }
+
+fun StandingsSeries.bracketPlacesOrc(): Map<String, Int> =
+    rows().groupBy { it.boatSkipper.boat?.name ?: "" }.mapValues { (_, r) -> r.first().placeInBracketOrc }
+
+fun StandingsSeries.classPlacesOrc(): Map<String, Int> =
+    rows().groupBy { it.boatSkipper.boat?.name ?: "" }.mapValues { (_, r) -> r.first().placeInClassOrc }
+
+fun StandingsSeries.bracketRaceScoresOrc(boat: String): List<Double> = row(boat).raceStandings.map { it.placeInBracketOrc.toDouble() }
+
+fun StandingsSeries.classRaceScoresOrc(boat: String): List<Double> = row(boat).raceStandings.map { it.placeInClassOrc.toDouble() }
+
+fun StandingsSeries.assertBracketTotalsOrc(vararg expected: Pair<String, Number>) = assertScores(bracketTotalsOrc(), *expected)
+fun StandingsSeries.assertClassTotalsOrc(vararg expected: Pair<String, Number>) = assertScores(classTotalsOrc(), *expected)
 
 /** Asserts each expected boat's score. Boats not listed are not checked. */
 fun assertScores(actual: Map<String, Double>, vararg expected: Pair<String, Number>) {

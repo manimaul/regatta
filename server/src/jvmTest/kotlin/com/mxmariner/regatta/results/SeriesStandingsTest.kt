@@ -1,7 +1,9 @@
 package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.FinishCode.*
+import com.mxmariner.regatta.data.OrcCertificate
 import com.mxmariner.regatta.data.RaceStatus
+import com.mxmariner.regatta.data.RatingType
 import kotlin.test.Ignore
 import kotlin.time.Duration.Companion.days
 import kotlin.test.Test
@@ -463,5 +465,228 @@ class SeriesStandingsTest {
         standings.assertBracketTotals("A" to 1, "B" to 2, "C" to 3)
         assertEquals(mapOf("A" to 1, "B" to 2, "C" to 3), standings.bracketPlaces())
         assertEquals(false, standings.row("A").raceStandings.single().throwOut)
+    }
+
+    // ---- ORC series scoring (D9, orc_series_standings.md)
+
+    /** Certificates for the ORC tests: with a B factor of 600 the race scores five-band Low/Medium. */
+    private val certs = mapOf(
+        "slow" to OrcCertificate(refNo = "slow", fiveBandWlLowMedTot = 1.0),
+        "fast" to OrcCertificate(refNo = "fast", fiveBandWlLowMedTot = 0.5),
+        "mid" to OrcCertificate(refNo = "mid", fiveBandWlLowMedTot = 0.8),
+    )
+
+    /** An ORC/PHRF boat with a PHRF rating of 50 (TCF 1 at B 600, so the PHRF order is the finish order) and a certificate. */
+    private fun BracketBuilder.orcBoat(name: String, cert: String, finish: String) =
+        boat(name, rating = 50) finishes finish orc cert
+
+    /** A race of the ORC/PHRF class "Fast", bracket I, starting at 18:00. */
+    private fun SeriesBuilder.orcRace(block: BracketBuilder.() -> Unit) =
+        race(start = "18:00") { orcPhrfClass("Fast") { bracket("I", block) } }
+
+    /**
+     * The standard ORC race of these tests. Elapsed times A 60, C 70, B 90 minutes give the PHRF
+     * order A, C, B; the ORC corrected times A 60, C 56, B 45 give the ORC order B, C, A.
+     */
+    private fun SeriesBuilder.standardOrcRace() = orcRace {
+        orcBoat("A", "slow", "19:00:00")
+        orcBoat("B", "fast", "19:30:00")
+        orcBoat("C", "mid", "19:10:00")
+    }
+
+    @Test
+    fun d9_orc_series_total_is_the_sum_of_orc_race_scores() {
+        val standings = series {
+            repeat(3) { orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00") } }
+        }.standings(orcCerts = certs)
+        standings.assertBracketTotals("A" to 3, "B" to 6)
+        standings.assertBracketTotalsOrc("A" to 6, "B" to 3)
+        standings.assertClassTotalsOrc("A" to 6, "B" to 3)
+        assertEquals(mapOf("A" to 1, "B" to 2), standings.bracketPlaces())
+        assertEquals(mapOf("A" to 2, "B" to 1), standings.bracketPlacesOrc())
+        assertEquals(mapOf("A" to 2, "B" to 1), standings.classPlacesOrc())
+        assertEquals(RatingType.ORC_PHRF, standings.row("A").ratingType)
+        // the PHRF side is what a PHRF-only fleet of the same races scores
+        val phrfOnly = series { repeat(3) { fastRace("A", "B") } }.standings()
+        assertEquals(phrfOnly.bracketTotals(), standings.bracketTotals())
+        assertEquals(phrfOnly.bracketPlaces(), standings.bracketPlaces())
+    }
+
+    /** GSI 14.1.2 / D9: a boat with no ORC entry scores the ORC starters + 1 in the ORC groups, and the PHRF starters + 1 in the PHRF ones. */
+    @Test
+    fun d9_orc_dns_scores_orc_starters_plus_one() {
+        val standings = series {
+            orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00"); boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:40:00" }
+            orcRace { orcBoat("A", "slow", "19:00:00"); boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:40:00" }
+        }.standings(orcCerts = certs)
+        assertEquals(listOf(1.0, 2.0), standings.bracketRaceScoresOrc("B"))   // 1st, then 1 ORC starter + 1
+        assertEquals(listOf(2.0, 3.0), standings.bracketRaceScores("B"))      // 2nd, then 2 PHRF starters + 1
+        assertEquals(true, standings.row("B").raceStandings[1].nonStarterOrc)
+        assertEquals(false, standings.row("B").raceStandings[0].nonStarterOrc)
+    }
+
+    /** D2 / D9: a race with no ORC starter is not sailed for the ORC groups, even though it is sailed for the PHRF ones. */
+    @Test
+    fun d9_orc_race_without_orc_starters_is_not_sailed_for_orc() {
+        val standings = series {
+            orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00"); boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:40:00" }
+            orcRace { boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:00:00" }
+        }.standings(orcCerts = certs)
+        val second = standings.row("A").raceStandings[1]
+        assertEquals(false, second.bracketSailedOrc)
+        assertEquals(false, second.classSailedOrc)
+        assertEquals(true, second.bracketSailed)
+        assertEquals(false, second.nonStarterOrc)
+        assertEquals(listOf(2.0, 0.0), standings.bracketRaceScoresOrc("A"))
+        assertEquals(listOf(1.0, 0.0), standings.bracketRaceScoresOrc("B"))
+        standings.assertBracketTotalsOrc("A" to 2, "B" to 1)
+        standings.assertBracketTotals("A" to 1 + 2, "B" to 2 + 2)   // PHRF DNS in race 2: 1 starter + 1
+    }
+
+    /** GSI 14.4 / D9: each rating throws out its own worst race, which can be a different race. */
+    @Test
+    fun d9_orc_throw_out_is_chosen_separately_from_phrf() {
+        val standings = series {
+            repeat(3) { standardOrcRace() }
+            // A absent: PHRF DNS = 5 starters + 1 = 6, ORC DNS = 2 ORC starters + 1 = 3
+            orcRace {
+                orcBoat("B", "fast", "19:00:00"); orcBoat("C", "mid", "19:10:00")
+                listOf("P1", "P2", "P3").forEachIndexed { i, p -> boat(p, rating = 50, ratingType = RatingType.PHRF) finishes "19:2$i:00" }
+            }
+            // A first under PHRF, last under ORC: corrected B 45, D 50, C 56, A 60
+            orcRace {
+                orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00")
+                orcBoat("C", "mid", "19:10:00"); orcBoat("D", "fast", "19:40:00")
+            }
+        }.standings(orcCerts = certs)
+        assertEquals(listOf(1.0, 1.0, 1.0, 6.0, 1.0), standings.bracketRaceScores("A"))
+        assertEquals(listOf(3.0, 3.0, 3.0, 3.0, 4.0), standings.bracketRaceScoresOrc("A"))
+        val cells = standings.row("A").raceStandings
+        assertEquals(listOf(false, false, false, true, false), cells.map { it.throwOut })
+        assertEquals(listOf(false, false, false, false, true), cells.map { it.throwOutOrc })
+        standings.assertBracketTotals("A" to 4)
+        standings.assertBracketTotalsOrc("A" to 12)
+    }
+
+    /** D1 / D9: the RC volunteer's ORC score is the average of its other ORC race scores. */
+    @Test
+    fun d9_orc_rc_volunteer_averages_orc_scores() {
+        val standings = series {
+            standardOrcRace()                                                   // A: PHRF 1, ORC 3
+            orcRace { orcBoat("B", "fast", "19:30:00"); orcBoat("C", "mid", "19:10:00") }   // A RC
+            orcRace {
+                orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00")
+                orcBoat("C", "mid", "19:10:00"); orcBoat("D", "fast", "19:40:00")
+            }                                                                   // A: PHRF 1, ORC 4
+            rcVolunteer("A", race = 2)
+        }.standings(orcCerts = certs)
+        assertEquals(listOf(1.0, 1.0, 1.0), standings.bracketRaceScores("A"))
+        assertEquals(listOf(3.0, 3.5, 4.0), standings.bracketRaceScoresOrc("A"))
+        standings.assertBracketTotals("A" to 3)
+        standings.assertBracketTotalsOrc("A" to 10.5)
+    }
+
+    /** GSI 14.5 / D5 / D9: an ORC tie is broken on the ORC scores of the last race, whatever the PHRF standings say. */
+    @Test
+    fun d9_orc_tiebreak_uses_orc_race_scores() {
+        val standings = series {
+            orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "20:10:00") }   // ORC A 60, B 65: A 1, B 2
+            orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00") }   // ORC A 60, B 45: B 1, A 2
+        }.standings(orcCerts = certs)
+        standings.assertBracketTotalsOrc("A" to 3, "B" to 3)
+        assertEquals(mapOf("B" to 1, "A" to 2), standings.bracketPlacesOrc())
+        assertEquals(mapOf("B" to 1, "A" to 2), standings.classPlacesOrc())
+        assertEquals(mapOf("A" to 1, "B" to 2), standings.bracketPlaces())   // PHRF: A wins both races
+    }
+
+    /** D9: a PHRF-only boat in an ORC class is not scored under ORC and takes no ORC place. */
+    @Test
+    fun d9_orc_places_are_among_orc_rows_only() {
+        val standings = series {
+            repeat(2) { orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00"); boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:40:00" } }
+        }.standings(orcCerts = certs)
+        val p = standings.row("P")
+        assertEquals(RatingType.PHRF, p.ratingType)
+        assertEquals(0, p.placeInBracketOrc)
+        assertEquals(0, p.placeInClassOrc)
+        assertEquals(0.0, p.totalScoreBracketOrc)
+        assertEquals(listOf(0.0, 0.0), standings.bracketRaceScoresOrc("P"))
+        assertEquals(mapOf("B" to 1, "A" to 2, "P" to 0), standings.bracketPlacesOrc())
+        assertEquals(mapOf("A" to 1, "B" to 2, "P" to 3), standings.bracketPlaces())
+    }
+
+    /** D9: outside an ORC class nothing is scored under ORC. */
+    @Test
+    fun d9_phrf_only_class_has_no_orc_fields_set() {
+        val standings = series { repeat(2) { fastRace("A", "B") } }.standings()
+        standings.standings.flatMap { it.standings }.flatMap { it.standings }.forEach { row ->
+            assertEquals(RatingType.PHRF, row.ratingType)
+            assertEquals(0.0, row.totalScoreBracketOrc)
+            assertEquals(0.0, row.totalScoreClassOrc)
+            assertEquals(0, row.placeInBracketOrc)
+            assertEquals(0, row.placeInClassOrc)
+            row.raceStandings.forEach {
+                assertEquals(0.0, it.placeInBracketOrc)
+                assertEquals(0.0, it.placeInClassOrc)
+                assertEquals(false, it.bracketSailedOrc || it.classSailedOrc || it.throwOutOrc || it.throwOutClassOrc || it.nonStarterOrc)
+            }
+        }
+    }
+
+    /** D9 with the 2025→2026 switch: before 2026 a rated class scores as PHRF only, whatever its results say. */
+    @Test
+    fun d9_orc_fields_are_not_set_before_2026() {
+        val standings = series(year = 2025, firstDate = "2025-06-17") {
+            repeat(2) { orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00") } }
+        }.standings(orcCerts = certs)
+        assertEquals(RatingType.PHRF, standings.standings.single().raceClass.ratingType)
+        standings.assertBracketTotals("A" to 2, "B" to 4)
+        standings.assertBracketTotalsOrc("A" to 0, "B" to 0)
+        assertEquals(mapOf("A" to 0, "B" to 0), standings.bracketPlacesOrc())
+        assertEquals(listOf(0.0, 0.0), standings.bracketRaceScoresOrc("A"))
+    }
+
+    /** D9 / R1: an ORC-only boat is not scored under PHRF, and its row follows the PHRF-placed rows, by ORC place. */
+    @Test
+    fun d9_orc_only_row_has_no_phrf_fields_set_and_sorts_after_the_phrf_rows() {
+        val standings = series {
+            repeat(2) { orcRace { orcBoat("A", "slow", "19:00:00"); boat("O", ratingType = RatingType.ORC) finishes "18:50:00" orc "fast" } }
+        }.standings(orcCerts = certs)
+        val o = standings.row("O")
+        assertEquals(RatingType.ORC, o.ratingType)
+        assertEquals(0.0, o.totalScoreBracket)
+        assertEquals(0.0, o.totalScoreClass)
+        assertEquals(0, o.placeInBracket)
+        assertEquals(0, o.placeInClass)
+        assertEquals(listOf(0.0, 0.0), standings.bracketRaceScores("O"))
+        standings.assertBracketTotalsOrc("O" to 2, "A" to 4)   // O corrects to 25 minutes, A to 60
+        assertEquals(mapOf("O" to 1, "A" to 2), standings.bracketPlacesOrc())
+        assertEquals(mapOf("A" to 1, "O" to 0), standings.bracketPlaces())
+        assertEquals(listOf("A", "O"), standings.standings.single().standings.single().standings.map { it.boatSkipper.boat?.name })
+    }
+
+    /** D9 / R1: an ORC-only boat is not a PHRF starter, so it does not raise the PHRF DNS score of a boat that stayed home. */
+    @Test
+    fun d9_orc_only_boat_does_not_count_as_a_phrf_starter() {
+        val standings = series {
+            orcRace { orcBoat("A", "slow", "19:00:00"); boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:10:00"; boat("O", ratingType = RatingType.ORC) finishes "18:50:00" orc "fast" }
+            orcRace { orcBoat("A", "slow", "19:00:00"); boat("O", ratingType = RatingType.ORC) finishes "18:50:00" orc "fast" }
+        }.standings(orcCerts = certs)
+        assertEquals(listOf(2.0, 2.0), standings.bracketRaceScores("P"))   // 2nd, then 1 PHRF starter + 1
+    }
+
+    /** D9: a boat that raced PHRF-only before getting a certificate is scored under both, with ORC DNS for the earlier races. */
+    @Test
+    fun d9_boat_that_switches_to_orc_phrf_mid_series_scores_dns_in_orc_before_the_switch() {
+        val standings = series {
+            orcRace { orcBoat("A", "slow", "19:00:00"); boat("B", rating = 50, ratingType = RatingType.PHRF) finishes "19:30:00" }
+            orcRace { orcBoat("A", "slow", "19:00:00"); orcBoat("B", "fast", "19:30:00") }
+        }.standings(orcCerts = certs)
+        val b = standings.row("B")
+        assertEquals(RatingType.ORC_PHRF, b.ratingType)
+        assertEquals(listOf(2.0, 2.0), standings.bracketRaceScores("B"))
+        assertEquals(listOf(2.0, 1.0), standings.bracketRaceScoresOrc("B"))   // 1 ORC starter + 1, then 1st
+        assertEquals(listOf(true, false), b.raceStandings.map { it.nonStarterOrc })
+        assertEquals(listOf(false, false), b.raceStandings.map { it.nonStarter })
     }
 }
