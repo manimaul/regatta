@@ -183,6 +183,7 @@ next-to-last race. The other 53 ties were broken by the last race in the right d
 - A PHRF result with a `null` rating silently gets TCF 1.0.
 - Year boundaries differ: `seriesRaces` uses UTC, while the ORC/PHRF switch uses `America/Los_Angeles`.
 - ORC places (2026, `ORC_PHRF`) are shown per race but never used in series standings, and the GSI says nothing about ORC.
+  *(D9, 2026-10-15: they now score a series alongside the PHRF places; see `orc_series_standings.md`.)*
 - The 2025→2026 switch only relabels the class as PHRF, which hides the ORC columns in the web
   view. `classCard` still computes ORC places from each result's own rating type, so
   `hasOrcResults` and the `*Orc` places are set on 2025 reports too. Harmless, since nothing
@@ -252,8 +253,8 @@ Each layer is checked against the rule text. The test names should cite the sect
 |---|---|---|
 | **Rating math** | `common` | All `PhrfBFactor` / `Orc3Band` / `Orc5Band` band edges. `virtualPhrf`. `orcBandLabel` for every `OrcScoringOption`. `Bracket.label`, `RatingType.ratedLabel`. (`orcTcf` lives in `server`; see the next row.) |
 | **Elapsed & corrected time** | server | `orcTcf` picks the right certificate field for each option × band (table-driven over all 13 options). Elapsed = finish − *class* start, with separate starts per class. ToT = elapsed × 650/(B + rating) for each B-factor. Cruising TCF = 1. Null rating on a legacy row (TCF 1.0, see D8). Finish before start. Over 24 h. Millisecond precision kept. ORC corrected time alongside PHRF for `ORC_PHRF`. The 2025→2026 switch to PHRF-only, tested in the Pacific time zone. |
-| **Race placing (`place`, `classCard`)** | server | Ordering: corrected time → HOC position → finish-code weight. Each finish code's score formula (14.1.1–14.1.5) with "finishers" and "starters" defined explicitly, including HOC as finishers, and DNS_RC and DNS as not starters. HOC numbering (14.2). Penalty semantics (9.2/14.2, 44.3(c)): others unchanged, capped at DNF, several penalties, penalty on a non-finisher. Tied corrected times. A bracket with no finishers. Separate class and bracket placing. ORC placing only among ORC entries. Orphan results in "Incorrectly classed". |
-| **Series standings** | server | DNS = starters + 1 per bracket and class. Throw-out only when 5 or more races were **started** (14.4), and which race is dropped when scores are equal. Unsailed and future races (14.6, F2). RC volunteer (1.4.1.2, D1): average used in the total, throw-out chosen from the other races first, once per series, no other races scored as DNS, skipped in the tiebreak, other boats unchanged. Tiebreak (14.5) including an unbroken last race (F5) and three-way ties. Class totals vs. bracket totals. Boats that change bracket or skipper. A single-race series. Result validation (`validateResult`, D8). |
+| **Race placing (`place`, `classCard`)** | server | Ordering: corrected time → HOC position → finish-code weight. Each finish code's score formula (14.1.1–14.1.5) with "finishers" and "starters" defined explicitly, including HOC as finishers, and DNS_RC and DNS as not starters. HOC numbering (14.2). Penalty semantics (9.2/14.2, 44.3(c)): others unchanged, capped at DNF, several penalties, penalty on a non-finisher. Tied corrected times. A bracket with no finishers. Separate class and bracket placing. PHRF and ORC placing each among their own rated entries (R1 / D9); an ORC-only boat has no PHRF place and is not a PHRF starter. Orphan results in "Incorrectly classed". |
+| **Series standings** | server | DNS = starters + 1 per bracket and class. The same rules again for the ORC bracket and class groups of an ORC class, for ORC-rated rows only (D9: ORC DNS = ORC starters + 1, separate throw-out, RC average, tiebreak and places; PHRF and ORC fields zero where a row is not rated for them; nothing before 2026). Throw-out only when 5 or more races were **started** (14.4), and which race is dropped when scores are equal. Unsailed and future races (14.6, F2). RC volunteer (1.4.1.2, D1): average used in the total, throw-out chosen from the other races first, once per series, no other races scored as DNS, skipped in the tiebreak, other boats unchanged. Tiebreak (14.5) including an unbroken last race (F5) and three-way ties. Class totals vs. bracket totals. Boats that change bracket or skipper. A single-race series. Result validation (`validateResult`, D8). |
 | **Labels** | `web` jsTest (pure functions), plus `common` for `display()` | `finishText` for each code, HOC n, `P+n`, no start time. `elapsedText` / `corTime*Text` formatting including TCF to 4 decimals and `n/a`. `Duration.display` rounding (D7). Standings cell decoration (throw-out red, RC strike-through, the `DNS` / `DSQ` / `DNS RC Volunteer` / `HOC n` suffixes). Fractional scores (D1). "Cancelled" / "Not yet sailed" cells (D2). Race view place columns for PHRF / ORC / `ORC_PHRF` × single/multi bracket (catches the F6 column bug). Prefer pulling the cell-text logic into pure functions over composition tests, as in the CLAUDE.md note on `waitForRecompositionComplete`. |
 
 ### 4. Invariant (property-style) tests
@@ -523,7 +524,42 @@ it is marked *(interpretation)*, so the committee can confirm the GSI wording la
 
   Old rows with no rating still score with TCF 1.0, so existing reports keep loading. The audit
   found none in the data. A test pins down that legacy behavior.
-- ORC places stay per-race information. Series standings use PHRF only.
+- ~~ORC places stay per-race information. Series standings use PHRF only.~~ Replaced by D9.
+
+**D9. ORC series scoring and the rating boundaries (2026-10-15)** *(interpretation: the GSI says
+nothing about ORC)*. The full design, data cases and tests are in
+`docs/explore_implemented/orc_series_standings.md`; the decisions are:
+- **R1.** In a rated class each rating is placed among its own entries: PHRF places among the
+  PHRF-rated entries, ORC places among the ORC-rated ones. An ORC-only boat has no PHRF place
+  and is not a PHRF starter or finisher for anyone else's score; a PHRF-only boat has no ORC
+  place. Cruising classes place every entry. A bracket report lists the PHRF-placed boats by
+  place, then the ORC-only boats by ORC place.
+- **R2.** A result rated ORC or ORC/PHRF is rejected on save without a certificate, as D8
+  rejects a PHRF result without a rating. Old rows keep the TCF 1.0 fallback.
+- **R3.** The class report carries the race's ORC scoring option and bands, so the race view's
+  heading describes the scoring that was applied.
+- **R4.** The PHRF B factor is the authority on the wind: the ORC band the option uses must be
+  the one the B factor maps to (`validateRace`, 400 on both race save routes), the web's config
+  edits derive the bands from the B factor, and the results editor has a Config modal. The
+  stored rows were brought into line with the five-band windward/leeward option by
+  `database/fix_orc_bands.py` on 2026-10-15, which changed the 2026 ORC corrected times of the
+  races that had been scored with stale bands.
+- **Series scoring.** In an ORC-rated class (from 2026, after `effectiveRaceClass`) each row is
+  scored under up to two ratings. The ORC bracket and class groups follow every rule above for
+  the PHRF ones, per group: sailed when the group had an ORC starter (D2), ORC DNS = ORC
+  starters + 1 (D3), throw-out with 5 or more ORC-sailed races chosen among the ORC scores
+  (14.4, which can be a different race from the PHRF throw-out), RC average over the ORC scores
+  (D1), tiebreak on the ORC scores (D5), and places among the ORC-rated rows only. A row is
+  scored under a rating when any of its results in the series carries it, so a boat that got
+  its certificate mid-season scores ORC DNS for its earlier PHRF-only races. The PHRF side of
+  an ORC class is scored the same way among the PHRF-rated rows and entries (R1), which changes
+  nothing in the data since no ORC-only boat has raced. Rows sort by PHRF bracket place, then
+  the ORC-only rows by ORC bracket place.
+- **Display.** The series standings table shows the ORC side only in an ORC-rated class, the
+  race view's gate: a `(PHRF)` and an `(ORC)` line in each race cell with their own throw-out
+  decoration, labelled totals, and places in the race view's notation (`2(PHRF),` over
+  `1(ORC)`). The ORC line says `DNS` when the boat had no ORC entry that day. The Rating
+  column shows the row's rating type, derived from its results.
 
 ## Suggested order
 
@@ -738,3 +774,4 @@ D7 1, D8 2. The DSL gained `orphan()` for the "Incorrectly classed" bucket.
   - `scrub_dump.py`, `audit_scoring.py` and the snapshot-refresh steps;
   - the fixture DSL.
 - [x] Move this doc to `docs/explore_implemented/` (2026-10-14).
+- [x] D9 (ORC series scoring, R1 to R4) implemented 2026-10-15; see `orc_series_standings.md`.

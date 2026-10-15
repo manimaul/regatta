@@ -43,7 +43,7 @@ python3 -I database/audit_scoring.py                    # re-score the approved 
 ```
 The task sets `DOCKER_HOST` from `podman machine inspect` when unset. `database/scrub_dump.py` produces the committed snapshot from a `pg_dump`. To refresh the snapshot: scrub the new dump into `golden/`, update `GoldenDb.DUMP` and `dumpInstant`, re-approve, and review the diff (new races appear as new files, existing files should not change). `deviations.json` must stay empty. Details: `docs/explore_implemented/test_audit_and_plan.md` §5.
 
-Scoring tests build fleets with the fixture DSL in `server/src/jvmTest/.../results/Fixture.kt` (`race { phrfClass("Fast") { bracket("I") { boat("A", rating = 48) finishes "20:51:26" } } }`, `series { ... }`) and assert scores with `assertBracketScores` / `assertBracketTotals`. Rule tests are named after the GSI section or decision they enforce (`gsi_14_1_4_...`, `d4_...`); the scoring rules and their rationale are in that doc's "Decisions" section.
+Scoring tests build fleets with the fixture DSL in `server/src/jvmTest/.../results/Fixture.kt` (`race { phrfClass("Fast") { bracket("I") { boat("A", rating = 48) finishes "20:51:26" } } }`, `series { ... }`) and assert scores with `assertBracketScores` / `assertBracketTotals`. Rule tests are named after the GSI section or decision they enforce (`gsi_14_1_4_...`, `d4_...`); the scoring rules and their rationale are in that doc's "Decisions" section. ORC series scoring (D9: each rating placed and scored among its own entries, the ORC side of an ORC class alongside the PHRF one) is designed and recorded in `docs/explore_implemented/orc_series_standings.md`.
 
 Run a single JVM test class or method with `--tests`:
 ```shell
