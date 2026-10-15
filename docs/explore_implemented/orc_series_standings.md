@@ -1,8 +1,8 @@
 # ORC scores and places in series standings
 
-Status: phases 0 to 2 and R4 done 2026-10-15; phase 3 (docs) not started. Supersedes the last line of D8 in
-`docs/explore_implemented/test_audit_and_plan.md` ("ORC places stay per-race information. Series
-standings use PHRF only.") once implemented.
+Status: implemented 2026-10-15 (phases 0 to 3 and R4). Recorded as D9 in
+`docs/explore_implemented/test_audit_and_plan.md`, which replaces the last line of its D8 ("ORC
+places stay per-race information. Series standings use PHRF only.").
 
 ## Goal
 
@@ -406,9 +406,9 @@ race view does.
 - [x] Checked in the browser against the dev database: the 2026 Summer Series Windseekers
       standings show the two ORC boats with both lines, and a 2025 series is unchanged.
 
-### Phase 3: Docs
-- [ ] Add D9 to `test_audit_and_plan.md` with the decisions above and R1 to R3, marked
-      *(interpretation)*, strike the "Series standings use PHRF only" line of D8, and update the
-      "Race placing" row of the coverage table ("ORC placing only among ORC entries" becomes
-      "PHRF and ORC placing each among their own entries").
-- [ ] Move this file from `docs/explore_unimplemented/` to `docs/explore_implemented/`.
+### Phase 3: Docs — done 2026-10-15
+- [x] D9 added to `test_audit_and_plan.md` with R1 to R4 and the series and display decisions,
+      marked *(interpretation)*; the "Series standings use PHRF only" line of D8 struck; the
+      "Race placing" and "Series standings" rows of the coverage table and the F6 note updated;
+      a pointer added to the Tests section of `CLAUDE.md`.
+- [x] This file moved to `docs/explore_implemented/`.
