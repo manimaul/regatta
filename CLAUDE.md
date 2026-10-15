@@ -64,6 +64,12 @@ JS tests run in Chrome Headless and Firefox via Karma (Firefox must be installed
 
 No dedicated lint task — relies on Kotlin compiler warnings. Code style: `kotlin.code.style=official`.
 
+### Commits
+
+Commit messages are **one line of keywords** describing the change, matching the existing history
+(`race edit - modal`, `db query - perf`). No body, no explanation, no trailers or attribution lines
+of any kind. For example: `orc places - phrf entries only`.
+
 ## Architecture
 
 This is a **Kotlin Multiplatform (KMP) monorepo** with three Gradle subprojects: `common`, `server`, and `web`.

@@ -242,29 +242,88 @@ heading now describes the scoring that was applied. Scores are unaffected.
 The golden diff was wider than first predicted: not only race 101's option, but the bands of 63
 race files, because the stored bands disagree with the B factor in most races. That is R4.
 
-**R4. The stored race bands do not follow the B factor** (found during R3, **not fixed, decision
-needed**). `RacesEditViewModel.setCF` saves a new B factor without touching `orc3Band` /
-`orc5Band`, and `RaceTable.rowToRace` fills a NULL band column from the *default* B factor
-rather than the row's. Only the RC page (`RcViewModel.selectPhrfBFactor` / `selectOrcOption`)
-keeps the two in step. In the snapshot 101 of 118 races store `Low` / `LowMedium`, including
-2026 ORC races with a B factor of 550 (which maps to `Medium` / `Medium`) and 480 (`High` /
-`High`). `card()` → `orcTcf` reads the stored bands, so the ORC corrected times of those races
-were computed with the low-wind certificate numbers while the B factor says medium or high
-wind. Affected 2026 races with ORC classes: 88, 92, 94, 95, 96, 98, 99, 102, 103, 104, 105,
-107, 108, 110, 112, 113, 114, 115.
+**R4. The stored race bands do not follow the B factor** (found during R3). `RacesEditViewModel.setCF`
+saves a new B factor without touching `orc3Band` / `orc5Band`, and `RaceTable.rowToRace` fills a
+NULL band column from the *default* B factor rather than the row's. Only the RC page
+(`RcViewModel.selectPhrfBFactor` / `selectOrcOption`) keeps the two in step. In the snapshot 101
+of 118 races store `Low` / `LowMedium`, including 2026 ORC races with a B factor of 550 (which
+maps to `Medium` / `Medium`) and 480 (`High` / `High`). `card()` → `orcTcf` reads the stored
+bands, so the ORC corrected times of those races were computed with the low-wind certificate
+numbers while the B factor says medium or high wind. Affected 2026 races with ORC classes: 88,
+92, 94, 95, 96, 98, 99, 102, 103, 104, 105, 107, 108, 110, 112, 113, 114, 115.
 
-Options:
+R4 is split: **R4a** stops new inconsistent rows and gives the results editor a way to set the
+config (decided 2026-10-15, below); **R4b** is what to do with the existing rows and the scores
+computed from them (open, discussed next).
+
+**R4a. Reject a race whose band is out of step with its B factor, and add a Config modal to the
+Results Editor.**
+
+*The rule.* The band in use must be the one the B factor maps to:
+`orc3Band == Orc3Band.fromPhrfBFactor(phrfBFactor)` when `orcScoringOption.uses3Band`,
+`orc5Band == Orc5Band.fromPhrfBFactor(phrfBFactor)` when `uses5Band`, nothing to check for a
+single-number option. Only the band in use is checked because `RcViewModel.selectOrcOption`
+sets the B factor from the selected band and leaves the *other* band as it was, so checking
+both would reject the RC page's own saves. (`fromPhrfBFactor(band.phrfBFactor) == band` holds
+for every band of both enums, so a band chosen on the RC page always passes.) The B factor
+itself stays a free integer, as today.
+
+*Server.* A pure `validateRace(race: Race): String?` in `results/RaceValidation.kt`, the shape
+of `validateResult`, returning e.g.
+`"PHRF B factor 550 is Medium, but the ORC wind band is Low/Medium"`. Both save routes call it
+and answer `400` with the message as plain text, as the results route does: `post(race)`
+(`upsertRace`, the races editor) and `post(raceSchedule)` (`insertSchedule`, the RC page and the
+new modal). The rejected race is not saved and nothing is corrected server-side; the client
+is told what to change. `Network` already keeps a 400 body as the request's error.
+
+*Web.* The RC page's config section becomes a shared form, and the schedule edits behind it
+become pure functions so both screens and the tests share them:
+- `utils/RaceConfig.kt`: `RaceSchedule.withPhrfBFactor(cf)` (sets the B factor and derives
+  both bands from it), `RaceSchedule.withOrcOption(option, orc3Band, orc5Band)` (sets the
+  option and bands and the B factor from the band in use, as `selectOrcOption` does now), and
+  `RaceSchedule.withClassStart(classSchedule, start)`. `RcViewModel` calls them.
+- `components/RaceConfigForm.kt`: `RaceConfigForm(schedule, onClassStart, onPhrfBFactor,
+  onOrcOption)` extracted from `RcRaceConfig`: one `RgTime` per class, the PHRF B factor input
+  with its `PhrfBFactor` label, and `OrcScoringOptionSelect` (which moves there from `Rc.kt`).
+  The RC page keeps its status line and auto-save around it.
+- `RacesEditViewModel.setCF` uses `withPhrfBFactor`, so the races editor stops producing
+  stale bands. (It saves through `post(race)`, which now validates too.)
+- Results Editor (`RaceResultsEdit` in `RaceResults.kt`): a **Config** `RgModalButton` next to
+  "Viewer" and "Add Result", opening `RgModalBody(id = "race-config")` with `RaceConfigForm`
+  and a Cancel / Save footer, the pattern of the result and race modals. State lives in
+  `RaceResultAddViewModel`: `configDraft: RaceSchedule?` (a copy of `results.raceSchedule`
+  taken when the modal opens), `configError: String?`, and `openConfig()`,
+  `configClassStart()`, `configPhrfBFactor()`, `configOrcOption()`, `saveConfig()`.
+  `saveConfig` posts the draft with `Api.postSchedule`; on success it closes the modal and
+  calls `reload()` so the schedule, class starts and ratings on the page are current; on a
+  400 it keeps the modal open and shows the message under the form. Cancel drops the draft.
+
+*Tests.*
+- `server` `RaceValidationTest`: every `Orc3Band` and `Orc5Band` with its own `phrfBFactor`
+  is accepted under a 3-band / 5-band option; 550 with `LowMedium` under a 5-band option is
+  rejected with the message above; 550 with 3-band `Low` under a 3-band option is rejected;
+  the unused band may disagree (5-band option, `orc5Band` right, `orc3Band` stale) and is
+  accepted; a single-number option is accepted with any bands.
+- `web` jsTest `RaceConfigTest`: `withPhrfBFactor(550)` yields `Medium` / `Medium`;
+  `withOrcOption(FiveBandWindwardLeeward, _, High)` yields B factor 480 and `orc3Band` `High`
+  (both bands derived, which is stricter than the RC page today and makes the "both bands"
+  rule possible later); `withClassStart` changes only that class.
+- Golden: unaffected, validation runs on save only.
+
+**R4b. The existing rows and the scores computed from them** (open, to be discussed after R4a).
+Once R4a is in, no new race can be saved out of step, but the 101 stored rows stay as they are
+and the race view and ORC scoring keep reading them. Options:
 - Make the B factor the single source of truth: `orcTcf` derives the band from
-  `race.phrfBFactor` (`Orc3Band.fromPhrfBFactor` / `Orc5Band.fromPhrfBFactor`), `upsertRace`
-  stores the derived bands, and the RC page's band selector keeps setting the B factor from the
-  band as it does now. The 2026 ORC corrected times and per-race ORC places of the races above
-  change in the golden files; the PHRF numbers do not. A migration can backfill the columns.
-- Keep the stored bands as the truth and make `setCF` derive them, which leaves the past
-  results as scored.
+  `race.phrfBFactor`, `upsertRace` stores the derived bands, and a migration backfills the
+  columns. The 2026 ORC corrected times and per-race ORC places of the races listed above
+  change in the golden files; the PHRF numbers do not.
+- Keep the stored bands as the truth and leave the past results as scored. The RC must then
+  open each inconsistent race in the Config modal and save it, which R4a's validation will
+  refuse until the band is corrected by hand.
 
 The first option is the one the RC page already assumes. It changes published 2026 ORC race
-results, so it is the committee's call; until then the standings in phase 1 are built on the
-stored bands, as the race view is.
+results, so it is the committee's call; until then phase 1 builds on the stored bands, as the
+race view does.
 
 ## Implementation plan
 
@@ -283,7 +342,15 @@ stored bands, as the race view is.
       order). Golden unchanged. `InvariantsTest` is unchanged until phase 1 adds ORC-only boats
       to its random races, when `places_are_contiguous_and_follow_corrected_time_then_hoc` must
       restrict its PHRF checks to PHRF cards.
-- [ ] R4: decision needed (see above). Not part of phase 1.
+- [ ] R4a (server): `validateRace` in `results/RaceValidation.kt`; `post(race)` and
+      `post(raceSchedule)` answer 400 with its message; `RaceValidationTest`.
+- [ ] R4a (web): `utils/RaceConfig.kt` schedule helpers used by `RcViewModel` and
+      `RacesEditViewModel.setCF`; `components/RaceConfigForm.kt` extracted from `RcRaceConfig`
+      (with `OrcScoringOptionSelect`); Config button and `race-config` modal on the Results
+      Editor backed by `RaceResultAddViewModel` draft state, with the 400 message shown in the
+      modal; `RaceConfigTest` in jsTest.
+- [ ] R4b: the existing rows and the 2026 ORC scores computed from them. Open; see R4b under
+      "Related fixes". Not part of phase 1.
 
 ### Phase 1: Scoring (server + common)
 - [ ] Add the `StandingsRace` and `StandingsBoatSkipper` fields above.
