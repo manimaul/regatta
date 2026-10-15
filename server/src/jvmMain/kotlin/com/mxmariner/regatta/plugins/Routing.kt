@@ -179,9 +179,19 @@ fun Application.configureRouting() {
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
             }
             delete(ApiPaths.race.versionedApi()) {
-                call.request.queryParameters["id"]?.toLong()?.let {
-                    RegattaDatabase.deleteRace(it)
-                }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+                val id = call.request.queryParameters["id"]?.toLongOrNull()
+                when {
+                    id == null -> call.respond(HttpStatusCode.NoContent)
+                    // results reference the race; the client disables Delete in this case, this guards the API
+                    RegattaDatabase.resultCount(id) > 0 -> call.respondText(
+                        "This race has recorded results and cannot be deleted.",
+                        status = HttpStatusCode.Conflict,
+                    )
+                    else -> {
+                        RegattaDatabase.deleteRace(id)
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
             }
             delete(ApiPaths.raceClass.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {

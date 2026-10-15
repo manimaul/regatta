@@ -3,7 +3,7 @@ package com.mxmariner.regatta
 import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.plugins.configureRouting
-import io.ktor.http.*
+import com.mxmariner.regatta.plugins.configureStatusPages
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -11,8 +11,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import java.util.*
 
 fun main() {
@@ -36,11 +34,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-    install(StatusPages) {
-        unhandled { call ->
-            call.respondText(resourceAsString("static/index.html") ?: "", contentType = ContentType.Text.Html)
-        }
-    }
+    configureStatusPages()
 }
 
 fun Any.resourceAsString(name: String): String? {

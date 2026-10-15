@@ -7,8 +7,8 @@ import utils.*
 
 data class RacesState(
     val races: Async<List<RaceSchedule>> = Loading(),
-    /** Backs the create-race modal; a fresh one each time the modal opens so nothing from the last race lingers. */
-    val create: RacesEditViewModel? = null,
+    /** Backs the add/edit race modal; a fresh one each time the modal opens so nothing from the last race lingers. */
+    val edit: RacesEditViewModel? = null,
 ) : VmState
 
 class RacesViewModel(
@@ -27,17 +27,26 @@ class RacesViewModel(
 
     private suspend fun getAllRaces(year: Int) = Api.getAllRaces(year).toAsync().map { it.sortedBy { it.startTime } }
 
-    fun newRace() {
-        setState {
-            copy(create = RacesEditViewModel(raceId = 0, onSaved = { saved ->
-                alertsViewModel.showAlert("${saved.race.name} created!")
-                reload()
-            }))
-        }
-    }
+    fun newRace() = openEditor(0)
 
-    fun editRace(race: Race) {
-        routeVm.pushRoute("/race/${race.id}")
+    fun editRace(race: Race) = openEditor(race.id)
+
+    private fun openEditor(raceId: Long) {
+        setState {
+            copy(
+                edit = RacesEditViewModel(
+                    raceId = raceId,
+                    onSaved = { saved ->
+                        alertsViewModel.showAlert("${saved.race.name} ${if (raceId == 0L) "created" else "updated"}!")
+                        reload()
+                    },
+                    onDeleted = { deleted ->
+                        alertsViewModel.showAlert("${deleted.race.name} deleted!")
+                        reload()
+                    },
+                )
+            )
+        }
     }
 
     fun selectYear(year: Int?) {

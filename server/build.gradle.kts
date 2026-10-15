@@ -45,6 +45,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
                 implementation("org.testcontainers:testcontainers:$testcontainersVersion")
                 implementation("org.testcontainers:postgresql:$testcontainersVersion")
             }

@@ -74,7 +74,6 @@ enum class Route(val pathPattern: String, val label: String) {
     Admin("/admin", "Admin"),
     AdminCreate("/admin/create", "Create Admin"),
     Races("/races", "Races"),
-    RaceEdit("/race/:id", "Edit Race"),
     Boats("/boats", "Boats"),
     Classes("/class", "Classes"),
     RaceResult("/races/results", "Race Results"),

@@ -14,9 +14,10 @@ import utils.display
 import viewmodel.ClassScheduleDraft
 import viewmodel.RacesEditViewModel
 import viewmodel.RacesViewModel
+import viewmodel.alertsViewModel
 import viewmodel.complete
 
-private const val createRaceModalId = "create-race"
+private const val raceModalId = "add-edit-race"
 
 @Composable
 fun Races(
@@ -31,14 +32,14 @@ fun Races(
             RgRaceYearSelector { viewModel.selectYear(it) }
         }
         RgModalButton(
-            id = createRaceModalId,
+            id = raceModalId,
             style = RgButtonStyle.SuccessOutline,
             customClasses = listOf(AppStyle.marginBot),
             buttonLabel = { "Create Race" },
             openAction = { viewModel.newRace() }
         )
     }
-    CreateRaceModal(state.value.create)
+    AddEditRaceModal(state.value.edit)
     state.value.races.complete(viewModel) { RaceList(it, viewModel) }
 }
 
@@ -64,9 +65,13 @@ fun RaceList(schedules: List<RaceSchedule>, viewModel: RacesViewModel) {
                     RgTd { Text(sch.endTime.display()) }
                     RgTd { Text(sch.rc?.let { "${it.first} ${it.last}" } ?: "-") }
                     RgTd {
-                        RgButton("Edit", RgButtonStyle.PrimaryOutline, customClasses = listOf("float-start")) {
-                            viewModel.editRace(sch.race)
-                        }
+                        RgModalButton(
+                            id = raceModalId,
+                            style = RgButtonStyle.PrimaryOutline,
+                            customClasses = listOf("float-start"),
+                            buttonLabel = { "Edit" },
+                            openAction = { viewModel.editRace(sch.race) }
+                        )
                     }
                 }
             }
@@ -75,28 +80,44 @@ fun RaceList(schedules: List<RaceSchedule>, viewModel: RacesViewModel) {
 }
 
 /**
- * The same fields as the edit page (name, race committee, series, correction factor) followed by the class start
- * times, edited in place with +/- buttons like the brackets of the Add Race Class modal. [viewModel] is null until
- * the modal is first opened.
+ * Adds or edits a race: name, race committee, series, correction factor, then the class start times edited in place
+ * with +/- buttons like the brackets of the Add Race Class modal. [viewModel] is null until the modal is first opened.
  */
 @Composable
-fun CreateRaceModal(viewModel: RacesEditViewModel?) {
-    val schedule = viewModel?.let {
+fun AddEditRaceModal(viewModel: RacesEditViewModel?) {
+    val state = viewModel?.let {
         val state by it.flow.collectAsState()
-        state.draftedSchedule()
+        state
     }
+    val schedule = state?.draftedSchedule()
+    val editing = viewModel != null && viewModel.raceId != 0L
+    // results reference the race (a foreign key), so a race with results cannot be deleted
+    val resultCount = state?.race?.value?.resultCount ?: 0L
     RgModalBody(
-        id = createRaceModalId,
-        modalTitle = { "Create Race" },
+        id = raceModalId,
+        modalTitle = { if (editing) "Edit Race" else "Create Race" },
         content = {
             if (viewModel == null) {
                 RgSpinner()
             } else {
-                CreateRaceFields(viewModel)
+                RaceFields(viewModel)
             }
         },
         footer = {
             RgModalFooterRow {
+                if (editing) {
+                    RgButton(
+                        label = "Delete",
+                        style = RgButtonStyle.Danger,
+                        disabled = resultCount > 0L,
+                        closesModal = true,
+                    ) {
+                        val name = viewModel.flow.value.race.value?.race?.name ?: "this race"
+                        alertsViewModel.confirm("Are you sure?", "Delete $name?") { yes ->
+                            if (yes) viewModel.delete()
+                        }
+                    }
+                }
                 RgButton(
                     label = "Save",
                     style = RgButtonStyle.Success,
@@ -111,7 +132,7 @@ fun CreateRaceModal(viewModel: RacesEditViewModel?) {
 }
 
 @Composable
-private fun CreateRaceFields(viewModel: RacesEditViewModel) {
+private fun RaceFields(viewModel: RacesEditViewModel) {
     val state by viewModel.flow.collectAsState()
     state.race.complete(viewModel) { schedule ->
         RgForm {
@@ -140,6 +161,12 @@ private fun CreateRaceFields(viewModel: RacesEditViewModel) {
                 P {
                     RgInput(label = "CF", placeHolder = true, value = schedule.race.phrfBFactor.toString()) {
                         viewModel.setCF(it.toIntOrNull())
+                    }
+                }
+
+                if (schedule.resultCount > 0L) {
+                    P(attrs = { classes("text-muted") }) {
+                        Text("${schedule.resultCount} result(s) are recorded for this race, so it cannot be deleted.")
                     }
                 }
 

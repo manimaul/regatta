@@ -8,7 +8,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 /**
- * One class's start/end times and brackets while it is being filled in on the create-race modal. Becomes a
+ * One class's start/end times and brackets while it is being filled in on the add/edit race modal. Becomes a
  * [ClassSchedule] once a class and at least one bracket are picked and the end time follows the start.
  */
 data class ClassScheduleDraft(
@@ -33,7 +33,6 @@ data class RacesEditState(
     val series: Async<List<Series>> = Loading(),
     val classes: Async<List<RaceClassBrackets>> = Loading(),
     val drafts: List<ClassScheduleDraft> = emptyList(),
-    val operation: Operation = Operation.None,
 ) : VmState {
 
     /** The race with the drafts as its schedule, or null while a draft is incomplete or there is none. */
@@ -48,13 +47,13 @@ fun RaceSchedule.validate(): Boolean {
 }
 
 /**
- * @param onSaved when set (the create-race modal), a successful save calls it instead of navigating to the race list.
+ * Backs the add/edit race modal: a new race when [raceId] is 0, otherwise the existing race with its class times
+ * loaded as editable drafts.
  */
 class RacesEditViewModel(
     val raceId: Long,
-    val routeVm: RouteViewModel = routeViewModel,
-    val timeVm: RgAddTimeViewModel = RgAddTimeViewModel(),
-    private val onSaved: ((RaceSchedule) -> Unit)? = null,
+    private val onSaved: (RaceSchedule) -> Unit,
+    private val onDeleted: (RaceSchedule) -> Unit = {},
 ) : BaseViewModel<RacesEditState>(RacesEditState()) {
 
     private var draftKeys = 0
@@ -65,39 +64,19 @@ class RacesEditViewModel(
 
     override fun reload() {
         setState {
+            val loaded = if (raceId == 0L) Complete(RaceSchedule()) else Api.getRaceSchedule(raceId).toAsync()
             copy(
-                race = race.loading(),
-                skippers = skippers.loading(),
-                series = series.loading(),
-                operation = Operation.Fetched
+                race = loaded,
+                drafts = loaded.value?.schedule?.map { it.toDraft() } ?: emptyList(),
+                skippers = Api.getAllPeople().toAsync(),
+                series = Api.allSeries().toAsync(),
+                classes = Api.getAllClasses().toAsync(),
             )
-        }
-        setState {
-            if (raceId == 0L) {
-                copy(
-                    race = Complete(RaceSchedule()),
-                    skippers = Api.getAllPeople().toAsync(),
-                    series = Api.allSeries().toAsync(),
-                    classes = Api.getAllClasses().toAsync(),
-                )
-            } else {
-                copy(
-                    race = Api.getRaceSchedule(raceId).toAsync().map {
-                        it.schedule.forEach {
-                            timeVm.removeOption(it.raceClass.id, false)
-                        }
-                        it
-                    },
-                    skippers = Api.getAllPeople().toAsync(),
-                    series = Api.allSeries().toAsync(),
-                )
-            }
         }
     }
 
-    fun cancelCreate() {
-        routeVm.goBackOrHome()
-    }
+    private fun ClassSchedule.toDraft() =
+        ClassScheduleDraft(key = ++draftKeys, raceClass = raceClass, brackets = brackets, startDate = startDate, endDate = endDate)
 
     /** Adds an empty draft, starting from the previous draft's times (classes usually start close together). */
     fun addDraft() {
@@ -127,41 +106,10 @@ class RacesEditViewModel(
         updateDraft(key) { copy(raceClass = raceClass, brackets = emptyList()) }
     }
 
-    fun addSchedule(schedule: ClassSchedule) {
-        setState {
-            copy(
-                race = race.map {
-                    it.copy(schedule = it.schedule.toMutableList().apply {
-                        removeAll { it.raceClass.id == schedule.raceClass.id }
-                        add(schedule)
-                    }.sortedBy { it.raceClass.sort })
-                },
-            )
-        }
-    }
-
-    fun removeSchedule(schedule: ClassSchedule) {
-        setState {
-            copy(
-                race = race.map {
-                    it.copy(schedule = it.schedule.toMutableList().apply {
-                        removeAll { it.raceClass.id == schedule.raceClass.id }
-                    })
-                },
-            )
-        }
-    }
-
-
     fun save(schedule: RaceSchedule) {
-        if (onSaved == null) {
-            setState {
-                RacesEditState()
-            }
-        }
         launch {
             Api.postSchedule(schedule)
-            onSaved?.invoke(schedule) ?: routeVm.pushRoute(Route.Races)
+            onSaved(schedule)
         }
     }
 
@@ -206,10 +154,13 @@ class RacesEditViewModel(
     }
 
     fun delete() {
+        val schedule = flow.value.race.value ?: return
         launch {
-            Api.deleteRace(raceId)
-            routeVm.goBackOrHome()
+            if (Api.deleteRace(raceId).ok) {
+                onDeleted(schedule)
+            } else {
+                alertsViewModel.showAlert("${schedule.race.name} could not be deleted.")
+            }
         }
     }
-
 }
