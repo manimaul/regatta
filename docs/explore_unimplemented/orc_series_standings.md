@@ -1,7 +1,7 @@
 # ORC scores and places in series standings
 
-Status: phase 0 done 2026-10-15 (commits bf72d20, 359c662, and the R1 commit after them);
-phases 1 to 3 not started. Supersedes the last line of D8 in
+Status: phase 0 and R4 done 2026-10-15; phase 1 (scoring) done 2026-10-15; phases 2 and 3
+not started. Supersedes the last line of D8 in
 `docs/explore_implemented/test_audit_and_plan.md` ("ORC places stay per-race information. Series
 standings use PHRF only.") once implemented.
 
@@ -359,51 +359,36 @@ race view does.
       the default B factor; it no longer matters, since every row has bands and `validateRace`
       keeps them in step from here on.
 
-### Phase 1: Scoring (server + common)
-- [ ] Add the `StandingsRace` and `StandingsBoatSkipper` fields above.
-- [ ] `getStandingsBoatBracket`: ORC starters per race per group, `bracketSailedOrc` /
-      `classSailedOrc`, the ORC race scores (DNS = ORC starters + 1), two more `groupScores`
-      calls, ORC throw-out flags, ORC totals, `ratingType` on the row. In an ORC class the PHRF
-      starters, sailed flags and DNS count PHRF-rated cards only (Symmetry above); elsewhere the
-      existing all-cards counting stays, which is the same thing since every card is PHRF or
-      cruising there.
-- [ ] `assignPlaces` for `placeInBracketOrc` (in `getStandingsBoatBracket`) and
-      `placeInClassOrc` (in `standings`) over ORC-eligible rows only; the PHRF pair over
-      PHRF-eligible rows only. Row sort: PHRF bracket place, then rows with none by ORC bracket
-      place.
-- [ ] Fixture: `StandingsSeries.bracketTotalsOrc()` / `classTotalsOrc()` /
-      `assertBracketTotalsOrc` next to `bracketTotals()` / `assertBracketTotals`, reading the
-      `*Orc` fields; `orc "ref"` entries and `standings(orcCerts = ...)` already exist.
-- [ ] `SeriesStandingsTest` (name after the rule, as the others are):
-  - `orc_series_total_is_the_sum_of_orc_race_scores` (an `orcPhrfClass` series where ORC and
-    PHRF orders differ, both totals asserted, PHRF totals equal to a PHRF-only run of the same
-    fixture).
-  - `orc_dns_scores_orc_starters_plus_one` (a PHRF-only boat in the class does not raise it).
-  - `orc_race_without_orc_starters_is_not_sailed_for_orc` (scores nothing, not in the count).
-  - `orc_throw_out_is_chosen_separately_from_phrf` (worst ORC race ≠ worst PHRF race).
-  - `orc_rc_volunteer_averages_orc_scores`.
-  - `orc_tiebreak_uses_orc_race_scores`.
-  - `orc_places_are_among_orc_rows_only` (PHRF-only row has `placeInClassOrc == 0`).
-  - `phrf_only_class_has_no_orc_fields_set` (all zero / false).
-  - `orc_only_row_has_no_phrf_fields_set_and_sorts_after_the_phrf_rows`.
-  - `orc_only_boat_does_not_count_as_a_phrf_starter` (a PHRF boat's series DNS score in an ORC
-    class ignores the ORC-only entry).
-  - `boat_that_switches_to_orc_phrf_mid_series_scores_dns_in_orc_before_the_switch`.
-- [ ] `InvariantsTest`: `randomSeries` gets an `orcPhrfClass` variant where each boat draws a
-      random certificate (a single `fiveBandWlLowMedTot` per boat, as `RacePlacingTest` does)
-      and some boats are PHRF-only. Then: for ORC-eligible rows, ORC total = sum of counted ORC
-      scores with at most one excluded; ORC places follow ORC totals; shuffling never changes
-      the ORC fields; ORC fields are zero for every row outside an ORC class.
-- [ ] Golden: `./gradlew :server:jvmGoldenTest -Dgolden.approve=true`, then review the diff.
-      Only the new fields may appear (in every standings file, defaults encoded), and only
-      `standings-*-2026.json` for ORC classes may carry non-zero ORC values; no PHRF number
-      changes anywhere.
-- [ ] `database/audit_scoring.py`: `group_series` / `boat_series` get an `orc` flag that reads
-      the race cards' `placeInBracketOrc` / `placeInClassOrc`, counts starters among ORC-rated
-      cards only, and treats a non-ORC card as DNS; `audit_series` runs the ORC pass for ORC
-      classes and compares `totalScoreBracketOrc` / `placeInBracketOrc` and the class pair under
-      the new decision id D9. Run `python3 -I database/audit_scoring.py`; `deviations.json` must
-      stay empty.
+### Phase 1: Scoring (server + common) — done 2026-10-15
+- [x] The `StandingsRace` and `StandingsBoatSkipper` fields above.
+- [x] `getStandingsBoatBracket`: starters per race for each of the four groups (`phrfCard` /
+      `orcCard` decide which entries count, R1 symmetry in an ORC class), `bracketSailedOrc` /
+      `classSailedOrc`, the ORC race scores (DNS = ORC starters + 1, `nonStarterOrc`), four
+      `groupScores` calls, the ORC throw-out flags and totals, `ratingType` on the row.
+- [x] `assignPlaces` per rating over that rating's rows (`phrfRows` / `orcRows`), in the
+      bracket and in `standings` for the class. Row sort: PHRF bracket place, then the rows with
+      none by ORC bracket place.
+- [x] Fixture: `bracketTotalsOrc()` / `classTotalsOrc()` / `bracketPlacesOrc()` /
+      `classPlacesOrc()` / `bracketRaceScoresOrc()` / `classRaceScoresOrc()` /
+      `assertBracketTotalsOrc` / `assertClassTotalsOrc`; `rcVolunteer` copies the boat's
+      certificate reference.
+- [x] `SeriesStandingsTest`, the twelve `d9_*` tests listed above (plus
+      `d9_orc_fields_are_not_set_before_2026` for the season switch), on a fixture where the
+      ORC order is the reverse of the PHRF order.
+- [x] `InvariantsTest`: `randomSeries(withOrc = true)` enters an ORC/PHRF class with each boat
+      ORC/PHRF, PHRF-only or ORC-only for the series and a random certificate; four `d9_*`
+      invariants (ORC totals and throw-outs, places per rating and row order, shuffling, ORC
+      fields zero outside an ORC class). The random *races* stay PHRF, so
+      `places_are_contiguous_and_follow_corrected_time_then_hoc` is unchanged.
+- [x] Golden re-approved: 22 standings files, each identical to before once the new fields are
+      removed; no race file changed; ORC series scores only in the 2026 ORC/PHRF classes (one or
+      two ORC boats per class).
+- [x] `database/audit_scoring.py`: `score_group` / `group_series` take a rating (`all` /
+      `phrf` / `orc`) and place among that rating's entries (R1); `audit_series` skips ORC-only
+      rows on the PHRF side; `audit_series_orc` re-scores the ORC side under D9; `audit_race`
+      checks the ORC race places. `boat_series` now picks the throw-out among equal worst scores
+      the way `groupScores` does (worse score in the other group, then the earliest race), which
+      the PHRF pass never needed since it compares totals. `deviations.json` is empty.
 
 ### Phase 2: Table cells (web)
 - [ ] `StandingsReport.kt`: `totalLines`, `bracketPlaceLines`, `classPlaceLines` as above;

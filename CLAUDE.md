@@ -66,6 +66,8 @@ No dedicated lint task — relies on Kotlin compiler warnings. Code style: `kotl
 
 ### Commits
 
+Only commit changes if explicitly instructed by the user.
+
 Commit messages are **one line of keywords** describing the change, matching the existing history
 (`race edit - modal`, `db query - perf`). No body, no explanation, no trailers or attribution lines
 of any kind. For example: `orc places - phrf entries only`.
