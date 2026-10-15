@@ -33,6 +33,16 @@ object OrcTable : Table() {
         }
     }
 
+    /** Replaces the stored certificate with [certificate] (same reference number), keeping its boat link; rows changed. */
+    fun updateCert(certificate: OrcCertificate): Int {
+        if (!validate(certificate)) throw IllegalArgumentException("invalid certificate properties")
+        return update(where = { refNo eq certificate.refNo }) {
+            it[cert] = certificate
+        }
+    }
+
+    fun allCertificates(): List<OrcCertificate> = OrcTable.selectAll().map { it[cert] }
+
     fun findCertificate(ref: String?): OrcCertificate? {
         return ref?.let { findCertificates(listOf(it))[it] }
     }

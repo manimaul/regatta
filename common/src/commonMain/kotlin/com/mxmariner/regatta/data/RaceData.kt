@@ -2,6 +2,8 @@ package com.mxmariner.regatta.data
 
 import com.mxmariner.regatta.correctionFactorDefault
 import kotlin.time.Instant
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
@@ -385,6 +387,7 @@ data class BracketReportCards(
     val cards: List<RaceReportCard> = emptyList(),
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class RaceReportCard(
     val resultRecord: RaceResultBoatBracket = RaceResultBoatBracket(),
@@ -406,10 +409,15 @@ data class RaceReportCard(
     var placeInClassOrc: Int = 0,
     val hocPosition: Int? = null,
     val penalty: Int? = null,
+    /** [OrcCertificate.dxtId] of the result's certificate, for the link in the results table; never written while null. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val orcDxtId: Long? = null,
 ) {
 
     fun ratingType(): RatingType {
         return resultRecord.result.ratingType
     }
+
+    /** The public page of the result's ORC certificate, or null when its id was never resolved. */
+    fun orcCertUrl(): String? = orcCertificateUrl(orcDxtId)
 
 }

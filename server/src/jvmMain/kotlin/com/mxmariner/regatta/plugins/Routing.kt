@@ -3,6 +3,7 @@ package com.mxmariner.regatta.plugins
 import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
+import com.mxmariner.regatta.orc.OrcClient
 import com.mxmariner.regatta.results.RaceResultReporter
 import com.mxmariner.regatta.results.validateRace
 import com.mxmariner.regatta.results.validateResult
@@ -274,6 +275,28 @@ fun Application.configureRouting() {
                 call.request.queryParameters["id"]?.toLong()?.let {
                     RegattaDatabase.deleteBoat(it)
                 }?.let { call.respond(HttpStatusCode.OK) } ?: call.respond(HttpStatusCode.NoContent)
+            }
+            // ORC lookup on behalf of the browser (data.orc.org has no CORS): the certificate with its file id
+            get(ApiPaths.orcCert.versionedApi()) {
+                call.request.queryParameters["refNo"]?.takeIf { it.isNotBlank() }?.let { refNo ->
+                    OrcClient.lookup(refNo)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NoContent)
+                } ?: call.respond(HttpStatusCode.BadRequest)
+            }
+            get(ApiPaths.orcCerts.versionedApi()) {
+                call.respond(RegattaDatabase.allCertificates())
+            }
+            // replaces a stored certificate (e.g. database/orc_backfill.py adding the file id); the boat link is kept
+            post(ApiPaths.orcCert.versionedApi()) {
+                val cert = call.receive<OrcCertificate>()
+                try {
+                    if (RegattaDatabase.updateCertificate(cert) > 0) {
+                        call.respond(cert)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "no certificate with reference number ${cert.refNo}")
+                    }
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid certificate")
+                }
             }
         }
         staticResources("/", "static", "index.html") {

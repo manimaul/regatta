@@ -69,3 +69,8 @@ python3 -I database/fix_orc_bands.py                                # report
 python3 -I database/fix_orc_bands.py --apply --token <pasted token> # write
 REGATTA_TOKEN=<pasted token> python3 -I database/fix_orc_bands.py --base-url https://host --apply
 ```
+
+# Scripts
+* `fix_orc_bands.py` — make every race's ORC wind bands follow its PHRF B factor (REST API, dry run by default).
+* `orc_backfill.py` — resolve the ORC file id (certificate link) of stored certificates still on ORC's active list (REST API, dry run by default): `python3 -I database/orc_backfill.py --apply --token <token>`.
+* `audit_scoring.py`, `scrub_dump.py` — golden regression helpers, see `CLAUDE.md`.

@@ -127,3 +127,5 @@ The `database/` directory is **not** a Gradle subproject — it only contains Do
 ## ORC Scoring
 
 `OrcCertificate.kt` in `common` is large and complex — it maps every US ORC scoring option across 3-band and 5-band wind conditions (~100 fields per certificate). The `virtualPhrf()` function converts an ORC TOT number to an equivalent PHRF rating for bracket sorting purposes.
+
+Certificates are fetched from data.orc.org by the server (`orc/OrcClient.kt`, route `GET /v1/api/orcCert?refNo=`), never by the browser: the site has no CORS headers. Besides the RMS data the client resolves `dxtId`, ORC's file id from the active-certificate list, which keys the certificate's public page (`https://data.orc.org/public/WPub.dll/CC/<dxtId>`) linked from the results tables. Only active certificates can be resolved; `python3 -I database/orc_backfill.py --apply` fills the id for stored certificates still on the list. `dxtId` / `RaceReportCard.orcDxtId` are never encoded while null, so the golden files are unaffected.

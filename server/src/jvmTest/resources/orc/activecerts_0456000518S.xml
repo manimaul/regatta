@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="activecerts.xsl" ?>
+<ROOT><script xmlns="http://www.w3.org/1999/xhtml" src="/xslt-polyfill.min.js"/>
+  <DATA>
+    <ROW RowNum="1">
+      <Family>1</Family>
+      <CountryId>USA</CountryId>
+      <dxtID>264182</dxtID>
+      <RefNo>0456000518S</RefNo>
+      <dxtDate>2026-10-02T13:46:50.000Z</dxtDate>
+      <dxtName>US69262.dxt</dxtName>
+      <YachtName>FLICKA</YachtName>
+      <SailNo>USA 69262</SailNo>
+      <VPPYear>2026</VPPYear>
+      <CertType>3</CertType>
+      <Expiry>2027-02-28T00:00:00.000Z</Expiry>
+      <IsOd>False</IsOd>
+      <Class>J 35</Class>
+      <APHD>543.5846</APHD>
+      <LOA>10.82</LOA>
+      <CDL>9.295</CDL>
+      <Dynamic_Allowance>0</Dynamic_Allowance>
+      <Age>1983</Age>
+      <CertName>Club</CertName>
+      <FamilyName>ORC Standard</FamilyName>
+    </ROW>
+  </DATA>
+  <ERRORS/>
+</ROOT>

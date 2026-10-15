@@ -1,18 +1,11 @@
 package viewmodel
 
 import com.mxmariner.regatta.data.OrcCertificate
-import com.mxmariner.regatta.data.OrcResponse
 import components.Action
-import kotlinx.browser.window
-import kotlinx.coroutines.await
-import kotlinx.serialization.json.Json
-import org.w3c.fetch.RequestInit
+import utils.Api
 import utils.Async
-import utils.Network.networkResponse
 import utils.Uninitialized
-import utils.mapNotNull
 import utils.toAsync
-import kotlin.js.json
 
 
 data class OrcState(
@@ -21,8 +14,6 @@ data class OrcState(
     val certs: List<OrcCertificate> = emptyList(),
     val readyToAdd: Boolean = false,
 ) : VmState
-
-private val withUnknownKeys = Json { ignoreUnknownKeys = true }
 
 class OrcViewModel : BaseViewModel<OrcState>(OrcState()) {
 
@@ -47,18 +38,8 @@ class OrcViewModel : BaseViewModel<OrcState>(OrcState()) {
             copy(cert = cert.loading())
         }
         setState {
-            val response = window.fetch(
-                "https://data.orc.org/public/WPub.dll?action=DownBoatRMS&RefNo=${refNumber}&ext=json",
-                RequestInit(
-                    method = "GET",
-                    headers = json(
-                        "Accept" to "application/json",
-                    ),
-                )
-            ).await()
-            val value = response.networkResponse<OrcResponse>(json = withUnknownKeys).toAsync().mapNotNull{
-                it.rms.firstOrNull()
-            }
+            // the server fetches the RMS data and the file id of the certificate's public page (data.orc.org has no CORS)
+            val value = Api.getOrcCertificate(refNumber.trim()).toAsync()
             value.value?.let { onComplete(Action.Add, it) }
             copy(
                 refNumber = "",

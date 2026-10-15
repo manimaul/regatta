@@ -118,7 +118,7 @@ fun RaceResultsClassTable(
                     RgTr {
                         RgTd { BoatLabel(card) }
                         RgTd { Text(card.skipper) }
-                        RgTd { Text(card.ratingType().ratedLabel(card.phrfRating, card.resultRecord.result.orcRef)) }
+                        RgTd { RatedLabel(card.ratingType(), card.phrfRating, card.resultRecord.result.orcRef, card.orcCertUrl()) }
                         RgTd { Text(card.finishText()) }
                         RgTd { Text(card.elapsedText()) }
                         if (classReportCards.raceClass.ratingType.isORCorPHRF) {

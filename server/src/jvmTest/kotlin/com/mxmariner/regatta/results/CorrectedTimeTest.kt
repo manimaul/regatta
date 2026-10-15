@@ -170,6 +170,25 @@ class CorrectedTimeTest {
      * columns in the web view. ORC places are still computed from each result's own rating type,
      * so hasOrcResults and the ORC places are set in both years.
      */
+    /** The card carries the certificate's ORC file id so the results table can link the reference number. */
+    @Test
+    fun cardCarriesTheCertificateFileId() {
+        val linked = OrcCertificate(refNo = "C1", fiveBandWlLowMedTot = 0.9, dxtId = 264182)
+        val unresolved = OrcCertificate(refNo = "C2", fiveBandWlLowMedTot = 0.9)
+        val report = race(date = "2026-06-17") {
+            orcPhrfClass("Fast") { bracket("I") {
+                boat("A", rating = 50) finishes "19:00:00" orc "C1"
+                boat("B", rating = 50) finishes "19:00:00" orc "C2"
+                boat("P", rating = 50, ratingType = RatingType.PHRF) finishes "19:00:00"
+            } }
+        }.report(mapOf("C1" to linked, "C2" to unresolved))
+        assertEquals(264182, report.card("A").orcDxtId)
+        assertEquals("https://data.orc.org/public/WPub.dll/CC/264182", report.card("A").orcCertUrl())
+        assertNull(report.card("B").orcDxtId)
+        assertNull(report.card("B").orcCertUrl())
+        assertNull(report.card("P").orcCertUrl())
+    }
+
     @Test
     fun seasonSwitchRelabelsTheClassButStillComputesOrcPlaces() {
         val cert = OrcCertificate(refNo = "C1", fiveBandWlLowMedTot = 0.9)

@@ -537,6 +537,7 @@ object RaceResultReporter {
             placeInBracketOrc = 0,
             hocPosition = result.hocPosition,
             penalty = result.penalty,
+            orcDxtId = orcCert?.dxtId,
         )
     }
 

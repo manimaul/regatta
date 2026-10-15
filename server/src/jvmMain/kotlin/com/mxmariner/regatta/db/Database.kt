@@ -181,6 +181,8 @@ object RegattaDatabase {
     suspend fun findRaceSchedules(ids: Collection<Long>): List<RaceSchedule> = dbQuery { RaceTable.findRaceSchedules(ids) }
     suspend fun findCertificate(ref: String?): OrcCertificate? = dbQuery { OrcTable.findCertificate(ref) }
     suspend fun findCertificates(refs: Collection<String>): Map<String, OrcCertificate> = dbQuery { OrcTable.findCertificates(refs) }
+    suspend fun allCertificates(): List<OrcCertificate> = dbQuery { OrcTable.allCertificates() }
+    suspend fun updateCertificate(cert: OrcCertificate): Int = dbQuery { OrcTable.updateCert(cert) }
     suspend fun upsertRace(race: Race): Race? = dbQuery { RaceTable.upsertRace(race) }
 
     suspend fun deleteRace(id: Long) = dbQuery {

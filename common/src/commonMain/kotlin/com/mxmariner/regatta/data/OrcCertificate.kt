@@ -1,9 +1,16 @@
 package com.mxmariner.regatta.data
 
 import kotlin.time.Instant
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.math.roundToInt
+
+/** Public page of an ORC certificate copy, by ORC's file id ([OrcCertificate.dxtId]). */
+const val ORC_CERTIFICATE_URL = "https://data.orc.org/public/WPub.dll/CC/"
+
+fun orcCertificateUrl(dxtId: Long?): String? = dxtId?.let { "$ORC_CERTIFICATE_URL$it" }
 
 @Serializable
 enum class PhrfBFactor(
@@ -181,8 +188,16 @@ fun List<OrcCertificate>.findPreferred(): OrcCertificate? {
     }.firstOrNull()
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class OrcCertificate(
+    /**
+     * ORC's file id of this certificate, the key of its public page (see [certificateUrl]). Not part of
+     * the RMS data: it comes from ORC's active-certificate list, so it is null for certificates that
+     * were never resolved (e.g. expired before the lookup existed). Never written while null, so the
+     * JSON of such certificates is unchanged.
+     */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val dxtId: Long? = null,
     @SerialName("NatAuth") val natAuth: String = "",
     @SerialName("BIN") val bin: String = "",
     @SerialName("CertNo") val certNo: String = "",
@@ -306,6 +321,9 @@ data class OrcCertificate(
     fun label(): String {
         return "$yachtName $refNo $cType $division"
     }
+
+    /** The public page of this certificate, or null when [dxtId] was never resolved. */
+    fun certificateUrl(): String? = orcCertificateUrl(dxtId)
 
     fun virtualPhrf(): Int {
         /*

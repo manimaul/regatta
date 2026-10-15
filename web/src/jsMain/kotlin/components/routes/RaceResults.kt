@@ -120,7 +120,7 @@ fun RaceResultsEdit(
                             Text(cls?.raceClass?.name ?: "")
                         }
                         RgTd {
-                            Text(result.ratingType.ratedLabel(result.phrfRating, result.orcCertificate?.refNo))
+                            RatedLabel(result.ratingType, result.phrfRating, result.orcCertificate?.refNo, result.orcCertificate?.certificateUrl())
                         }
                         RgTd {
                             Text(bracket?.label() ?: "")

@@ -13,6 +13,10 @@ object Api {
     suspend fun getAllBoats() =
         Network.get<List<BoatSkipper>>(ApiPaths.allBoats)
 
+    /** The ORC certificate [refNo], looked up on data.orc.org by the server (the browser cannot: no CORS there). */
+    suspend fun getOrcCertificate(refNo: String) =
+        Network.get<OrcCertificate>(ApiPaths.orcCert, mapOf("refNo" to refNo))
+
     suspend fun postPerson(person: Person) =
         Network.post<Person, Person>(ApiPaths.skipper, person)
 
