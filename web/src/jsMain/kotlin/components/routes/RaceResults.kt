@@ -39,9 +39,27 @@ fun RaceResultsEdit(
             Text("${results.raceSchedule.startTime.year()} - ${results.raceSchedule.race.name} - Results Editor")
         }
 
-        if (state.results.value?.results?.isNotEmpty() == true) {
-            RgButton("Viewer", customClasses = listOf(AppStyle.marginVert, AppStyle.marginEnd)) {
-                routeViewModel.pushRoute("/races/results/view/${raceId}")
+        // the page actions side by side under the title, like the races page
+        Div(attrs = { classes("flex", "flex-wrap", "items-end", "gap-4") }) {
+            if (state.results.value?.results?.isNotEmpty() == true) {
+                RgButton("Viewer", customClasses = listOf(AppStyle.marginBot)) {
+                    routeViewModel.pushRoute("/races/results/view/${raceId}")
+                }
+            }
+            RgModalButton(
+                id = "race-result-add-edit",
+                buttonLabel = { "Add Result" },
+                customClasses = listOf(AppStyle.marginBot)
+            ) {
+                viewModel.clearResultForBoatSelection()
+            }
+            RgModalButton(
+                id = raceConfigModalId,
+                style = RgButtonStyle.PrimaryOutline,
+                buttonLabel = { "Config" },
+                customClasses = listOf(AppStyle.marginBot)
+            ) {
+                viewModel.openConfig()
             }
         }
 
@@ -78,21 +96,6 @@ fun RaceResultsEdit(
                 }
             }
         )
-        RgModalButton(
-            id = "race-result-add-edit",
-            buttonLabel = { "Add Result" },
-            customClasses = listOf(AppStyle.marginBot, AppStyle.marginEnd)
-        ) {
-            viewModel.clearResultForBoatSelection()
-        }
-        RgModalButton(
-            id = raceConfigModalId,
-            style = RgButtonStyle.PrimaryOutline,
-            buttonLabel = { "Config" },
-            customClasses = listOf(AppStyle.marginBot)
-        ) {
-            viewModel.openConfig()
-        }
         RaceConfigModal(state, viewModel)
 
         RgTable {
