@@ -1,7 +1,6 @@
 # ORC scores and places in series standings
 
-Status: phase 0 and R4 done 2026-10-15; phase 1 (scoring) done 2026-10-15; phases 2 and 3
-not started. Supersedes the last line of D8 in
+Status: phases 0 to 2 and R4 done 2026-10-15; phase 3 (docs) not started. Supersedes the last line of D8 in
 `docs/explore_implemented/test_audit_and_plan.md` ("ORC places stay per-race information. Series
 standings use PHRF only.") once implemented.
 
@@ -390,24 +389,22 @@ race view does.
       the way `groupScores` does (worse score in the other group, then the earliest race), which
       the PHRF pass never needed since it compares totals. `deviations.json` is empty.
 
-### Phase 2: Table cells (web)
-- [ ] `StandingsReport.kt`: `totalLines`, `bracketPlaceLines`, `classPlaceLines` as above;
-      remove `totalBracketText` / `totalClassText`.
-- [ ] Move `CellLines` to `components/CellLines.kt`.
-- [ ] `SeriesStandings.kt`: compute `showOrc`, render the three cells with `CellLines`, and the
-      Rating column from the row's `ratingType`.
-- [ ] `StandingsLabelsTest`: the three functions × `PHRF` / `ORC` / `ORC_PHRF` × single / multi
-      bracket × `showOrc`; `ORC_PHRF` with `placeOrc == 0` falls back to PHRF only.
-- [ ] Column header "Total Score (bracket, class)" is unchanged; the rating label is in the cell.
-- [ ] Race cells: `StandingsRace.bracketScoreTextOrc()` / `classScoreTextOrc()` and
-      `bracketScoreClassesOrc()` / `classScoreClassesOrc()` next to the PHRF ones, and
-      `scoreLines(showOrc, multiBracket, rating)` returning `ScoreLine`s as above. The view
-      replaces its inline `ScoreText` / suffix sequence with a loop over the lines.
-- [ ] `StandingsLabelsTest` for `scoreLines`: `PHRF` / `ORC` / `ORC_PHRF` rows × single / multi
-      bracket × `showOrc`; PHRF and ORC throw-outs on different races decorate different lines;
-      `nonStarterOrc` with a timed PHRF finish puts ` DNS` on the ORC line only; `-` on the ORC
-      line when `bracketSailedOrc` is false; status text still wins over both lines; with
-      `showOrc == false` the output equals today's single unlabeled line.
+### Phase 2: Table cells (web) — done 2026-10-15
+- [x] `StandingsReport.kt`: `ScoreSegment` / `ScoreLine`, the four `*Orc` score text and
+      decoration helpers, `statusText(rating, showOrc)`, `scoreLines`, `totalLines`,
+      `bracketPlaceLines`, `classPlaceLines`. `totalBracketText` / `totalClassText` stay as
+      the building blocks they were. The ORC line says `DNS` whenever the boat had no ORC entry
+      (`nonStarterOrc`), and the PHRF line then carries the boat's own code, so a boat with no
+      record at all says `DNS` on both lines.
+- [x] `components/CellLines.kt`: `CellLines` (moved from the race view) and `ScoreLines`.
+- [x] `SeriesStandings.kt`: `showOrc` from the class, the Rating column from the row's
+      `ratingType`, the race cells through `scoreLines`, totals through `totalLines`, places
+      through the place line helpers.
+- [x] `StandingsLabelsTest`: nine new tests over the ORC helpers (the single unlabeled line
+      without the gate, lines per rating, per-side throw-out decoration, the ORC non-starter,
+      the dash for an unsailed ORC group, status text per rating, totals and places per rating).
+- [x] Checked in the browser against the dev database: the 2026 Summer Series Windseekers
+      standings show the two ORC boats with both lines, and a 2025 series is unchanged.
 
 ### Phase 3: Docs
 - [ ] Add D9 to `test_audit_and_plan.md` with the decisions above and R1 to R3, marked
