@@ -6,13 +6,18 @@ import com.mxmariner.regatta.data.RaceClass
 import com.mxmariner.regatta.data.RaceClassBrackets
 import com.mxmariner.regatta.data.Series
 import kotlinx.browser.document
+import kotlinx.browser.window
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.Element
+import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
 import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.KeyboardEvent
 import styles.AppStyle
+import kotlin.math.max
+import kotlin.math.min
 
 
 fun itemNameContainsFilter(itemName: String, filter: String) :Boolean{
@@ -60,6 +65,67 @@ private fun DismissOnOutsideOrEscape(open: Boolean, root: DropdownRoot, dismiss:
     }
 }
 
+/** Below this much room (px) the menu opens upward when there is more space above the toggle. */
+private const val MIN_MENU_HEIGHT = 160.0
+
+/** Gap (px) kept between the menu and the viewport edge. */
+private const val VIEWPORT_GAP = 16.0
+
+/** Gap (px) between the toggle and the menu. */
+private const val TOGGLE_GAP = 2.0
+
+/**
+ * Places the fixed-position [menu] against its toggle button (the previous sibling) in viewport coordinates and caps
+ * it to the room left on screen, so a long list scrolls inside the menu rather than the page and nothing between the
+ * menu and the viewport (an overflow-x: auto table wrapper, say) can clip it. Opens upward when the toggle sits near the
+ * bottom of the screen with more room above.
+ */
+private fun placeMenu(menu: HTMLElement) {
+    val toggle = menu.previousElementSibling?.getBoundingClientRect() ?: return
+    val viewportHeight = window.innerHeight.toDouble()
+    val viewportWidth = window.innerWidth.toDouble()
+    val below = viewportHeight - toggle.bottom - VIEWPORT_GAP
+    val above = toggle.top - VIEWPORT_GAP
+    val openAbove = below < MIN_MENU_HEIGHT && above > below
+    menu.style.maxHeight = "${max(if (openAbove) above else below, MIN_MENU_HEIGHT)}px"
+    if (openAbove) {
+        menu.style.top = "auto"
+        menu.style.bottom = "${viewportHeight - toggle.top + TOGGLE_GAP}px"
+    } else {
+        menu.style.bottom = "auto"
+        menu.style.top = "${toggle.bottom + TOGGLE_GAP}px"
+    }
+    // keep the menu's right edge on screen; it is wider than the toggle more often than not
+    val width = menu.getBoundingClientRect().width
+    menu.style.left = "${max(VIEWPORT_GAP, min(toggle.left, viewportWidth - width - VIEWPORT_GAP))}px"
+}
+
+/**
+ * The open menu: an optional non-scrolling [filter] header above the scrolling [items] pane.
+ */
+@Composable
+private fun DropdownMenu(filter: ContentBuilder<HTMLDivElement>? = null, items: ContentBuilder<HTMLDivElement>) {
+    Div(attrs = {
+        classes("rg-dropdown-menu")
+        ref { menu ->
+            placeMenu(menu)
+            // a fixed menu doesn't follow its toggle when the page (or the modal's dialog) scrolls or the window resizes
+            val reposition = EventListener { event ->
+                if ((event.target as? Node)?.let { menu.contains(it) } != true) placeMenu(menu)
+            }
+            window.addEventListener("scroll", reposition, true)
+            window.addEventListener("resize", reposition)
+            onDispose {
+                window.removeEventListener("scroll", reposition, true)
+                window.removeEventListener("resize", reposition)
+            }
+        }
+    }) {
+        filter?.let { Div(attrs = { classes("rg-dropdown-filter") }, content = it) }
+        Div(attrs = { classes("rg-dropdown-items") }, content = items)
+    }
+}
+
 @Composable
 fun <T> RgDropdownNone(
     items: List<T>,
@@ -90,16 +156,17 @@ fun <T> RgDropdownNone(
             onClick { toggle = !toggle }
         }) { Text(selectedItem?.let { shorName?.invoke(it) ?: name(it)} ?: "None") }
 
-        if (toggle) Div(attrs = {
-            classes("rg-dropdown-menu")
-        }) {
-            if (showFilter) {
-                // Bootstrap's mx-3 / my-2 (1rem / .5rem) in Tailwind's scale
-                RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "mx-4", "my-2")) {
-                    filter = it
+        if (toggle) DropdownMenu(
+            filter = if (showFilter) {
+                {
+                    // Bootstrap's my-2 (.5rem) in Tailwind's scale; the wrapper supplies the horizontal spacing
+                    RgInput("Type to filter", filter, true, customClasses = listOf("w-auto", "my-2")) {
+                        filter = it
+                    }
+                    Hr(attrs = { classes("rg-dropdown-divider") })
                 }
-                Hr(attrs = { classes("rg-dropdown-divider") })
-            }
+            } else null,
+        ) {
             Button(attrs = {
                 classes("rg-dropdown-item")
                 onClick {
@@ -178,9 +245,7 @@ fun <T> RgIdDropdown(
             onClick { toggle = !toggle }
         }) { Text(selected) }
 
-        if (toggle) Div(attrs = {
-            classes("rg-dropdown-menu")
-        }) {
+        if (toggle) DropdownMenu {
             items.forEach { item ->
                 val itemName = name(item)
                 Button(attrs = {

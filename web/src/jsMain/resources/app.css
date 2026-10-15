@@ -450,19 +450,36 @@
         border-left: .3em solid transparent;
     }
     .rg-dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
+        /* fixed, not absolute: an overflow-x: auto table wrapper (RgTable) would otherwise clip the menu. The Kotlin
+           side places it against the toggle's viewport rect and caps its height to the room left on screen, so a
+           long list (skippers, boats) scrolls inside the menu instead of growing the page */
+        position: fixed;
         z-index: var(--z-dropdown);
+        display: flex;
+        flex-direction: column;
         min-width: 10rem;
         max-width: calc(100vw - 2rem);   /* long boat / skipper names stay on a phone screen */
-        margin-top: .125rem;
+        max-height: 60vh;
         padding: .5rem 0;
         text-align: left;
         background-color: var(--rg-raised);
         border: 1px solid var(--rg-border-overlay);
         border-radius: .375rem;
         box-shadow: var(--rg-shadow);
+    }
+    .rg-dropdown-filter {
+        /* a fixed header above the scrolling items, so nothing scrolls behind the filter box */
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+    .rg-dropdown-items {
+        /* the only part of the menu that scrolls */
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
     .rg-dropdown-item {
         display: block;

@@ -124,10 +124,11 @@ class LeafComponentsTest {
         }
         root.q(".rg-dropdown > button")!!.click()
         waitForRecompositionComplete()
-        assertNotNull(root.q(".rg-dropdown-menu hr.rg-dropdown-divider"))
+        assertNotNull(root.q(".rg-dropdown-menu .rg-dropdown-filter > hr.rg-dropdown-divider"))
 
-        val filter = root.q(".rg-dropdown-menu input.rg-input") as HTMLInputElement
-        assertTrue(filter.classList.contains("mx-4"), "Bootstrap mx-3 (1rem) maps to Tailwind mx-4")
+        // the filter and its divider sit in a sticky wrapper so they stay put while a long list scrolls under them
+        val filter = root.q(".rg-dropdown-menu .rg-dropdown-filter > input.rg-input") as HTMLInputElement
+        assertTrue(filter.classList.contains("my-2"), "Bootstrap my-2 (.5rem) maps to Tailwind my-2")
         filter.type("zulu")
         waitForRecompositionComplete()
         assertEquals(listOf("None", "Zulu Tango"), root.qa(".rg-dropdown-item").map { it.textContent })
