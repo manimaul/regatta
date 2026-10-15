@@ -67,9 +67,9 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                 }
 
                 if (multiBracket) {
-                    RgTh(scope = Scope.Colgroup) { P { Text("Place in bracket") } }
+                    RgTh(scope = Scope.Colgroup) { P { Text("Place In Bracket") } }
                 }
-                RgTh(scope = Scope.Colgroup) { P { Text("Place in class") } }
+                RgTh(scope = Scope.Colgroup) { P { Text("Place In Class") } }
             }
         }
         RgTbody {
