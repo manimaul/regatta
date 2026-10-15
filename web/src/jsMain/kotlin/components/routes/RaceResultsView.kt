@@ -31,8 +31,11 @@ fun RaceResultsView(
             Text("${report.raceSchedule.startTime.year()} - ${report.raceSchedule.race.name} - Results")
         }
         if (loginState.value.loginStatus == LoginStatus.LoggedIn) {
-            RgButton("Editor", customClasses = listOf(AppStyle.marginVert)) {
-                routeViewModel.pushRoute("/races/results/${raceId}")
+            // the page actions side by side under the title, like the races page and the results editor
+            Div(attrs = { classes("flex", "flex-wrap", "items-end", "gap-4") }) {
+                RgButton("Editor", customClasses = listOf(AppStyle.marginBot)) {
+                    routeViewModel.pushRoute("/races/results/${raceId}")
+                }
             }
         }
         report.classReports.forEachIndexed { i, classReportCards ->
