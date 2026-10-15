@@ -62,9 +62,10 @@ podman exec "$id" /restore_dev.sh
 ## Fix ORC wind bands
 Makes every race's ORC wind bands follow its PHRF B factor with the 5-Band Windward/Leeward option,
 through the REST API (R4b in `docs/explore_unimplemented/orc_series_standings.md`). Dry run by
-default; back up first, then `--apply`.
+default; back up first, then `--apply` with the admin bearer token from "Copy auth token" on the
+web home page (`--token` or `REGATTA_TOKEN`, prompted otherwise).
 ```shell
-python3 -I database/fix_orc_bands.py --user admin                   # report
-python3 -I database/fix_orc_bands.py --user admin --apply           # write, prompts for the password
-python3 -I database/fix_orc_bands.py --user admin --base-url https://host --apply
+python3 -I database/fix_orc_bands.py                                # report
+python3 -I database/fix_orc_bands.py --apply --token <pasted token> # write
+REGATTA_TOKEN=<pasted token> python3 -I database/fix_orc_bands.py --base-url https://host --apply
 ```

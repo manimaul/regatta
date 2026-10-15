@@ -10,23 +10,23 @@ For each race in every year the server knows:
 The B factor itself is never changed. Races already in that state are left alone.
 
 Dry run by default: prints what would change. Pass --apply to write. Back up the database first
-(database/backup). Needs an admin login; the password is prompted for when not given.
+(database/backup). Writing needs the admin bearer token: log in on the web, press "Copy auth
+token" on the home page, and pass it with --token or set REGATTA_TOKEN; it is prompted for
+otherwise.
 
-  python3 -I database/fix_orc_bands.py --user admin                       # dry run, local server
-  python3 -I database/fix_orc_bands.py --user admin --apply
-  python3 -I database/fix_orc_bands.py --user admin --base-url https://regatta.example.org --apply
+  python3 -I database/fix_orc_bands.py                                     # dry run, local server
+  python3 -I database/fix_orc_bands.py --apply --token <pasted token>
+  REGATTA_TOKEN=<pasted token> python3 -I database/fix_orc_bands.py --base-url https://regatta.example.org --apply
 
 Only the standard library is used. The POST /race route is an upsert of the race row alone
 (name, series, RC, B factor, ORC option and bands); class schedules and results are untouched.
 """
 
 import argparse
-import base64
 import getpass
-import hashlib
 import json
+import os
 import sys
-import time
 import urllib.error
 import urllib.request
 
@@ -56,32 +56,6 @@ def orc5_band(cf: int) -> str:
     return "High"
 
 
-# ---- auth: the same scheme as web/utils/Auth.kt and server/auth/Token.kt
-
-def fold_hash(*parts: str) -> str:
-    """hash(a, b, c) = sha512(c + sha512(b + sha512(a))) as base64, like Token.hash."""
-    result = ""
-    for part in parts:
-        digest = hashlib.sha512((part + result).encode("utf-8")).digest()
-        result = base64.b64encode(digest).decode("ascii")
-    return result
-
-
-def login(base_url: str, user: str, password: str) -> str:
-    """POST /login and return the bearer token: base64 of the LoginResponse JSON."""
-    password_hash = fold_hash(password)
-    now = int(time.time())
-    salt = base64.b64encode(hashlib.sha256(f"{now}{user}".encode()).digest()).decode("ascii")
-    body = {
-        "userName": user,
-        "hashOfHash": fold_hash(salt, str(now), password_hash),
-        "salt": salt,
-        "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
-    }
-    response = request(base_url, "POST", "/login", body)
-    return base64.b64encode(json.dumps(response).encode("utf-8")).decode("ascii")
-
-
 # ---- http
 
 def request(base_url: str, method: str, path: str, body=None, token: str | None = None):
@@ -106,8 +80,8 @@ def request(base_url: str, method: str, path: str, body=None, token: str | None 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--base-url", default="http://localhost:8888", help="server root (default: %(default)s)")
-    ap.add_argument("--user", required=True, help="admin user name")
-    ap.add_argument("--password", help="admin password (prompted when omitted)")
+    ap.add_argument("--token", help='admin bearer token from "Copy auth token" on the web home page '
+                                    "(or REGATTA_TOKEN; prompted when omitted)")
     ap.add_argument("--apply", action="store_true", help="write the changes; without it, only report")
     args = ap.parse_args()
 
@@ -136,8 +110,9 @@ def main() -> int:
         print("dry run; pass --apply to write")
         return 0
 
-    password = args.password or getpass.getpass(f"password for {args.user}: ")
-    token = login(args.base_url, args.user, password)
+    token = (args.token or os.environ.get("REGATTA_TOKEN") or getpass.getpass("auth token: ")).strip()
+    if not token:
+        sys.exit("no token given")
 
     failed = 0
     for year, race, have, want in changes:
