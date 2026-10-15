@@ -3,6 +3,7 @@ package components.routes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Bracket
@@ -80,10 +81,19 @@ fun RaceResultsEdit(
         RgModalButton(
             id = "race-result-add-edit",
             buttonLabel = { "Add Result" },
-            customClasses = listOf(AppStyle.marginBot)
+            customClasses = listOf(AppStyle.marginBot, AppStyle.marginEnd)
         ) {
             viewModel.clearResultForBoatSelection()
         }
+        RgModalButton(
+            id = raceConfigModalId,
+            style = RgButtonStyle.PrimaryOutline,
+            buttonLabel = { "Config" },
+            customClasses = listOf(AppStyle.marginBot)
+        ) {
+            viewModel.openConfig()
+        }
+        RaceConfigModal(state, viewModel)
 
         RgTable {
             RgThead {
@@ -144,6 +154,54 @@ fun RaceResultsEdit(
             }
         }
     }
+}
+
+private const val raceConfigModalId = "race-config"
+
+/**
+ * The race day config (class starts, PHRF B factor, ORC option and wind band) edited as a draft and
+ * saved whole (R4a). A rejected save keeps the modal open and shows the server's reason.
+ */
+@Composable
+private fun RaceConfigModal(state: RaceResultAddState, viewModel: RaceResultAddViewModel) {
+    RgModalBody(
+        id = raceConfigModalId,
+        modalTitle = { "Race Config" },
+        content = {
+            state.configDraft?.let { draft ->
+                key(state.configVersion) {
+                    RaceConfigForm(
+                        schedule = draft,
+                        onClassStart = viewModel::configClassStart,
+                        onPhrfBFactor = viewModel::configPhrfBFactor,
+                        onOrcOption = viewModel::configOrcOption,
+                    )
+                }
+            }
+            state.configError?.let { message ->
+                P(attrs = { classes("text-danger-fg") }) { Text(message) }
+            }
+        },
+        footer = {
+            val close = LocalModalClose.current
+            RgModalFooterRow {
+                RgButton(
+                    label = "Cancel",
+                    style = RgButtonStyle.PrimaryOutline,
+                    closesModal = true,
+                ) {
+                    viewModel.closeConfig()
+                }
+                RgButton(
+                    label = "Save",
+                    style = RgButtonStyle.Success,
+                    disabled = state.configDraft == null,
+                ) {
+                    viewModel.saveConfig { close?.invoke() }
+                }
+            }
+        }
+    )
 }
 
 @Composable

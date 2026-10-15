@@ -1,10 +1,6 @@
 package components.routes
 
 import androidx.compose.runtime.*
-import com.mxmariner.regatta.data.Orc3Band
-import com.mxmariner.regatta.data.Orc5Band
-import com.mxmariner.regatta.data.OrcScoringOption
-import com.mxmariner.regatta.data.PhrfBFactor
 import com.mxmariner.regatta.data.RaceSchedule
 import components.*
 import org.jetbrains.compose.web.attributes.InputType
@@ -71,71 +67,12 @@ fun RcRaceConfig(viewModel: RcViewModel, selectedRace: RaceSchedule, syncState: 
         SyncState.Working -> P { Text("Status: Saving...") }
         SyncState.Synced -> P { Text("Status: Saved") }
     }
-    selectedRace.schedule.forEach { classSchedule ->
-        H6 { Text(classSchedule.raceClass.name) }
-        RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s3, side = RgSide.b) }) {
-            RgTime("Start time", classSchedule.startDate) {
-                viewModel.classStart(classSchedule, it)
-            }
-        }
-    }
-
-    RgInput("PHRF B Factor", "${selectedRace.race.phrfBFactor}") {
-        viewModel.selectPhrfBFactor(it.toIntOrNull() ?: 0)
-    }
-
-    PhrfBFactor.fromBFactor(selectedRace.race.phrfBFactor).let { factor ->
-        P {
-            Text("${factor.label} - ${factor.desc}")
-        }
-    }
-
-    RgDiv(customizer = { set(space = RgSpace.m, size = RgSz.s3, side = RgSide.t) }) {
-        OrcScoringOptionSelect(
-            selectedRace.race.orcScoringOption,
-            selectedRace.race.orc3Band,
-            selectedRace.race.orc5Band,
-            viewModel::selectOrcOption
-        )
-    }
-}
-
-@Composable
-fun OrcScoringOptionSelect(
-    selected: OrcScoringOption,
-    selected3Band: Orc3Band,
-    selected5Band: Orc5Band,
-    onSelect: (OrcScoringOption, Orc3Band, Orc5Band) -> Unit
-) {
-    P {
-
-        Label("orc_option", attrs = {
-            classes(AppStyle.marginEnd)
-        }) { B { Text("ORC Scoring Option") } }
-        RgIdDropdown("orc_option", OrcScoringOption.entries, selected, { it.label }) {
-            onSelect(it, selected3Band, selected5Band)
-        }
-    }
-    if (selected.uses3Band) {
-        P {
-            Label("orc_wind", attrs = {
-                classes(AppStyle.marginEnd)
-            }) { B { Text("ORC Wind / Conditions") } }
-            RgIdDropdown("orc_wind", Orc3Band.entries, selected3Band, { "${it.label} - ${it.desc}" }) {
-                onSelect(selected, it, selected5Band)
-            }
-        }
-    } else if (selected.uses5Band) {
-        P {
-            Label("orc_wind", attrs = {
-                classes(AppStyle.marginEnd)
-            }) { B { Text("ORC Wind / Conditions") } }
-            RgIdDropdown("orc_wind",Orc5Band.entries, selected5Band, { "${it.label} - ${it.desc}" }) {
-                onSelect(selected, selected3Band, it)
-            }
-        }
-    }
-
+    RaceConfigForm(
+        schedule = selectedRace,
+        onClassStart = viewModel::classStart,
+        onPhrfBFactor = viewModel::selectPhrfBFactor,
+        onOrcOption = viewModel::selectOrcOption,
+    )
 }
 
 

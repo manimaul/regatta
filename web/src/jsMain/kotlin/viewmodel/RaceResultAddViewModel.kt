@@ -12,6 +12,9 @@ import utils.Complete
 import utils.Loading
 import utils.flatMap
 import utils.toAsync
+import utils.withClassStart
+import utils.withOrcOption
+import utils.withPhrfBFactor
 import kotlin.math.max
 
 
@@ -28,6 +31,12 @@ data class RaceResultAddState(
     val selectedClass: RaceClass? = null,
     val selectedClassStart: Instant? = null,
     val selectedBracket: Bracket? = null,
+    /** The race config being edited in the Config modal, null while it is closed (R4a). */
+    val configDraft: RaceSchedule? = null,
+    /** The server's reason for refusing the last config save, shown in the modal. */
+    val configError: String? = null,
+    /** Bumped each time the modal opens, so the form's inputs start from the draft again. */
+    val configVersion: Int = 0,
 ) : VmState {
 
     val isValid: Boolean
@@ -397,6 +406,47 @@ class RaceResultAddViewModel(
         return results?.maxOfOrNull {
             it.hocPosition ?: 1
         } ?: 1
+    }
+
+    // ---- Config modal (R4a): edits a copy of the schedule and posts it whole
+
+    fun openConfig() {
+        setState {
+            copy(configDraft = results.value?.raceSchedule, configError = null, configVersion = configVersion + 1)
+        }
+    }
+
+    fun closeConfig() {
+        setState { copy(configDraft = null, configError = null) }
+    }
+
+    fun configClassStart(classSchedule: ClassSchedule, start: Instant) {
+        setState { copy(configDraft = configDraft?.withClassStart(classSchedule, start)) }
+    }
+
+    fun configPhrfBFactor(cf: Int?) {
+        setState { copy(configDraft = configDraft?.withPhrfBFactor(cf)) }
+    }
+
+    fun configOrcOption(option: OrcScoringOption, orc3Band: Orc3Band, orc5Band: Orc5Band) {
+        setState { copy(configDraft = configDraft?.withOrcOption(option, orc3Band, orc5Band)) }
+    }
+
+    /** Posts the draft. On success [onSaved] runs (the view closes the modal) and the page reloads; a 400 keeps the modal open with its message. */
+    fun saveConfig(onSaved: () -> Unit) {
+        launch {
+            val draft = flow.value.configDraft ?: return@launch
+            val response = Api.postSchedule(draft)
+            if (response.ok) {
+                onSaved()
+                setState { copy(configDraft = null, configError = null, results = Loading()) }
+                reload()
+            } else {
+                setState {
+                    copy(configError = response.error?.message ?: "Could not save: ${response.status} ${response.statusText}")
+                }
+            }
+        }
     }
 
     fun deleteResult(id: Long) {

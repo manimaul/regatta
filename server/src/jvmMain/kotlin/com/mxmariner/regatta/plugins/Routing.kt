@@ -4,6 +4,7 @@ import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
 import com.mxmariner.regatta.results.RaceResultReporter
+import com.mxmariner.regatta.results.validateRace
 import com.mxmariner.regatta.results.validateResult
 import com.mxmariner.regatta.versionedApi
 import io.ktor.http.*
@@ -135,7 +136,12 @@ fun Application.configureRouting() {
             }
             post(ApiPaths.raceSchedule.versionedApi()) {
                 val cs = call.receive<RaceSchedule>()
-                RegattaDatabase.insertSchedule(cs)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest)
+                val message = validateRace(cs.race)
+                if (message != null) {
+                    call.respondText(message, status = HttpStatusCode.BadRequest)
+                } else {
+                    RegattaDatabase.insertSchedule(cs)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest)
+                }
             }
             delete(ApiPaths.results.versionedApi()) {
                 call.request.queryParameters["id"]?.toLong()?.let {
@@ -155,7 +161,12 @@ fun Application.configureRouting() {
             }
             post(ApiPaths.race.versionedApi()) {
                 val race = call.receive<Race>()
-                RegattaDatabase.upsertRace(race)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.Conflict)
+                val message = validateRace(race)
+                if (message != null) {
+                    call.respondText(message, status = HttpStatusCode.BadRequest)
+                } else {
+                    RegattaDatabase.upsertRace(race)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.Conflict)
+                }
             }
             post(ApiPaths.auth.versionedApi()) {
                 val auth = call.receive<AuthRecord>()

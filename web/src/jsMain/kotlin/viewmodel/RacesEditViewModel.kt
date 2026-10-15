@@ -1,6 +1,5 @@
 package viewmodel
 
-import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.*
 import kotlinx.coroutines.launch
 import utils.*
@@ -108,8 +107,12 @@ class RacesEditViewModel(
 
     fun save(schedule: RaceSchedule) {
         launch {
-            Api.postSchedule(schedule)
-            onSaved(schedule)
+            val response = Api.postSchedule(schedule)
+            if (response.ok) {
+                onSaved(schedule)
+            } else {
+                alertsViewModel.showAlert(response.error?.message ?: "Could not save the race")
+            }
         }
     }
 
@@ -147,9 +150,10 @@ class RacesEditViewModel(
         }
     }
 
+    /** The B factor sets the ORC wind bands too (R4a), so a race saved here passes `validateRace`. */
     fun setCF(cf: Int?) {
         setState {
-            copy(race = race.map { it.copy(race = it.race.copy(phrfBFactor = cf ?: correctionFactorDefault)) })
+            copy(race = race.map { it.withPhrfBFactor(cf) })
         }
     }
 

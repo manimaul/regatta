@@ -1,6 +1,5 @@
 package viewmodel
 
-import com.mxmariner.regatta.correctionFactorDefault
 import com.mxmariner.regatta.data.BoatSkipper
 import com.mxmariner.regatta.data.Bracket
 import com.mxmariner.regatta.data.ClassSchedule
@@ -254,64 +253,27 @@ class RcViewModel : BaseViewModel<RcState>(RcState()) {
 
     fun selectOrcOption(option: OrcScoringOption, orc3Band: Orc3Band, orc5Band: Orc5Band) {
         setState {
-            val bFactor = if (option.uses3Band) {
-                orc3Band.phrfBFactor
-            } else if (option.uses5Band) {
-                orc5Band.phrfBFactor
-            } else {
-               selectedRace?.race?.phrfBFactor ?: correctionFactorDefault
-            }
-            val sr = selectedRace?.let {
-                it.copy(
-                    race = it.race.copy(
-                        phrfBFactor = bFactor,
-                        orcScoringOption = option,
-                        orc3Band = orc3Band,
-                        orc5Band = orc5Band,
-                    )
-                )
-            }
             copy(
                 syncState = SyncState.Dirty,
-                selectedRace = sr
+                selectedRace = selectedRace?.withOrcOption(option, orc3Band, orc5Band),
             )
         }
     }
 
     fun selectPhrfBFactor(cf: Int?) {
         setState {
-            val sr = selectedRace?.let {
-                val factor = cf ?: correctionFactorDefault
-                it.copy(
-                    race = it.race.copy(
-                        phrfBFactor = cf ?: correctionFactorDefault,
-                        orc3Band = Orc3Band.fromPhrfBFactor(factor),
-                        orc5Band = Orc5Band.fromPhrfBFactor(factor),
-                    )
-                )
-            }
             copy(
                 syncState = SyncState.Dirty,
-                selectedRace = sr
+                selectedRace = selectedRace?.withPhrfBFactor(cf),
             )
         }
     }
 
     fun classStart(classSchedule: ClassSchedule, start: Instant) {
         setState {
-            val sr = selectedRace?.let {
-                val sch = it.schedule.map { cs ->
-                    if (cs.raceClass.id == classSchedule.raceClass.id) {
-                        classSchedule.copy(startDate = start)
-                    } else {
-                        cs
-                    }
-                }
-                it.copy(schedule = sch)
-            }
             copy(
-                selectedRace = sr,
-                syncState = SyncState.Dirty
+                selectedRace = selectedRace?.withClassStart(classSchedule, start),
+                syncState = SyncState.Dirty,
             )
         }
     }
