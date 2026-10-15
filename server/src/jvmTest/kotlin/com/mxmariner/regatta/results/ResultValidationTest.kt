@@ -2,7 +2,6 @@ package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.RaceResult
 import com.mxmariner.regatta.data.RatingType
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -14,7 +13,22 @@ class ResultValidationTest {
     @Test
     fun accepts_a_phrf_result_with_a_rating() {
         assertNull(validateResult(RaceResult(ratingType = RatingType.PHRF, phrfRating = 48)))
-        assertNull(validateResult(RaceResult(ratingType = RatingType.ORC_PHRF, phrfRating = 48)))
+        assertNull(validateResult(RaceResult(ratingType = RatingType.ORC_PHRF, phrfRating = 48, orcRef = "C1")))
+    }
+
+    @Test
+    fun accepts_an_orc_result_with_a_certificate_and_no_phrf_rating() {
+        assertNull(validateResult(RaceResult(ratingType = RatingType.ORC, orcRef = "C1")))
+    }
+
+    /** R2 (orc_series_standings.md): an ORC or ORC_PHRF result needs a certificate, or it would score with an ORC TCF of 1. */
+    @Test
+    fun r2_rejects_an_orc_result_without_a_certificate() {
+        assertEquals("An ORC result needs an ORC certificate", validateResult(RaceResult(ratingType = RatingType.ORC)))
+        assertEquals(
+            "An ORC, PHRF result needs an ORC certificate",
+            validateResult(RaceResult(ratingType = RatingType.ORC_PHRF, phrfRating = 48))
+        )
     }
 
     @Test

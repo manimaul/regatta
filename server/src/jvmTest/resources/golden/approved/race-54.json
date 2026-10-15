@@ -151,8 +151,8 @@
             },
             "phrfBFactor": 480,
             "orcScoringOption": "FiveBandWindwardLeeward",
-            "orc3Band": "High",
-            "orc5Band": "High",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
             "bracketReport": [
                 {
                     "bracket": {
@@ -786,8 +786,8 @@
             },
             "phrfBFactor": 480,
             "orcScoringOption": "FiveBandWindwardLeeward",
-            "orc3Band": "High",
-            "orc5Band": "High",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
             "bracketReport": [
                 {
                     "bracket": {
@@ -1635,8 +1635,8 @@
             },
             "phrfBFactor": 480,
             "orcScoringOption": "FiveBandWindwardLeeward",
-            "orc3Band": "High",
-            "orc5Band": "High",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
             "bracketReport": [
                 {
                     "bracket": {
@@ -1800,8 +1800,8 @@
             },
             "phrfBFactor": 480,
             "orcScoringOption": "FiveBandWindwardLeeward",
-            "orc3Band": "High",
-            "orc5Band": "High",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium",
             "bracketReport": [
                 {
                     "bracket": {

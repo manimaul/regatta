@@ -279,13 +279,16 @@ object RaceResultReporter {
     ): ClassReportCards? {
         //Class Places
         var hasOrcResults = false
+        // R1 (orc_series_standings.md): in a rated class the PHRF places are among the PHRF-rated
+        // entries, as the ORC places are among the ORC-rated ones; a cruising class places every entry.
+        val among = if (raceClass.ratingType.isORCorPHRF) PlaceAmong.Phrf else PlaceAmong.All
         val classCards = boatCards.filter {
             it.resultRecord.bracket.classId == raceClass.id
-        }.place { p: Int, card: RaceReportCard ->
+        }.place(among) { p: Int, card: RaceReportCard ->
             card.placeInClass = p
         }
 
-        classCards.place(orc = true) { p, card ->
+        classCards.place(PlaceAmong.Orc) { p, card ->
             hasOrcResults = true
             card.placeInClassOrc = p
         }
@@ -294,18 +297,21 @@ object RaceResultReporter {
         val bracketCards = classSchedule.brackets.mapNotNull { bracket ->
             val bracketCards = classCards.filter {
                 it.resultRecord.bracket.id == bracket.id
-            }.place { p: Int, card: RaceReportCard ->
+            }.place(among) { p: Int, card: RaceReportCard ->
                 card.placeInBracket = p
             }
 
-            bracketCards.place(orc = true) { p, card ->
+            bracketCards.place(PlaceAmong.Orc) { p, card ->
                 card.placeInBracketOrc = p
             }
 
             if (bracketCards.isNotEmpty()) {
                 BracketReportCards(
                     bracket = bracket,
-                    cards = bracketCards,
+                    // entries with a PHRF place by that place, then ORC-only entries by their ORC place
+                    cards = bracketCards.sortedWith(
+                        compareBy({ it.placeInBracket == 0 }, { if (it.placeInBracket == 0) it.placeInBracketOrc else it.placeInBracket })
+                    ),
                 )
             } else {
                 null
@@ -316,6 +322,9 @@ object RaceResultReporter {
             raceClass = raceClass,
             bracketReport = bracketCards,
             phrfBFactor = raceSchedule.race.phrfBFactor,
+            orcScoringOption = raceSchedule.race.orcScoringOption,
+            orc3Band = raceSchedule.race.orc3Band,
+            orc5Band = raceSchedule.race.orc5Band,
             hasOrcResults = hasOrcResults
         ).takeIf { it.bracketReport.isNotEmpty() }
     }
@@ -608,11 +617,29 @@ private data class TempPlace(
     val card: RaceReportCard,
 )
 
+/** Which entries [place] ranks: every card, the PHRF-rated ones, or the ORC-rated ones (R1). */
+enum class PlaceAmong {
+    All, Phrf, Orc;
+
+    fun includes(card: RaceReportCard): Boolean = when (this) {
+        All -> true
+        Phrf -> card.ratingType().isPHRF
+        Orc -> card.ratingType().isORC
+    }
+}
+
+/**
+ * Ranks the cards that [among] includes and hands each its place through [placeHandler].
+ * Returns the ranked cards in place order, followed by the cards [among] left out, untouched
+ * and in their input order. The ORC ranking uses the ORC corrected times.
+ */
 fun Iterable<RaceReportCard>.place(
-    orc: Boolean = false,
+    among: PlaceAmong = PlaceAmong.All,
     placeHandler: (Int, RaceReportCard) -> Unit
 ): List<RaceReportCard> {
-    val cardList = if (orc) this.filter { it.ratingType().isORC } else this
+    val orc = among == PlaceAmong.Orc
+    val cardList = this.filter { among.includes(it) }
+    val left = this.filter { !among.includes(it) }
     // GSI 14.1 with D3 (test_audit_and_plan.md): starters are every entry except RC volunteers and DNS;
     // finishers are timed finishers and HOC, so DNF = RET = finishers + 1 and NSC = starters + 1.
     // A boat's own score counts the *other* starters, as a DNF boat is not among the finishers it
@@ -671,7 +698,7 @@ fun Iterable<RaceReportCard>.place(
     return list.sortedBy { it.place }.map {
         placeHandler(it.place, it.card)
         it.card
-    }
+    } + left
 }
 
 /** GSI 14.1 / D3: every entry except RC volunteers (and DNS) started the race. */

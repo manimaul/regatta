@@ -1,6 +1,7 @@
 # ORC scores and places in series standings
 
-Status: ready to implement (reviewed 2026-10-15), not started. Supersedes the last line of D8 in
+Status: phase 0 done 2026-10-15 (commits bf72d20, 359c662, and the R1 commit after them);
+phases 1 to 3 not started. Supersedes the last line of D8 in
 `docs/explore_implemented/test_audit_and_plan.md` ("ORC places stay per-race information. Series
 standings use PHRF only.") once implemented.
 
@@ -232,34 +233,57 @@ unchanged. The web race view already prints `n(ORC)` only for an `ORC` row, so n
 in that case and shows a 400 body, so the UI needs nothing. Old rows keep the TCF 1.0 fallback
 in `card()`, as D8 does for a missing rating; the snapshot has none.
 
-**R3. `classCard` passes the race's ORC scoring option and bands into `ClassReportCards`**. Today
-only the orphan branch sets `orcScoringOption` / `orc3Band` / `orc5Band`, so every real class
-report says the default `FiveBandWindwardLeeward` and the race view's `orcBandLabel()` heading
-is wrong for any other option. Scores are unaffected: `card()` reads the option from the race.
-Data case: race 101 (2026 Summer Series Windseekers #1) is scored `TripleNumberAllPurpose`, and
-its four class reports say five-band. Its golden file changes in exactly those four fields.
+**R3. `classCard` passes the race's ORC scoring option and bands into `ClassReportCards`**. Before,
+only the orphan branch set `orcScoringOption` / `orc3Band` / `orc5Band`, so every real class
+report said the default `FiveBandWindwardLeeward` with bands derived from the race's B factor,
+while `card()` scored the ORC corrected times with the race's *stored* option and bands. The
+heading now describes the scoring that was applied. Scores are unaffected.
+
+The golden diff was wider than first predicted: not only race 101's option, but the bands of 63
+race files, because the stored bands disagree with the B factor in most races. That is R4.
+
+**R4. The stored race bands do not follow the B factor** (found during R3, **not fixed, decision
+needed**). `RacesEditViewModel.setCF` saves a new B factor without touching `orc3Band` /
+`orc5Band`, and `RaceTable.rowToRace` fills a NULL band column from the *default* B factor
+rather than the row's. Only the RC page (`RcViewModel.selectPhrfBFactor` / `selectOrcOption`)
+keeps the two in step. In the snapshot 101 of 118 races store `Low` / `LowMedium`, including
+2026 ORC races with a B factor of 550 (which maps to `Medium` / `Medium`) and 480 (`High` /
+`High`). `card()` → `orcTcf` reads the stored bands, so the ORC corrected times of those races
+were computed with the low-wind certificate numbers while the B factor says medium or high
+wind. Affected 2026 races with ORC classes: 88, 92, 94, 95, 96, 98, 99, 102, 103, 104, 105,
+107, 108, 110, 112, 113, 114, 115.
+
+Options:
+- Make the B factor the single source of truth: `orcTcf` derives the band from
+  `race.phrfBFactor` (`Orc3Band.fromPhrfBFactor` / `Orc5Band.fromPhrfBFactor`), `upsertRace`
+  stores the derived bands, and the RC page's band selector keeps setting the B factor from the
+  band as it does now. The 2026 ORC corrected times and per-race ORC places of the races above
+  change in the golden files; the PHRF numbers do not. A migration can backfill the columns.
+- Keep the stored bands as the truth and make `setCF` derive them, which leaves the past
+  results as scored.
+
+The first option is the one the RC page already assumes. It changes published 2026 ORC race
+results, so it is the committee's call; until then the standings in phase 1 are built on the
+stored bands, as the race view is.
 
 ## Implementation plan
 
-### Phase 0: Related fixes (server), each its own commit
-- [ ] R3: `classCard` passes `raceSchedule.race.orcScoringOption` / `orc3Band` / `orc5Band`.
-      Test in `RacePlacingTest`: `class_report_carries_the_races_orc_scoring_option` (a
-      `race(orcScoringOption = TripleNumberAllPurpose)` fixture, every class report carries it).
-      Golden re-approve: only `race-101.json`, only the four `orcScoringOption` fields.
-- [ ] R2: `validateResult` rejects an ORC-rated result without `orcRef`. `ResultValidationTest`:
-      `accepts_cruising_and_orc_results_without_a_phrf_rating` gives its ORC result a ref;
-      add `d9_rejects_an_orc_result_without_a_certificate` for `ORC` and `ORC_PHRF`, and
+### Phase 0: Related fixes (server), each its own commit — done 2026-10-15
+- [x] R3: `classCard` passes `raceSchedule.race.orcScoringOption` / `orc3Band` / `orc5Band`.
+      `RacePlacingTest.class_report_carries_the_races_orc_scoring_option_and_bands`. Golden
+      re-approved: the `orcScoringOption` / `orc3Band` / `orc5Band` fields of the class reports in
+      63 race files, no score or place (see R4 for why it was not just race 101).
+- [x] R2: `validateResult` rejects an ORC-rated result without `orcRef`.
+      `ResultValidationTest.r2_rejects_an_orc_result_without_a_certificate` and
       `accepts_an_orc_result_with_a_certificate_and_no_phrf_rating`.
-- [ ] R1: `place(rating)` filters by `isPHRF` / `isORC` / all, and returns the unplaced cards after
-      the placed ones; `classCard` orders a bracket's cards by PHRF place then ORC place.
-      `RacePlacingTest`: rename the pinned test to
-      `orc_places_are_among_orc_entries_and_phrf_places_among_phrf_entries`, add an `ORC`-only
-      boat (`ratingType = RatingType.ORC, rating = null`, with a cert) to its fixture, and assert
-      its PHRF place is `0`, the PHRF places of the others are unchanged, and a PHRF boat's DNF
-      scores PHRF finishers + 1 with the ORC-only finisher left out. `InvariantsTest`
-      `places_are_contiguous_and_follow_corrected_time_then_hoc` restricts PHRF checks to PHRF
-      cards once its random races include ORC-only boats (they are added in phase 1; until then
-      it is unchanged). Golden re-approve shows no change.
+- [x] R1: `place(among: PlaceAmong)` ranks `All` / `Phrf` / `Orc` entries and returns the rest
+      after them; `classCard` lists a bracket's PHRF-placed cards by place, then the ORC-only
+      cards by ORC place. `RacePlacingTest.orc_places_are_among_orc_entries_and_phrf_places_among_phrf_entries`
+      (ORC-only boat has PHRF place 0, a PHRF DNF scores PHRF finishers + 1 without it, bracket
+      order). Golden unchanged. `InvariantsTest` is unchanged until phase 1 adds ORC-only boats
+      to its random races, when `places_are_contiguous_and_follow_corrected_time_then_hoc` must
+      restrict its PHRF checks to PHRF cards.
+- [ ] R4: decision needed (see above). Not part of phase 1.
 
 ### Phase 1: Scoring (server + common)
 - [ ] Add the `StandingsRace` and `StandingsBoatSkipper` fields above.

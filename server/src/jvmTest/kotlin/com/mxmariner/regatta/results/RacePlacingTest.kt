@@ -1,7 +1,10 @@
 package com.mxmariner.regatta.results
 
 import com.mxmariner.regatta.data.FinishCode.*
+import com.mxmariner.regatta.data.Orc3Band
+import com.mxmariner.regatta.data.Orc5Band
 import com.mxmariner.regatta.data.OrcCertificate
+import com.mxmariner.regatta.data.OrcScoringOption
 import com.mxmariner.regatta.data.RaceReport
 import com.mxmariner.regatta.data.RatingType
 import kotlin.test.Ignore
@@ -277,8 +280,30 @@ class RacePlacingTest {
         report.assertClassScores("I-1" to 1, "II-1" to 2, "I-2" to 3, "II-2" to 4, "I-DNF" to 5)
     }
 
+    /** R3 (orc_series_standings.md): the class report carries the race's ORC scoring option and bands, which the race view's heading shows. */
     @Test
-    fun orc_places_are_among_orc_entries_only_and_phrf_places_among_all() {
+    fun class_report_carries_the_races_orc_scoring_option_and_bands() {
+        val report = race(date = "2026-06-17", bFactor = 600, orcScoringOption = OrcScoringOption.TripleNumberAllPurpose) {
+            orcPhrfClass("Fast") { bracket("I") { boat("A", rating = 50) finishes "19:00:00" } }
+            phrfClass("Half Fast") { bracket("II") { boat("B", rating = 100) finishes "19:00:00" } }
+            cruisingClass("WS") { bracket("All") { boat("C") finishes "19:00:00" } }
+        }.report()
+        assertEquals(3, report.classReports.size)
+        report.classReports.forEach {
+            assertEquals(OrcScoringOption.TripleNumberAllPurpose, it.orcScoringOption, it.raceClass.name)
+            assertEquals(Orc3Band.Low, it.orc3Band, it.raceClass.name)
+            assertEquals(Orc5Band.LowMedium, it.orc5Band, it.raceClass.name)
+            assertEquals("Low - ${Orc3Band.Low.desc}", it.orcBandLabel(), it.raceClass.name)
+        }
+    }
+
+    /**
+     * R1 (orc_series_standings.md): in a rated class each rating is placed among its own entries.
+     * An ORC-only boat has no PHRF place and is not a PHRF starter or finisher, and a PHRF-only
+     * boat has no ORC place. The bracket lists the PHRF-placed boats first, then the ORC-only ones.
+     */
+    @Test
+    fun orc_places_are_among_orc_entries_and_phrf_places_among_phrf_entries() {
         val certs = mapOf(
             "slow" to OrcCertificate(refNo = "slow", fiveBandWlLowMedTot = 1.0),
             "fast" to OrcCertificate(refNo = "fast", fiveBandWlLowMedTot = 0.5),
@@ -288,11 +313,17 @@ class RacePlacingTest {
                 boat("Both A", rating = 50) finishes "19:00:00" orc "slow"   // PHRF 1h, ORC 1h
                 boat("Both B", rating = 50) finishes "19:30:00" orc "fast"   // PHRF 1h30, ORC 45m
                 boat("PHRF only", rating = 50, ratingType = RatingType.PHRF) finishes "19:10:00"
+                boat("PHRF DNF", rating = 50, ratingType = RatingType.PHRF) code DNF
+                boat("ORC only", ratingType = RatingType.ORC) finishes "18:50:00" orc "fast"  // ORC 25m
             } }
         }.report(certs)
-        report.assertBracketScores("Both A" to 1, "PHRF only" to 2, "Both B" to 3)
-        assertEquals(mapOf("Both A" to 2.0, "Both B" to 1.0, "PHRF only" to 0.0), report.bracketScoresOrc())
-        assertEquals(mapOf("Both A" to 2.0, "Both B" to 1.0, "PHRF only" to 0.0), report.classScoresOrc())
+        // PHRF finishers are A, PHRF only and B, so DNF = 4; the ORC-only finisher is not counted
+        report.assertBracketScores("Both A" to 1, "PHRF only" to 2, "Both B" to 3, "PHRF DNF" to 4, "ORC only" to 0)
+        report.assertClassScores("Both A" to 1, "PHRF only" to 2, "Both B" to 3, "PHRF DNF" to 4, "ORC only" to 0)
+        val orc = mapOf("ORC only" to 1.0, "Both B" to 2.0, "Both A" to 3.0, "PHRF only" to 0.0, "PHRF DNF" to 0.0)
+        assertEquals(orc, report.bracketScoresOrc())
+        assertEquals(orc, report.classScoresOrc())
+        assertEquals(listOf("Both A", "PHRF only", "Both B", "PHRF DNF", "ORC only"), report.bracketOrder())
     }
 
     @Test
