@@ -148,15 +148,6 @@ fun RaceResultsClassTable(
 }
 
 /** Renders the lines of a place cell, separated by line breaks. */
-@Composable
-private fun CellLines(lines: List<String>) {
-    lines.forEachIndexed { i, line ->
-        if (i > 0) {
-            Br { }
-        }
-        Text(line)
-    }
-}
 
 @Composable
 fun BoatLabel(card: RaceReportCard) {

@@ -45,6 +45,8 @@ fun SeriesStandings(
 @Composable
 fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsClass) {
     val multiBracket = standingsClass.standings.size > 1
+    // D9: the ORC side shows only in an ORC-rated class, the race view's gate
+    val showOrc = standingsClass.raceClass.ratingType.isORC
     RgTable(stripeColumn = true, color = TableColor.light) {
         RgThead {
             RgTr {
@@ -92,55 +94,36 @@ fun StandingsTable(standingsSeries: StandingsSeries, standingsClass: StandingsCl
                             Text(standings.boatSkipper.skipper?.fullName() ?: "")
                         }
                         RgTd {
-                            Text(
-                                standings.boatSkipper.boat?.ratingType?.label ?: ""
-                            )
+                            Text(standings.ratingType.label)
                         }
                         standings.raceStandings.forEach {
                             RgTd {
-                                val status = it.statusText()
+                                val status = it.statusText(standings.ratingType, showOrc)
                                 if (status != null) {
                                     Span(attrs = { classes("text-muted") }) { Text(status) }
                                 } else {
-                                    ScoreText(it.bracketScoreText(), it.bracketScoreClasses())
-                                    if (multiBracket) {
-                                        ScoreText(it.classScoreText(), it.classScoreClasses())
-                                    }
-                                    it.codeSuffix().takeIf { suffix -> suffix.isNotEmpty() }?.let { suffix -> Text(suffix) }
+                                    ScoreLines(it.scoreLines(showOrc, multiBracket, standings.ratingType))
                                 }
                             }
                         }
                         RgTd {
-                            if (multiBracket) {
-                                B { Text(standings.totalBracketText()) }
-                            }
-                            Text(standings.totalClassText())
+                            ScoreLines(standings.totalLines(showOrc, multiBracket))
                         }
 
                         if (multiBracket) {
                             RgTd {
-                                B { Text("${standings.placeInBracket}") }
+                                CellLines(standings.bracketPlaceLines(showOrc))
                             }
                         }
 
                         RgTd {
-                            Text("${standings.placeInClass}")
+                            CellLines(standings.classPlaceLines(showOrc))
                         }
                     }
                 }
             }
         }
     }
-}
-
-/** A bold score with its decoration classes (see utils/StandingsReport.kt). */
-@Composable
-private fun ScoreText(text: String, classes: List<String>) {
-    B(attrs = {
-        if (classes.isNotEmpty()) {
-            classes(*classes.toTypedArray())
-        }
-    }) { Text(text) }
 }
 
 @Composable

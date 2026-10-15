@@ -1,5 +1,6 @@
 import com.mxmariner.regatta.data.FinishCode
 import com.mxmariner.regatta.data.RaceStatus
+import com.mxmariner.regatta.data.RatingType
 import com.mxmariner.regatta.data.StandingsBoatSkipper
 import com.mxmariner.regatta.data.StandingsRace
 import utils.*
@@ -20,6 +21,13 @@ class StandingsLabelsTest {
         classSailed: Boolean = true,
         status: RaceStatus = RaceStatus.Sailed,
         throwOutClass: Boolean = throwOut,
+        bracketOrc: Double = 0.0,
+        classOrc: Double = 0.0,
+        throwOutOrc: Boolean = false,
+        throwOutClassOrc: Boolean = throwOutOrc,
+        bracketSailedOrc: Boolean = false,
+        classSailedOrc: Boolean = bracketSailedOrc,
+        nonStarterOrc: Boolean = false,
     ) = StandingsRace(
         finish = code == FinishCode.TIME,
         placeInBracket = bracket,
@@ -32,7 +40,27 @@ class StandingsLabelsTest {
         bracketSailed = bracketSailed,
         classSailed = classSailed,
         status = status,
+        placeInBracketOrc = bracketOrc,
+        placeInClassOrc = classOrc,
+        throwOutOrc = throwOutOrc,
+        throwOutClassOrc = throwOutClassOrc,
+        bracketSailedOrc = bracketSailedOrc,
+        classSailedOrc = classSailedOrc,
+        nonStarterOrc = nonStarterOrc,
     )
+
+    /** An ORC/PHRF race cell: PHRF 3 / 5, ORC 2 / 2, both groups sailed. */
+    private fun orcRace(
+        code: FinishCode? = FinishCode.TIME,
+        throwOut: Boolean = false,
+        throwOutOrc: Boolean = false,
+        nonStarterOrc: Boolean = false,
+        bracketSailedOrc: Boolean = true,
+    ) = race(code = code, throwOut = throwOut, bracketOrc = 2.0, classOrc = 2.0, throwOutOrc = throwOutOrc, bracketSailedOrc = bracketSailedOrc, nonStarterOrc = nonStarterOrc)
+
+    private val red = listOf("text-danger-fg")
+    private fun bold(text: String, classes: List<String> = emptyList()) = ScoreSegment(text, classes, bold = true)
+    private fun plain(text: String) = ScoreSegment(text)
 
     @Test
     fun scoreText() {
@@ -105,5 +133,103 @@ class StandingsLabelsTest {
         val row = StandingsBoatSkipper(totalScoreBracket = 12.0, totalScoreClass = 17.0)
         assertEquals("12, ", row.totalBracketText())
         assertEquals("17", row.totalClassText())
+    }
+
+    // ---- D9: the ORC side
+
+    @Test
+    fun orcScoreTextAndDecoration() {
+        assertEquals("2", orcRace().bracketScoreTextOrc())
+        assertEquals(", 2", orcRace().classScoreTextOrc())
+        assertEquals("-", race(bracketSailedOrc = false).bracketScoreTextOrc())
+        assertEquals(", -", race(classSailedOrc = false).classScoreTextOrc())
+        assertEquals(emptyList(), orcRace().bracketScoreClassesOrc())
+        assertEquals(red, orcRace(throwOutOrc = true).bracketScoreClassesOrc())
+        assertEquals(red, orcRace(throwOutOrc = true).classScoreClassesOrc())
+    }
+
+    /** Without the ORC gate the race cell is the single unlabeled line it has always been, whatever the row's rating. */
+    @Test
+    fun scoreLinesWithoutOrcIsTheSingleUnlabeledLine() {
+        assertEquals(listOf(ScoreLine(listOf(bold("3"), bold(", 5")))), orcRace().scoreLines(showOrc = false, multiBracket = true, rating = RatingType.ORC_PHRF))
+        assertEquals(listOf(ScoreLine(listOf(bold("3")), " DNF")), orcRace(FinishCode.DNF).scoreLines(showOrc = false, multiBracket = false, rating = RatingType.PHRF))
+        assertEquals(listOf(ScoreLine(listOf(bold("3", red)), "")), race(throwOut = true).scoreLines(showOrc = false, multiBracket = false, rating = RatingType.CruisingFlyingSails))
+    }
+
+    @Test
+    fun scoreLinesPerRating() {
+        // both sides, the finish code on the last line
+        assertEquals(
+            listOf(ScoreLine(listOf(bold("3"), bold(", 5")), " (PHRF)"), ScoreLine(listOf(bold("2"), bold(", 2")), " (ORC) DNF")),
+            orcRace(FinishCode.DNF).scoreLines(showOrc = true, multiBracket = true, rating = RatingType.ORC_PHRF),
+        )
+        // a PHRF-only row in an ORC class
+        assertEquals(listOf(ScoreLine(listOf(bold("3")), " (PHRF) DNF")), orcRace(FinishCode.DNF).scoreLines(showOrc = true, multiBracket = false, rating = RatingType.PHRF))
+        // an ORC-only row
+        assertEquals(listOf(ScoreLine(listOf(bold("2")), " (ORC)")), orcRace().scoreLines(showOrc = true, multiBracket = false, rating = RatingType.ORC))
+    }
+
+    /** The PHRF and ORC throw-outs can be different races, so each line carries its own decoration. */
+    @Test
+    fun scoreLinesDecorateEachSideOnItsOwn() {
+        val phrfOut = orcRace(throwOut = true).scoreLines(showOrc = true, multiBracket = false, rating = RatingType.ORC_PHRF)
+        assertEquals(listOf(ScoreLine(listOf(bold("3", red)), " (PHRF)"), ScoreLine(listOf(bold("2")), " (ORC)")), phrfOut)
+        val orcOut = orcRace(throwOutOrc = true).scoreLines(showOrc = true, multiBracket = false, rating = RatingType.ORC_PHRF)
+        assertEquals(listOf(ScoreLine(listOf(bold("3")), " (PHRF)"), ScoreLine(listOf(bold("2", red)), " (ORC)")), orcOut)
+    }
+
+    /** A boat with a finish but no ORC entry that day is DNS on the ORC line only. */
+    @Test
+    fun scoreLinesMarkAnOrcNonStarterOnTheOrcLine() {
+        val lines = orcRace(nonStarterOrc = true).scoreLines(showOrc = true, multiBracket = false, rating = RatingType.ORC_PHRF)
+        assertEquals(listOf(" (PHRF)", " (ORC) DNS"), lines.map { it.suffix })
+        // with no record at all both lines say DNS
+        val none = orcRace(code = null, nonStarterOrc = true).scoreLines(showOrc = true, multiBracket = false, rating = RatingType.ORC_PHRF)
+        assertEquals(listOf(" (PHRF) DNS", " (ORC) DNS"), none.map { it.suffix })
+    }
+
+    @Test
+    fun scoreLinesShowADashForAnUnsailedOrcGroup() {
+        val lines = orcRace(bracketSailedOrc = false).scoreLines(showOrc = true, multiBracket = true, rating = RatingType.ORC_PHRF)
+        assertEquals(listOf(bold("-"), bold(", -")), lines[1].segments)
+    }
+
+    @Test
+    fun statusTextPerRating() {
+        // an ORC-only row in a race its ORC group did not sail
+        assertEquals("Not sailed", race(code = null, bracketSailedOrc = false).statusText(RatingType.ORC, showOrc = true))
+        assertNull(race(code = null, bracketSailedOrc = true).statusText(RatingType.ORC, showOrc = true))
+        // an ORC/PHRF row shows the cell when either side sailed
+        assertNull(race(code = null, bracketSailed = false, classSailed = false, bracketSailedOrc = true).statusText(RatingType.ORC_PHRF, showOrc = true))
+        assertEquals("Not sailed", race(code = null, bracketSailed = false, classSailed = false).statusText(RatingType.ORC_PHRF, showOrc = true))
+        // outside the gate only the PHRF side counts
+        assertEquals("Not sailed", race(code = null, bracketSailed = false, classSailed = false, bracketSailedOrc = true).statusText(RatingType.ORC_PHRF, showOrc = false))
+    }
+
+    @Test
+    fun totalLinesPerRating() {
+        val row = StandingsBoatSkipper(totalScoreBracket = 12.0, totalScoreClass = 17.0, totalScoreBracketOrc = 9.0, totalScoreClassOrc = 11.0, ratingType = RatingType.ORC_PHRF)
+        assertEquals(listOf(ScoreLine(listOf(plain("17")))), row.totalLines(showOrc = false, multiBracket = false))
+        assertEquals(listOf(ScoreLine(listOf(bold("12, "), plain("17")))), row.totalLines(showOrc = false, multiBracket = true))
+        assertEquals(
+            listOf(ScoreLine(listOf(bold("12, "), plain("17")), " (PHRF)"), ScoreLine(listOf(bold("9, "), plain("11")), " (ORC)")),
+            row.totalLines(showOrc = true, multiBracket = true),
+        )
+        assertEquals(listOf(ScoreLine(listOf(plain("17")), " (PHRF)"), ScoreLine(listOf(plain("11")), " (ORC)")), row.totalLines(showOrc = true, multiBracket = false))
+        assertEquals(listOf(ScoreLine(listOf(plain("11")), " (ORC)")), row.copy(ratingType = RatingType.ORC).totalLines(showOrc = true, multiBracket = false))
+        assertEquals(listOf(ScoreLine(listOf(plain("17")), " (PHRF)")), row.copy(ratingType = RatingType.PHRF).totalLines(showOrc = true, multiBracket = false))
+    }
+
+    @Test
+    fun placeLinesPerRating() {
+        val row = StandingsBoatSkipper(placeInBracket = 2, placeInClass = 4, placeInBracketOrc = 1, placeInClassOrc = 3, ratingType = RatingType.ORC_PHRF)
+        assertEquals(listOf("2"), row.bracketPlaceLines(showOrc = false))
+        assertEquals(listOf("4"), row.classPlaceLines(showOrc = false))
+        assertEquals(listOf("2(PHRF), ", "1(ORC)"), row.bracketPlaceLines(showOrc = true))
+        assertEquals(listOf("4(PHRF), ", "3(ORC)"), row.classPlaceLines(showOrc = true))
+        assertEquals(listOf("2(PHRF)"), row.copy(ratingType = RatingType.PHRF).bracketPlaceLines(showOrc = true))
+        assertEquals(listOf("1(ORC)"), row.copy(ratingType = RatingType.ORC).bracketPlaceLines(showOrc = true))
+        // an ORC/PHRF row without an ORC place yet falls back to the PHRF place
+        assertEquals(listOf("2(PHRF)"), row.copy(placeInBracketOrc = 0).bracketPlaceLines(showOrc = true))
     }
 }
