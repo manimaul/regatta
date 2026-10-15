@@ -45,11 +45,14 @@ fun RgModalButton(
 /**
  * A native `<dialog>` that fills the viewport and scrolls, wrapping a centered panel that doesn't clip its content
  * (so dropdown menus inside it aren't cut off). Mirrors Bootstrap's `.modal` > `.modal-dialog` structure.
+ *
+ * @param large widen the panel on large screens (Bootstrap's `.modal-lg`) for content with tables.
  */
 @Composable
 fun RgModalBody(
     id: String,
     modalTitle: () -> String,
+    large: Boolean = false,
     content: ContentBuilder<HTMLDivElement>,
     footer: ContentBuilder<HTMLDivElement>? = null,
 ) {
@@ -83,7 +86,7 @@ fun RgModalBody(
         }
     }) {
         CompositionLocalProvider(LocalModalClose provides close) {
-            Div(attrs = { classes("rg-modal-panel") }) {
+            Div(attrs = { classes(if (large) listOf("rg-modal-panel", "rg-modal-panel-lg") else listOf("rg-modal-panel")) }) {
                 Div(attrs = { classes("rg-modal-header") }) {
                     H5(attrs = {
                         classes("rg-modal-title")

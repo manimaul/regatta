@@ -57,7 +57,6 @@ fun RaceForm(
     viewModel: RacesEditViewModel
 ) {
     val state = viewModel.flow.collectAsState()
-    val tState = viewModel.timeVm.flow.collectAsState()
     H1 { Text("Edit Race") }
     RgTable {
         RgThead {
@@ -102,6 +101,17 @@ fun RaceForm(
 
         }
     }
+    RaceScheduleTable(viewModel)
+}
+
+/**
+ * The per-class start/end times of the race being edited, with the row for adding or editing one. Shared by the edit
+ * page and the create-race modal.
+ */
+@Composable
+fun RaceScheduleTable(viewModel: RacesEditViewModel) {
+    val state = viewModel.flow.collectAsState()
+    val tState = viewModel.timeVm.flow.collectAsState()
     H6 { Text("Race Start Time(s)") }
     RgTable {
         RgThead {

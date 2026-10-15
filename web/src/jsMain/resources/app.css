@@ -537,6 +537,11 @@
             margin: 1.75rem auto;
         }
     }
+    .rg-modal-panel-lg {
+        @variant lg {
+            max-width: 800px;
+        }
+    }
     .rg-modal-header {
         display: flex;
         align-items: center;
