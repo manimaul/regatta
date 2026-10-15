@@ -7,7 +7,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-const val currentDbVersion = 4
+const val currentDbVersion = 5
 
 private const val sqlDbMetaDataSetup = """
 CREATE TABLE IF NOT EXISTS metadata (
@@ -155,6 +155,29 @@ private fun dbVersion3To4Upgrade(database: Database) {
             }
         }
     }
+    updateVersion(database, 4)
+}
+
+/**
+ * Indexes for the lookups the loaders make and the uniqueness they assume, the unused `end_date`
+ * index, and the orphan `checkin` table. The same indexes are declared on the Table objects for
+ * fresh databases; Exposed only adds columns and constraints to existing tables, never indexes.
+ * See docs/explore_implemented/db_query_performance.md, R6.
+ */
+private fun dbVersion4To5Upgrade(database: Database) {
+    transaction(database) {
+        exec("CREATE INDEX IF NOT EXISTS raceresults_race_id ON raceresults (race_id);")
+        exec("DROP INDEX IF EXISTS raceresults_end_date;")
+        exec("CREATE UNIQUE INDEX IF NOT EXISTS racetime_race_class_unique ON racetime (race_id, class_id);")
+        exec("CREATE UNIQUE INDEX IF NOT EXISTS racebracketjunction_unique ON racebracketjunction (race_id, class_id, bracket_id);")
+        exec("CREATE INDEX IF NOT EXISTS racebracketjunction_bracket_id ON racebracketjunction (bracket_id);")
+        exec("CREATE INDEX IF NOT EXISTS racebracketjunction_class_id ON racebracketjunction (class_id);")
+        exec("CREATE UNIQUE INDEX IF NOT EXISTS image_race_id_unique ON image (race_id);")
+        exec("CREATE INDEX IF NOT EXISTS orc_boat_id ON orc (boat_id);")
+        exec("CREATE INDEX IF NOT EXISTS race_series_id ON race (series_id);")
+        exec("CREATE INDEX IF NOT EXISTS boat_skipper_id ON boat (skipper_id);")
+        exec("DROP TABLE IF EXISTS checkin;")
+    }
     updateVersion(database, currentDbVersion)
 }
 
@@ -173,6 +196,9 @@ object Migration {
         }
         if (dbVersion(database) == 3) {
             dbVersion3To4Upgrade(database)
+        }
+        if (dbVersion(database) == 4) {
+            dbVersion4To5Upgrade(database)
         }
         println("migrations complete")
         println("database version ${dbVersion(database)}")

@@ -19,9 +19,8 @@ object RaceResultReporter {
      * [now] defaults to the wall clock; the golden test pins it (see docs/explore_implemented/test_audit_and_plan.md §5).
      */
     suspend fun getStandingsReport(seriesId: Long, year: Int, now: Instant = Clock.System.now()): StandingsSeries? {
-        val reports = RegattaDatabase.seriesRaces(seriesId, year).mapNotNull { raceId ->
-            getReport(raceId)
-        }
+        val raceIds = RegattaDatabase.seriesRaces(seriesId, year)
+        val reports = RegattaDatabase.findRaceSchedules(raceIds).map { getReport(it) }
         return RegattaDatabase.findSeries(seriesId)?.let { series ->
             standings(series, year, reports, now)
         }
@@ -341,11 +340,16 @@ object RaceResultReporter {
 
     /** DB wrapper around [report]: fetches the schedule and the results, and builds the cards. */
     suspend fun getReport(raceId: Long): RaceReport? {
-        return RegattaDatabase.findRaceSchedule(raceId)?.let { raceSchedule: RaceSchedule ->
-            val schedules: Map<Long, ClassSchedule> = raceSchedule.schedule.associateBy { it.raceClass.id }
-            val cards = RegattaDatabase.resultsBoatBracketByRaceId(raceId).map { reduceToCard(it, raceSchedule, schedules) }
-            report(raceSchedule, cards)
-        }
+        return RegattaDatabase.findRaceSchedule(raceId)?.let { getReport(it) }
+    }
+
+    /** [getReport] for a schedule already loaded: the results and their ORC certificates, then the cards. */
+    suspend fun getReport(raceSchedule: RaceSchedule): RaceReport {
+        val schedules: Map<Long, ClassSchedule> = raceSchedule.schedule.associateBy { it.raceClass.id }
+        val records = RegattaDatabase.resultsBoatBracketByRaceId(raceSchedule)
+        val certs = RegattaDatabase.findCertificates(records.mapNotNull { it.result.orcRef }.distinct())
+        val cards = records.map { reduceToCard(it, raceSchedule, schedules, certs) }
+        return report(raceSchedule, cards)
     }
 
     /**
@@ -400,14 +404,15 @@ object RaceResultReporter {
         )
     }
 
-    /** DB wrapper around [card]: looks up the ORC certificate and the class start. */
-    private suspend fun reduceToCard(
+    /** [card] with the ORC certificate picked from [certs] and the class start from [classSchedules]. */
+    private fun reduceToCard(
         record: RaceResultBoatBracket,
         raceSchedule: RaceSchedule,
-        classSchedules: Map<Long, ClassSchedule>
+        classSchedules: Map<Long, ClassSchedule>,
+        certs: Map<String, OrcCertificate>,
     ): RaceReportCard {
         val orcCert = record.result.orcRef?.let { ref ->
-            requireNotNull(RegattaDatabase.findCertificate(ref)) {
+            requireNotNull(certs[ref]) {
                 "could not find certificate for result id ${record.result.id} ref = $ref"
             }
         }

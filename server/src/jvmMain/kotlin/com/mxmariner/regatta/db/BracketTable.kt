@@ -6,6 +6,7 @@ import com.mxmariner.regatta.data.RaceClassBrackets
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
@@ -39,7 +40,7 @@ object BracketTable : Table() {
             it[minRating] = item.minRating
             it[maxRating] = item.maxRating
             it[raceClass] = item.classId
-        }.resultedValues?.singleOrNull()?.let(::resultRowToBracket)
+        }.resultedValues?.singleOrNull()?.let { resultRowToBracket(it, RaceBracketJunction.raceCountForBracket(it[id])) }
     }
 
     fun upsertBrackets(brackets: RaceClassBrackets) : List<Bracket> {
@@ -57,20 +58,36 @@ object BracketTable : Table() {
         return deleteWhere { id eq bracketId }
     }
 
-    fun findClassBrackets(rId: Long): List<Bracket> {
-        return selectAll().where { raceClass.eq(rId) }.map(::resultRowToBracket).sortedBy { it.minRating }
+    fun findClassBrackets(rId: Long): List<Bracket> = findClassBrackets(listOf(rId))[rId] ?: emptyList()
+
+    /** The brackets of each class in [classIds], sorted by min rating; two statements for any number of classes. */
+    fun findClassBrackets(classIds: Collection<Long>): Map<Long, List<Bracket>> {
+        if (classIds.isEmpty()) return emptyMap()
+        return toBrackets(selectAll().where { raceClass inList classIds }.toList())
+            .groupBy { it.classId }
+            .mapValues { (_, brackets) -> brackets.sortedBy { it.minRating } }
     }
 
-    fun findBracket(bracketId: Long): Bracket? {
-        return selectAll().where { id.eq(bracketId) }.map(::resultRowToBracket).singleOrNull()
+    fun findBracket(bracketId: Long): Bracket? = findBrackets(listOf(bracketId))[bracketId]
+
+    /** The brackets with [bracketIds], by id; two statements for any number of brackets. */
+    fun findBrackets(bracketIds: Collection<Long>): Map<Long, Bracket> {
+        if (bracketIds.isEmpty()) return emptyMap()
+        return toBrackets(selectAll().where { id inList bracketIds }.toList()).associateBy { it.id }
     }
 
-    fun resultRowToBracket(row: ResultRow) = Bracket(
+    /** Hydrates [rows] with their race counts from one grouped query. */
+    private fun toBrackets(rows: List<ResultRow>): List<Bracket> {
+        val counts = RaceBracketJunction.raceCountsByBracket(rows.map { it[id] })
+        return rows.map { resultRowToBracket(it, counts[it[id]] ?: 0L) }
+    }
+
+    fun resultRowToBracket(row: ResultRow, numberOfRaces: Long) = Bracket(
         id = row[id],
         name = row[name],
         description = row[description],
         active = row[active],
-        numberOfRaces = RaceBracketJunction.raceCountForBracket(row[id]),
+        numberOfRaces = numberOfRaces,
         minRating = row[minRating],
         maxRating = row[maxRating],
         classId = row[raceClass],

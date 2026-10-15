@@ -13,11 +13,9 @@ object SeriesTable : Table() {
     val active = bool("active")
     override val primaryKey = PrimaryKey(id)
 
-    fun resultRowToSeries(row: ResultRow): Series {
-        val seriesId = row[id]
-        val raceCount = RaceTable.raceCountForSeries(seriesId)
+    fun resultRowToSeries(row: ResultRow, raceCount: Long): Series {
         return Series(
-            id = seriesId,
+            id = row[id],
             name = row[name],
             sort = row[sort],
             raceCount = raceCount,
@@ -25,12 +23,22 @@ object SeriesTable : Table() {
         )
     }
 
-    fun selectAllSeries(): List<Series> {
-        return selectAll().orderBy(sort).map(::resultRowToSeries)
+    /** Hydrates [rows] with their race counts from one grouped query. */
+    private fun toSeries(rows: List<ResultRow>): List<Series> {
+        val counts = RaceTable.raceCountsBySeries(rows.map { it[id] })
+        return rows.map { resultRowToSeries(it, counts[it[id]] ?: 0L) }
     }
 
-    fun selectSeries(seriesId: Long): Series? {
-        return selectAll().where { id eq seriesId }.map(::resultRowToSeries).singleOrNull()
+    fun selectAllSeries(): List<Series> {
+        return toSeries(selectAll().orderBy(sort).toList())
+    }
+
+    fun selectSeries(seriesId: Long): Series? = findSeries(listOf(seriesId))[seriesId]
+
+    /** The series with [seriesIds], by id; two statements for any number of series. */
+    fun findSeries(seriesIds: Collection<Long>): Map<Long, Series> {
+        if (seriesIds.isEmpty()) return emptyMap()
+        return toSeries(selectAll().where { id inList seriesIds }.toList()).associateBy { it.id }
     }
 
     fun deleteSeries(seriesId: Long): Int {
@@ -38,7 +46,7 @@ object SeriesTable : Table() {
     }
 
     fun selectByName(name: String): List<Series> {
-        return selectAll().where { SeriesTable.name ilike LikePattern("%$name%") }.map(::resultRowToSeries)
+        return toSeries(selectAll().where { SeriesTable.name ilike LikePattern("%$name%") }.toList())
     }
 
     fun upsertSeries(seriesList: List<Series>): List<Series> {
@@ -50,7 +58,7 @@ object SeriesTable : Table() {
                 it[name] = series.name.trim()
                 it[sort] = series.sort
                 it[active] = series.active
-            }.resultedValues?.singleOrNull()?.let(::resultRowToSeries)
+            }.resultedValues?.singleOrNull()?.let { resultRowToSeries(it, RaceTable.raceCountForSeries(it[id])) }
         }
     }
 }

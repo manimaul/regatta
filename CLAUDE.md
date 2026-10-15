@@ -92,7 +92,7 @@ Targets both JVM and JS. Contains all `@Serializable` domain data classes (`Race
 
 ### `buildSrc`
 - `VersionPlugin` generates `VersionInfo.kt` from git hash/date at build time
-- `Versions.kt` — all dependency version constants (Kotlin 2.3.0, Ktor 3.4.0, Compose 1.10.0, Exposed 1.0.0)
+- `Versions.kt` — all dependency version constants (Kotlin 2.3.0, Ktor 3.4.0, Compose 1.10.0, Exposed 1.3.0)
 
 ### How the web build integrates with the server
 The root `build.gradle.kts` wires `jsBrowserProductionWebpack` output into `jvmProcessResources` under `static/`. During production webpack, `build.gradle.kts` temporarily renames `dev_server_config.js` to exclude it from the production bundle, then restores it. (That rename is now belt-and-braces: `dev_server_config.js` is wrapped in `if (config.devServer)`, so plain webpack builds and Karma tests skip it anyway. `tailwind.js` and `externals.js` must stay active in every build.)
@@ -106,7 +106,7 @@ The `database/` directory is **not** a Gradle subproject — it only contains Do
 | Language | Kotlin (JVM 25, JS IR) |
 | Build | Gradle Kotlin DSL, Kotlin Multiplatform |
 | Server | Ktor 3.4.0 (Netty) |
-| Database ORM | Jetbrains Exposed 1.0.0 |
+| Database ORM | Jetbrains Exposed 1.3.0 |
 | Database | PostgreSQL 16 |
 | Serialization | kotlinx.serialization (JSON) |
 | Frontend | Compose HTML (Jetbrains Compose for Web) |

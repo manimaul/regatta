@@ -1282,6 +1282,302 @@
             "standings": [
                 {
                     "bracket": {
+                        "id": 67,
+                        "name": "III",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 14,
+                        "minRating": 94.0,
+                        "maxRating": 139.0,
+                        "classId": 38
+                    },
+                    "standings": [
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 53,
+                                    "first": "Paul",
+                                    "last": "Case",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 30,
+                                    "name": "Strider",
+                                    "sailNumber": "49589",
+                                    "boatType": "Hotfoot 31",
+                                    "phrfRating": 126,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 55,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2.0,
+                                    "placeInClass": 2.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2.0,
+                                    "placeInClass": 2.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1.0,
+                                    "placeInClass": 2.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2.0,
+                                    "placeInClass": 4.0,
+                                    "throwOut": true,
+                                    "throwOutClass": true,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1.0,
+                                    "placeInClass": 1.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                }
+                            ],
+                            "totalScoreBracket": 6.0,
+                            "totalScoreClass": 7.0,
+                            "placeInBracket": 1,
+                            "placeInClass": 1
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 17,
+                                    "first": "Nelson",
+                                    "last": "Grove",
+                                    "clubMember": true,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 19,
+                                    "name": "Slick",
+                                    "sailNumber": "69299",
+                                    "boatType": "J/29",
+                                    "phrfRating": 120,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 64,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3.0,
+                                    "placeInClass": 4.0,
+                                    "throwOut": true,
+                                    "throwOutClass": true,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1.0,
+                                    "placeInClass": 1.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2.0,
+                                    "placeInClass": 4.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1.0,
+                                    "placeInClass": 2.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3.0,
+                                    "placeInClass": 3.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                }
+                            ],
+                            "totalScoreBracket": 7.0,
+                            "totalScoreClass": 10.0,
+                            "placeInBracket": 2,
+                            "placeInClass": 2
+                        },
+                        {
+                            "boatSkipper": {
+                                "skipper": {
+                                    "id": 52,
+                                    "first": "Edmond",
+                                    "last": "Jacobs",
+                                    "clubMember": false,
+                                    "active": true
+                                },
+                                "boat": {
+                                    "id": 29,
+                                    "name": "Out of the Blue",
+                                    "sailNumber": "USA60159",
+                                    "boatType": "Landing School 30",
+                                    "phrfRating": 99,
+                                    "orcCerts": [],
+                                    "skipperId": null,
+                                    "ratingType": "PHRF",
+                                    "numberOfRaces": 72,
+                                    "active": true
+                                }
+                            },
+                            "raceStandings": [
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 1.0,
+                                    "placeInClass": 1.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3.0,
+                                    "placeInClass": 6.0,
+                                    "throwOut": true,
+                                    "throwOutClass": true,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3.0,
+                                    "placeInClass": 6.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 3.0,
+                                    "placeInClass": 5.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                },
+                                {
+                                    "nonStarter": false,
+                                    "hocPosition": null,
+                                    "finish": true,
+                                    "placeInBracket": 2.0,
+                                    "placeInClass": 2.0,
+                                    "throwOut": false,
+                                    "throwOutClass": false,
+                                    "finishCode": "TIME",
+                                    "bracketSailed": true,
+                                    "classSailed": true,
+                                    "status": "Sailed"
+                                }
+                            ],
+                            "totalScoreBracket": 9.0,
+                            "totalScoreClass": 14.0,
+                            "placeInBracket": 3,
+                            "placeInClass": 5
+                        }
+                    ]
+                },
+                {
+                    "bracket": {
                         "id": 68,
                         "name": "IV",
                         "description": null,
@@ -1949,302 +2245,6 @@
                             "totalScoreClass": 33.0,
                             "placeInBracket": 7,
                             "placeInClass": 10
-                        }
-                    ]
-                },
-                {
-                    "bracket": {
-                        "id": 67,
-                        "name": "III",
-                        "description": null,
-                        "active": true,
-                        "numberOfRaces": 14,
-                        "minRating": 94.0,
-                        "maxRating": 139.0,
-                        "classId": 38
-                    },
-                    "standings": [
-                        {
-                            "boatSkipper": {
-                                "skipper": {
-                                    "id": 53,
-                                    "first": "Paul",
-                                    "last": "Case",
-                                    "clubMember": false,
-                                    "active": true
-                                },
-                                "boat": {
-                                    "id": 30,
-                                    "name": "Strider",
-                                    "sailNumber": "49589",
-                                    "boatType": "Hotfoot 31",
-                                    "phrfRating": 126,
-                                    "orcCerts": [],
-                                    "skipperId": null,
-                                    "ratingType": "PHRF",
-                                    "numberOfRaces": 55,
-                                    "active": true
-                                }
-                            },
-                            "raceStandings": [
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 2.0,
-                                    "placeInClass": 2.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 2.0,
-                                    "placeInClass": 2.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 1.0,
-                                    "placeInClass": 2.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 2.0,
-                                    "placeInClass": 4.0,
-                                    "throwOut": true,
-                                    "throwOutClass": true,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 1.0,
-                                    "placeInClass": 1.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                }
-                            ],
-                            "totalScoreBracket": 6.0,
-                            "totalScoreClass": 7.0,
-                            "placeInBracket": 1,
-                            "placeInClass": 1
-                        },
-                        {
-                            "boatSkipper": {
-                                "skipper": {
-                                    "id": 17,
-                                    "first": "Nelson",
-                                    "last": "Grove",
-                                    "clubMember": true,
-                                    "active": true
-                                },
-                                "boat": {
-                                    "id": 19,
-                                    "name": "Slick",
-                                    "sailNumber": "69299",
-                                    "boatType": "J/29",
-                                    "phrfRating": 120,
-                                    "orcCerts": [],
-                                    "skipperId": null,
-                                    "ratingType": "PHRF",
-                                    "numberOfRaces": 64,
-                                    "active": true
-                                }
-                            },
-                            "raceStandings": [
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 3.0,
-                                    "placeInClass": 4.0,
-                                    "throwOut": true,
-                                    "throwOutClass": true,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 1.0,
-                                    "placeInClass": 1.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 2.0,
-                                    "placeInClass": 4.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 1.0,
-                                    "placeInClass": 2.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 3.0,
-                                    "placeInClass": 3.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                }
-                            ],
-                            "totalScoreBracket": 7.0,
-                            "totalScoreClass": 10.0,
-                            "placeInBracket": 2,
-                            "placeInClass": 2
-                        },
-                        {
-                            "boatSkipper": {
-                                "skipper": {
-                                    "id": 52,
-                                    "first": "Edmond",
-                                    "last": "Jacobs",
-                                    "clubMember": false,
-                                    "active": true
-                                },
-                                "boat": {
-                                    "id": 29,
-                                    "name": "Out of the Blue",
-                                    "sailNumber": "USA60159",
-                                    "boatType": "Landing School 30",
-                                    "phrfRating": 99,
-                                    "orcCerts": [],
-                                    "skipperId": null,
-                                    "ratingType": "PHRF",
-                                    "numberOfRaces": 72,
-                                    "active": true
-                                }
-                            },
-                            "raceStandings": [
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 1.0,
-                                    "placeInClass": 1.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 3.0,
-                                    "placeInClass": 6.0,
-                                    "throwOut": true,
-                                    "throwOutClass": true,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 3.0,
-                                    "placeInClass": 6.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 3.0,
-                                    "placeInClass": 5.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                },
-                                {
-                                    "nonStarter": false,
-                                    "hocPosition": null,
-                                    "finish": true,
-                                    "placeInBracket": 2.0,
-                                    "placeInClass": 2.0,
-                                    "throwOut": false,
-                                    "throwOutClass": false,
-                                    "finishCode": "TIME",
-                                    "bracketSailed": true,
-                                    "classSailed": true,
-                                    "status": "Sailed"
-                                }
-                            ],
-                            "totalScoreBracket": 9.0,
-                            "totalScoreClass": 14.0,
-                            "placeInBracket": 3,
-                            "placeInClass": 5
                         }
                     ]
                 }

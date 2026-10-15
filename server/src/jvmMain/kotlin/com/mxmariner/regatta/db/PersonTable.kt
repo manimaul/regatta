@@ -5,6 +5,7 @@ import org.jetbrains.exposed.v1.core.LikePattern
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -21,6 +22,12 @@ object PersonTable : Table() {
 
     fun selectPerson(personId: Long): Person? {
         return selectAll().where { id eq personId }.map(::resultRowToPerson).singleOrNull()
+    }
+
+    /** The people with [personIds], by id, in one query. */
+    fun findPeople(personIds: Collection<Long>): Map<Long, Person> {
+        if (personIds.isEmpty()) return emptyMap()
+        return selectAll().where { id inList personIds }.associate { it[id] to resultRowToPerson(it) }
     }
 
     fun resultRowToPerson(row: ResultRow) = Person(

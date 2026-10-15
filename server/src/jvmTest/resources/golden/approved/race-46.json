@@ -38,16 +38,6 @@
                 },
                 "brackets": [
                     {
-                        "id": 2,
-                        "name": "II",
-                        "description": "Rating 60 to 72",
-                        "active": true,
-                        "numberOfRaces": 64,
-                        "minRating": 60.0,
-                        "maxRating": 72.0,
-                        "classId": 1
-                    },
-                    {
                         "id": 1,
                         "name": "I",
                         "description": "Rating 10 to 59",
@@ -55,6 +45,16 @@
                         "numberOfRaces": 64,
                         "minRating": 10.0,
                         "maxRating": 59.0,
+                        "classId": 1
+                    },
+                    {
+                        "id": 2,
+                        "name": "II",
+                        "description": "Rating 60 to 72",
+                        "active": true,
+                        "numberOfRaces": 64,
+                        "minRating": 60.0,
+                        "maxRating": 72.0,
                         "classId": 1
                     }
                 ],
@@ -160,6 +160,87 @@
             "orc3Band": "Medium",
             "orc5Band": "Medium",
             "bracketReport": [
+                {
+                    "bracket": {
+                        "id": 1,
+                        "name": "I",
+                        "description": "Rating 10 to 59",
+                        "active": true,
+                        "numberOfRaces": 64,
+                        "minRating": 10.0,
+                        "maxRating": 59.0,
+                        "classId": 1
+                    },
+                    "cards": [
+                        {
+                            "resultRecord": {
+                                "result": {
+                                    "id": 736,
+                                    "raceId": 46,
+                                    "boatId": 11,
+                                    "finish": "2024-09-22T02:29:05Z",
+                                    "phrfRating": 48,
+                                    "orcRef": null,
+                                    "hocPosition": null,
+                                    "bracketId": 1,
+                                    "raceClassId": 1,
+                                    "penalty": null,
+                                    "ratingType": "PHRF",
+                                    "finishCode": "TIME"
+                                },
+                                "boatSkipper": {
+                                    "skipper": {
+                                        "id": 2,
+                                        "first": "John",
+                                        "last": "Leitzinger",
+                                        "clubMember": true,
+                                        "active": true
+                                    },
+                                    "boat": {
+                                        "id": 11,
+                                        "name": "Kahuna",
+                                        "sailNumber": "USA 27",
+                                        "boatType": "Aerodyne 38",
+                                        "phrfRating": 48,
+                                        "orcCerts": [],
+                                        "skipperId": null,
+                                        "ratingType": "PHRF",
+                                        "numberOfRaces": 79,
+                                        "active": true
+                                    }
+                                },
+                                "bracket": {
+                                    "id": 1,
+                                    "name": "I",
+                                    "description": "Rating 10 to 59",
+                                    "active": true,
+                                    "numberOfRaces": 64,
+                                    "minRating": 10.0,
+                                    "maxRating": 59.0,
+                                    "classId": 1
+                                }
+                            },
+                            "boatName": "Kahuna",
+                            "sail": "USA 27",
+                            "skipper": "John Leitzinger",
+                            "boatType": "Aerodyne 38",
+                            "phrfRating": 48,
+                            "startTime": "2024-09-22T00:00:00Z",
+                            "finishTime": "2024-09-22T02:29:05Z",
+                            "elapsedTime": "PT2H29M5S",
+                            "phrfTcf": 1.0869565217391304,
+                            "orcTcf": 1.0,
+                            "correctedPhrfTime": "PT2H42M2.826086957S",
+                            "correctedOrcTime": "PT2H29M5S",
+                            "placeInBracket": 1,
+                            "placeInBracketOrc": 0,
+                            "placeInClass": 1,
+                            "placeInClassOrc": 0,
+                            "hocPosition": null,
+                            "penalty": null
+                        }
+                    ]
+                },
                 {
                     "bracket": {
                         "id": 2,
@@ -302,87 +383,6 @@
                             "placeInBracket": 2,
                             "placeInBracketOrc": 0,
                             "placeInClass": 3,
-                            "placeInClassOrc": 0,
-                            "hocPosition": null,
-                            "penalty": null
-                        }
-                    ]
-                },
-                {
-                    "bracket": {
-                        "id": 1,
-                        "name": "I",
-                        "description": "Rating 10 to 59",
-                        "active": true,
-                        "numberOfRaces": 64,
-                        "minRating": 10.0,
-                        "maxRating": 59.0,
-                        "classId": 1
-                    },
-                    "cards": [
-                        {
-                            "resultRecord": {
-                                "result": {
-                                    "id": 736,
-                                    "raceId": 46,
-                                    "boatId": 11,
-                                    "finish": "2024-09-22T02:29:05Z",
-                                    "phrfRating": 48,
-                                    "orcRef": null,
-                                    "hocPosition": null,
-                                    "bracketId": 1,
-                                    "raceClassId": 1,
-                                    "penalty": null,
-                                    "ratingType": "PHRF",
-                                    "finishCode": "TIME"
-                                },
-                                "boatSkipper": {
-                                    "skipper": {
-                                        "id": 2,
-                                        "first": "John",
-                                        "last": "Leitzinger",
-                                        "clubMember": true,
-                                        "active": true
-                                    },
-                                    "boat": {
-                                        "id": 11,
-                                        "name": "Kahuna",
-                                        "sailNumber": "USA 27",
-                                        "boatType": "Aerodyne 38",
-                                        "phrfRating": 48,
-                                        "orcCerts": [],
-                                        "skipperId": null,
-                                        "ratingType": "PHRF",
-                                        "numberOfRaces": 79,
-                                        "active": true
-                                    }
-                                },
-                                "bracket": {
-                                    "id": 1,
-                                    "name": "I",
-                                    "description": "Rating 10 to 59",
-                                    "active": true,
-                                    "numberOfRaces": 64,
-                                    "minRating": 10.0,
-                                    "maxRating": 59.0,
-                                    "classId": 1
-                                }
-                            },
-                            "boatName": "Kahuna",
-                            "sail": "USA 27",
-                            "skipper": "John Leitzinger",
-                            "boatType": "Aerodyne 38",
-                            "phrfRating": 48,
-                            "startTime": "2024-09-22T00:00:00Z",
-                            "finishTime": "2024-09-22T02:29:05Z",
-                            "elapsedTime": "PT2H29M5S",
-                            "phrfTcf": 1.0869565217391304,
-                            "orcTcf": 1.0,
-                            "correctedPhrfTime": "PT2H42M2.826086957S",
-                            "correctedOrcTime": "PT2H29M5S",
-                            "placeInBracket": 1,
-                            "placeInBracketOrc": 0,
-                            "placeInClass": 1,
                             "placeInClassOrc": 0,
                             "hocPosition": null,
                             "penalty": null

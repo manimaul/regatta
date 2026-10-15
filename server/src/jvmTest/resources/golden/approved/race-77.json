@@ -65,30 +65,6 @@
             },
             {
                 "raceClass": {
-                    "id": 8,
-                    "name": "Windseeker FS Single Handed",
-                    "sort": 9,
-                    "ratingType": "CruisingFlyingSails",
-                    "numberOfRaces": 2,
-                    "active": true
-                },
-                "brackets": [
-                    {
-                        "id": 30,
-                        "name": "All",
-                        "description": null,
-                        "active": true,
-                        "numberOfRaces": 2,
-                        "minRating": -1000.0,
-                        "maxRating": 1000.0,
-                        "classId": 8
-                    }
-                ],
-                "startDate": "2025-08-17T00:05:00Z",
-                "endDate": "2025-08-17T10:05:00Z"
-            },
-            {
-                "raceClass": {
                     "id": 5,
                     "name": "Windseekers FS Double Handed",
                     "sort": 8,
@@ -110,6 +86,30 @@
                 ],
                 "startDate": "2025-08-17T00:10:00Z",
                 "endDate": "2025-08-17T10:10:00Z"
+            },
+            {
+                "raceClass": {
+                    "id": 8,
+                    "name": "Windseeker FS Single Handed",
+                    "sort": 9,
+                    "ratingType": "CruisingFlyingSails",
+                    "numberOfRaces": 2,
+                    "active": true
+                },
+                "brackets": [
+                    {
+                        "id": 30,
+                        "name": "All",
+                        "description": null,
+                        "active": true,
+                        "numberOfRaces": 2,
+                        "minRating": -1000.0,
+                        "maxRating": 1000.0,
+                        "classId": 8
+                    }
+                ],
+                "startDate": "2025-08-17T00:05:00Z",
+                "endDate": "2025-08-17T10:05:00Z"
             }
         ]
     },

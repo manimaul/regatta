@@ -4,6 +4,7 @@ import com.mxmariner.regatta.data.OrcCertificate
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.jdbc.upsert
@@ -15,6 +16,10 @@ object OrcTable : Table() {
     val boatId = (long("boat_id") references BoatTable.id).nullable()
     val cert = jsonb<OrcCertificate>("cert", Json)
     override val primaryKey = PrimaryKey(refNo)
+
+    init {
+        index("orc_boat_id", false, boatId)
+    }
 
     fun upsertCert(boat: Long, certificate: OrcCertificate) {
         if (validate(certificate)) {
@@ -29,17 +34,23 @@ object OrcTable : Table() {
     }
 
     fun findCertificate(ref: String?): OrcCertificate? {
-        return ref?.let {
-            OrcTable.selectAll().where { refNo eq ref }.map { ref ->
-                ref[cert]
-            }.singleOrNull()
-        }
+        return ref?.let { findCertificates(listOf(it))[it] }
     }
 
-    fun findCertificates(boat: Long): List<OrcCertificate> {
-        return OrcTable.selectAll().where { boatId eq boat }.map { ref ->
-            ref[cert]
-        }
+    /** The certificates with [refs], by reference number, in one query. */
+    fun findCertificates(refs: Collection<String>): Map<String, OrcCertificate> {
+        if (refs.isEmpty()) return emptyMap()
+        return OrcTable.selectAll().where { refNo inList refs }.associate { it[refNo] to it[cert] }
+    }
+
+    fun findCertificates(boat: Long): List<OrcCertificate> = findCertificatesByBoat(listOf(boat))[boat] ?: emptyList()
+
+    /** The certificates linked to each boat in [boatIds], in one query. Boats without any are absent. */
+    fun findCertificatesByBoat(boatIds: Collection<Long>): Map<Long, List<OrcCertificate>> {
+        if (boatIds.isEmpty()) return emptyMap()
+        return OrcTable.selectAll().where { boatId inList boatIds }
+            .mapNotNull { row -> row[boatId]?.let { it to row[cert] } }
+            .groupBy({ it.first }, { it.second })
     }
 
     fun unlinkCerts(boat: Long) {

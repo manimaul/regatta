@@ -7,7 +7,9 @@ against the local Postgres 16 container loaded with the scrubbed production snap
 2026-10-13 (`server/src/jvmTest/resources/golden/regatta-2026-10-13.sql`), with the server built
 from `main` at 552229f and `log_statement = 'all'` turned on for the measurement.
 
-Status: measured and decided, nothing implemented. Task checklist at the end.
+Status: implemented on 2026-10-14 (R1–R6 below), re-measured, and the golden regression re-run
+at every step. The "Results" section at the end has the after numbers and the two places where
+the implementation departed from the plan.
 
 ## Summary
 
@@ -301,13 +303,77 @@ SELECT race_id, class_id, bracket_id, COUNT(*) FROM racebracketjunction GROUP BY
   show an index scan, and `pg_stat_user_indexes` should show the new indexes accumulating
   `idx_scan` while `raceresults_end_date` is gone.
 
+## Results (implemented 2026-10-14)
+
+Same data, same method, server built from the implementation:
+
+| Endpoint | Statements before | Statements after | Wall before | Wall after |
+|---|---|---|---|---|
+| `series/standings?id=15&year=2025` (5 races, 143 results) | 5,080 | 74 | 1,224 ms | 101 ms |
+| `report?raceId=69` (30 results) | 1,027 | 25 | 259 ms | 48 ms |
+| `allRaces?year=2025` (34 races) | 979 | 18 | 242 ms | 36 ms |
+| `raceSchedule?id=69` | 35 | 16 | 36 ms | 33 ms |
+| `allClasses` | 53 | 9 | 41 ms | 41 ms |
+| `allSeries` | 15 | 7 | 30 ms | 29 ms |
+| `years` | 6 | 6 | 29 ms | 30 ms |
+
+The remaining statements are mostly fixed per request: a schedule is 14 statements however many
+races are loaded, a race's results are 4, and each Exposed transaction adds a few session
+statements that the count includes (`years` is a single `SELECT` and still shows 6).
+
+What was done, by recommendation:
+
+- **R1.** `RaceResultsTable.resultsBoatBracketByRaceId(raceId, raceSchedule)` takes the schedule
+  the reporter already has. The results query keeps the exact SQL it had (`raceresults ⋈ race ⋈
+  boat`, no `ORDER BY`), because tied cards keep their input order through the stable sorts in
+  the reporter and a different row order would reorder them in the golden files.
+- **R2.** `RaceTable.findRaceSchedules(raceIds)` loads any number of schedules in 14 statements
+  (races, image names, junctions, brackets, classes, class times, result counts, series, RC
+  people, plus one grouped count each for brackets, classes, series and results).
+  `findRaceSchedule(id)` is the one-element case; `allRaces(year)` and `getStandingsReport` use
+  the bulk form. Classes are now ordered by class sort then id, and brackets by min rating
+  then id, instead of by whatever order the junction rows are stored in. That was necessary
+  for R6: with a unique index led by `race_id` on the junction table the planner would read it in
+  index order, which matches the stored order in only 17 of 118 races.
+- **R3.** The derived counts stay in the API (the golden files and the admin pages use them) but
+  come from one `GROUP BY` query per hydrated batch: `RaceBracketJunction.raceCountsByBracket`
+  / `raceCountsByClass`, `RaceTable.raceCountsBySeries`, `RaceResultsTable.countsByRace` /
+  `raceCountsByBoat`. Single-item lookups (`findBracket`, `selectById`, upserts) go through the
+  same batch loaders with a one-element list. The boats page loads boats with a left join to
+  `person` and one query each for certificates and race counts; `BoatTable.findBoatSkippers(ids)`
+  does the same for the schedule-results endpoint. The reporter looks up the ORC certificates of
+  a race's results in one `IN` query instead of one per card.
+- **R4.** `ImageTable.getRaceReportImageName` / `reportImageNames` select `hash` and `race_id`
+  only.
+- **R5.** `allYears()` selects only the two timestamp columns rather than whole rows. It still
+  converts to Pacific years in Kotlin, not with `EXTRACT`: the column is `timestamp without time
+  zone` and the JVM-side conversion is what defines the stored value, so an SQL expression would
+  have to replicate that convention for a saving of one statement. `findBoatSkipper` is one left
+  join.
+- **R6.** `dbVersion4To5Upgrade` creates the indexes in the table above, drops
+  `raceresults_end_date` and the empty `checkin` table, and `currentDbVersion` is 5. The Table
+  objects declare the same indexes for fresh databases. `RaceBracketJunction.setBrackets` now
+  de-duplicates its input so the new unique index cannot reject a double-attached bracket.
+  Verified on the dev database after startup: schema version 5, all ten indexes present,
+  `EXPLAIN` on `raceresults WHERE race_id = ?` is a bitmap scan on `raceresults_race_id`.
+
+**Golden regression.** Run after R1–R3 with the stored row order kept: 118 race reports and 22
+standings byte-identical to the approved files. Then the explicit ordering of R2 was added and
+exactly eight files changed, all order-only (checked by comparing the files with every list
+sorted): `race-37`, `race-46`, `race-91`, `race-103`, `race-109` list bracket I before II (or III
+before IV) where they had been stored the other way round; `race-77` lists its two Windseekers
+classes in class-sort order; `standings-16-2026` and `standings-17-2026` follow the same bracket
+order. Those eight were re-approved on 2026-10-14 and `database/audit_scoring.py` still writes
+an empty `deviations.json`. The run after R6 (which applies the migration to the snapshot and
+checks the schema version) and `:server:jvmTest` are green.
+
 ## Tasks
 
-- [ ] R1: thread `RaceSchedule` through `resultsBoatBracketByRaceId` / `rowToRaceResultBoatBracket`; drop the `RaceTable` join. Golden test.
-- [ ] R2: single-join `findRaceSchedule`; add `findRaceSchedules(ids)`; use it in `allRaces(year)` and `getStandingsReport`. Golden test.
-- [ ] R3: grouped counts on `allClasses` / `allSeries` / `selectAllBoats`; zero the counts elsewhere or move them to the list types; bulk-load ORC certs and skippers for the boats page. Check `Classes.kt`, `Series`, `Boats` and `Races.kt` still gate edits and deletes correctly. Golden test.
-- [ ] R4: `ImageTable.getRaceReportImageName` selects only `hash`.
-- [ ] R5: `allYears()` via `EXTRACT`; `findBoatSkipper` as one left join.
-- [ ] R6: `dbVersion4To5Upgrade` with the statements above (and `DROP TABLE IF EXISTS checkin`), `currentDbVersion = 5`, matching declarations in the Table objects, duplicate check on the production dump first.
-- [ ] Re-measure and record the new numbers in this document; move it to `explore_implemented/`.
-- [ ] Fix the Exposed version in `CLAUDE.md` (1.3.0, not 1.0.0).
+- [x] R1: thread `RaceSchedule` through `resultsBoatBracketByRaceId`. Golden test.
+- [x] R2: `findRaceSchedules(ids)` in a fixed number of statements; used by `allRaces(year)` and `getStandingsReport`. Golden test.
+- [x] R3: grouped counts for brackets, classes, series, boats and results; bulk-loaded certificates and skippers. Golden test.
+- [x] R4: `ImageTable` selects only the name.
+- [x] R5: `allYears()` narrow select (Kotlin conversion kept, see above); `findBoatSkipper` as one left join.
+- [x] R6: `dbVersion4To5Upgrade`, `currentDbVersion = 5`, matching Table declarations, duplicate check on the snapshot (none).
+- [x] Re-measured and recorded above; moved to `explore_implemented/`.
+- [x] Exposed version in `CLAUDE.md` corrected to 1.3.0.

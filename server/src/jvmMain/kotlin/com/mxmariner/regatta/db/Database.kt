@@ -151,9 +151,7 @@ object RegattaDatabase {
                     raceIds.add(raceId)
                 }
             }
-            raceIds.mapNotNull {
-                RaceTable.findRaceSchedule(it)
-            }.sortedBy { it.startTime }
+            RaceTable.findRaceSchedules(raceIds).sortedBy { it.startTime }
         }
     }
 
@@ -180,7 +178,9 @@ object RegattaDatabase {
 
     suspend fun findRace(id: Long): Race? = dbQuery { RaceTable.findRace(id) }
     suspend fun findRaceSchedule(id: Long): RaceSchedule? = dbQuery { RaceTable.findRaceSchedule(id) }
+    suspend fun findRaceSchedules(ids: Collection<Long>): List<RaceSchedule> = dbQuery { RaceTable.findRaceSchedules(ids) }
     suspend fun findCertificate(ref: String?): OrcCertificate? = dbQuery { OrcTable.findCertificate(ref) }
+    suspend fun findCertificates(refs: Collection<String>): Map<String, OrcCertificate> = dbQuery { OrcTable.findCertificates(refs) }
     suspend fun upsertRace(race: Race): Race? = dbQuery { RaceTable.upsertRace(race) }
 
     suspend fun deleteRace(id: Long) = dbQuery {
@@ -211,8 +211,9 @@ object RegattaDatabase {
     suspend fun scheduleResultsByRaceId(raceId: Long): RaceScheduleResults? =
         dbQuery { RaceResultsTable.scheduleResultsByRaceId(raceId) }
 
-    suspend fun resultsBoatBracketByRaceId(raceId: Long): List<RaceResultBoatBracket> =
-        dbQuery { RaceResultsTable.resultsBoatBracketByRaceId(raceId) }
+    /** The results of [raceSchedule]'s race, placed against that schedule. */
+    suspend fun resultsBoatBracketByRaceId(raceSchedule: RaceSchedule): List<RaceResultBoatBracket> =
+        dbQuery { RaceResultsTable.resultsBoatBracketByRaceId(raceSchedule.race.id, raceSchedule) }
 
     suspend fun upsertResult(result: RaceResult): RaceResult? = dbQuery { RaceResultsTable.upsertResult(result) }
 

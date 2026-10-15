@@ -3,11 +3,9 @@ package com.mxmariner.regatta.db
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.BoatTable.resultRowToBoat
 import com.mxmariner.regatta.db.RaceTable.findRaceSchedule
-import com.mxmariner.regatta.db.RaceTable.rowToRace
-import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
 
@@ -15,7 +13,7 @@ object RaceResultsTable : Table() {
     val id = long("id").autoIncrement()
     val raceId = (long("race_id") references RaceTable.id)
     val boatId = (long("boat_id") references BoatTable.id)
-    val finish = timestamp("end_date").nullable().index()
+    val finish = timestamp("end_date").nullable()
     val phrfRating = integer("phrf_rating").nullable()
     val orcRefNo = (varchar("orc_ref", 128) references OrcTable.refNo).nullable()
     val ratingType = varchar("rating_type", 128)
@@ -27,12 +25,19 @@ object RaceResultsTable : Table() {
 
     init {
         uniqueIndex("idx_boat_race_unique", boatId, raceId)
+        index("raceresults_race_id", false, raceId)
     }
 
     override val primaryKey = PrimaryKey(id)
 
-    fun count(raceId: Long): Long {
-        return RaceResultsTable.selectAll().where { RaceResultsTable.raceId eq raceId }.count()
+    fun count(raceId: Long): Long = countsByRace(listOf(raceId))[raceId] ?: 0L
+
+    /** Results per race, one grouped query for all of [raceIds]. Races with no results are absent. */
+    fun countsByRace(raceIds: Collection<Long>): Map<Long, Long> {
+        if (raceIds.isEmpty()) return emptyMap()
+        val count = id.count()
+        return select(raceId, count).where { raceId inList raceIds }.groupBy(raceId)
+            .associate { it[raceId] to it[count] }
     }
 
     fun upsertResult(result: RaceResult): RaceResult? {
@@ -55,51 +60,69 @@ object RaceResultsTable : Table() {
 //        return RaceResultsTable.selectAll().map(::rowToResult)
 //    }
 
-    fun raceCount(boatId: Long): Long {
-        return RaceResultsTable.selectAll().where { RaceResultsTable.boatId eq boatId }.count()
+    fun raceCount(boatId: Long): Long = raceCountsByBoat(listOf(boatId))[boatId] ?: 0L
+
+    /** Results per boat, one grouped query for all of [boatIds]. Boats with no results are absent. */
+    fun raceCountsByBoat(boatIds: Collection<Long>): Map<Long, Long> {
+        if (boatIds.isEmpty()) return emptyMap()
+        val count = id.count()
+        return select(boatId, count).where { boatId inList boatIds }.groupBy(boatId)
+            .associate { it[boatId] to it[count] }
     }
 
-    fun resultsBoatBracketByRaceId(rId: Long): List<RaceResultBoatBracket> {
-        return innerJoin(RaceTable).innerJoin(BoatTable).selectAll().where {
+    /**
+     * The results of race [rId] with their boat, skipper and bracket, placed against [raceSchedule]
+     * (the schedule of that same race, loaded once by the caller). Four statements for any number
+     * of results: the results joined to boat, then the boats' race counts, ORC certificates and skippers.
+     */
+    fun resultsBoatBracketByRaceId(rId: Long, raceSchedule: RaceSchedule): List<RaceResultBoatBracket> {
+        val rows = innerJoin(RaceTable).innerJoin(BoatTable).selectAll().where {
             raceId.eq(rId)
-        }.map(::rowToRaceResultBoatBracket)
+        }.toList()
+        val boatIds = rows.map { it[boatId] }.distinct()
+        val raceCounts = raceCountsByBoat(boatIds)
+        val certs = OrcTable.findCertificatesByBoat(boatIds)
+        val skippers = PersonTable.findPeople(rows.mapNotNull { it[BoatTable.skipper] }.distinct())
+        return rows.map { row ->
+            val result = rowToResult(row)
+            val bId = row[boatId]
+            RaceResultBoatBracket(
+                result = result,
+                boatSkipper = BoatSkipper(
+                    boat = resultRowToBoat(row, raceCounts[bId] ?: 0L, certs[bId] ?: emptyList())
+                        .copy(
+                            ratingType = result.ratingType,
+                            phrfRating = result.phrfRating,
+                        ),
+                    skipper = row[BoatTable.skipper]?.let { skippers[it] }
+                ),
+                bracket = findBoatBracket(raceSchedule, result) ?: Bracket(),
+            )
+        }
     }
 
     fun resultsByRaceId(rId: Long): List<RaceResult> {
         return RaceResultsTable.selectAll().where { raceId.eq(rId) }.map(::rowToResult)
     }
 
+    /** The schedule of race [rId] with its full results; the boats and certificates load in bulk. */
     fun scheduleResultsByRaceId(rId: Long): RaceScheduleResults? {
         return findRaceSchedule(rId)?.let { raceSchedule ->
+            val rows = RaceResultsTable.selectAll().where { raceId.eq(rId) }.toList()
+            val boats = BoatTable.findBoatSkippers(rows.map { it[boatId] }.distinct())
+            val certs = OrcTable.findCertificates(rows.mapNotNull { it[orcRefNo] }.distinct())
             RaceScheduleResults(
                 raceSchedule = raceSchedule,
-                results = RaceResultsTable.selectAll().where { raceId.eq(rId) }.map(::rowToResultFull)
+                results = rows.map { rowToResultFull(it, boats, certs) }
             )
         }
     }
 
-    fun rowToRaceResultBoatBracket(row: ResultRow): RaceResultBoatBracket {
-        val raceSchedule = rowToRace(row).let {
-            findRaceSchedule(it.id) ?: RaceSchedule()
-        }
-
-        val result = rowToResult(row)
-        val bracket = findBoatBracket(raceSchedule, result)
-        return RaceResultBoatBracket(
-            result = result,
-            boatSkipper = BoatSkipper(
-                boat = resultRowToBoat(row)
-                    .copy(
-                        ratingType = result.ratingType,
-                        phrfRating = result.phrfRating,
-                    ),
-                skipper = row[BoatTable.skipper]?.let { PersonTable.selectPerson(it) }
-            ),
-            bracket = bracket ?: Bracket(),
-        )
-    }
-
-    fun rowToResultFull(row: ResultRow): RaceResultFull {
+    private fun rowToResultFull(
+        row: ResultRow,
+        boats: Map<Long, BoatSkipper>,
+        certs: Map<String, OrcCertificate>,
+    ): RaceResultFull {
         val time = row[finish]
         val code = row[finishCode]?.let { FinishCode.valueOf(it) } ?: run {
             time?.let { FinishCode.TIME } ?: FinishCode.RET
@@ -107,10 +130,10 @@ object RaceResultsTable : Table() {
         return RaceResultFull(
             id = row[id],
             raceId = row[raceId],
-            boat = requireNotNull(BoatTable.findBoatSkipper(row[boatId])),
+            boat = requireNotNull(boats[row[boatId]]),
             finish = time,
             phrfRating = row[phrfRating],
-            orcCertificate =OrcTable.findCertificate(row[orcRefNo]),
+            orcCertificate = row[orcRefNo]?.let { certs[it] },
             ratingType = RatingType.valueOf(row[ratingType]),
             hocPosition = row[hoc],
             raceClassId = row[raceClass],

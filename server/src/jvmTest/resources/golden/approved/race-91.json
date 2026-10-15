@@ -72,16 +72,6 @@
                 },
                 "brackets": [
                     {
-                        "id": 4,
-                        "name": "IV",
-                        "description": "Rating 120 to 200",
-                        "active": true,
-                        "numberOfRaces": 64,
-                        "minRating": 120.0,
-                        "maxRating": 200.0,
-                        "classId": 2
-                    },
-                    {
                         "id": 3,
                         "name": "III",
                         "description": "Rating 73 to 119",
@@ -89,6 +79,16 @@
                         "numberOfRaces": 64,
                         "minRating": 73.0,
                         "maxRating": 119.0,
+                        "classId": 2
+                    },
+                    {
+                        "id": 4,
+                        "name": "IV",
+                        "description": "Rating 120 to 200",
+                        "active": true,
+                        "numberOfRaces": 64,
+                        "minRating": 120.0,
+                        "maxRating": 200.0,
                         "classId": 2
                     }
                 ],
