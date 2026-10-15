@@ -310,7 +310,9 @@ become pure functions so both screens and the tests share them:
   rule possible later); `withClassStart` changes only that class.
 - Golden: unaffected, validation runs on save only.
 
-**R4b. The existing rows and the scores computed from them** (open, to be discussed after R4a).
+**R4b. The existing rows and the scores computed from them** (decided and done 2026-10-15: the
+B factor is the authority, applied by `database/fix_orc_bands.py` in production and dev; the
+options below are kept for the record).
 Once R4a is in, no new race can be saved out of step, but the 101 stored rows stay as they are
 and the race view and ORC scoring keep reading them. Options:
 - Make the B factor the single source of truth: `orcTcf` derives the band from
@@ -342,15 +344,20 @@ race view does.
       order). Golden unchanged. `InvariantsTest` is unchanged until phase 1 adds ORC-only boats
       to its random races, when `places_are_contiguous_and_follow_corrected_time_then_hoc` must
       restrict its PHRF checks to PHRF cards.
-- [ ] R4a (server): `validateRace` in `results/RaceValidation.kt`; `post(race)` and
-      `post(raceSchedule)` answer 400 with its message; `RaceValidationTest`.
-- [ ] R4a (web): `utils/RaceConfig.kt` schedule helpers used by `RcViewModel` and
-      `RacesEditViewModel.setCF`; `components/RaceConfigForm.kt` extracted from `RcRaceConfig`
-      (with `OrcScoringOptionSelect`); Config button and `race-config` modal on the Results
-      Editor backed by `RaceResultAddViewModel` draft state, with the 400 message shown in the
-      modal; `RaceConfigTest` in jsTest.
-- [ ] R4b: the existing rows and the 2026 ORC scores computed from them. Open; see R4b under
-      "Related fixes". Not part of phase 1.
+- [x] R4a (server): `validateRace` in `results/RaceValidation.kt`; `post(race)` and
+      `post(raceSchedule)` answer 400 with its message; `RaceValidationTest`. Done 2026-10-15.
+- [x] R4a (web): `utils/RaceConfig.kt` schedule helpers used by `RcViewModel` and
+      `RacesEditViewModel.setCF` (whose `save` now shows a rejected save as an alert);
+      `components/RaceConfigForm.kt` extracted from `RcRaceConfig` (with
+      `OrcScoringOptionSelect`); Config button and `race-config` modal on the Results Editor
+      backed by `RaceResultAddViewModel` draft state, with the 400 message shown in the modal;
+      `RaceConfigTest` in jsTest. Checked in the browser against the dev database. Done 2026-10-15.
+- [x] R4b: `database/fix_orc_bands.py` made every race's bands follow its B factor with the
+      5-Band Windward/Leeward option, run in production and dev on 2026-10-15. The golden
+      snapshot predates it; the next refresh will show the 2026 ORC corrected times and places
+      of the races listed under R4 change. `rowToRace`'s NULL-band fallback still derives from
+      the default B factor; it no longer matters, since every row has bands and `validateRace`
+      keeps them in step from here on.
 
 ### Phase 1: Scoring (server + common)
 - [ ] Add the `StandingsRace` and `StandingsBoatSkipper` fields above.
