@@ -45,3 +45,6 @@ kotlin-js-store/yarn.lock
 
 # golden test output written on a mismatch (server/src/jvmTest/resources/golden/approved)
 *.received.json
+
+# filled k8s manifests (server/build.gradle.kts deploymentYaml)
+k8s_deploy/.___*

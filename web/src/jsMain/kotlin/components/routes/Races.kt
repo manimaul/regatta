@@ -80,8 +80,9 @@ fun RaceList(schedules: List<RaceSchedule>, viewModel: RacesViewModel) {
 }
 
 /**
- * Adds or edits a race: name, race committee, series, correction factor, then the class start times edited in place
- * with +/- buttons like the brackets of the Add Race Class modal. [viewModel] is null until the modal is first opened.
+ * Adds or edits a race: name, series, then the class start times edited in place with +/- buttons like the brackets of
+ * the Add Race Class modal. The race committee and correction factor are not set here: they are entered on race day
+ * from the RC tab or afterwards in the race's config. [viewModel] is null until the modal is first opened.
  */
 @Composable
 fun AddEditRaceModal(viewModel: RacesEditViewModel?) {
@@ -143,24 +144,11 @@ private fun RaceFields(viewModel: RacesEditViewModel) {
                     }
                 }
                 P {
-                    Label(attrs = { classes(AppStyle.marginEnd) }) { B { Text("Race Committee") } }
-                    state.skippers.complete(viewModel) { people ->
-                        RgDropdownNone(people.sortedBy { it.fullName() }, schedule.rc, { it.fullName() }) {
-                            viewModel.setRC(it)
-                        }
-                    }
-                }
-                P {
                     Label(attrs = { classes(AppStyle.marginEnd) }) { B { Text("Series") } }
                     state.series.complete(viewModel) { series ->
                         RgSeriesDropdown(series, schedule.series) {
                             viewModel.setSeries(it)
                         }
-                    }
-                }
-                P {
-                    RgInput(label = "CF", placeHolder = true, value = schedule.race.phrfBFactor.toString()) {
-                        viewModel.setCF(it.toIntOrNull())
                     }
                 }
 

@@ -1,8 +1,0 @@
-const val kotlinVersion = "2.4.0"
-const val ktorVersion = "3.5.0"
-const val logbackVersion = "1.4.11"
-const val composeVersion = "1.10.3"
-const val serializationVersion = "1.11.0"
-const val exposedVersion = "1.3.0"
-const val coroutinesVersion = "1.10.2"
-const val testcontainersVersion = "1.21.4"

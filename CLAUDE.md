@@ -18,27 +18,27 @@ cd database && podman-compose up
 
 Run the server:
 ```shell
-./gradlew :server:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
+./gradlew :regattaServer:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
 ```
 
 Run the web frontend with hot reload:
 ```shell
-./gradlew :web:jsBrowserDevelopmentRun --continuous
+./gradlew :regattaWeb:jsBrowserDevelopmentRun --continuous
 ```
 
 ### Tests
 
 ```shell
-./gradlew :common:jvmTest   # rating bands, ORC certificate helpers, shared labels
-./gradlew :server:jvmTest   # scoring rule tests, corrected time, seeded invariants, TokenTest
-./gradlew :common:jsTest
-./gradlew :web:jsBrowserTest
+./gradlew :regattaCommon:jvmTest   # rating bands, ORC certificate helpers, shared labels
+./gradlew :regattaServer:jvmTest   # scoring rule tests, corrected time, seeded invariants, TokenTest
+./gradlew :regattaCommon:jsTest
+./gradlew :regattaWeb:jsBrowserTest
 ```
 
-Golden regression against a scrubbed production snapshot (needs podman or docker; excluded from `:server:jvmTest`):
+Golden regression against a scrubbed production snapshot (needs podman or docker; excluded from `:regattaServer:jvmTest`):
 ```shell
-./gradlew :server:jvmGoldenTest                         # compare to server/src/jvmTest/resources/golden/approved
-./gradlew :server:jvmGoldenTest -Dgolden.approve=true   # re-approve on purpose, then review the diff
+./gradlew :regattaServer:jvmGoldenTest                         # compare to server/src/jvmTest/resources/golden/approved
+./gradlew :regattaServer:jvmGoldenTest -Dgolden.approve=true   # re-approve on purpose, then review the diff
 python3 -I database/audit_scoring.py                    # re-score the approved files, writes golden/deviations.json
 ```
 The task sets `DOCKER_HOST` from `podman machine inspect` when unset. `database/scrub_dump.py` produces the committed snapshot from a `pg_dump`. To refresh the snapshot: scrub the new dump into `golden/`, update `GoldenDb.DUMP` and `dumpInstant`, re-approve, and review the diff (new races appear as new files, existing files should not change). `deviations.json` must stay empty. Details: `docs/explore_implemented/test_audit_and_plan.md` §5.
@@ -47,8 +47,8 @@ Scoring tests build fleets with the fixture DSL in `server/src/jvmTest/.../resul
 
 Run a single JVM test class or method with `--tests`:
 ```shell
-./gradlew :server:jvmTest --tests "com.mxmariner.regatta.results.RaceResultReporterKtTest"
-./gradlew :common:jvmTest --tests "com.mxmariner.regatta.OrcTest.someTestName"
+./gradlew :regattaServer:jvmTest --tests "com.mxmariner.regatta.results.RaceResultReporterKtTest"
+./gradlew :regattaCommon:jvmTest --tests "com.mxmariner.regatta.OrcTest.someTestName"
 ```
 
 JS tests run in Chrome Headless and Firefox via Karma (Firefox must be installed, or `FIREFOX_BIN` set). Web component tests use `org.jetbrains.compose.html:html-test-utils` (`runTest { composition { ... } }`); prefer polling or `delay` over `waitForRecompositionComplete()` when nothing is expected to recompose, since it never returns in that case.
@@ -56,10 +56,10 @@ JS tests run in Chrome Headless and Firefox via Karma (Firefox must be installed
 ### Production Build & Deploy
 
 ```shell
-./gradlew makeImg       # build Docker image ghcr.io/manimaul/regatta:latest
-./gradlew pubImg        # push image to ghcr.io
-./gradlew deployServer  # full k8s deploy pipeline
-./gradlew :server:buildDeb  # build .deb for bare-metal install
+./gradlew :regattaServer:makeImg       # build the container image ghcr.io/manimaul/regatta:latest
+./gradlew :regattaServer:pubImg        # push it to ghcr.io
+./gradlew :regattaServer:deployServer  # full k8s deploy pipeline
+./gradlew :regattaServer:installJvmDist  # the distribution for a bare-metal install (server/build/install/regatta-jvm)
 ```
 
 No dedicated lint task — relies on Kotlin compiler warnings. Code style: `kotlin.code.style=official`.
@@ -74,7 +74,18 @@ of any kind. For example: `orc places - phrf entries only`.
 
 ## Architecture
 
-This is a **Kotlin Multiplatform (KMP) monorepo** with three Gradle subprojects: `common`, `server`, and `web`.
+This is a **Kotlin Multiplatform (KMP)** build with three Gradle projects: `:regattaCommon` (`common/`), `:regattaServer` (`server/`) and `:regattaWeb` (`web/`).
+
+Regatta is also a **submodule** of a parent project, whose
+settings include these three projects, under the same paths, as subprojects of that build. That is
+why the paths carry the `regatta` prefix and why every project build file takes versions and plugins
+only from a version catalog named `libs`: standalone it is `gradle/libs.versions.toml` here, and
+inside parent it is parent's. **Keep the two catalogs in step** (same alias names, same
+versions), and never reference the root `build.gradle.kts`, `settings.gradle.kts` or anything that
+only this root provides from a project build file: inside parent they are not read. Task wiring,
+image and deploy tasks therefore live in `server/build.gradle.kts`. A plain clone of this
+repository must keep building on its own: no mavenLocal, no dependency that only parent project can
+supply.
 
 ### `common` — Shared Models & API Contracts
 Targets both JVM and JS. Contains all `@Serializable` domain data classes (`Race`, `Boat`, `Person`, `Series`, `Bracket`, `RaceClass`, `RaceResult`, `OrcCertificate`, etc.) and shared REST API path constants (`ApiPaths.kt`). Both the server and web depend on this module.
@@ -95,15 +106,14 @@ Targets both JVM and JS. Contains all `@Serializable` domain data classes (`Race
 - **ViewModels:** `viewmodel/` — MVVM pattern using `BaseViewModel<T>` backed by `MutableStateFlow` + coroutines. Concrete VMs per feature area.
 - **API client:** `utils/Api.kt` (typed) → `utils/Network.kt` (fetch API interop)
 - **Auth:** Token stored in browser `localStorage` via `utils/Auth.kt` / `utils/LocalStorage.kt`
-- **Maps:** `utils/MapLibre.kt` — MapLibre GL JS interop for course display. maplibre-gl is **not bundled**: `webpack.config.d/externals.js` maps it to the `window.maplibregl` global, and the JS + CSS load from jsDelivr tags in `common/src/commonMain/resources/static/index.html`. Keep that version in step with `npm("maplibre-gl", ...)` in `web/build.gradle.kts` (the npm dep remains only for local typing/resolution). The OpenENC style's `LIGHTS_sector` layer names its icons `sector_<bearings>_<colors>_<radius>`; `utils/LightSector.kt` parses that id and draws the SVG, and `ChartController` registers it on `styleimagemissing` in the current theme's palette (ported from njord's `SvgLightSector.kt` in the mxmariner repo).
+- **Maps:** `utils/MapLibre.kt` — MapLibre GL JS interop for course display. maplibre-gl is **not bundled**: `webpack.config.d/externals.js` maps it to the `window.maplibregl` global, and the JS + CSS load from jsDelivr tags in `common/src/commonMain/resources/static/index.html`. Keep that version in step with `npm("maplibre-gl", ...)` in `web/build.gradle.kts` (the npm dep remains only for local typing/resolution). The OpenENC style's `LIGHTS_sector` layer names its icons `sector_<bearings>_<colors>_<radius>`; `utils/LightSector.kt` parses that id and draws the SVG, and `ChartController` registers it on `styleimagemissing` in the current theme's palette (ported from njord's `SvgLightSector.kt`).
 - **Styles:** Tailwind CSS v4, entry point `src/jsMain/resources/app.css` (theme tokens, Reboot-like base layer, and all `.rg-*` component classes), run through PostCSS by `webpack.config.d/tailwind.js`. Components keep their look in `.rg-*` classes; Kotlin uses Tailwind utilities only for one-off layout. Tailwind finds classes by scanning the `.kt` sources, so **class names must be literal strings** — never build them with templates (`"table-${x}"`); runtime-built spacing from `RgDiv`'s `Customizer` is covered by an `@source inline(...)` safelist in `app.css`. `styles/AppStyle.kt` (CSS-in-Kotlin margins) is still used alongside it. Modals are native `<dialog>`s (`components/Modal.kt`); there is no Bootstrap. Tailwind emits `@layer base/components` as native CSS cascade layers, so an **unlayered** third-party stylesheet (maplibre-gl.css from the CDN) beats anything inside them regardless of order or specificity; overrides for such styles (the chart popup block at the end of `app.css`) must sit outside any `@layer`. **Light/dark themes:** components read only the `--rg-*` semantic tokens defined in `app.css` (`:root` = light, `:root[data-theme="dark"]` = dark, built from the burgee colors), never palette colors directly; in Kotlin use the semantic utilities (`text-fg`, `text-muted`, `border-line`, `text-danger-fg`) or `dark:`, which follows `data-theme`. The theme defaults to light, is switched by `ThemeToggle` / `viewmodel/ThemeViewModel.kt`, and is saved in `localStorage["theme"]`; an inline script in `index.html` applies it before first paint. Background and decisions: `docs/explore_implemented/explore_tailwind.md`.
 
-### `buildSrc`
-- `VersionPlugin` generates `VersionInfo.kt` from git hash/date at build time
-- `Versions.kt` — all dependency version constants (Kotlin 2.3.0, Ktor 3.4.0, Compose 1.10.0, Exposed 1.3.0)
+### Versions
+`common/build.gradle.kts`'s `generateVersionInfo` task generates `VersionInfo.kt` (git hash, branch, dirty flag, build date) into `common/build/generated/versionInfo/` on every build and adds it to `commonMain`; nothing is written into `src/`. Dependency versions are in `gradle/libs.versions.toml` (see above).
 
 ### How the web build integrates with the server
-The root `build.gradle.kts` wires `jsBrowserProductionWebpack` output into `jvmProcessResources` under `static/`. During production webpack, `build.gradle.kts` temporarily renames `dev_server_config.js` to exclude it from the production bundle, then restores it. (That rename is now belt-and-braces: `dev_server_config.js` is wrapped in `if (config.devServer)`, so plain webpack builds and Karma tests skip it anyway. `tailwind.js` and `externals.js` must stay active in every build.)
+`server/build.gradle.kts` copies `:regattaWeb:jsBrowserProductionWebpack`'s output into `jvmProcessResources` under `static/`, beside `common/src/commonMain/resources/static/` (index.html and the images). `dev_server_config.js` is wrapped in `if (config.devServer)`, so plain webpack builds and Karma tests skip it; `tailwind.js` and `externals.js` must stay active in every build.
 
 The `database/` directory is **not** a Gradle subproject — it only contains Docker Compose files for local dev and backup/restore scripts.
 

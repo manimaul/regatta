@@ -7,13 +7,19 @@ Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacom
 
 ![Sailing Vessel Waymaker](./sv_waymaker.jpeg "SV Waymaker")
 
+### Building
+
+Regatta is also a submodule of a parent project, where these same
+three projects (`:regattaCommon`, `:regattaServer`, `:regattaWeb`) are part of that build. Every
+command below works from either root, and a plain clone of this repository builds on its own.
+
 ### Build and run 
 ```shell
 cd database
 podman-compose up
 ```
 ```shell
-./gradlew :server:run
+./gradlew :regattaServer:run
 ```
 
 ### Run in browser hot loading
@@ -22,12 +28,11 @@ cd database
 podman-compose up
 ```
 ```shell
-# ./gradlew :server:jvmRun
-./gradlew :server:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
+./gradlew :regattaServer:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
 ```
 
 ```shell
-./gradlew :web:jsBrowserDevelopmentRun --continuous
+./gradlew :regattaWeb:jsBrowserDevelopmentRun --continuous
 ```
 
 ### Run in container 
@@ -37,7 +42,7 @@ podman-compose up
 ```
 
 ```shell
-./gradlew makeImg
+./gradlew :regattaServer:makeImg
 podman run -p 8888:8888 -e JAVA_OPTS=-Djdbcurl=jdbc:postgresql://host.containers.internal:5432/regatta  ghcr.io/manimaul/regatta:latest
 ```
 
@@ -63,8 +68,8 @@ sudo systemctl restart postgresql
 
 Build & Install Binary
 ```shell
-./gradlew :server:buildDeb
-sudo dpkg -i server/build/distributions/regatta<version>.deb
+./gradlew :regattaServer:installJvmDist
+sudo cp -r server/build/install/regatta-jvm /opt/regatta
 ```
 
 Edit `/etc/regatta.env` and restart service

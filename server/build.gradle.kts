@@ -1,16 +1,13 @@
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("io.ktor.plugin") version ktorVersion
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
 }
-
 
 group = "com.mxmariner.regatta"
 version = "1.0"
 
-
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(21)
 
     jvm {
         binaries {
@@ -23,33 +20,46 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(project(":common"))
-                implementation("io.ktor:ktor-server-core-jvm")
-                implementation("io.ktor:ktor-server-netty-jvm")
-                implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("io.ktor:ktor-server-status-pages:${ktorVersion}")
-                implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-                implementation("io.ktor:ktor-server-auth:$ktorVersion")
-                implementation("io.ktor:ktor-server-compression:$ktorVersion")
+                implementation(project(":regattaCommon"))
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.netty)
+                implementation(libs.logback.classic)
+                implementation(libs.ktor.server.status.pages)
+                implementation(libs.ktor.server.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.server.auth)
+                implementation(libs.ktor.server.compression)
 
-                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-migration-jdbc:${exposedVersion}")
-                implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-                implementation("org.postgresql:postgresql:42.5.4")
+                implementation(libs.exposed.core)
+                implementation(libs.exposed.dao)
+                implementation(libs.exposed.jdbc)
+                implementation(libs.exposed.json)
+                implementation(libs.exposed.migration.jdbc)
+                implementation(libs.exposed.kotlin.datetime)
+                implementation(libs.postgresql)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
-                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
-                implementation("org.testcontainers:testcontainers:$testcontainersVersion")
-                implementation("org.testcontainers:postgresql:$testcontainersVersion")
+                implementation(libs.kotlin.test)
+                implementation(libs.ktor.server.test.host)
+                implementation(libs.testcontainers.core)
+                implementation(libs.testcontainers.postgresql)
             }
         }
+    }
+}
+
+/*
+   The web app's production bundle is served from the server's resources under static/, beside
+   common's static files (index.html and the images). jsBrowserProductionWebpack's output is the
+   bundle alone; webpack.config.js is its own input, not something to ship.
+*/
+evaluationDependsOn(":regattaWeb")
+tasks.named<Copy>("jvmProcessResources") {
+    from(project(":regattaWeb").tasks.named("jsBrowserProductionWebpack")) {
+        into("static")
+        exclude("webpack.config.js")
     }
 }
 
@@ -94,4 +104,78 @@ tasks.register<Test>("jvmGoldenTest") {
             environment("TESTCONTAINERS_RYUK_DISABLED", "true")
         }
     }
+}
+
+/*
+   Run, image and deploy tasks. Every path is relative to the regatta directory (this project's
+   parent), which is also the image's build context, so they work from either root.
+*/
+val regattaDir: File = projectDir.parentFile
+
+tasks.register<Exec>("run") {
+    group = "application"
+    description = "Build the distribution and run the server (needs the database up: database/podman-compose up)."
+    dependsOn("installJvmDist")
+    workingDir = regattaDir
+    commandLine("bash", "-c", "./server/build/install/regatta-jvm/bin/regatta")
+}
+
+val makeImg by tasks.registering(Exec::class) {
+    description = "Build the container image ghcr.io/manimaul/regatta:latest."
+    dependsOn("installJvmDist")
+    workingDir = regattaDir
+    commandLine("bash", "-c", "podman build --platform linux/amd64 -t ghcr.io/manimaul/regatta:latest .")
+}
+
+val pubImg by tasks.registering(Exec::class) {
+    description = "Push the container image."
+    dependsOn(makeImg)
+    commandLine("bash", "-c", "podman push ghcr.io/manimaul/regatta:latest")
+}
+
+fun deployProperty(name: String): String =
+    project.findProperty(name)?.toString()
+        ?: throw GradleException("$name missing from ~/.gradle/gradle.properties")
+
+// The k8s manifests carry {REGATTA_PG_USER} / {REGATTA_PG_PASS} placeholders; the filled copy is
+// written beside the template as a dotfile (gitignored).
+fun deploymentYaml(name: String): File {
+    val template = File(regattaDir, "k8s_deploy/$name")
+    val yaml = template.readText()
+        .replace("{REGATTA_PG_USER}", "'${deployProperty("REGATTA_PG_USER")}'")
+        .replace("{REGATTA_PG_PASS}", "'${deployProperty("REGATTA_PG_PASS")}'")
+    return File(template.parentFile, ".___${template.name}").also { it.writeText(yaml) }
+}
+
+val k8sApplyServer by tasks.registering(Exec::class) {
+    mustRunAfter(pubImg)
+    commandLine("bash", "-c", "kubectl apply -f '${deploymentYaml("server.yaml").absolutePath}'")
+}
+
+tasks.register<Exec>("k8sDeleteServer") {
+    commandLine("bash", "-c", "kubectl delete -f '${deploymentYaml("server.yaml").absolutePath}'")
+}
+
+tasks.register<Exec>("k8sApplyDatabase") {
+    commandLine("bash", "-c", "kubectl apply -f '${deploymentYaml("database.yaml").absolutePath}'")
+}
+
+tasks.register<Exec>("k8sDeleteDatabase") {
+    commandLine("bash", "-c", "kubectl delete -f '${deploymentYaml("database.yaml").absolutePath}'")
+}
+
+val holdOn by tasks.registering(Exec::class) {
+    mustRunAfter(pubImg, k8sApplyServer)
+    commandLine("bash", "-c", "echo 'hold on' && sleep 5")
+}
+
+val cyclePods by tasks.registering(Exec::class) {
+    mustRunAfter(k8sApplyServer, pubImg, holdOn)
+    commandLine("bash", "-c", "kubectl -n regatta delete pods -l app=regatta-service")
+}
+
+tasks.register("deployServer") {
+    group = "deployment"
+    description = "Build and push the image, apply the server manifest and cycle the pods."
+    dependsOn(makeImg, pubImg, k8sApplyServer, holdOn, cyclePods)
 }

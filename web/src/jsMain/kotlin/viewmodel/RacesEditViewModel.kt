@@ -28,7 +28,6 @@ data class ClassScheduleDraft(
 
 data class RacesEditState(
     val race: Async<RaceSchedule> = Loading(),
-    val skippers: Async<List<Person>> = Loading(),
     val series: Async<List<Series>> = Loading(),
     val classes: Async<List<RaceClassBrackets>> = Loading(),
     val drafts: List<ClassScheduleDraft> = emptyList(),
@@ -67,7 +66,6 @@ class RacesEditViewModel(
             copy(
                 race = loaded,
                 drafts = loaded.value?.schedule?.map { it.toDraft() } ?: emptyList(),
-                skippers = Api.getAllPeople().toAsync(),
                 series = Api.allSeries().toAsync(),
                 classes = Api.getAllClasses().toAsync(),
             )
@@ -134,26 +132,6 @@ class RacesEditViewModel(
                     )
                 }
             )
-        }
-    }
-
-    fun setRC(rc: Person?) {
-        setState {
-            copy(
-                race = race.map {
-                    it.copy(
-                        race = it.race.copy(rcId = rc?.id),
-                        rc = rc,
-                    )
-                }
-            )
-        }
-    }
-
-    /** The B factor sets the ORC wind bands too (R4a), so a race saved here passes `validateRace`. */
-    fun setCF(cf: Int?) {
-        setState {
-            copy(race = race.map { it.withPhrfBFactor(cf) })
         }
     }
 

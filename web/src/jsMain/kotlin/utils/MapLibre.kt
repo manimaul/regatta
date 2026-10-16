@@ -2,7 +2,6 @@
 
 package utils
 
-import io.madrona.njord.geojson.GeoJsonObject
 import org.w3c.dom.HTMLElement
 import kotlin.js.Promise
 
@@ -91,10 +90,12 @@ class GetResourceResponse(
     val data: dynamic
 )
 
+// A GeoJSON source: `data` is a GeoJSON object (a FeatureCollection, Feature or geometry) as a
+// plain JS object, or the URL of one.
 @JsExport
 class Source(
     val type: String = "geojson",
-    val data: GeoJsonObject,
+    val data: dynamic,
 )
 @JsExport
 class Layer(
