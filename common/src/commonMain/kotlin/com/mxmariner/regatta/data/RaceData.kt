@@ -139,8 +139,8 @@ enum class RatingType(val label: String) {
     ORC("ORC"),
     ORC_PHRF("ORC, PHRF"),
     PHRF("PHRF"),
-    CruisingFlyingSails("Cruising Flying Sails"),
-    CruisingNonFlyingSails("Cruising Non-Flying Sails");
+    CruisingFlyingSails("Not Rated (FS)"),
+    CruisingNonFlyingSails("Not Rated");
 
     val isCruising: Boolean by lazy {
         this == CruisingFlyingSails || this == CruisingNonFlyingSails
