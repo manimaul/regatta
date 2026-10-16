@@ -4,12 +4,15 @@ import androidx.compose.runtime.*
 import com.mxmariner.regatta.data.Person
 import com.mxmariner.regatta.data.RatingType
 import components.*
+import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.disabled
+import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import styles.AppStyle
@@ -50,6 +53,7 @@ fun PeopleLoaded(
     composite: BoatPeopleComposite?,
     viewModel: BoatViewModel,
 ) {
+    var filter by remember { mutableStateOf("") }
     Div {
         H1 { Text("Skippers") }
         Div(attrs = {
@@ -65,6 +69,21 @@ fun PeopleLoaded(
             )
             AddEditPerson()
         }
+        Div(attrs = {
+            classes("rg-input-group", "rg-input-group-sm", AppStyle.marginBot)
+        }) {
+            RgButton(label = "X", style = RgButtonStyle.SecondaryOutline) {
+                filter = ""
+            }
+            Input(InputType.Text) {
+                classes("rg-input")
+                placeholder("Type to filter")
+                value(filter)
+                onInput {
+                    filter = it.value
+                }
+            }
+        }
         RgTable {
             RgThead {
                 RgTr {
@@ -77,7 +96,14 @@ fun PeopleLoaded(
             }
             RgTbody {
                 composite?.people?.takeIf { it.isNotEmpty() }?.let { people ->
-                    people.forEach { person ->
+                    people.filter { person ->
+                        val searchable = listOf(
+                            person.first,
+                            person.last,
+                            viewModel.findBoatName(person, composite),
+                        ).joinToString(" ")
+                        itemNameContainsFilter(searchable, filter)
+                    }.forEach { person ->
                         RgTr {
                             RgTd { Text(person.first) }
                             RgTd { Text(person.last) }

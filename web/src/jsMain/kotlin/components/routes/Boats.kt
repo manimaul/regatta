@@ -3,6 +3,8 @@ package components.routes
 import androidx.compose.runtime.*
 import components.*
 import components.RgButtonStyle
+import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.*
 import styles.AppStyle
 import utils.*
@@ -35,6 +37,7 @@ fun BoatList(
     addEditMode: AddEditBoatMode,
     boatsAndPeople: BoatPeopleComposite,
 ) {
+    var filter by remember { mutableStateOf("") }
     Div {
         H1 { Text("Boats") }
         Div(attrs = {
@@ -52,6 +55,21 @@ fun BoatList(
                 modalTitle = { addEditMode.label() },
             )
         }
+        Div(attrs = {
+            classes("rg-input-group", "rg-input-group-sm", AppStyle.marginBot)
+        }) {
+            RgButton(label = "X", style = RgButtonStyle.SecondaryOutline) {
+                filter = ""
+            }
+            Input(InputType.Text) {
+                classes("rg-input")
+                placeholder("Type to filter")
+                value(filter)
+                onInput {
+                    filter = it.value
+                }
+            }
+        }
         RgTable {
             RgThead {
                 RgTr {
@@ -65,7 +83,16 @@ fun BoatList(
                 }
             }
             RgTbody {
-                boatsAndPeople.boats.forEach { boat ->
+                boatsAndPeople.boats.filter { bs ->
+                    val searchable = listOfNotNull(
+                        bs.boat?.name,
+                        bs.skipper?.fullName(),
+                        bs.boat?.sailNumber,
+                        bs.boat?.boatType,
+                        bs.boat?.ratingType?.ratedLabel(bs.boat?.phrfRating, bs.boat?.orcInfo()),
+                    ).joinToString(" ")
+                    itemNameContainsFilter(searchable, filter)
+                }.forEach { boat ->
                     RgTr {
                         RgTd { Text(boat.boat?.name ?: "") }
                         RgTd {
