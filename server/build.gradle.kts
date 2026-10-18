@@ -124,7 +124,7 @@ val makeImg by tasks.registering(Exec::class) {
     description = "Build the container image ghcr.io/manimaul/regatta:latest."
     dependsOn("installJvmDist")
     workingDir = regattaDir
-    commandLine("bash", "-c", "podman build --platform linux/amd64 -t ghcr.io/manimaul/regatta:latest .")
+    commandLine("bash", "-c", "podman build --platform linux/amd64 -f Containerfile -t ghcr.io/manimaul/regatta:latest .")
 }
 
 val pubImg by tasks.registering(Exec::class) {

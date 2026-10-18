@@ -52,7 +52,7 @@ spec:
             requests:
               cpu: 100m
           env:
-            - name: JAVA_OPTS
+            - name: JDK_JAVA_OPTIONS
               value: "-Djdbcurl=jdbc:postgresql://regatta-postgres-service.regatta.svc.cluster.local:5432/regatta -Duser={REGATTA_PG_USER} -Dpassword={REGATTA_PG_PASS}"
 ---
 apiVersion: cert-manager.io/v1

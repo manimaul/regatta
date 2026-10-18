@@ -1,7 +1,7 @@
 package com.mxmariner.regatta.golden
 
 import com.mxmariner.regatta.db.RegattaDatabase
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import org.testcontainers.utility.MountableFile
 import kotlin.time.Instant
@@ -24,15 +24,15 @@ object GoldenDb {
     private const val USER = "regatta_admin"
     private const val DATABASE = "regatta"
 
-    private val container: PostgreSQLContainer<Nothing> by lazy { start() }
+    private val container: PostgreSQLContainer by lazy { start() }
 
     /** Starts the container, loads the dump and initialises [RegattaDatabase]. Idempotent. */
     fun ensureStarted() {
         container
     }
 
-    private fun start(): PostgreSQLContainer<Nothing> {
-        val container = PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:16-bookworm")).apply {
+    private fun start(): PostgreSQLContainer {
+        val container = PostgreSQLContainer(DockerImageName.parse("postgres:16-bookworm")).apply {
             withUsername(USER)
             withPassword("mysecretpassword")
             withDatabaseName(DATABASE)

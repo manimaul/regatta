@@ -9,7 +9,7 @@ services:
 #    ports:
 #      - "8888:8888"
 #    environment:
-#      JAVA_OPTS: "-Djdbcurl=jdbc:postgresql://postgres:5432/regatta -Duser=regatta_admin -Dpassword=mysecretpassword"
+#      JDK_JAVA_OPTIONS: "-Djdbcurl=jdbc:postgresql://postgres:5432/regatta -Duser=regatta_admin -Dpassword=mysecretpassword"
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
