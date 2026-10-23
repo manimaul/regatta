@@ -2,9 +2,9 @@
 
 
 function k8s_ghcr() {
-  kubectl create namespace regatta
-  kubectl delete secret --namespace regatta ghreg
-  kubectl create secret --namespace regatta docker-registry ghreg \
+  kubectl create namespace mxmariner --dry-run=client -o yaml | kubectl apply -f -
+  kubectl delete secret --namespace mxmariner ghreg --ignore-not-found
+  kubectl create secret --namespace mxmariner docker-registry ghreg \
     --docker-server=ghcr.io --docker-username=$GH_USER --docker-password=$GH_TOKEN --docker-email=$GH_EMAIL
 }
 
@@ -24,7 +24,7 @@ help() {
    echo "arguments:"
    echo "print_token  Print the token"
    echo "docker_login Login to docker"
-   echo "k8s_ghcr     Add k8s container pull credential secret to the regatta namespace"
+   echo "k8s_ghcr     Add k8s container pull credential secret to the mxmariner namespace"
    echo "help         Print this Help."
    echo
 }

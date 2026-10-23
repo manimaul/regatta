@@ -112,6 +112,15 @@ tasks.register<Test>("jvmGoldenTest") {
 */
 val regattaDir: File = projectDir.parentFile
 
+val standaloneBuild: Boolean = rootProject.projectDir == regattaDir
+fun Task.requireStandaloneBuild() = doFirst {
+    if (!standaloneBuild) throw GradleException(
+        "$path must run from regatta's own build, not the parent repository's: " +
+            "the web bundle built here is missing its Tailwind utilities. " +
+            "Run: cd ${regattaDir.relativeToOrSelf(rootProject.projectDir)} && ./gradlew $path"
+    )
+}
+
 tasks.register<Exec>("run") {
     group = "application"
     description = "Build the distribution and run the server (needs the database up: database/podman-compose up)."
@@ -123,6 +132,7 @@ tasks.register<Exec>("run") {
 val makeImg by tasks.registering(Exec::class) {
     description = "Build the container image ghcr.io/manimaul/regatta:latest."
     dependsOn("installJvmDist")
+    requireStandaloneBuild()
     workingDir = regattaDir
     commandLine("bash", "-c", "podman build --platform linux/amd64 -f Containerfile -t ghcr.io/manimaul/regatta:latest .")
 }
@@ -130,6 +140,7 @@ val makeImg by tasks.registering(Exec::class) {
 val pubImg by tasks.registering(Exec::class) {
     description = "Push the container image."
     dependsOn(makeImg)
+    requireStandaloneBuild()
     commandLine("bash", "-c", "podman push ghcr.io/manimaul/regatta:latest")
 }
 
@@ -137,18 +148,20 @@ fun deployProperty(name: String): String =
     project.findProperty(name)?.toString()
         ?: throw GradleException("$name missing from ~/.gradle/gradle.properties")
 
-// The k8s manifests carry {REGATTA_PG_USER} / {REGATTA_PG_PASS} placeholders; the filled copy is
-// written beside the template as a dotfile (gitignored).
 fun deploymentYaml(name: String): File {
     val template = File(regattaDir, "k8s_deploy/$name")
     val yaml = template.readText()
-        .replace("{REGATTA_PG_USER}", "'${deployProperty("REGATTA_PG_USER")}'")
-        .replace("{REGATTA_PG_PASS}", "'${deployProperty("REGATTA_PG_PASS")}'")
+        .replace("{REGATTA_PG_USER}", deployProperty("REGATTA_PG_USER"))
+        .replace("{REGATTA_PG_PASS}", deployProperty("REGATTA_PG_PASS"))
     return File(template.parentFile, ".___${template.name}").also { it.writeText(yaml) }
 }
 
+val k8sApplySecrets by tasks.registering(Exec::class) {
+    commandLine("bash", "-c", "kubectl apply -f '${deploymentYaml("secrets.yaml").absolutePath}'")
+}
+
 val k8sApplyServer by tasks.registering(Exec::class) {
-    mustRunAfter(pubImg)
+    mustRunAfter(pubImg, k8sApplySecrets)
     commandLine("bash", "-c", "kubectl apply -f '${deploymentYaml("server.yaml").absolutePath}'")
 }
 
@@ -156,26 +169,14 @@ tasks.register<Exec>("k8sDeleteServer") {
     commandLine("bash", "-c", "kubectl delete -f '${deploymentYaml("server.yaml").absolutePath}'")
 }
 
-tasks.register<Exec>("k8sApplyDatabase") {
-    commandLine("bash", "-c", "kubectl apply -f '${deploymentYaml("database.yaml").absolutePath}'")
-}
-
-tasks.register<Exec>("k8sDeleteDatabase") {
-    commandLine("bash", "-c", "kubectl delete -f '${deploymentYaml("database.yaml").absolutePath}'")
-}
-
-val holdOn by tasks.registering(Exec::class) {
-    mustRunAfter(pubImg, k8sApplyServer)
-    commandLine("bash", "-c", "echo 'hold on' && sleep 5")
-}
-
-val cyclePods by tasks.registering(Exec::class) {
-    mustRunAfter(k8sApplyServer, pubImg, holdOn)
-    commandLine("bash", "-c", "kubectl -n regatta delete pods -l app=regatta-service")
+val rolloutRestart by tasks.registering(Exec::class) {
+    mustRunAfter(k8sApplyServer, pubImg)
+    commandLine("bash", "-c", "kubectl -n mxmariner rollout restart deployment/regatta-deployment && " +
+        "kubectl -n mxmariner rollout status deployment/regatta-deployment --timeout=180s")
 }
 
 tasks.register("deployServer") {
     group = "deployment"
-    description = "Build and push the image, apply the server manifest and cycle the pods."
-    dependsOn(makeImg, pubImg, k8sApplyServer, holdOn, cyclePods)
+    description = "Build and push the image, apply the server manifest and roll the pods."
+    dependsOn(makeImg, pubImg, k8sApplyServer, rolloutRestart)
 }

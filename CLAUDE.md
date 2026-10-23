@@ -58,9 +58,17 @@ JS tests run in Chrome Headless and Firefox via Karma (Firefox must be installed
 ```shell
 ./gradlew :regattaServer:makeImg       # build the container image ghcr.io/manimaul/regatta:latest
 ./gradlew :regattaServer:pubImg        # push it to ghcr.io
-./gradlew :regattaServer:deployServer  # full k8s deploy pipeline
+./gradlew :regattaServer:k8sApplySecrets  # the pgbouncer sidecar's secrets; first deploy and credential changes
+./gradlew :regattaServer:deployServer  # full k8s deploy pipeline (makeImg, pubImg, k8sApplyServer, rolloutRestart)
 ./gradlew :regattaServer:installJvmDist  # the distribution for a bare-metal install (server/build/install/regatta-jvm)
 ```
+
+**Run the image and deploy tasks from `regatta/`**, never from the parent repository's root: there
+the generated webpack config sits at a different depth, `web/webpack.config.d/tailwind.js` scans no
+Kotlin sources, and the bundle ships without its Tailwind utilities. `makeImg`/`pubImg` refuse to run
+under the parent build. 
+Backups and restores (prod and dev) are
+`database/db_actions.py`, see `database/README.md`.
 
 No dedicated lint task — relies on Kotlin compiler warnings. Code style: `kotlin.code.style=official`.
 

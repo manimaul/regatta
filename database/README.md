@@ -10,54 +10,33 @@ in a container with port `5432` exposed to your host network.
 podman-compose up
 ```
 
-## Connect Prod db to local dev
-```shell 
-app=regatta-postgres-service
-pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
-kubectl -n regatta port-forward "$pod" 5432:5432
-```
+## Production database
+Production is the `regatta` database on the managed PostgreSQL cluster  
+`REGATTA_PG_USER` / `REGATTA_PG_PASS` are in `~/.gradle/gradle.properties`. 
+Keep the password in `PGPASSWORD`, never in the URI.
 
-## Backup Dev
 ```shell
-id=$(podman ps --filter name=database_postgres_1 --format json | jq -r '.[0].Id')
-stamp=dev_dump`date +%Y-%m-%d"_"%H_%M_%S`
-podman exec -t "$id" pg_dump -U regatta_admin regatta > "./backup/$stamp.sql"
-rm ./backup/dev_current.sql
-ln -s "$stamp.sql" ./backup/dev_current.sql
+export PGPASSWORD="$REGATTA_PG_PASS"
+url="postgresql://$REGATTA_PG_USER@$NJORD_DB_HOST:$NJORD_DB_PORT/regatta?sslmode=require"
+psql "$url"                                                     # prod shell
 ```
 
-## Backup Prod
+## Backup and restore
+`db_actions.py` does all three. It reads `NJORD_DB_HOST` / `NJORD_DB_PORT` from the environment and
+`REGATTA_PG_USER` / `REGATTA_PG_PASS` from the environment or `~/.gradle/gradle.properties`; dev
+uses `docker-compose.yaml`'s defaults. Dumps land in `database/backup/` (gitignored) as
+`prod_dump_<stamp>.sql`, and `prod_current.sql` always points at the newest.
 ```shell
-app=regatta-postgres-service
-pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
-stamp=prod_dump`date +%Y-%m-%d"_"%H_%M_%S`
-kubectl -n regatta exec "$pod" -- pg_dump -U regatta_admin regatta > "./database/backup/$stamp.sql"
-rm ./database/backup/prod_current.sql
-ln -s "$stamp.sql" ./database/backup/prod_current.sql
+python3 -I database/db_actions.py backup                 # prod -> database/backup/prod_dump_<stamp>.sql
+python3 -I database/db_actions.py restore-prod --yes     # prod <- prod_current.sql (takes a fresh backup first)
+python3 -I database/db_actions.py restore-dev            # dev  <- prod_current.sql
+python3 -I database/db_actions.py restore-dev --dump database/backup/prod_dump_<stamp>.sql
 ```
-
-# Restore Prod
-```
-app=regatta-postgres-service
-pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
-cat ./backup/prod_current.sql | kubectl -n regatta exec -i "$pod" -- psql -U regatta_admin -d regatta
-```
-
-## Prod Shell
-```
-app=regatta-postgres-service
-pod=$(kubectl get pods -n regatta -l app="$app" -o jsonpath='{.items[*].metadata.name}')
-kubectl -n regatta exec --stdin --tty "$pod" -- /bin/bash
-```
-
-# Restore Prod Backup to Dev
-```shell
-id=$(podman ps --filter name=database_postgres_1 --format json | jq -r '.[0].Id')
-df=$(readlink ./database/backup/prod_current.sql)
-podman cp "./database/backup/$df" "$id:/dump.sql"
-podman cp "./database/restore_dev.sh" "$id:/restore_dev.sh"
-podman exec "$id" /restore_dev.sh
-```
+A restore drops and recreates the `public` schema and loads the dump in one transaction, so the
+database is never seen half-restored and a failure leaves it as it was. `restore-prod` refuses
+without `--yes`; `--no-backup` skips the backup it otherwise takes before writing. The dev container
+is PostgreSQL 16 and the managed cluster 17, so the restore strips the `SET transaction_timeout`
+a newer `pg_dump` emits.
 
 ## Fix ORC wind bands
 Makes every race's ORC wind bands follow its PHRF B factor with the 5-Band Windward/Leeward option,
@@ -74,3 +53,4 @@ REGATTA_TOKEN=<pasted token> python3 -I database/fix_orc_bands.py --base-url htt
 * `fix_orc_bands.py` — make every race's ORC wind bands follow its PHRF B factor (REST API, dry run by default).
 * `orc_backfill.py` — resolve the ORC file id (certificate link) of stored certificates still on ORC's active list (REST API, dry run by default): `python3 -I database/orc_backfill.py --apply --token <token>`.
 * `audit_scoring.py`, `scrub_dump.py` — golden regression helpers, see `CLAUDE.md`.
+* `db_actions.py` — back up production, restore production from a backup, restore the dev database from a backup (above).
