@@ -1,0 +1,31 @@
+{
+  "index": 202,
+  "name": "image-upload-no-image-part",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/image?raceId=1",
+    "headers": {
+      "content-type": "multipart/form-data; boundary=----regatta-contract-boundary",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "multipart": [
+        {
+          "name": "note",
+          "content_type": "text/plain",
+          "text": "not an image; the server ignores this part"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

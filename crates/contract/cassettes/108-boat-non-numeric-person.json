@@ -1,0 +1,25 @@
+{
+  "index": 108,
+  "name": "boat-non-numeric-person",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/boat?person_id=abc",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

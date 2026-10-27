@@ -1,0 +1,28 @@
+{
+  "index": 168,
+  "name": "race-create-wrong-content-type",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/race",
+    "headers": {
+      "content-type": "text/plain",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "text": "{\"id\":0,\"name\":\"Text Race\"}"
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

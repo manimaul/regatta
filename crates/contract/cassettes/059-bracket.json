@@ -1,0 +1,32 @@
+{
+  "index": 59,
+  "name": "bracket",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/bracket?id=16",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "134",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 16,
+        "name": "I/II",
+        "description": "Rating 10 to 72",
+        "active": true,
+        "numberOfRaces": 17,
+        "minRating": 10.0,
+        "maxRating": 72.0,
+        "classId": 1
+      }
+    }
+  }
+}

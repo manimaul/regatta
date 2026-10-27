@@ -1,0 +1,33 @@
+{
+  "index": 68,
+  "name": "race",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/race?id=1",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "179",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 1,
+        "name": "Harbor Series #1",
+        "seriesId": 1,
+        "rcId": 31,
+        "reportImage": null,
+        "phrfBFactor": 600,
+        "orcScoringOption": "FiveBandWindwardLeeward",
+        "orc3Band": "Low",
+        "orc5Band": "LowMedium"
+      }
+    }
+  }
+}

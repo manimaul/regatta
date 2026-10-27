@@ -1,0 +1,37 @@
+{
+  "index": 132,
+  "name": "bracket-create-unknown-class",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/bracket",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Orphan",
+        "description": null,
+        "active": true,
+        "numberOfRaces": 0,
+        "minRating": 0.0,
+        "maxRating": 1.0,
+        "classId": 99999
+      }
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "content-length": "71",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "This record is still referenced by other records and cannot be deleted."
+    }
+  }
+}

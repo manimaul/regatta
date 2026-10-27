@@ -1,0 +1,30 @@
+{
+  "index": 128,
+  "name": "class-read-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/raceClass?id=41",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "102",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 41,
+        "name": "Contract Class Listed",
+        "sort": 51,
+        "ratingType": "PHRF",
+        "numberOfRaces": 0,
+        "active": true
+      }
+    }
+  }
+}

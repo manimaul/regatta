@@ -1,0 +1,18 @@
+{
+  "index": 39,
+  "name": "series-missing",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/series?id=99999",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

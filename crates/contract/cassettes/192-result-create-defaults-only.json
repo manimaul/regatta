@@ -1,0 +1,46 @@
+{
+  "index": 192,
+  "name": "result-create-defaults-only",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "raceId": 138,
+        "boatId": 47,
+        "bracketId": 73,
+        "raceClassId": 41
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "205",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 2434,
+        "raceId": 138,
+        "boatId": 47,
+        "finish": null,
+        "phrfRating": null,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "CruisingNonFlyingSails",
+        "finishCode": "RET"
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "index": 111,
+  "name": "series-create",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/series",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 0,
+          "name": "Contract Series",
+          "sort": 99,
+          "raceCount": 0,
+          "active": true
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "74",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 20,
+          "name": "Contract Series",
+          "sort": 99,
+          "raceCount": 0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "index": 43,
+  "name": "series-double-slash",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api//series?id=1",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "68",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 1,
+        "name": "Harbor Series",
+        "sort": 0,
+        "raceCount": 9,
+        "active": true
+      }
+    }
+  }
+}

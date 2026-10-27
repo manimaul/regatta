@@ -1,0 +1,18 @@
+{
+  "index": 60,
+  "name": "bracket-missing",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/bracket?id=99999",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

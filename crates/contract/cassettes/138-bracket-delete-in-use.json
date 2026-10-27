@@ -1,0 +1,25 @@
+{
+  "index": 138,
+  "name": "bracket-delete-in-use",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/bracket?id=16",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "content-length": "71",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "This record is still referenced by other records and cannot be deleted."
+    }
+  }
+}

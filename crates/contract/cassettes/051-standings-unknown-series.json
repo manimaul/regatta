@@ -1,0 +1,18 @@
+{
+  "index": 51,
+  "name": "standings-unknown-series",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/series/standings?id=99999&year=2026",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

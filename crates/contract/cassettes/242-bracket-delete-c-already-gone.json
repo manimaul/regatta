@@ -1,0 +1,22 @@
+{
+  "index": 242,
+  "name": "bracket-delete-c-already-gone",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/bracket?id=75",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

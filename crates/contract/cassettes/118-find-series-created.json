@@ -1,0 +1,38 @@
+{
+  "index": 118,
+  "name": "find-series-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/series?name=Contract",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "148",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 20,
+          "name": "Contract Series",
+          "sort": 99,
+          "raceCount": 0,
+          "active": true
+        },
+        {
+          "id": 21,
+          "name": "Contract Defaults",
+          "sort": 0,
+          "raceCount": 0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

@@ -1,5 +1,6 @@
 package com.mxmariner.regatta.plugins
 
+import com.mxmariner.regatta.FixedClock
 import com.mxmariner.regatta.auth.Token
 import com.mxmariner.regatta.data.*
 import com.mxmariner.regatta.db.RegattaDatabase
@@ -38,7 +39,7 @@ fun Application.configureRouting() {
         get(ApiPaths.standings.versionedApi()) {
             call.request.queryParameters["id"]?.toLong()?.let { id ->
                 call.request.queryParameters["year"]?.toInt()?.let { year ->
-                    RaceResultReporter.getStandingsReport(id, year)?.let {
+                    RaceResultReporter.getStandingsReport(id, year, now = FixedClock.now())?.let {
                         call.respond(it)
                     }
                 }

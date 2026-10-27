@@ -291,7 +291,9 @@ real server code against it. This covers everything the pure-function tests can'
     host-side clients, but it keeps the file loadable anywhere;
   - fails if the `image` table has rows, so binary data never lands in the repo by accident;
   - leaves everything else untouched. **Person names stay.**
-- The output is committed as `server/src/jvmTest/resources/golden/regatta-2026-10-13.sql`.
+- The output is committed as `server/src/jvmTest/resources/golden/regatta-2026-10-13-v5.sql` (the same
+  2026-10-13 snapshot, re-dumped after the Kotlin server migrated it to schema version 5 so the Rust
+  port, which only loads version 5, can use it; see `docs/explore_unimplemented/rust_port.md` Phase 0).
   The date in the file name is the dump date, and the tests use it as `now` (see below).
 - **`database/.gitignore` ignores `*.py`, `*.json` and `*.sql`.** Without a change, both scripts
   in this section would be silently untracked. Add `!scrub_dump.py` and `!audit_scoring.py` to it
@@ -652,7 +654,7 @@ file; for them the `deviations.json` diff is the only isolation check (see §5).
   - strips `\restrict` / `\unrestrict`;
   - fails if `image` has rows;
   - leaves person names as they are.
-- [x] Scrub `prod_dump2026-10-13_19_10_11.sql` and commit it as `server/src/jvmTest/resources/golden/regatta-2026-10-13.sql` (the only diff to the source is the three dropped auth rows and the two restrict lines).
+- [x] Scrub `prod_dump2026-10-13_19_10_11.sql` and commit it as `server/src/jvmTest/resources/golden/regatta-2026-10-13.sql` (the only diff to the source is the three dropped auth rows and the two restrict lines). Since replaced by `regatta-2026-10-13-v5.sql`, the same data at schema version 5.
 - [x] Add the Testcontainers `testcontainers` + `postgresql` test dependencies (1.21.4), with the version in `Versions.kt`.
 - [x] Add the `GoldenDb` harness (`server/src/jvmTest/.../golden/GoldenDb.kt`):
   - `postgres:16-bookworm` with `regatta_admin` / `regatta`;

@@ -1,0 +1,20 @@
+{
+  "index": 100,
+  "name": "find-skipper-no-name",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/skipper",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

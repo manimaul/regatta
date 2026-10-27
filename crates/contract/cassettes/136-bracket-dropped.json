@@ -1,0 +1,18 @@
+{
+  "index": 136,
+  "name": "bracket-dropped",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/bracket?id=75",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

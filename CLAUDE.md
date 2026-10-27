@@ -35,6 +35,8 @@ Run the web frontend with hot reload:
 ./gradlew :regattaWeb:jsBrowserTest
 ```
 
+Test-only fixed clock: `-Dregatta.now=<ISO-8601 instant>` (e.g. `2026-10-14T02:10:11Z`, read only by `server/.../FixedClock.kt`) makes the `series/standings` route and `LoginResponse.expires` use that instant instead of the wall clock, so contract recordings are stable. Unset, nothing changes.
+
 Golden regression against a scrubbed production snapshot (needs podman or docker; excluded from `:regattaServer:jvmTest`):
 ```shell
 ./gradlew :regattaServer:jvmGoldenTest                         # compare to server/src/jvmTest/resources/golden/approved

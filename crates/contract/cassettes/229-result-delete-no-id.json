@@ -1,0 +1,20 @@
+{
+  "index": 229,
+  "name": "result-delete-no-id",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/results",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

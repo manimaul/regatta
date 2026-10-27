@@ -1,0 +1,18 @@
+{
+  "index": 74,
+  "name": "race-schedule-no-id",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/raceSchedule",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

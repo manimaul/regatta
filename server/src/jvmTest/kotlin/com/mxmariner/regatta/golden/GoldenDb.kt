@@ -16,7 +16,7 @@ import kotlin.time.Instant
  */
 object GoldenDb {
     /** Classpath resource holding the scrubbed dump. */
-    const val DUMP = "golden/regatta-2026-10-13.sql"
+    const val DUMP = "golden/regatta-2026-10-13-v5.sql"
 
     /** The instant the snapshot was taken: 2026-10-13 19:10:11 Pacific. Standings are computed as of this time. */
     val dumpInstant: Instant = Instant.parse("2026-10-14T02:10:11Z")

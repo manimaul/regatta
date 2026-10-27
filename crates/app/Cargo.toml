@@ -1,0 +1,81 @@
+[package]
+name = "regatta-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# The server side: compiled into regatta-server (leptos SSR, the request cookie for the theme).
+ssr = [
+    "leptos/ssr",
+    "leptos_router/ssr",
+    "leptos_meta/ssr",
+    "dep:http",
+    "dep:uuid",
+    "dep:leptos_axum",
+    "dep:regatta-service",
+    "dep:regatta-scoring",
+    "dep:anyhow",
+    "dep:tracing",
+    "dep:sqlx",
+]
+# The browser side: compiled into regatta-frontend (wasm32). Browser APIs, MapLibre and SortableJS
+# externs live behind this feature.
+hydrate = [
+    "leptos/hydrate",
+    "dep:wasm-bindgen",
+    "dep:wasm-bindgen-futures",
+    "dep:js-sys",
+    "dep:web-sys",
+    "jiff/js",
+]
+
+[dependencies]
+regatta-common = { workspace = true }
+leptos = { workspace = true }
+leptos_router = { workspace = true }
+leptos_meta = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+# Pacific-time display on both sides (DateUtil.kt): the server and the browser must render the same
+# text, so the tz database is bundled into both. On wasm this costs roughly 100 KB of the bundle
+# before compression (jiff-tzdb); `jiff/js` reads the clock from `Date.now()` there.
+jiff = { workspace = true, features = ["tzdb-bundle-always"] }
+sha2 = { workspace = true }
+base64 = { workspace = true }
+http = { workspace = true, optional = true }
+uuid = { workspace = true, optional = true }
+# The server functions' bodies (`server_fns.rs`, ssr only): the service layer, the validation
+# messages and the request/response context of leptos_axum.
+leptos_axum = { workspace = true, optional = true }
+regatta-service = { workspace = true, optional = true }
+regatta-scoring = { workspace = true, optional = true }
+anyhow = { workspace = true, optional = true }
+tracing = { workspace = true, optional = true }
+# only for `is_database_error` / SQLSTATE 23503 in the error mapping (= `StatusPages.kt`)
+sqlx = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+wasm-bindgen-futures = { workspace = true, optional = true }
+js-sys = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true, features = [
+    "Window", "Document", "HtmlDocument", "Element", "HtmlElement", "HtmlDialogElement",
+    "HtmlInputElement", "HtmlImageElement", "Node", "NodeList", "Event", "EventTarget",
+    "KeyboardEvent", "MouseEvent", "PointerEvent", "DomRect", "CssStyleDeclaration",
+    "Storage", "Location", "History", "Navigator", "Clipboard", "Crypto",
+    "ResizeObserver", "ResizeObserverEntry", "ResizeObserverSize", "AddEventListenerOptions",
+    "console",
+] }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { workspace = true }
+# the event constructors the browser tests dispatch (tests/wasm.rs)
+web-sys = { workspace = true, features = ["EventInit", "KeyboardEventInit", "MouseEventInit"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true }
+any_spawner = { workspace = true, features = ["tokio"] }

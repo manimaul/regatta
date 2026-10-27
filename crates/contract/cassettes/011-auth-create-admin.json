@@ -1,0 +1,38 @@
+{
+  "index": 11,
+  "name": "auth-create-admin",
+  "auth": {
+    "raw": "Bearer none"
+  },
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/auth",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer none"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "hash": "x2Xlg7POZmZo5PqTDfgrUn2pn2hmhNa0U/i37MlWG58gWQkx1/j0HBlsKB1+dKtGd6IAi1FCqSHoZbtqef/zxw==",
+        "userName": "contract"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "128",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 4,
+        "hash": "x2Xlg7POZmZo5PqTDfgrUn2pn2hmhNa0U/i37MlWG58gWQkx1/j0HBlsKB1+dKtGd6IAi1FCqSHoZbtqef/zxw==",
+        "userName": "contract"
+      }
+    }
+  }
+}

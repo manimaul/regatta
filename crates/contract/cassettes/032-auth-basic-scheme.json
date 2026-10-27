@@ -1,0 +1,25 @@
+{
+  "index": 32,
+  "name": "auth-basic-scheme",
+  "auth": {
+    "raw": "Basic Zm9vOmJhcg=="
+  },
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allSkippers",
+    "headers": {
+      "authorization": "Basic Zm9vOmJhcg=="
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "www-authenticate": "Bearer realm=\"admin access\"",
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

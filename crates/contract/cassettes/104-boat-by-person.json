@@ -1,0 +1,45 @@
+{
+  "index": 104,
+  "name": "boat-by-person",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/boat?person_id=23",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "271",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "skipper": {
+          "id": 23,
+          "first": "William",
+          "last": "Kamp",
+          "clubMember": true,
+          "active": true
+        },
+        "boat": {
+          "id": 1,
+          "name": "Waymaker",
+          "sailNumber": "USA 59793",
+          "boatType": "Tartan 37 DK",
+          "phrfRating": 150,
+          "orcCerts": [],
+          "skipperId": null,
+          "ratingType": "PHRF",
+          "numberOfRaces": 53,
+          "active": true
+        }
+      }
+    }
+  }
+}

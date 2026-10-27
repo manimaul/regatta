@@ -1,0 +1,20 @@
+{
+  "index": 67,
+  "name": "all-races-no-year",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allRaces",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

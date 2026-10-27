@@ -1,0 +1,22 @@
+{
+  "index": 103,
+  "name": "boat-missing-id",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/boat?id=99999",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

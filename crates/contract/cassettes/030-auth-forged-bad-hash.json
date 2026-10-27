@@ -1,0 +1,30 @@
+{
+  "index": 30,
+  "name": "auth-forged-bad-hash",
+  "auth": {
+    "forged": {
+      "id": "captured",
+      "salt": "contract-forged-salt",
+      "expires": "2099-01-01T00:00:00Z",
+      "correct": false
+    }
+  },
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allSkippers",
+    "headers": {
+      "authorization": "Bearer eyJpZCI6NCwiaGFzaE9mSGFzaCI6IkdZd3JoNmNBdkw0ZGNJMDFIYllDVkhpbExvTGkxVnJJN2ROZTJkdUs3citMWWRrUHJVb0ZhVjhVcXM3Rzg3RFB5Rk1NU3lQMXVZa2NlTVhYY0JhM1l3PT0iLCJzYWx0IjoiY29udHJhY3QtZm9yZ2VkLXNhbHQiLCJleHBpcmVzIjoiMjA5OS0wMS0wMVQwMDowMDowMFoifQ=="
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "www-authenticate": "Bearer realm=\"admin access\"",
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

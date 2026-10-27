@@ -1,0 +1,40 @@
+{
+  "index": 139,
+  "name": "skipper-create",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/skipper",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "first": "Contract",
+        "last": "Skipper",
+        "clubMember": true,
+        "active": true
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "78",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 142,
+        "first": "Contract",
+        "last": "Skipper",
+        "clubMember": true,
+        "active": true
+      }
+    }
+  }
+}

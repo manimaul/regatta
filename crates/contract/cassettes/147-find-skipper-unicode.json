@@ -1,0 +1,33 @@
+{
+  "index": 147,
+  "name": "find-skipper-unicode",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/skipper?name=%C3%9Cn%C3%AF",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "90",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 146,
+          "first": "Zoë",
+          "last": "Ünïcode ☃ 日本",
+          "clubMember": false,
+          "active": true
+        }
+      ]
+    }
+  }
+}

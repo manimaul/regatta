@@ -3,8 +3,8 @@
 --
 
 
--- Dumped from database version 16.15 (Debian 16.15-1.pgdg12+2)
--- Dumped by pg_dump version 16.15 (Debian 16.15-1.pgdg12+2)
+-- Dumped from database version 16.14 (Debian 16.14-1.pgdg12+1)
+-- Dumped by pg_dump version 16.14 (Debian 16.14-1.pgdg12+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -110,19 +110,6 @@ CREATE TABLE public.bracket (
 
 
 ALTER TABLE public.bracket OWNER TO regatta_admin;
-
---
--- Name: checkin; Type: TABLE; Schema: public; Owner: regatta_admin
---
-
-CREATE TABLE public.checkin (
-    race_id bigint NOT NULL,
-    boat_id bigint NOT NULL,
-    checked_in boolean NOT NULL
-);
-
-
-ALTER TABLE public.checkin OWNER TO regatta_admin;
 
 --
 -- Name: image; Type: TABLE; Schema: public; Owner: regatta_admin
@@ -582,14 +569,6 @@ COPY public.bracket (id, name, description, active, min_r, max_r, race_class) FR
 
 
 --
--- Data for Name: checkin; Type: TABLE DATA; Schema: public; Owner: regatta_admin
---
-
-COPY public.checkin (race_id, boat_id, checked_in) FROM stdin;
-\.
-
-
---
 -- Data for Name: image; Type: TABLE DATA; Schema: public; Owner: regatta_admin
 --
 
@@ -602,7 +581,7 @@ COPY public.image (hash, race_id, data) FROM stdin;
 --
 
 COPY public.metadata (name, value) FROM stdin;
-version	4
+version	5
 \.
 
 
@@ -4172,10 +4151,66 @@ ALTER TABLE ONLY public.auth
 
 
 --
--- Name: raceresults_end_date; Type: INDEX; Schema: public; Owner: regatta_admin
+-- Name: boat_skipper_id; Type: INDEX; Schema: public; Owner: regatta_admin
 --
 
-CREATE INDEX raceresults_end_date ON public.raceresults USING btree (end_date);
+CREATE INDEX boat_skipper_id ON public.boat USING btree (skipper_id);
+
+
+--
+-- Name: image_race_id_unique; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE UNIQUE INDEX image_race_id_unique ON public.image USING btree (race_id);
+
+
+--
+-- Name: orc_boat_id; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE INDEX orc_boat_id ON public.orc USING btree (boat_id);
+
+
+--
+-- Name: race_series_id; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE INDEX race_series_id ON public.race USING btree (series_id);
+
+
+--
+-- Name: racebracketjunction_bracket_id; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE INDEX racebracketjunction_bracket_id ON public.racebracketjunction USING btree (bracket_id);
+
+
+--
+-- Name: racebracketjunction_class_id; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE INDEX racebracketjunction_class_id ON public.racebracketjunction USING btree (class_id);
+
+
+--
+-- Name: racebracketjunction_unique; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE UNIQUE INDEX racebracketjunction_unique ON public.racebracketjunction USING btree (race_id, class_id, bracket_id);
+
+
+--
+-- Name: raceresults_race_id; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE INDEX raceresults_race_id ON public.raceresults USING btree (race_id);
+
+
+--
+-- Name: racetime_race_class_unique; Type: INDEX; Schema: public; Owner: regatta_admin
+--
+
+CREATE UNIQUE INDEX racetime_race_class_unique ON public.racetime USING btree (race_id, class_id);
 
 
 --
@@ -4192,22 +4227,6 @@ ALTER TABLE ONLY public.boat
 
 ALTER TABLE ONLY public.bracket
     ADD CONSTRAINT fk_bracket_race_class__id FOREIGN KEY (race_class) REFERENCES public.raceclass(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: checkin fk_checkin_boat_id__id; Type: FK CONSTRAINT; Schema: public; Owner: regatta_admin
---
-
-ALTER TABLE ONLY public.checkin
-    ADD CONSTRAINT fk_checkin_boat_id__id FOREIGN KEY (boat_id) REFERENCES public.boat(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: checkin fk_checkin_race_id__id; Type: FK CONSTRAINT; Schema: public; Owner: regatta_admin
---
-
-ALTER TABLE ONLY public.checkin
-    ADD CONSTRAINT fk_checkin_race_id__id FOREIGN KEY (race_id) REFERENCES public.race(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
 --

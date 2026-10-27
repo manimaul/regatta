@@ -1,0 +1,33 @@
+{
+  "index": 146,
+  "name": "find-skipper-created",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/skipper?name=Contract",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "80",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 142,
+          "first": "Contract",
+          "last": "Skipper",
+          "clubMember": true,
+          "active": true
+        }
+      ]
+    }
+  }
+}
