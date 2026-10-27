@@ -2,7 +2,7 @@
 """Scrub a plain-text pg_dump of the regatta database for use as the golden test snapshot.
 
     python3 database/scrub_dump.py database/backup/prod_current.sql \
-        server/src/jvmTest/resources/golden/regatta-YYYY-MM-DD.sql
+        crates/scoring/tests/golden/regatta-YYYY-MM-DD.sql
 
 - Empties public.auth: every row between its COPY line and the "\\." terminator is dropped, so no
   password hashes are committed.

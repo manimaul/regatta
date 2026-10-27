@@ -1,12 +1,11 @@
-//! Server configuration from the environment or flags (= `DbConfig` and the `-Djdbcurl`,
-//! `-Duser`, `-Dpassword`, `-Dregatta.now` system properties of the Kotlin server).
+//! Server configuration from the environment or flags.
 //!
-//! | Kotlin | Rust |
-//! |---|---|
-//! | `-Djdbcurl=jdbc:postgresql://host:5432/regatta -Duser=u -Dpassword=p` | `REGATTA_DB_URL=postgres://u:p@host:5432/regatta` |
-//! | port 8888 (hard-coded) | `REGATTA_BIND=0.0.0.0:8888` |
-//! | `-Dregatta.now=<instant>` (test only) | `REGATTA_FIXED_NOW=<instant>` |
-//! | logback | `RUST_LOG` |
+//! | Variable | Flag | |
+//! |---|---|---|
+//! | `REGATTA_DB_URL=postgres://u:p@host:5432/regatta` | `--db-url` | the database |
+//! | `REGATTA_BIND=0.0.0.0:8888` | `--bind` | listen address (`LEPTOS_SITE_ADDR` wins when set) |
+//! | `REGATTA_FIXED_NOW=<instant>` | `--fixed-now` | test only: a fixed "now" |
+//! | `RUST_LOG` | | tracing filter |
 
 use clap::Parser;
 use jiff::Timestamp;
@@ -25,7 +24,7 @@ pub struct Config {
     #[arg(long, env = "REGATTA_BIND", default_value = DEFAULT_BIND)]
     pub bind: String,
     /// Test only: a fixed ISO-8601 instant used as "now" for series standings and
-    /// `LoginResponse.expires` (= `-Dregatta.now`). Absent or blank, the wall clock is used.
+    /// `LoginResponse.expires`. Absent or blank, the wall clock is used.
     #[arg(long, env = "REGATTA_FIXED_NOW", value_parser = parse_fixed_now)]
     pub fixed_now: Option<Timestamp>,
 }

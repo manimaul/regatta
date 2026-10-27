@@ -5,9 +5,9 @@ use regatta_common::{
 };
 use std::path::Path;
 
-/// The RMS fixture of the Kotlin tests (`common/src/commonTest/resources/waymaker.json`), read in
+/// The RMS fixture (`tests/fixtures/waymaker.json`, a real data.orc.org response), read in
 /// place; relative to this crate.
-const WAYMAKER_JSON: &str = "../../common/src/commonTest/resources/waymaker.json";
+const WAYMAKER_JSON: &str = "tests/fixtures/waymaker.json";
 
 fn cert(ref_no: &str, c_type: &str, dxt_id: Option<i64>) -> OrcCertificate {
     OrcCertificate {

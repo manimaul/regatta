@@ -14,7 +14,7 @@
 //! Numbers follow the Kotlin arithmetic step for step: corrected time is
 //! `(elapsed whole milliseconds as f64 * tcf)` turned into nanoseconds rounded to nearest
 //! ([`boat_corrected_time`]), and the series scores are `f64` sums in race order. The approved
-//! golden files (`server/src/jvmTest/resources/golden/approved`) are reproduced byte for byte
+//! golden files (`tests/golden/approved`) are reproduced byte for byte
 //! from their own inputs by `tests/golden_test.rs`.
 //!
 //! The test fixture DSL ([`fixture`]) is compiled for this crate's tests and behind the `fixture`

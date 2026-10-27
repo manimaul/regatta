@@ -1,57 +1,62 @@
 # Regatta
 Software for scoring sailing regattas utilizing [ORC](https://orc.org/), [PHRF](https://www.ussailing.org/competition/offshore/phrf/), Cruising Class Flying and Cruising class Non-Flying scoring.
 
-ORC Scoring supports the [US scoring options](common/src/commonMain/kotlin/com/mxmariner/regatta/data/OrcCertificate.kt) 
+ORC Scoring supports the [US scoring options](crates/common/src/data/orc_certificate.rs) 
 
 Developed by William Kamp of SV Waymaker for the [Corinthian Yacht Club of Tacoma](https://cyct.com/).
 
 ![Sailing Vessel Waymaker](./sv_waymaker.jpeg "SV Waymaker")
 
-### Building
+Regatta is a Rust workspace: an [axum](https://github.com/tokio-rs/axum) server rendering a
+[Leptos](https://leptos.dev/) UI that hydrates in the browser from WebAssembly, over PostgreSQL 16.
 
-Regatta is also a submodule of a parent project, where these same
-three projects (`:regattaCommon`, `:regattaServer`, `:regattaWeb`) are part of that build. Every
-command below works from either root, and a plain clone of this repository builds on its own.
+### Prerequisites
+- [rustup](https://rustup.rs/): the toolchain and the `wasm32-unknown-unknown` target are pinned in `rust-toolchain.toml`
+- [cargo-leptos](https://github.com/leptos-rs/cargo-leptos): `cargo install cargo-leptos --locked --version 0.3.11`
+- [podman](https://podman.io/) and podman-compose, for the database, the container-backed tests and the image
 
-### Build and run 
+### Build and run
 ```shell
 cd database
 podman-compose up
 ```
 ```shell
-./gradlew :regattaServer:run
+cargo leptos watch     # http://127.0.0.1:8888, rebuilds and live-reloads on change
 ```
 
-### Run in browser hot loading
+`cargo leptos serve` builds once and serves; `cargo xtask run` does the same with a release build. The server reads
+`REGATTA_DB_URL` (default `postgres://regatta_admin:mysecretpassword@localhost:5432/regatta`, the compose database),
+`REGATTA_BIND` (default `0.0.0.0:8888`) and `RUST_LOG`.
+
+### Test
+```shell
+cargo test --workspace                                # the golden and contract tests need podman running
+cargo clippy --workspace --all-targets -- -D warnings
+```
+
+### Run in container
+The image is built for linux/amd64: the build stage cross-compiles natively, and on Apple Silicon `podman run` runs the image under emulation. `--pull=never` keeps the run on the local build rather than the published image.
 ```shell
 cd database
 podman-compose up
 ```
-```shell
-./gradlew :regattaServer:installJvmDist && ./server/build/install/regatta-jvm/bin/regatta
-```
 
 ```shell
-./gradlew :regattaWeb:jsBrowserDevelopmentRun --continuous
+cargo xtask make-img
+podman run --pull=never -p 8888:8888 \
+  -e REGATTA_DB_URL=postgres://regatta_admin:mysecretpassword@host.containers.internal:5432/regatta \
+  ghcr.io/manimaul/regatta:latest
 ```
 
-### Run in container 
+### Deploy to Kubernetes
 ```shell
-cd database
-podman-compose up
+export REGATTA_PG_USER=... REGATTA_PG_PASS=...
+podman login ghcr.io
+cargo xtask k8s-apply-secrets   # first deploy and credential changes
+cargo xtask deploy-server       # build and push the image, apply k8s_deploy/server.yaml, restart and wait
 ```
 
-```shell
-./gradlew :regattaServer:makeImg
-podman run -p 8888:8888 -e JDK_JAVA_OPTIONS=-Djdbcurl=jdbc:postgresql://host.containers.internal:5432/regatta  ghcr.io/manimaul/regatta:latest
-```
-
-### Useful links:
-- [Use Kotlin Code from JS](https://kotlinlang.org/docs/js-to-kotlin-interop.html)
-- [JavaScript modules](https://kotlinlang.org/docs/js-modules.html)
-- [webpack bundling](https://kotlinlang.org/docs/js-project-setup.html#webpack-bundling)
-
-### Install on bare metal / VM 
+### Install on bare metal / VM (x86_64 Linux)
 
 Install Postgres Local
 ```shell
@@ -68,12 +73,44 @@ sudo systemctl restart postgresql
 
 Build & Install Binary
 ```shell
-./gradlew :regattaServer:installJvmDist
-sudo cp -r server/build/install/regatta-jvm /opt/regatta
+cargo leptos build --release --precompress
+sudo mkdir -p /opt/regatta
+sudo cp target/release/regatta /opt/regatta/regatta
+sudo cp -r target/site /opt/regatta/site
 ```
 
-Edit `/etc/regatta.env` and restart service
+`/etc/regatta.env`
 ```shell
+REGATTA_DB_URL=postgres://regatta_admin:mysecretpassword@localhost:5432/regatta
+LEPTOS_OUTPUT_NAME=regatta
+LEPTOS_SITE_ROOT=/opt/regatta/site
+LEPTOS_SITE_PKG_DIR=pkg
+LEPTOS_SITE_ADDR=0.0.0.0:8888
+LEPTOS_ENV=PROD
+RUST_LOG=info
+```
+
+`/etc/systemd/system/regatta.service`
+```ini
+[Unit]
+Description=Regatta scoring server
+After=network-online.target postgresql.service
+
+[Service]
+EnvironmentFile=/etc/regatta.env
+WorkingDirectory=/opt/regatta
+ExecStart=/opt/regatta/regatta
+Restart=on-failure
+DynamicUser=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable, restart and check the service
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable --now regatta.service
 sudo systemctl restart regatta.service
 sudo systemctl status regatta.service
 ```
@@ -84,7 +121,8 @@ sudo journalctl -u regatta -f
 ```
 Uninstall
 ```shell
-sudo dpkg --remove regatta
+sudo systemctl disable --now regatta.service
+sudo rm -rf /opt/regatta /etc/systemd/system/regatta.service /etc/regatta.env
 ```
 
 ### Nginx Reverse Proxy Info

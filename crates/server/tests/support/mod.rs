@@ -1,7 +1,7 @@
 //! A throwaway Postgres loaded with the scrubbed production snapshot, for the contract and
-//! golden tests (= `GoldenDb.kt`). Needs a container runtime: `DOCKER_HOST` is taken from
+//! golden tests. Needs a container runtime: `DOCKER_HOST` is taken from
 //! `podman machine inspect` when unset and there is no `/var/run/docker.sock`, and Ryuk is
-//! disabled, like `server/build.gradle.kts`'s `jvmGoldenTest`.
+//! disabled.
 
 #![allow(dead_code)]
 
@@ -15,11 +15,11 @@ use testcontainers::core::{ExecCommand, IntoContainerPort, WaitFor};
 use testcontainers::runners::AsyncRunner;
 use testcontainers::{ContainerAsync, GenericImage, ImageExt};
 
-/// The scrubbed dump at schema version 5 (`GoldenDb.DUMP`).
-pub const DUMP: &str = "../../server/src/jvmTest/resources/golden/regatta-2026-10-13-v5.sql";
+/// The scrubbed dump at schema version 5.
+pub const DUMP: &str = "../scoring/tests/golden/regatta-2026-10-13-v5.sql";
 /// The approved golden outputs.
-pub const APPROVED: &str = "../../server/src/jvmTest/resources/golden/approved";
-/// The instant the snapshot was taken (`GoldenDb.dumpInstant`), also the contract's fixed clock.
+pub const APPROVED: &str = "../scoring/tests/golden/approved";
+/// The instant the snapshot was taken, also the contract's fixed clock.
 pub const DUMP_INSTANT: &str = "2026-10-14T02:10:11Z";
 
 const USER: &str = "regatta_admin";

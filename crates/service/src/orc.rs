@@ -182,9 +182,8 @@ fn encode(value: &str) -> String {
 mod tests {
     use super::*;
 
-    /// A copy of a real response from data.orc.org (2026-10-15), the Kotlin test fixture.
-    const ACTIVE_ROW: &str =
-        include_str!("../../../server/src/jvmTest/resources/orc/activecerts_0456000518S.xml");
+    /// A copy of a real response from data.orc.org (2026-10-15).
+    const ACTIVE_ROW: &str = include_str!("../tests/fixtures/activecerts_0456000518S.xml");
 
     const NO_ROWS: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
         <?xml-stylesheet type="text/xsl" href="activecerts.xsl" ?>
