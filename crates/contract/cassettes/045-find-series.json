@@ -1,0 +1,31 @@
+{
+  "index": 45,
+  "name": "find-series",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/series?name=Harbor",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "70",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 1,
+          "name": "Harbor Series",
+          "sort": 0,
+          "raceCount": 9,
+          "active": true
+        }
+      ]
+    }
+  }
+}

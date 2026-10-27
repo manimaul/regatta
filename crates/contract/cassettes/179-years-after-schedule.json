@@ -1,0 +1,27 @@
+{
+  "index": 179,
+  "name": "years-after-schedule",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/years",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "22",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        "2026",
+        "2025",
+        "2024"
+      ]
+    }
+  }
+}

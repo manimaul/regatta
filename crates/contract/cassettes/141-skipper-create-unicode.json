@@ -1,0 +1,40 @@
+{
+  "index": 141,
+  "name": "skipper-create-unicode",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/skipper",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "first": "Zoë",
+        "last": "Ünïcode ☃ 日本",
+        "clubMember": false,
+        "active": true
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "88",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 146,
+        "first": "Zoë",
+        "last": "Ünïcode ☃ 日本",
+        "clubMember": false,
+        "active": true
+      }
+    }
+  }
+}

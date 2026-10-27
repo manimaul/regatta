@@ -1,0 +1,40 @@
+{
+  "index": 116,
+  "name": "series-create-defaults-only",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/series",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": [
+        {
+          "name": "Contract Defaults"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "75",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 21,
+          "name": "Contract Defaults",
+          "sort": 0,
+          "raceCount": 0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

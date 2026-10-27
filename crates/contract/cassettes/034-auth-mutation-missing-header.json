@@ -1,0 +1,31 @@
+{
+  "index": 34,
+  "name": "auth-mutation-missing-header",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/skipper",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "first": "No",
+        "last": "Token",
+        "clubMember": false,
+        "active": true
+      }
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "www-authenticate": "Bearer realm=\"admin access\"",
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

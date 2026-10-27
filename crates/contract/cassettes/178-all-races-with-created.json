@@ -1,0 +1,5718 @@
+{
+  "index": 178,
+  "name": "all-races-with-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allRaces?year=2026",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "77135",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "race": {
+            "id": 86,
+            "name": "Harbor Series #1",
+            "seriesId": 1,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 650,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "Low"
+          },
+          "resultCount": 13,
+          "series": {
+            "id": 1,
+            "name": "Harbor Series",
+            "sort": 0,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 16,
+                  "name": "I/II",
+                  "description": "Rating 10 to 72",
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 10.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-01-24T18:00:00Z",
+              "endDate": "2026-01-25T00:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 17,
+                  "name": "III/IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 73.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-01-24T18:00:00Z",
+              "endDate": "2026-01-25T00:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-01-24T18:05:00Z",
+              "endDate": "2026-01-25T00:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-01-24T18:05:00Z",
+              "endDate": "2026-01-25T00:05:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 87,
+            "name": "Harbor Series #2",
+            "seriesId": 1,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 650,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "Low"
+          },
+          "resultCount": 16,
+          "series": {
+            "id": 1,
+            "name": "Harbor Series",
+            "sort": 0,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 16,
+                  "name": "I/II",
+                  "description": "Rating 10 to 72",
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 10.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-01-31T18:00:00Z",
+              "endDate": "2026-02-01T00:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 17,
+                  "name": "III/IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 73.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-01-31T18:00:00Z",
+              "endDate": "2026-02-01T00:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-01-31T18:05:00Z",
+              "endDate": "2026-02-01T00:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-01-31T18:05:00Z",
+              "endDate": "2026-02-01T00:05:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 88,
+            "name": "Harbor Series #3",
+            "seriesId": 1,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 14,
+          "series": {
+            "id": 1,
+            "name": "Harbor Series",
+            "sort": 0,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 16,
+                  "name": "I/II",
+                  "description": "Rating 10 to 72",
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 10.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-02-07T18:00:00Z",
+              "endDate": "2026-02-08T01:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 17,
+                  "name": "III/IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 73.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-02-07T18:05:00Z",
+              "endDate": "2026-02-08T01:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-02-07T18:10:00Z",
+              "endDate": "2026-02-08T01:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-02-07T18:10:00Z",
+              "endDate": "2026-02-08T01:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 89,
+            "name": "Spring Single/Double Handed Race",
+            "seriesId": null,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 650,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "Low"
+          },
+          "resultCount": 14,
+          "series": null,
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 16,
+                  "name": "I/II",
+                  "description": "Rating 10 to 72",
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 10.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-03-28T18:05:00Z",
+              "endDate": "2026-03-28T21:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 17,
+                  "name": "III/IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 73.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-03-28T18:10:00Z",
+              "endDate": "2026-03-28T21:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-03-28T18:15:00Z",
+              "endDate": "2026-03-28T21:15:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-03-28T18:15:00Z",
+              "endDate": "2026-03-28T21:15:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 90,
+            "name": "Early Spring Windseekers #1",
+            "seriesId": 13,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 22,
+          "series": {
+            "id": 13,
+            "name": "Early Spring Windseekers",
+            "sort": 2,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-04-09T02:00:00Z",
+              "endDate": "2026-04-09T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-04-09T02:05:00Z",
+              "endDate": "2026-04-09T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-04-09T02:10:00Z",
+              "endDate": "2026-04-09T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-04-09T02:15:00Z",
+              "endDate": "2026-04-09T04:15:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 91,
+            "name": "Early Spring Windseekers #2",
+            "seriesId": 13,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 13,
+            "name": "Early Spring Windseekers",
+            "sort": 2,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-04-16T02:00:00Z",
+              "endDate": "2026-04-16T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-04-16T02:05:00Z",
+              "endDate": "2026-04-16T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-04-16T02:10:00Z",
+              "endDate": "2026-04-16T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-04-16T02:15:00Z",
+              "endDate": "2026-04-16T04:15:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 92,
+            "name": "Early Spring Windseekers #3",
+            "seriesId": 13,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 480,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 20,
+          "series": {
+            "id": 13,
+            "name": "Early Spring Windseekers",
+            "sort": 2,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-04-23T02:00:00Z",
+              "endDate": "2026-04-23T03:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-04-23T02:05:00Z",
+              "endDate": "2026-04-23T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-04-23T02:10:00Z",
+              "endDate": "2026-04-23T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-04-23T02:10:00Z",
+              "endDate": "2026-04-23T03:40:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 93,
+            "name": "Early Spring Windseekers #4",
+            "seriesId": 13,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 650,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 23,
+          "series": {
+            "id": 13,
+            "name": "Early Spring Windseekers",
+            "sort": 2,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-04-30T02:00:00Z",
+              "endDate": "2026-04-30T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-04-30T02:05:00Z",
+              "endDate": "2026-04-30T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-04-30T02:10:00Z",
+              "endDate": "2026-04-30T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-04-30T02:15:00Z",
+              "endDate": "2026-04-30T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 94,
+            "name": "Early Spring Windseekers #5",
+            "seriesId": 13,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 27,
+          "series": {
+            "id": 13,
+            "name": "Early Spring Windseekers",
+            "sort": 2,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-05-07T02:00:00Z",
+              "endDate": "2026-05-07T03:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-05-07T02:05:00Z",
+              "endDate": "2026-05-07T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-05-07T02:10:00Z",
+              "endDate": "2026-05-07T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-05-07T02:15:00Z",
+              "endDate": "2026-05-07T03:40:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 95,
+            "name": "Late Spring Windseekers #1",
+            "seriesId": 14,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 480,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 23,
+          "series": {
+            "id": 14,
+            "name": "Late Spring Windseekers",
+            "sort": 3,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-05-14T02:00:00Z",
+              "endDate": "2026-05-14T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-05-14T02:05:00Z",
+              "endDate": "2026-05-14T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-05-14T02:10:00Z",
+              "endDate": "2026-05-14T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-05-14T02:10:00Z",
+              "endDate": "2026-05-14T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 96,
+            "name": "Late Spring Windseekers #2",
+            "seriesId": 14,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 26,
+          "series": {
+            "id": 14,
+            "name": "Late Spring Windseekers",
+            "sort": 3,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-05-21T02:00:00Z",
+              "endDate": "2026-05-21T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-05-21T02:05:00Z",
+              "endDate": "2026-05-21T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-05-21T02:10:00Z",
+              "endDate": "2026-05-21T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-05-21T02:15:00Z",
+              "endDate": "2026-05-21T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 97,
+            "name": "Late Spring Windseekers #3",
+            "seriesId": 14,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 27,
+          "series": {
+            "id": 14,
+            "name": "Late Spring Windseekers",
+            "sort": 3,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-05-28T02:00:00Z",
+              "endDate": "2026-05-28T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-05-28T02:05:00Z",
+              "endDate": "2026-05-28T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-05-28T02:10:00Z",
+              "endDate": "2026-05-28T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-05-28T02:15:00Z",
+              "endDate": "2026-05-28T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 98,
+            "name": "Ladies Take The Lead",
+            "seriesId": null,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 4,
+          "series": null,
+          "rc": {
+            "id": 31,
+            "first": "Danny",
+            "last": "Kenck",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 16,
+                  "name": "I/II",
+                  "description": "Rating 10 to 72",
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 10.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-05-30T17:40:00Z",
+              "endDate": "2026-05-30T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 17,
+                  "name": "III/IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 17,
+                  "minRating": 73.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-05-30T17:40:00Z",
+              "endDate": "2026-05-30T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-05-30T17:40:00Z",
+              "endDate": "2026-05-30T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-05-30T17:40:00Z",
+              "endDate": "2026-05-30T23:05:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 138,
+            "name": "Contract Race",
+            "seriesId": 20,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 20,
+            "name": "Contract Series Renamed",
+            "sort": 98,
+            "raceCount": 2,
+            "active": false
+          },
+          "rc": null,
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 41,
+                "name": "Contract Class",
+                "sort": 50,
+                "ratingType": "PHRF",
+                "numberOfRaces": 1,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 73,
+                  "name": "A",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 1,
+                  "minRating": 0.0,
+                  "maxRating": 100.0,
+                  "classId": 41
+                }
+              ],
+              "startDate": "2026-06-01T17:00:00Z",
+              "endDate": "2026-06-01T21:00:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 99,
+            "name": "Late Spring Windseekers #4",
+            "seriesId": 14,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 480,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 28,
+          "series": {
+            "id": 14,
+            "name": "Late Spring Windseekers",
+            "sort": 3,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 31,
+            "first": "Danny",
+            "last": "Kenck",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-06-04T02:10:00Z",
+              "endDate": "2026-06-04T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-06-04T02:15:00Z",
+              "endDate": "2026-06-04T04:15:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-06-04T02:20:00Z",
+              "endDate": "2026-06-04T04:20:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-06-04T02:20:00Z",
+              "endDate": "2026-06-04T04:20:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 100,
+            "name": "Late Spring Windseekers #5",
+            "seriesId": 14,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 25,
+          "series": {
+            "id": 14,
+            "name": "Late Spring Windseekers",
+            "sort": 3,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 1,
+                "name": "Fast (72-)",
+                "sort": 2,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 1,
+                  "name": "I",
+                  "description": "Rating 10 to 59",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 10.0,
+                  "maxRating": 59.0,
+                  "classId": 1
+                },
+                {
+                  "id": 2,
+                  "name": "II",
+                  "description": "Rating 60 to 72",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 60.0,
+                  "maxRating": 72.0,
+                  "classId": 1
+                }
+              ],
+              "startDate": "2026-06-11T02:00:00Z",
+              "endDate": "2026-06-11T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 2,
+                "name": "Half Fast (73+)",
+                "sort": 3,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 81,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 3,
+                  "name": "III",
+                  "description": "Rating 73 to 119",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 73.0,
+                  "maxRating": 119.0,
+                  "classId": 2
+                },
+                {
+                  "id": 4,
+                  "name": "IV",
+                  "description": "Rating 120 to 200",
+                  "active": true,
+                  "numberOfRaces": 64,
+                  "minRating": 120.0,
+                  "maxRating": 200.0,
+                  "classId": 2
+                }
+              ],
+              "startDate": "2026-06-11T02:05:00Z",
+              "endDate": "2026-06-11T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-06-11T02:10:00Z",
+              "endDate": "2026-06-11T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-06-11T02:10:00Z",
+              "endDate": "2026-06-11T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 101,
+            "name": "Summer Series Windseekers #1",
+            "seriesId": 15,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "TripleNumberAllPurpose",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 30,
+          "series": {
+            "id": 15,
+            "name": "Summer Series Windseekers",
+            "sort": 4,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-06-18T02:00:00Z",
+              "endDate": "2026-06-18T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-06-18T02:05:00Z",
+              "endDate": "2026-06-18T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-06-18T02:10:00Z",
+              "endDate": "2026-06-18T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-06-18T02:10:00Z",
+              "endDate": "2026-06-18T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 102,
+            "name": "Summer Series Windseekers #2",
+            "seriesId": 15,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 480,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "MediumHigh"
+          },
+          "resultCount": 31,
+          "series": {
+            "id": 15,
+            "name": "Summer Series Windseekers",
+            "sort": 4,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-06-25T02:00:00Z",
+              "endDate": "2026-06-25T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-06-25T02:05:00Z",
+              "endDate": "2026-06-25T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-06-25T02:10:00Z",
+              "endDate": "2026-06-25T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-06-25T02:10:00Z",
+              "endDate": "2026-06-25T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 103,
+            "name": "Three Hour Tour #1",
+            "seriesId": 16,
+            "rcId": 31,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 14,
+          "series": {
+            "id": 16,
+            "name": "Three Hour Tour",
+            "sort": 5,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 31,
+            "first": "Danny",
+            "last": "Kenck",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-06-27T20:00:00Z",
+              "endDate": "2026-06-27T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-06-27T20:05:00Z",
+              "endDate": "2026-06-27T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-06-27T20:10:00Z",
+              "endDate": "2026-06-27T23:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-06-27T20:10:00Z",
+              "endDate": "2026-06-27T23:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 106,
+            "name": "Summer Series Windseekers #3",
+            "seriesId": 15,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 650,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 27,
+          "series": {
+            "id": 15,
+            "name": "Summer Series Windseekers",
+            "sort": 4,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-02T02:00:00Z",
+              "endDate": "2026-07-02T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-02T02:05:00Z",
+              "endDate": "2026-07-02T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-02T02:10:00Z",
+              "endDate": "2026-07-02T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-02T02:10:00Z",
+              "endDate": "2026-07-02T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 107,
+            "name": "Summer Series Windseekers #4",
+            "seriesId": 15,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 28,
+          "series": {
+            "id": 15,
+            "name": "Summer Series Windseekers",
+            "sort": 4,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-09T02:10:00Z",
+              "endDate": "2026-07-09T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-09T02:15:00Z",
+              "endDate": "2026-07-09T04:15:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-09T02:20:00Z",
+              "endDate": "2026-07-09T04:20:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-09T02:20:00Z",
+              "endDate": "2026-07-09T04:20:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 104,
+            "name": "Three Hour Tour #2",
+            "seriesId": 16,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 9,
+          "series": {
+            "id": 16,
+            "name": "Three Hour Tour",
+            "sort": 5,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-11T20:00:00Z",
+              "endDate": "2026-07-11T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-11T20:05:00Z",
+              "endDate": "2026-07-11T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-11T20:10:00Z",
+              "endDate": "2026-07-11T23:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-11T20:10:00Z",
+              "endDate": "2026-07-11T23:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 108,
+            "name": "Summer Series Windseekers #5",
+            "seriesId": 15,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 27,
+          "series": {
+            "id": 15,
+            "name": "Summer Series Windseekers",
+            "sort": 4,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-16T02:00:00Z",
+              "endDate": "2026-07-16T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-16T02:05:00Z",
+              "endDate": "2026-07-16T04:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-16T02:10:00Z",
+              "endDate": "2026-07-16T04:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-16T02:10:00Z",
+              "endDate": "2026-07-16T04:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 109,
+            "name": "Late Summer Windseekers  #1",
+            "seriesId": 17,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 25,
+          "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": null,
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-23T02:00:00Z",
+              "endDate": "2026-07-23T03:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-23T02:05:00Z",
+              "endDate": "2026-07-23T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-23T02:10:00Z",
+              "endDate": "2026-07-23T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-23T02:15:00Z",
+              "endDate": "2026-07-23T03:45:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 110,
+            "name": "Late Summer Windseekers  #2",
+            "seriesId": 17,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 25,
+          "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-07-30T02:05:00Z",
+              "endDate": "2026-07-30T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-07-30T02:10:00Z",
+              "endDate": "2026-07-30T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-07-30T02:15:00Z",
+              "endDate": "2026-07-30T03:45:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-07-30T02:15:00Z",
+              "endDate": "2026-07-30T03:45:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 111,
+            "name": "Late Summer Windseekers  #3",
+            "seriesId": 17,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 22,
+          "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-08-06T02:20:00Z",
+              "endDate": "2026-08-06T03:50:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-08-06T02:25:00Z",
+              "endDate": "2026-08-06T03:55:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-08-06T02:30:00Z",
+              "endDate": "2026-08-06T04:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-08-06T02:15:00Z",
+              "endDate": "2026-08-06T03:45:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 105,
+            "name": "Three Hour Tour #3",
+            "seriesId": 16,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 10,
+          "series": {
+            "id": 16,
+            "name": "Three Hour Tour",
+            "sort": 5,
+            "raceCount": 9,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-08-08T20:00:00Z",
+              "endDate": "2026-08-08T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-08-08T20:05:00Z",
+              "endDate": "2026-08-08T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-08-08T20:10:00Z",
+              "endDate": "2026-08-08T23:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-08-08T20:10:00Z",
+              "endDate": "2026-08-08T23:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 112,
+            "name": "Late Summer Windseekers  #4",
+            "seriesId": 17,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 27,
+          "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-08-13T02:00:00Z",
+              "endDate": "2026-08-13T03:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-08-13T02:05:00Z",
+              "endDate": "2026-08-13T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-08-13T02:10:00Z",
+              "endDate": "2026-08-13T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-08-13T02:10:00Z",
+              "endDate": "2026-08-13T03:40:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 114,
+            "name": "Vashon Challenge",
+            "seriesId": null,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 9,
+          "series": null,
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 7,
+                "name": "Double Handed",
+                "sort": 4,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 2,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 28,
+                  "name": "All",
+                  "description": "",
+                  "active": true,
+                  "numberOfRaces": 2,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 7
+                }
+              ],
+              "startDate": "2026-08-15T17:05:00Z",
+              "endDate": "2026-08-16T03:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 9,
+                "name": "Single Handed",
+                "sort": 5,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 2,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 31,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 2,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 9
+                }
+              ],
+              "startDate": "2026-08-15T17:00:00Z",
+              "endDate": "2026-08-16T03:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 5,
+                "name": "Windseekers FS Double Handed",
+                "sort": 8,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 2,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 29,
+                  "name": "All",
+                  "description": "",
+                  "active": true,
+                  "numberOfRaces": 2,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 5
+                }
+              ],
+              "startDate": "2026-08-15T17:05:00Z",
+              "endDate": "2026-08-16T03:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 8,
+                "name": "Windseeker FS Single Handed",
+                "sort": 9,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 2,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 30,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 2,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 8
+                }
+              ],
+              "startDate": "2026-08-15T17:00:00Z",
+              "endDate": "2026-08-16T03:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 35,
+                "name": "Windseekers NFS Double Handed",
+                "sort": 10,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 62,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 3,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 35
+                }
+              ],
+              "startDate": "2026-08-15T17:05:00Z",
+              "endDate": "2026-08-16T03:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 36,
+                "name": "Windseekers NFS Single Handed",
+                "sort": 11,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 63,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 3,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 36
+                }
+              ],
+              "startDate": "2026-08-15T17:00:00Z",
+              "endDate": "2026-08-16T03:00:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 113,
+            "name": "Late Summer Windseekers  #5",
+            "seriesId": 17,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 26,
+          "series": {
+            "id": 17,
+            "name": "Late Summer Windseekers",
+            "sort": 6,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-08-20T02:00:00Z",
+              "endDate": "2026-08-20T03:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-08-20T02:05:00Z",
+              "endDate": "2026-08-20T03:35:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-08-20T02:10:00Z",
+              "endDate": "2026-08-20T03:40:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-08-20T02:10:00Z",
+              "endDate": "2026-08-20T03:40:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 115,
+            "name": "Awards Race and Ceremony",
+            "seriesId": null,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 16,
+          "series": null,
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 64,
+                  "name": "I",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": -1000.0,
+                  "maxRating": 69.0,
+                  "classId": 37
+                },
+                {
+                  "id": 65,
+                  "name": "II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 70.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-08-22T18:00:00Z",
+              "endDate": "2026-08-22T21:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 67,
+                  "name": "III",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 94.0,
+                  "maxRating": 139.0,
+                  "classId": 38
+                },
+                {
+                  "id": 68,
+                  "name": "IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 14,
+                  "minRating": 140.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-08-22T18:05:00Z",
+              "endDate": "2026-08-22T21:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-08-22T18:10:00Z",
+              "endDate": "2026-08-22T21:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-08-22T18:10:00Z",
+              "endDate": "2026-08-22T21:10:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 123,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 7,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-08-27T01:00:00Z",
+              "endDate": "2026-08-27T01:09:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 129,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 7,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-08-27T01:10:00Z",
+              "endDate": "2026-08-27T01:19:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 130,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 7,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-08-27T01:20:00Z",
+              "endDate": "2026-08-27T01:29:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 131,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #1D",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 7,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-08-27T01:30:00Z",
+              "endDate": "2026-08-27T01:39:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 124,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #2",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-03T01:00:00Z",
+              "endDate": "2026-09-03T02:30:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 125,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-10T01:00:00Z",
+              "endDate": "2026-09-10T01:09:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 132,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-10T01:10:00Z",
+              "endDate": "2026-09-10T01:19:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 133,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #3C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-10T01:20:00Z",
+              "endDate": "2026-09-10T01:29:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 117,
+            "name": "Point Series #1",
+            "seriesId": 18,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 13,
+          "series": {
+            "id": 18,
+            "name": "Point Series",
+            "sort": 1,
+            "raceCount": 11,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 66,
+                  "name": "I & II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": -1000.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-09-12T17:20:00Z",
+              "endDate": "2026-09-12T23:20:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 69,
+                  "name": "III & IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": 94.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-09-12T17:25:00Z",
+              "endDate": "2026-09-12T23:25:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-09-12T17:30:00Z",
+              "endDate": "2026-09-12T23:30:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-09-12T17:30:00Z",
+              "endDate": "2026-09-12T23:30:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 126,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series #4",
+            "seriesId": 19,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": null,
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-17T01:00:00Z",
+              "endDate": "2026-09-17T02:00:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 118,
+            "name": "Point Series #2",
+            "seriesId": 18,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 15,
+          "series": {
+            "id": 18,
+            "name": "Point Series",
+            "sort": 1,
+            "raceCount": 11,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 66,
+                  "name": "I & II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": -1000.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-09-19T17:55:00Z",
+              "endDate": "2026-09-19T22:55:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 69,
+                  "name": "III & IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": 94.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-09-19T18:00:00Z",
+              "endDate": "2026-09-19T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-09-19T18:05:00Z",
+              "endDate": "2026-09-19T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-09-19T18:05:00Z",
+              "endDate": "2026-09-19T23:05:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 127,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-24T01:00:00Z",
+              "endDate": "2026-09-24T02:00:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 134,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-24T01:10:00Z",
+              "endDate": "2026-09-24T01:19:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 135,
+            "name": "Lido 14 Late-Summer/Fall Windsay Series #5C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-09-24T01:20:00Z",
+              "endDate": "2026-09-24T01:29:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 128,
+            "name": "Lido 14 Late-Summer/Fall Series #6A",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 6,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-10-01T01:00:00Z",
+              "endDate": "2026-10-01T01:09:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 136,
+            "name": "Lido 14 Late-Summer/Fall Series #6B",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 6,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-10-01T01:10:00Z",
+              "endDate": "2026-10-01T01:19:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 137,
+            "name": "Lido 14 Late-Summer/Fall Series #6C",
+            "seriesId": 19,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 5,
+          "series": {
+            "id": 19,
+            "name": "Lido 14 Late-Summer/Fall Windsday Series",
+            "sort": 7,
+            "raceCount": 15,
+            "active": true
+          },
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 40,
+                "name": "Lido 14",
+                "sort": 12,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 15,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 72,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 15,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 40
+                }
+              ],
+              "startDate": "2026-10-01T01:20:00Z",
+              "endDate": "2026-10-01T01:29:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 116,
+            "name": "Memorial Single/Double Handed Race",
+            "seriesId": null,
+            "rcId": 67,
+            "reportImage": null,
+            "phrfBFactor": 550,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 8,
+          "series": null,
+          "rc": {
+            "id": 67,
+            "first": "Frank",
+            "last": "Kors",
+            "clubMember": true,
+            "active": true
+          },
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 35,
+                "name": "Windseekers NFS Double Handed",
+                "sort": 10,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 62,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 3,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 35
+                }
+              ],
+              "startDate": "2026-10-03T18:05:00Z",
+              "endDate": "2026-10-03T21:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 36,
+                "name": "Windseekers NFS Single Handed",
+                "sort": 11,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 3,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 63,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 3,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 36
+                }
+              ],
+              "startDate": "2026-10-03T18:00:00Z",
+              "endDate": "2026-10-03T21:00:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 119,
+            "name": "Point Series #3",
+            "seriesId": 18,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 18,
+            "name": "Point Series",
+            "sort": 1,
+            "raceCount": 11,
+            "active": true
+          },
+          "rc": null,
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 66,
+                  "name": "I & II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": -1000.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-10-17T17:00:00Z",
+              "endDate": "2026-10-17T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 69,
+                  "name": "III & IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": 94.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-10-17T17:05:00Z",
+              "endDate": "2026-10-17T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-10-17T17:10:00Z",
+              "endDate": "2026-10-17T23:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-10-17T17:10:00Z",
+              "endDate": "2026-10-17T23:01:00Z"
+            }
+          ]
+        },
+        {
+          "race": {
+            "id": 121,
+            "name": "Point Series #4",
+            "seriesId": 18,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 600,
+            "orcScoringOption": "FiveBandWindwardLeeward",
+            "orc3Band": "Low",
+            "orc5Band": "LowMedium"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 18,
+            "name": "Point Series",
+            "sort": 1,
+            "raceCount": 11,
+            "active": true
+          },
+          "rc": null,
+          "schedule": [
+            {
+              "raceClass": {
+                "id": 37,
+                "name": "Fast (93-)",
+                "sort": 0,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 66,
+                  "name": "I & II",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": -1000.0,
+                  "maxRating": 93.0,
+                  "classId": 37
+                }
+              ],
+              "startDate": "2026-10-31T17:00:00Z",
+              "endDate": "2026-10-31T23:00:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 38,
+                "name": "Half Fast (94+)",
+                "sort": 1,
+                "ratingType": "ORC_PHRF",
+                "numberOfRaces": 18,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 69,
+                  "name": "III & IV",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 4,
+                  "minRating": 94.0,
+                  "maxRating": 1000.0,
+                  "classId": 38
+                }
+              ],
+              "startDate": "2026-10-31T17:05:00Z",
+              "endDate": "2026-10-31T23:05:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 4,
+                "name": "Windseekers FS",
+                "sort": 6,
+                "ratingType": "CruisingFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 19,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 4
+                }
+              ],
+              "startDate": "2026-10-31T17:10:00Z",
+              "endDate": "2026-10-31T23:10:00Z"
+            },
+            {
+              "raceClass": {
+                "id": 3,
+                "name": "Windseekers NFS",
+                "sort": 7,
+                "ratingType": "CruisingNonFlyingSails",
+                "numberOfRaces": 99,
+                "active": true
+              },
+              "brackets": [
+                {
+                  "id": 18,
+                  "name": "All",
+                  "description": null,
+                  "active": true,
+                  "numberOfRaces": 99,
+                  "minRating": -1000.0,
+                  "maxRating": 1000.0,
+                  "classId": 3
+                }
+              ],
+              "startDate": "2026-10-31T17:10:00Z",
+              "endDate": "2026-10-31T23:10:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

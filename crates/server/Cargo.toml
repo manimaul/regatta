@@ -1,0 +1,53 @@
+[package]
+name = "regatta-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "The regatta axum server: REST routes over regatta-service, the Leptos SSR routes and server functions, the error layer and the site fallback"
+
+[lib]
+name = "regatta_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "regatta"
+path = "src/main.rs"
+
+[features]
+# The Leptos side (SSR routes, server functions, the site fallback). cargo-leptos builds the bin
+# with exactly this feature (`bin-features` in the root Cargo.toml); it is on by default so plain
+# `cargo run`/`cargo test -p regatta-server` build the same server.
+default = ["ssr"]
+ssr = ["regatta-app/ssr", "leptos/ssr", "leptos_router/ssr", "leptos_meta/ssr"]
+
+[dependencies]
+regatta-common = { workspace = true }
+regatta-scoring = { workspace = true }
+regatta-service = { workspace = true }
+regatta-app = { workspace = true }
+leptos = { workspace = true }
+leptos_axum = { workspace = true }
+leptos_router = { workspace = true }
+leptos_meta = { workspace = true }
+anyhow = { workspace = true }
+axum = { workspace = true }
+clap = { workspace = true }
+http = { workspace = true }
+jiff = { workspace = true }
+mime_guess = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+base64 = { workspace = true }
+http-body-util = { workspace = true }
+pretty_assertions = { workspace = true }
+regatta-contract = { path = "../contract" }
+testcontainers = { workspace = true }

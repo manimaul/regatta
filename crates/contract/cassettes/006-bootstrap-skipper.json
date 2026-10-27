@@ -1,0 +1,33 @@
+{
+  "index": 6,
+  "name": "bootstrap-skipper",
+  "auth": {
+    "raw": "Bearer none"
+  },
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/skipper?id=2",
+    "headers": {
+      "authorization": "Bearer none"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "75",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 2,
+        "first": "John",
+        "last": "Leitzinger",
+        "clubMember": true,
+        "active": true
+      }
+    }
+  }
+}

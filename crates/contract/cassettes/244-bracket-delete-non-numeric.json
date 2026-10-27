@@ -1,0 +1,25 @@
+{
+  "index": 244,
+  "name": "bracket-delete-non-numeric",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/bracket?id=abc",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

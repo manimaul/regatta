@@ -1,0 +1,28 @@
+{
+  "index": 126,
+  "name": "class-list-empty",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/raceClassList",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": []
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "2",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": []
+    }
+  }
+}

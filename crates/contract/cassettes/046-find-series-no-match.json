@@ -1,0 +1,23 @@
+{
+  "index": 46,
+  "name": "find-series-no-match",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/series?name=zzz-no-such-series",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "2",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": []
+    }
+  }
+}

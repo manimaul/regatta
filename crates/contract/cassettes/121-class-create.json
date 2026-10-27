@@ -1,0 +1,90 @@
+{
+  "index": 121,
+  "name": "class-create",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/raceClass",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "raceClass": {
+          "id": 0,
+          "name": "Contract Class",
+          "sort": 50,
+          "ratingType": "PHRF",
+          "numberOfRaces": 0,
+          "active": true
+        },
+        "brackets": [
+          {
+            "id": 0,
+            "name": "A",
+            "description": null,
+            "active": true,
+            "numberOfRaces": 0,
+            "minRating": 0.0,
+            "maxRating": 100.0,
+            "classId": 0
+          },
+          {
+            "id": 0,
+            "name": "B",
+            "description": null,
+            "active": true,
+            "numberOfRaces": 0,
+            "minRating": 101.0,
+            "maxRating": 200.0,
+            "classId": 0
+          }
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "362",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "raceClass": {
+          "id": 41,
+          "name": "Contract Class",
+          "sort": 50,
+          "ratingType": "PHRF",
+          "numberOfRaces": 0,
+          "active": true
+        },
+        "brackets": [
+          {
+            "id": 73,
+            "name": "A",
+            "description": null,
+            "active": true,
+            "numberOfRaces": 0,
+            "minRating": 0.0,
+            "maxRating": 100.0,
+            "classId": 41
+          },
+          {
+            "id": 74,
+            "name": "B",
+            "description": null,
+            "active": true,
+            "numberOfRaces": 0,
+            "minRating": 101.0,
+            "maxRating": 200.0,
+            "classId": 41
+          }
+        ]
+      }
+    }
+  }
+}

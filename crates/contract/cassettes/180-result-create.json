@@ -1,0 +1,54 @@
+{
+  "index": 180,
+  "name": "result-create",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "raceId": 138,
+        "boatId": 118,
+        "finish": "2026-06-01T19:30:15Z",
+        "phrfRating": 100,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "PHRF",
+        "finishCode": "TIME"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "206",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 2425,
+        "raceId": 138,
+        "boatId": 118,
+        "finish": "2026-06-01T19:30:15Z",
+        "phrfRating": 100,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "PHRF",
+        "finishCode": "TIME"
+      }
+    }
+  }
+}

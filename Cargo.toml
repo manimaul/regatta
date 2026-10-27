@@ -1,0 +1,115 @@
+# Rust port workspace (docs/explore_unimplemented/rust_port.md). Lives beside the Kotlin build
+# until cutover; nothing here is read by Gradle and nothing in Gradle is read from here.
+[workspace]
+resolver = "2"
+members = [
+    "crates/common",
+    "crates/scoring",
+    "crates/app",
+    "crates/frontend",
+    "crates/service",
+    "crates/server",
+    "crates/contract",
+    "crates/xtask",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+# The version catalog (= gradle/libs.versions.toml). Crates reference these with
+# `name = { workspace = true }` and add only features.
+[workspace.dependencies]
+regatta-common = { path = "crates/common" }
+regatta-scoring = { path = "crates/scoring" }
+regatta-app = { path = "crates/app" }
+regatta-service = { path = "crates/service" }
+
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "fs"] }
+axum = { version = "0.8.9", features = ["json", "query", "multipart", "macros"] }
+axum-extra = { version = "0.12.6", features = ["cookie"] }
+tower = "0.5.3"
+tower-http = { version = "0.7.1", features = ["fs", "compression-gzip", "compression-deflate", "compression-br", "trace", "set-header"] }
+hyper = "1.12.0"
+http = "1.5.0"
+http-body-util = "0.1.5"
+mime_guess = "2.0.5"
+
+leptos = "0.8.22"
+leptos_axum = "0.8.10"
+leptos_router = "0.8.17"
+leptos_meta = "0.8.7"
+server_fn = "0.8.13"
+
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["float_roundtrip"] }  # golden JSON parses must be correctly rounded (see crates/common)
+jiff = { version = "0.2.38", default-features = false, features = ["std", "serde"] }
+
+sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "json", "migrate", "macros"] }
+
+sha2 = "0.11.1"
+base64 = "0.23.1"
+rand = "0.10.3"
+uuid = { version = "1.29.0", features = ["v4"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json", "gzip"] }
+quick-xml = "0.42.0"
+flate2 = "1.1.10"
+
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+thiserror = "2.0.21"
+anyhow = "1.0.104"
+clap = { version = "4.6.7", features = ["derive", "env"] }
+
+wasm-bindgen = "0.2.129"
+wasm-bindgen-futures = "0.4.79"
+js-sys = "0.3.106"
+web-sys = "0.3.106"
+wasm-bindgen-test = "0.3.79"
+console_error_panic_hook = "0.1.7"
+console_log = "1.1.0"
+
+testcontainers = "0.28.0"
+any_spawner = "0.3.0"
+proptest = "1.12.0"
+pretty_assertions = "1.4.1"
+similar = "3.2.1"
+xshell = "0.2.7"
+
+# Dev builds carry line tables only: full debuginfo for this dependency set is ~20 GB of target/.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+
+# cargo-leptos builds the hydrate (wasm) side with this profile.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# cargo-leptos configuration (Phase 4). `cargo leptos watch` / `cargo leptos build --release`.
+[[workspace.metadata.leptos]]
+name = "regatta"
+bin-package = "regatta-server"
+lib-package = "regatta-frontend"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+site-addr = "0.0.0.0:8888"
+reload-port = 3001
+# only tailwind-input-file: with style-file set to the same file, the raw CSS replaced the Tailwind output
+tailwind-input-file = "crates/app/style/app.css"
+assets-dir = "crates/app/public"
+bin-features = ["ssr"]
+bin-default-features = false
+lib-features = ["hydrate"]
+lib-default-features = false
+lib-profile-release = "wasm-release"
+# cargo-leptos 0.3 sets LEPTOS_ENV itself (DEV, or PROD with --release); an `env` key is ignored.

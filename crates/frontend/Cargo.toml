@@ -1,0 +1,18 @@
+[package]
+name = "regatta-frontend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+hydrate = ["regatta-app/hydrate", "leptos/hydrate"]
+
+[dependencies]
+regatta-app = { workspace = true }
+leptos = { workspace = true }
+wasm-bindgen = { workspace = true }
+console_error_panic_hook = { workspace = true }

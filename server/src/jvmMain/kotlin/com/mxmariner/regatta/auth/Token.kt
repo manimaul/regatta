@@ -1,5 +1,6 @@
 package com.mxmariner.regatta.auth
 
+import com.mxmariner.regatta.FixedClock
 import com.mxmariner.regatta.data.AuthRecord
 import com.mxmariner.regatta.data.Login
 import com.mxmariner.regatta.data.LoginResponse
@@ -55,7 +56,7 @@ object Token {
         return RegattaDatabase.getAuth(login.userName)?.let {
             val expected = timeStampHash(login.time, login.salt, it.hash)
             if (expected == login.hashOfHash) {
-                val expires = Clock.System.now().plus(expiresIn)
+                val expires = FixedClock.now().plus(expiresIn)
                 val salt = salt()
                 val hash = timeStampHash(expires, salt, it.hash)
                 LoginResponse(

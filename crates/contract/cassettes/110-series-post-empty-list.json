@@ -1,0 +1,28 @@
+{
+  "index": 110,
+  "name": "series-post-empty-list",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/series",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": []
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "2",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": []
+    }
+  }
+}

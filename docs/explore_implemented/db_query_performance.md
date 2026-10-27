@@ -4,7 +4,7 @@ Survey of the PostgreSQL indexes behind `server/src/jvmMain/kotlin/com/mxmariner
 and of what actually costs time when the server answers a request. The index inventory, row
 counts, `EXPLAIN ANALYZE` plans and per-endpoint statement counts below were taken on 2026-10-14
 against the local Postgres 16 container loaded with the scrubbed production snapshot of
-2026-10-13 (`server/src/jvmTest/resources/golden/regatta-2026-10-13.sql`), with the server built
+2026-10-13 (`server/src/jvmTest/resources/golden/regatta-2026-10-13.sql`, since re-dumped at schema version 5 as `regatta-2026-10-13-v5.sql`), with the server built
 from `main` at 552229f and `log_statement = 'all'` turned on for the measurement.
 
 Status: implemented on 2026-10-14 (R1–R6 below), re-measured, and the golden regression re-run

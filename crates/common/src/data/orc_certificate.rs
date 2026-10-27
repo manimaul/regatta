@@ -1,0 +1,749 @@
+//! = `OrcCertificate.kt`: the PHRF B factor, the ORC wind bands, the ORC scoring options and the
+//! certificate itself (every `@SerialName` key verbatim).
+
+use crate::serde_kotlin::{kotlin_instant, DISTANT_FUTURE};
+use jiff::Timestamp;
+use serde::{Deserialize, Serialize};
+
+/// Public page of an ORC certificate copy, by ORC's file id ([`OrcCertificate::dxt_id`]).
+pub const ORC_CERTIFICATE_URL: &str = "https://data.orc.org/public/WPub.dll/CC/";
+
+pub fn orc_certificate_url(dxt_id: Option<i64>) -> Option<String> {
+    dxt_id.map(|id| format!("{ORC_CERTIFICATE_URL}{id}"))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum PhrfBFactor {
+    Calm,
+    Light,
+    Avg,
+    Hvy,
+}
+
+impl PhrfBFactor {
+    pub const ENTRIES: [PhrfBFactor; 4] = [
+        PhrfBFactor::Calm,
+        PhrfBFactor::Light,
+        PhrfBFactor::Avg,
+        PhrfBFactor::Hvy,
+    ];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            PhrfBFactor::Calm => "Calm",
+            PhrfBFactor::Light => "Light",
+            PhrfBFactor::Avg => "Avg",
+            PhrfBFactor::Hvy => "Hvy",
+        }
+    }
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            PhrfBFactor::Calm => "Calm / Drifting 1 to 5 knots",
+            PhrfBFactor::Light => "Light 5 to 10 knots",
+            PhrfBFactor::Avg => "Average 10 to 15 knots",
+            PhrfBFactor::Hvy => "Heavy 15 to 20+ knots",
+        }
+    }
+
+    pub const fn desc(self) -> &'static str {
+        match self {
+            PhrfBFactor::Calm => "Very light air",
+            PhrfBFactor::Light => "Light air or all windward work",
+            PhrfBFactor::Avg => "Medium racing conditions",
+            PhrfBFactor::Hvy => "Heavy air or all off-the-wind sailing",
+        }
+    }
+
+    pub const fn cf(self) -> i32 {
+        match self {
+            PhrfBFactor::Calm => 650,
+            PhrfBFactor::Light => 600,
+            PhrfBFactor::Avg => 550,
+            PhrfBFactor::Hvy => 480,
+        }
+    }
+
+    /// `PhrfBFactor.fromBFactor(cf)`: the band whose half-way edges enclose `cf`; at or below
+    /// `Hvy.cf` is `Hvy`, at or above 650 is `Calm`.
+    pub fn from_b_factor(cf: i32) -> PhrfBFactor {
+        if cf <= PhrfBFactor::Hvy.cf() {
+            return PhrfBFactor::Hvy;
+        } else if cf >= 650 {
+            return PhrfBFactor::Calm;
+        }
+        let array = PhrfBFactor::ENTRIES;
+        let mut selected = PhrfBFactor::Light;
+        for (index, factor) in array.iter().enumerate() {
+            let (min, max) = if index == 0 {
+                (
+                    factor.cf() - (factor.cf() - array[index + 1].cf()) / 2,
+                    factor.cf(),
+                )
+            } else if index == array.len() - 1 {
+                (
+                    factor.cf(),
+                    factor.cf() + (array[index - 1].cf() - factor.cf()) / 2,
+                )
+            } else {
+                (
+                    factor.cf() - (factor.cf() - array[index + 1].cf()) / 2,
+                    factor.cf() + (array[index - 1].cf() - factor.cf()) / 2,
+                )
+            };
+            if cf <= max && cf >= min {
+                selected = *factor;
+            }
+        }
+        selected
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Orc3Band {
+    Low,
+    Medium,
+    High,
+}
+
+impl Orc3Band {
+    pub const ENTRIES: [Orc3Band; 3] = [Orc3Band::Low, Orc3Band::Medium, Orc3Band::High];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Orc3Band::Low => "Low",
+            Orc3Band::Medium => "Medium",
+            Orc3Band::High => "High",
+        }
+    }
+
+    pub const fn label(self) -> &'static str {
+        self.name()
+    }
+
+    pub const fn desc(self) -> &'static str {
+        match self {
+            Orc3Band::Low => "9 kts or less",
+            Orc3Band::Medium => "9 to 14 kts",
+            Orc3Band::High => "14 kts or more",
+        }
+    }
+
+    pub const fn phrf_b_factor(self) -> i32 {
+        match self {
+            Orc3Band::Low => 600,
+            Orc3Band::Medium => 550,
+            Orc3Band::High => 480,
+        }
+    }
+
+    /// `Orc3Band.fromPhrfBFactor(cf)`.
+    pub fn from_phrf_b_factor(cf: i32) -> Orc3Band {
+        if cf >= Orc3Band::Low.phrf_b_factor() {
+            Orc3Band::Low
+        } else if (Orc3Band::Medium.phrf_b_factor()..=Orc3Band::Low.phrf_b_factor()).contains(&cf) {
+            Orc3Band::Medium
+        } else {
+            Orc3Band::High
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Orc5Band {
+    Low,
+    LowMedium,
+    Medium,
+    MediumHigh,
+    High,
+}
+
+impl Orc5Band {
+    pub const ENTRIES: [Orc5Band; 5] = [
+        Orc5Band::Low,
+        Orc5Band::LowMedium,
+        Orc5Band::Medium,
+        Orc5Band::MediumHigh,
+        Orc5Band::High,
+    ];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Orc5Band::Low => "Low",
+            Orc5Band::LowMedium => "LowMedium",
+            Orc5Band::Medium => "Medium",
+            Orc5Band::MediumHigh => "MediumHigh",
+            Orc5Band::High => "High",
+        }
+    }
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            Orc5Band::Low => "Low",
+            Orc5Band::LowMedium => "Low/Medium",
+            Orc5Band::Medium => "Medium",
+            Orc5Band::MediumHigh => "Medium/High",
+            Orc5Band::High => "High",
+        }
+    }
+
+    pub const fn desc(self) -> &'static str {
+        match self {
+            Orc5Band::Low => "7 kts or less",
+            Orc5Band::LowMedium => "7 to 10 kts",
+            Orc5Band::Medium => "10 to 13 kts",
+            Orc5Band::MediumHigh => "13 to 17 kts",
+            Orc5Band::High => "17 kts or more",
+        }
+    }
+
+    pub const fn phrf_b_factor(self) -> i32 {
+        match self {
+            Orc5Band::Low => 650,
+            Orc5Band::LowMedium => 600,
+            Orc5Band::Medium => 550,
+            Orc5Band::MediumHigh => 510,
+            Orc5Band::High => 480,
+        }
+    }
+
+    /// `Orc5Band.fromPhrfBFactor(cf)`.
+    pub fn from_phrf_b_factor(cf: i32) -> Orc5Band {
+        use Orc5Band::*;
+        if cf >= Low.phrf_b_factor() {
+            Low
+        } else if (LowMedium.phrf_b_factor()..=Low.phrf_b_factor()).contains(&cf) {
+            LowMedium
+        } else if (Medium.phrf_b_factor()..=LowMedium.phrf_b_factor()).contains(&cf) {
+            Medium
+        } else if (MediumHigh.phrf_b_factor()..=Medium.phrf_b_factor()).contains(&cf) {
+            MediumHigh
+        } else {
+            High
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum OrcScoringOption {
+    SingleNumberAllPurpose,
+    SingleNumberWindwardLeeward,
+    TripleNumberAllPurpose,
+    TripleNumberWindwardLeeward,
+    SingleNumberPredominantUpwind,
+    SingleNumberPredominantReaching,
+    SingleNumberPredominantDownwind,
+    PredominantUpwind,
+    PredominantDownwind,
+    PredominantReaching,
+    FiveBandWindwardLeeward,
+    #[serde(rename = "WindwardLeeward60_40")]
+    WindwardLeeward6040,
+    FiveBandAllPurpose,
+}
+
+impl OrcScoringOption {
+    pub const ENTRIES: [OrcScoringOption; 13] = [
+        OrcScoringOption::SingleNumberAllPurpose,
+        OrcScoringOption::SingleNumberWindwardLeeward,
+        OrcScoringOption::TripleNumberAllPurpose,
+        OrcScoringOption::TripleNumberWindwardLeeward,
+        OrcScoringOption::SingleNumberPredominantUpwind,
+        OrcScoringOption::SingleNumberPredominantReaching,
+        OrcScoringOption::SingleNumberPredominantDownwind,
+        OrcScoringOption::PredominantUpwind,
+        OrcScoringOption::PredominantDownwind,
+        OrcScoringOption::PredominantReaching,
+        OrcScoringOption::FiveBandWindwardLeeward,
+        OrcScoringOption::WindwardLeeward6040,
+        OrcScoringOption::FiveBandAllPurpose,
+    ];
+
+    pub const fn name(self) -> &'static str {
+        use OrcScoringOption::*;
+        match self {
+            SingleNumberAllPurpose => "SingleNumberAllPurpose",
+            SingleNumberWindwardLeeward => "SingleNumberWindwardLeeward",
+            TripleNumberAllPurpose => "TripleNumberAllPurpose",
+            TripleNumberWindwardLeeward => "TripleNumberWindwardLeeward",
+            SingleNumberPredominantUpwind => "SingleNumberPredominantUpwind",
+            SingleNumberPredominantReaching => "SingleNumberPredominantReaching",
+            SingleNumberPredominantDownwind => "SingleNumberPredominantDownwind",
+            PredominantUpwind => "PredominantUpwind",
+            PredominantDownwind => "PredominantDownwind",
+            PredominantReaching => "PredominantReaching",
+            FiveBandWindwardLeeward => "FiveBandWindwardLeeward",
+            WindwardLeeward6040 => "WindwardLeeward60_40",
+            FiveBandAllPurpose => "FiveBandAllPurpose",
+        }
+    }
+
+    /// The Kotlin `label` (note the trailing space of `PredominantUpwind`, kept verbatim).
+    pub const fn label(self) -> &'static str {
+        use OrcScoringOption::*;
+        match self {
+            SingleNumberAllPurpose => "Single Number All Purpose",
+            SingleNumberWindwardLeeward => "Single Number Windward/Leeward",
+            TripleNumberAllPurpose => "Triple Number All Purpose",
+            TripleNumberWindwardLeeward => "Triple Number Windward/Leeward",
+            SingleNumberPredominantUpwind => "Single Number Predominant Upwind",
+            SingleNumberPredominantReaching => "Single Number Predominant Reaching",
+            SingleNumberPredominantDownwind => "Single Number Predominant Downwind",
+            PredominantUpwind => "Predominant Upwind ",
+            PredominantDownwind => "Predominant Downwind",
+            PredominantReaching => "Predominant Reaching",
+            FiveBandWindwardLeeward => "5-Band Windward/Leeward",
+            WindwardLeeward6040 => "Windward/Leeward 60-40",
+            FiveBandAllPurpose => "5-Band All Purpose",
+        }
+    }
+
+    pub const fn uses_3_band(self) -> bool {
+        matches!(
+            self,
+            OrcScoringOption::TripleNumberAllPurpose
+                | OrcScoringOption::TripleNumberWindwardLeeward
+        )
+    }
+
+    pub const fn uses_5_band(self) -> bool {
+        use OrcScoringOption::*;
+        matches!(
+            self,
+            PredominantUpwind
+                | PredominantDownwind
+                | PredominantReaching
+                | FiveBandWindwardLeeward
+                | WindwardLeeward6040
+                | FiveBandAllPurpose
+        )
+    }
+
+    /// `"<label> - <desc>"` of the band the option scores with, or `None` for the single-number
+    /// options.
+    pub fn orc_band_label(self, orc5_band: Orc5Band, orc3_band: Orc3Band) -> Option<String> {
+        if self.uses_3_band() {
+            Some(format!("{} - {}", orc3_band.label(), orc3_band.desc()))
+        } else if self.uses_5_band() {
+            Some(format!("{} - {}", orc5_band.label(), orc5_band.desc()))
+        } else {
+            None
+        }
+    }
+}
+
+/// The `rms` envelope of data.orc.org's RMS JSON (the ORC client ignores the other keys).
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
+pub struct OrcResponse {
+    #[serde(default)]
+    pub rms: Vec<OrcCertificate>,
+}
+
+/// `List<OrcCertificate>.findPreferred()`: a stable sort by the Kotlin comparator (a `CLUB`
+/// certificate before any other type, same types by issue date), then the first.
+pub fn find_preferred(certs: &[OrcCertificate]) -> Option<&OrcCertificate> {
+    use std::cmp::Ordering;
+    let compare = |lhs: &OrcCertificate, rhs: &OrcCertificate| -> Ordering {
+        if lhs.c_type != rhs.c_type {
+            if lhs.c_type == "CLUB" {
+                Ordering::Less
+            } else if rhs.c_type == "CLUB" {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        } else {
+            lhs.issue_date.cmp(&rhs.issue_date)
+        }
+    };
+    // The comparator is not a total order (Kotlin does not care, `sortedWith` is a stable
+    // TimSort); a plain stable insertion sort never panics on it.
+    let mut sorted: Vec<&OrcCertificate> = certs.iter().collect();
+    for i in 1..sorted.len() {
+        let mut j = i;
+        while j > 0 && compare(sorted[j], sorted[j - 1]) == Ordering::Less {
+            sorted.swap(j, j - 1);
+            j -= 1;
+        }
+    }
+    sorted.first().copied()
+}
+
+fn distant_future() -> Timestamp {
+    DISTANT_FUTURE
+}
+
+/// An ORC certificate: ORC's RMS record with every US scoring option over 3 and 5 wind bands.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct OrcCertificate {
+    /// ORC's file id of this certificate, the key of its public page (see [`OrcCertificate::certificate_url`]). Not part of
+    /// the RMS data: it comes from ORC's active-certificate list, so it is null for certificates that
+    /// were never resolved (e.g. expired before the lookup existed). Never written while null, so the
+    /// JSON of such certificates is unchanged.
+    #[serde(rename = "dxtId", skip_serializing_if = "Option::is_none")]
+    pub dxt_id: Option<i64>,
+    #[serde(rename = "NatAuth")]
+    pub nat_auth: String,
+    #[serde(rename = "BIN")]
+    pub bin: String,
+    #[serde(rename = "CertNo")]
+    pub cert_no: String,
+    #[serde(rename = "RefNo")]
+    pub ref_no: String,
+    #[serde(rename = "SailNo")]
+    pub sail_no: String,
+    #[serde(rename = "YachtName")]
+    pub yacht_name: String,
+    #[serde(rename = "Class")]
+    pub yacht_class: String,
+    #[serde(rename = "Builder")]
+    pub builder: String,
+    #[serde(rename = "Designer")]
+    pub designer: String,
+    #[serde(rename = "C_Type")]
+    pub c_type: String,
+    #[serde(rename = "Division")]
+    pub division: String,
+    #[serde(
+        rename = "IssueDate",
+        with = "kotlin_instant",
+        default = "distant_future"
+    )]
+    pub issue_date: Timestamp,
+
+    // Single Number All Purpose
+    #[serde(rename = "APHD")]
+    pub all_purpose_tod: f64,
+    #[serde(rename = "APHT")]
+    pub all_purpose_tot: f64,
+
+    // Single Number Windward/Leeward
+    #[serde(rename = "ILCWA")]
+    pub wl_single_number_tod: f64,
+    #[serde(rename = "TMF_Inshore")]
+    pub wl_single_number_tot: f64,
+
+    // Triple Number All Purpose (Low, Med, High)
+    #[serde(rename = "TND_Offshore_Low")]
+    pub triple_number_all_purpose_low_tod: f64,
+    #[serde(rename = "TN_Offshore_Low")]
+    pub triple_number_all_purpose_low_tot: f64,
+    #[serde(rename = "TND_Offshore_Medium")]
+    pub triple_number_all_purpose_med_tod: f64,
+    #[serde(rename = "TN_Offshore_Medium")]
+    pub triple_number_all_purpose_med_tot: f64,
+    #[serde(rename = "TND_Offshore_High")]
+    pub triple_number_all_purpose_hi_tod: f64,
+    #[serde(rename = "TN_Offshore_High")]
+    pub triple_number_all_purpose_hi_tot: f64,
+
+    // Triple Number Windward/Leeward (Low, Med, High)
+    #[serde(rename = "US_TN_Inshore_Low")]
+    pub triple_number_wl_low_tot: f64,
+    #[serde(rename = "TN_Inshore_Medium")]
+    pub triple_number_wl_med_tot: f64,
+    #[serde(rename = "TN_Inshore_High")]
+    pub triple_number_wl_hi_tot: f64,
+
+    // Single Number Predominant Upwind
+    #[serde(rename = "US_PREDUP_TOT")]
+    pub single_number_predominant_upwind_tot: f64,
+    #[serde(rename = "US_PREDUP_TOD")]
+    pub single_number_predominant_upwind_tod: f64,
+
+    // Single Number Predominant Reaching
+    #[serde(rename = "US_PREDRC_TOT")]
+    pub single_number_predominant_reaching_tot: f64,
+    #[serde(rename = "US_PREDRC_TOD")]
+    pub single_number_predominant_reaching_tod: f64,
+
+    // Single Number Predominant Downwind
+    #[serde(rename = "US_PREDDN_TOT")]
+    pub single_number_predominant_downwind_tot: f64,
+    #[serde(rename = "US_PREDDN_TOD")]
+    pub single_number_predominant_downwind_tod: f64,
+
+    // Predominant Upwind (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_PREDUP_L_TOT")]
+    pub predominant_upwind_low_tot: f64,
+    #[serde(rename = "US_PREDUP_L_TOD")]
+    pub predominant_upwind_low_tod: f64,
+    #[serde(rename = "US_PREDUP_LM_TOT")]
+    pub predominant_upwind_low_med_tot: f64,
+    #[serde(rename = "US_PREDUP_LM_TOD")]
+    pub predominant_upwind_low_med_tod: f64,
+    #[serde(rename = "US_PREDUP_M_TOT")]
+    pub predominant_upwind_med_tot: f64,
+    #[serde(rename = "US_PREDUP_M_TOD")]
+    pub predominant_upwind_med_tod: f64,
+    #[serde(rename = "US_PREDUP_MH_TOT")]
+    pub predominant_upwind_med_hi_tot: f64,
+    #[serde(rename = "US_PREDUP_MH_TOD")]
+    pub predominant_upwind_med_hi_tod: f64,
+    #[serde(rename = "US_PREDUP_H_TOT")]
+    pub predominant_upwind_hi_tot: f64,
+    #[serde(rename = "US_PREDUP_H_TOD")]
+    pub predominant_upwind_hi_tod: f64,
+
+    // Predominant Downwind (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_PREDDN_L_TOT")]
+    pub predominant_downwind_low_tot: f64,
+    #[serde(rename = "US_PREDDN_L_TOD")]
+    pub predominant_downwind_low_tod: f64,
+    #[serde(rename = "US_PREDDN_LM_TOT")]
+    pub predominant_downwind_low_med_tot: f64,
+    #[serde(rename = "US_PREDDN_LM_TOD")]
+    pub predominant_downwind_low_med_tod: f64,
+    #[serde(rename = "US_PREDDN_M_TOT")]
+    pub predominant_downwind_med_tot: f64,
+    #[serde(rename = "US_PREDDN_M_TOD")]
+    pub predominant_downwind_med_tod: f64,
+    #[serde(rename = "US_PREDDN_MH_TOT")]
+    pub predominant_downwind_med_hi_tot: f64,
+    #[serde(rename = "US_PREDDN_MH_TOD")]
+    pub predominant_downwind_med_hi_tod: f64,
+    #[serde(rename = "US_PREDDN_H_TOT")]
+    pub predominant_downwind_hi_tot: f64,
+    #[serde(rename = "US_PREDDN_H_TOD")]
+    pub predominant_downwind_hi_tod: f64,
+
+    // Predominant Reaching (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_PREDRC_L_TOT")]
+    pub predominant_reaching_low_tot: f64,
+    #[serde(rename = "US_PREDRC_L_TOD")]
+    pub predominant_reaching_low_tod: f64,
+    #[serde(rename = "US_PREDRC_LM_TOT")]
+    pub predominant_reaching_low_med_tot: f64,
+    #[serde(rename = "US_PREDRC_LM_TOD")]
+    pub predominant_reaching_low_med_tod: f64,
+    #[serde(rename = "US_PREDRC_M_TOT")]
+    pub predominant_reaching_med_tot: f64,
+    #[serde(rename = "US_PREDRC_M_TOD")]
+    pub predominant_reaching_med_tod: f64,
+    #[serde(rename = "US_PREDRC_MH_TOT")]
+    pub predominant_reaching_med_hi_tot: f64,
+    #[serde(rename = "US_PREDRC_MH_TOD")]
+    pub predominant_reaching_med_hi_tod: f64,
+    #[serde(rename = "US_PREDRC_H_TOT")]
+    pub predominant_reaching_hi_tot: f64,
+    #[serde(rename = "US_PREDRC_H_TOD")]
+    pub predominant_reaching_hi_tod: f64,
+
+    // 5-Band Windward/Leeward (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_5B_L_TOT")]
+    pub five_band_wl_low_tot: f64,
+    #[serde(rename = "US_5B_L_TOD")]
+    pub five_band_wl_low_tod: f64,
+    #[serde(rename = "US_5B_LM_TOT")]
+    pub five_band_wl_low_med_tot: f64,
+    #[serde(rename = "US_5B_LM_TOD")]
+    pub five_band_wl_low_med_tod: f64,
+    #[serde(rename = "US_5B_M_TOT")]
+    pub five_band_wl_med_tot: f64,
+    #[serde(rename = "US_5B_M_TOD")]
+    pub five_band_wl_med_tod: f64,
+    #[serde(rename = "US_5B_MH_TOT")]
+    pub five_band_wl_med_hi_tot: f64,
+    #[serde(rename = "US_5B_MH_TOD")]
+    pub five_band_wl_med_hi_tod: f64,
+    #[serde(rename = "US_5B_H_TOT")]
+    pub five_band_wl_hi_tot: f64,
+    #[serde(rename = "US_5B_H_TOD")]
+    pub five_band_wl_hi_tod: f64,
+
+    // Windward/Leeward 60-40 (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_WL6040_L_TOD")]
+    pub us_wl6040_l_tod: f64,
+    #[serde(rename = "US_WL6040_L_TOT")]
+    pub us_wl6040_l_tot: f64,
+    #[serde(rename = "US_WL6040_LM_TOD")]
+    pub us_wl6040_lm_tod: f64,
+    #[serde(rename = "US_WL6040_LM_TOT")]
+    pub us_wl6040_lm_tot: f64,
+    #[serde(rename = "US_WL6040_M_TOD")]
+    pub us_wl6040_m_tod: f64,
+    #[serde(rename = "US_WL6040_M_TOT")]
+    pub us_wl6040_m_tot: f64,
+    #[serde(rename = "US_WL6040_MH_TOD")]
+    pub us_wl6040_mh_tod: f64,
+    #[serde(rename = "US_WL6040_MH_TOT")]
+    pub us_wl6040_mh_tot: f64,
+    #[serde(rename = "US_WL6040_H_TOD")]
+    pub us_wl6040_h_tod: f64,
+    #[serde(rename = "US_WL6040_H_TOT")]
+    pub us_wl6040_h_tot: f64,
+
+    // 5-Band All Purpose (Low, Low/Med, Medium, Med/High, High)
+    #[serde(rename = "US_AP_L_TOT")]
+    pub five_band_all_purpose_low_tot: f64,
+    #[serde(rename = "US_AP_L_TOD")]
+    pub five_band_all_purpose_low_tod: f64,
+    #[serde(rename = "US_AP_LM_TOT")]
+    pub five_band_all_purpose_low_med_tot: f64,
+    #[serde(rename = "US_AP_LM_TOD")]
+    pub five_band_all_purpose_low_med_tod: f64,
+    #[serde(rename = "US_AP_M_TOT")]
+    pub five_band_all_purpose_med_tot: f64,
+    #[serde(rename = "US_AP_M_TOD")]
+    pub five_band_all_purpose_med_tod: f64,
+    #[serde(rename = "US_AP_MH_TOT")]
+    pub five_band_all_purpose_med_hi_tot: f64,
+    #[serde(rename = "US_AP_MH_TOD")]
+    pub five_band_all_purpose_med_hi_tod: f64,
+    #[serde(rename = "US_AP_H_TOT")]
+    pub five_band_all_purpose_hi_tot: f64,
+    #[serde(rename = "US_AP_H_TOD")]
+    pub five_band_all_purpose_hi_tod: f64,
+}
+
+impl Default for OrcCertificate {
+    /// The Kotlin defaults: empty strings, `0.0`, no file id and `IssueDate = DISTANT_FUTURE`.
+    fn default() -> Self {
+        OrcCertificate {
+            dxt_id: None,
+            nat_auth: String::new(),
+            bin: String::new(),
+            cert_no: String::new(),
+            ref_no: String::new(),
+            sail_no: String::new(),
+            yacht_name: String::new(),
+            yacht_class: String::new(),
+            builder: String::new(),
+            designer: String::new(),
+            c_type: String::new(),
+            division: String::new(),
+            issue_date: DISTANT_FUTURE,
+            all_purpose_tod: 0.0,
+            all_purpose_tot: 0.0,
+            wl_single_number_tod: 0.0,
+            wl_single_number_tot: 0.0,
+            triple_number_all_purpose_low_tod: 0.0,
+            triple_number_all_purpose_low_tot: 0.0,
+            triple_number_all_purpose_med_tod: 0.0,
+            triple_number_all_purpose_med_tot: 0.0,
+            triple_number_all_purpose_hi_tod: 0.0,
+            triple_number_all_purpose_hi_tot: 0.0,
+            triple_number_wl_low_tot: 0.0,
+            triple_number_wl_med_tot: 0.0,
+            triple_number_wl_hi_tot: 0.0,
+            single_number_predominant_upwind_tot: 0.0,
+            single_number_predominant_upwind_tod: 0.0,
+            single_number_predominant_reaching_tot: 0.0,
+            single_number_predominant_reaching_tod: 0.0,
+            single_number_predominant_downwind_tot: 0.0,
+            single_number_predominant_downwind_tod: 0.0,
+            predominant_upwind_low_tot: 0.0,
+            predominant_upwind_low_tod: 0.0,
+            predominant_upwind_low_med_tot: 0.0,
+            predominant_upwind_low_med_tod: 0.0,
+            predominant_upwind_med_tot: 0.0,
+            predominant_upwind_med_tod: 0.0,
+            predominant_upwind_med_hi_tot: 0.0,
+            predominant_upwind_med_hi_tod: 0.0,
+            predominant_upwind_hi_tot: 0.0,
+            predominant_upwind_hi_tod: 0.0,
+            predominant_downwind_low_tot: 0.0,
+            predominant_downwind_low_tod: 0.0,
+            predominant_downwind_low_med_tot: 0.0,
+            predominant_downwind_low_med_tod: 0.0,
+            predominant_downwind_med_tot: 0.0,
+            predominant_downwind_med_tod: 0.0,
+            predominant_downwind_med_hi_tot: 0.0,
+            predominant_downwind_med_hi_tod: 0.0,
+            predominant_downwind_hi_tot: 0.0,
+            predominant_downwind_hi_tod: 0.0,
+            predominant_reaching_low_tot: 0.0,
+            predominant_reaching_low_tod: 0.0,
+            predominant_reaching_low_med_tot: 0.0,
+            predominant_reaching_low_med_tod: 0.0,
+            predominant_reaching_med_tot: 0.0,
+            predominant_reaching_med_tod: 0.0,
+            predominant_reaching_med_hi_tot: 0.0,
+            predominant_reaching_med_hi_tod: 0.0,
+            predominant_reaching_hi_tot: 0.0,
+            predominant_reaching_hi_tod: 0.0,
+            five_band_wl_low_tot: 0.0,
+            five_band_wl_low_tod: 0.0,
+            five_band_wl_low_med_tot: 0.0,
+            five_band_wl_low_med_tod: 0.0,
+            five_band_wl_med_tot: 0.0,
+            five_band_wl_med_tod: 0.0,
+            five_band_wl_med_hi_tot: 0.0,
+            five_band_wl_med_hi_tod: 0.0,
+            five_band_wl_hi_tot: 0.0,
+            five_band_wl_hi_tod: 0.0,
+            us_wl6040_l_tod: 0.0,
+            us_wl6040_l_tot: 0.0,
+            us_wl6040_lm_tod: 0.0,
+            us_wl6040_lm_tot: 0.0,
+            us_wl6040_m_tod: 0.0,
+            us_wl6040_m_tot: 0.0,
+            us_wl6040_mh_tod: 0.0,
+            us_wl6040_mh_tot: 0.0,
+            us_wl6040_h_tod: 0.0,
+            us_wl6040_h_tot: 0.0,
+            five_band_all_purpose_low_tot: 0.0,
+            five_band_all_purpose_low_tod: 0.0,
+            five_band_all_purpose_low_med_tot: 0.0,
+            five_band_all_purpose_low_med_tod: 0.0,
+            five_band_all_purpose_med_tot: 0.0,
+            five_band_all_purpose_med_tod: 0.0,
+            five_band_all_purpose_med_hi_tot: 0.0,
+            five_band_all_purpose_med_hi_tod: 0.0,
+            five_band_all_purpose_hi_tot: 0.0,
+            five_band_all_purpose_hi_tod: 0.0,
+        }
+    }
+}
+
+impl OrcCertificate {
+    pub fn label(&self) -> String {
+        format!(
+            "{} {} {} {}",
+            self.yacht_name, self.ref_no, self.c_type, self.division
+        )
+    }
+
+    /// The public page of this certificate, or null when [`OrcCertificate::dxt_id`] was never resolved.
+    pub fn certificate_url(&self) -> Option<String> {
+        orc_certificate_url(self.dxt_id)
+    }
+
+    /// An equivalent PHRF rating for bracket sorting: `500 / (5-band W/L low-medium TOT) - 550`,
+    /// rounded (`Double.roundToInt()`, ties toward positive infinity).
+    pub fn virtual_phrf(&self) -> i32 {
+        /*
+        Coefficient A (The Numerator)
+        Purpose: A is a constant used to scale the resulting TCF so that a "middle-of-the-fleet" boat has a multiplier near 1.000.
+        Impact: Changing the A coefficient does not change the finishing order of the race; it only affects the margins between boats.
+        Standard Value: The most commonly used value for A is 650.
+         */
+        let a = 500.0;
+
+        /*
+        Coefficient B (The Denominator)
+        480: Heavy air (15+ knots) or all off-the-wind sailing.
+        550: Average/Moderate conditions (10–15 knots).
+        600: Light air (5–10 knots) or all windward work.
+        650: Very light air/Calm (1–5 knots).
+         */
+        let b = 550.0;
+
+        /*
+        Low("Low", "7 kts or less"),
+        LowMedium("Low/Medium", "7 to 10 kts"),
+        Medium("Medium", "10 to 13 kts"),
+        MediumHigh("Medium/High", "13 to 17 kts"),
+        High("High", "17 kts or more");
+         */
+        let tcf = self.five_band_wl_low_med_tot;
+
+        /*
+        PHRF formula "tcf = a / ( b + phrf)"
+         */
+        let phrf = (a / tcf) - b;
+
+        crate::utils::round_to_long(phrf).clamp(i32::MIN as i64, i32::MAX as i64) as i32
+    }
+}

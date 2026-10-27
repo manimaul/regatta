@@ -1,0 +1,32 @@
+{
+  "index": 151,
+  "name": "boat-create-bad-enum",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/boat",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Bad Enum Boat",
+        "ratingType": "NOPE"
+      }
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

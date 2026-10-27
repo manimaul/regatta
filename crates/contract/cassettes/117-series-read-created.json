@@ -1,0 +1,29 @@
+{
+  "index": 117,
+  "name": "series-read-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/series?id=20",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "72",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 20,
+        "name": "Contract Series",
+        "sort": 99,
+        "raceCount": 0,
+        "active": true
+      }
+    }
+  }
+}

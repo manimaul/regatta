@@ -1,0 +1,30 @@
+{
+  "index": 54,
+  "name": "race-class",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/raceClass?id=1",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "94",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 1,
+        "name": "Fast (72-)",
+        "sort": 2,
+        "ratingType": "ORC_PHRF",
+        "numberOfRaces": 81,
+        "active": true
+      }
+    }
+  }
+}

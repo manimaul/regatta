@@ -1,0 +1,48 @@
+{
+  "index": 198,
+  "name": "report-unscheduled-race",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/report?raceId=139",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "358",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "raceSchedule": {
+          "race": {
+            "id": 139,
+            "name": "Contract Single Number",
+            "seriesId": 20,
+            "rcId": null,
+            "reportImage": null,
+            "phrfBFactor": 480,
+            "orcScoringOption": "SingleNumberAllPurpose",
+            "orc3Band": "Low",
+            "orc5Band": "Low"
+          },
+          "resultCount": 0,
+          "series": {
+            "id": 20,
+            "name": "Contract Series Renamed",
+            "sort": 98,
+            "raceCount": 2,
+            "active": false
+          },
+          "rc": null,
+          "schedule": []
+        },
+        "classReports": []
+      }
+    }
+  }
+}

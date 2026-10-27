@@ -1,0 +1,38 @@
+{
+  "index": 162,
+  "name": "race-create-band-mismatch-5",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/race",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Band Mismatch",
+        "seriesId": null,
+        "rcId": null,
+        "reportImage": null,
+        "phrfBFactor": 600,
+        "orcScoringOption": "FiveBandWindwardLeeward",
+        "orc3Band": "Low",
+        "orc5Band": "High"
+      }
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "62",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "PHRF B factor 600 is Low/Medium, but the ORC wind band is High"
+    }
+  }
+}

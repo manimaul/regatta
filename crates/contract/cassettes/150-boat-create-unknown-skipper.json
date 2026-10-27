@@ -1,0 +1,39 @@
+{
+  "index": 150,
+  "name": "boat-create-unknown-skipper",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/boat",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Orphan Boat",
+        "sailNumber": "",
+        "boatType": "",
+        "phrfRating": null,
+        "orcCerts": [],
+        "skipperId": 99999,
+        "ratingType": "PHRF",
+        "numberOfRaces": 0,
+        "active": true
+      }
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "content-length": "71",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "This record is still referenced by other records and cannot be deleted."
+    }
+  }
+}

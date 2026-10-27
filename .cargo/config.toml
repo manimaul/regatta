@@ -1,0 +1,5 @@
+# leptos reads LEPTOS_OUTPUT_NAME at compile time to name the hydration bundle (`regatta.wasm`
+# with it, `regatta_bg.wasm` without). cargo-leptos sets it; this keeps a plain `cargo build`,
+# `cargo test` and rust-analyzer on the same name, so a binary from either loads the same files.
+[env]
+LEPTOS_OUTPUT_NAME = "regatta"

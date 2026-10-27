@@ -1,0 +1,38 @@
+{
+  "index": 166,
+  "name": "race-create-unknown-series",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/race",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Orphan Race",
+        "seriesId": 99999,
+        "rcId": null,
+        "reportImage": null,
+        "phrfBFactor": 600,
+        "orcScoringOption": "FiveBandWindwardLeeward",
+        "orc3Band": "Low",
+        "orc5Band": "LowMedium"
+      }
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "content-length": "71",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "This record is still referenced by other records and cannot be deleted."
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "index": 36,
+  "name": "auth-mutation-expired-token",
+  "auth": {
+    "forged": {
+      "id": "captured",
+      "salt": "contract-forged-salt",
+      "expires": "2000-01-01T00:00:00Z",
+      "correct": true
+    }
+  },
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/series?id=1",
+    "headers": {
+      "authorization": "Bearer eyJpZCI6NCwiaGFzaE9mSGFzaCI6IkQrRFM3NnJPMVpGd3hIK0xBdnh5UlVRa2p2UnZyRWVmNVhlVHZXZTY4QUNSNldUdElMbTRzUTdNUEZSbDNEV2JwNEh4djhDckNSVHZ0R0RzT2dxekJ3PT0iLCJzYWx0IjoiY29udHJhY3QtZm9yZ2VkLXNhbHQiLCJleHBpcmVzIjoiMjAwMC0wMS0wMVQwMDowMDowMFoifQ=="
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "www-authenticate": "Bearer realm=\"admin access\"",
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

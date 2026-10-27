@@ -1,0 +1,20 @@
+{
+  "index": 86,
+  "name": "result-count-no-race-id",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/resultCount",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

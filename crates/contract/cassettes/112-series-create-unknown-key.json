@@ -1,0 +1,37 @@
+{
+  "index": 112,
+  "name": "series-create-unknown-key",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/series",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 0,
+          "name": "Contract Unknown Key",
+          "sort": 1,
+          "raceCount": 0,
+          "active": true,
+          "bogus": 1
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

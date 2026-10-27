@@ -1,0 +1,70 @@
+{
+  "index": 125,
+  "name": "class-list-update",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/raceClassList",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 41,
+          "name": "Contract Class Listed",
+          "sort": 51,
+          "ratingType": "PHRF",
+          "numberOfRaces": 0,
+          "active": true
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "371",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "raceClass": {
+            "id": 41,
+            "name": "Contract Class Listed",
+            "sort": 51,
+            "ratingType": "PHRF",
+            "numberOfRaces": 0,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 73,
+              "name": "A",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 0,
+              "minRating": 0.0,
+              "maxRating": 100.0,
+              "classId": 41
+            },
+            {
+              "id": 74,
+              "name": "B",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 0,
+              "minRating": 101.0,
+              "maxRating": 200.0,
+              "classId": 41
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

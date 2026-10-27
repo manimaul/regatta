@@ -1,0 +1,31 @@
+{
+  "index": 145,
+  "name": "skipper-read-unicode",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/skipper?id=146",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "88",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 146,
+        "first": "Zoë",
+        "last": "Ünïcode ☃ 日本",
+        "clubMember": false,
+        "active": true
+      }
+    }
+  }
+}

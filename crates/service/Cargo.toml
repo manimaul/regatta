@@ -1,0 +1,29 @@
+[package]
+name = "regatta-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "The regatta server's service layer: configuration, startup, database access, auth tokens and the ORC client (shared by the REST handlers and the Leptos server functions)"
+
+[dependencies]
+regatta-common = { workspace = true }
+regatta-scoring = { workspace = true }
+anyhow = { workspace = true }
+base64 = { workspace = true }
+clap = { workspace = true }
+# The Pacific calendar year (D8) needs the tz database.
+jiff = { workspace = true, features = ["tzdb-bundle-always"] }
+quick-xml = { workspace = true }
+rand = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+sqlx = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true }

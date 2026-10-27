@@ -1,0 +1,44 @@
+{
+  "index": 119,
+  "name": "series-update",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/series",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 20,
+          "name": "  Contract Series Renamed  ",
+          "sort": 98,
+          "raceCount": 0,
+          "active": false
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "83",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 20,
+          "name": "Contract Series Renamed",
+          "sort": 98,
+          "raceCount": 0,
+          "active": false
+        }
+      ]
+    }
+  }
+}

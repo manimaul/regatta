@@ -1,0 +1,40 @@
+{
+  "index": 19,
+  "name": "login",
+  "auth": "none",
+  "compare": "json_with_volatile",
+  "volatile": [
+    "/salt",
+    "/hashOfHash"
+  ],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/login",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "userName": "contract",
+        "hashOfHash": "XqgCeGAMzAb41pTYD97pYdafTD5TFvqLEJmL67DhRhK+L3jeu7nCAiOCFhLDovuXLx52ueYNh1m+zoOx6ZsZHQ==",
+        "salt": "contract-login-salt",
+        "time": "2026-10-14T02:10:11Z"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "179",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 4,
+        "hashOfHash": "aKTWxmExNmlhn148lILdE+2OKWJ/vRCIGvUMXxHMT7Wo0x1c6m3pl7kX9RiLXNdXbk8Jl3nVsuHDw/twdJmUWg==",
+        "salt": "C3iwnJaiRy5VWoyzoDId+w==",
+        "expires": "2026-11-13T02:10:11Z"
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "index": 44,
+  "name": "all-series",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allSeries",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "637",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "id": 1,
+          "name": "Harbor Series",
+          "sort": 0,
+          "raceCount": 9,
+          "active": true
+        },
+        {
+          "id": 18,
+          "name": "Point Series",
+          "sort": 1,
+          "raceCount": 11,
+          "active": true
+        },
+        {
+          "id": 13,
+          "name": "Early Spring Windseekers",
+          "sort": 2,
+          "raceCount": 15,
+          "active": true
+        },
+        {
+          "id": 14,
+          "name": "Late Spring Windseekers",
+          "sort": 3,
+          "raceCount": 15,
+          "active": true
+        },
+        {
+          "id": 15,
+          "name": "Summer Series Windseekers",
+          "sort": 4,
+          "raceCount": 15,
+          "active": true
+        },
+        {
+          "id": 16,
+          "name": "Three Hour Tour",
+          "sort": 5,
+          "raceCount": 9,
+          "active": true
+        },
+        {
+          "id": 17,
+          "name": "Late Summer Windseekers",
+          "sort": 6,
+          "raceCount": 15,
+          "active": true
+        },
+        {
+          "id": 19,
+          "name": "Lido 14 Late-Summer/Fall Windsday Series",
+          "sort": 7,
+          "raceCount": 15,
+          "active": true
+        }
+      ]
+    }
+  }
+}

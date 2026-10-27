@@ -1,0 +1,70 @@
+{
+  "index": 177,
+  "name": "schedule-read-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/raceSchedule?id=138",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "630",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "race": {
+          "id": 138,
+          "name": "Contract Race",
+          "seriesId": 20,
+          "rcId": null,
+          "reportImage": null,
+          "phrfBFactor": 600,
+          "orcScoringOption": "FiveBandWindwardLeeward",
+          "orc3Band": "Low",
+          "orc5Band": "LowMedium"
+        },
+        "resultCount": 0,
+        "series": {
+          "id": 20,
+          "name": "Contract Series Renamed",
+          "sort": 98,
+          "raceCount": 2,
+          "active": false
+        },
+        "rc": null,
+        "schedule": [
+          {
+            "raceClass": {
+              "id": 41,
+              "name": "Contract Class",
+              "sort": 50,
+              "ratingType": "PHRF",
+              "numberOfRaces": 1,
+              "active": true
+            },
+            "brackets": [
+              {
+                "id": 73,
+                "name": "A",
+                "description": null,
+                "active": true,
+                "numberOfRaces": 1,
+                "minRating": 0.0,
+                "maxRating": 100.0,
+                "classId": 41
+              }
+            ],
+            "startDate": "2026-06-01T17:00:00Z",
+            "endDate": "2026-06-01T21:00:00Z"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "index": 15,
+  "name": "login-unknown-user",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/login",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "userName": "nobody",
+        "hashOfHash": "XqgCeGAMzAb41pTYD97pYdafTD5TFvqLEJmL67DhRhK+L3jeu7nCAiOCFhLDovuXLx52ueYNh1m+zoOx6ZsZHQ==",
+        "salt": "contract-login-salt",
+        "time": "2026-10-14T02:10:11Z"
+      }
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

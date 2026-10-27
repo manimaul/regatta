@@ -1,0 +1,422 @@
+{
+  "index": 130,
+  "name": "all-classes-with-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/allClasses",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "4810",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": [
+        {
+          "raceClass": {
+            "id": 37,
+            "name": "Fast (93-)",
+            "sort": 0,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 18,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 64,
+              "name": "I",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 14,
+              "minRating": -1000.0,
+              "maxRating": 69.0,
+              "classId": 37
+            },
+            {
+              "id": 66,
+              "name": "I & II",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 4,
+              "minRating": -1000.0,
+              "maxRating": 93.0,
+              "classId": 37
+            },
+            {
+              "id": 65,
+              "name": "II",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 14,
+              "minRating": 70.0,
+              "maxRating": 93.0,
+              "classId": 37
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 38,
+            "name": "Half Fast (94+)",
+            "sort": 1,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 18,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 67,
+              "name": "III",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 14,
+              "minRating": 94.0,
+              "maxRating": 139.0,
+              "classId": 38
+            },
+            {
+              "id": 69,
+              "name": "III & IV",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 4,
+              "minRating": 94.0,
+              "maxRating": 1000.0,
+              "classId": 38
+            },
+            {
+              "id": 68,
+              "name": "IV",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 14,
+              "minRating": 140.0,
+              "maxRating": 1000.0,
+              "classId": 38
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 1,
+            "name": "Fast (72-)",
+            "sort": 2,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 81,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 1,
+              "name": "I",
+              "description": "Rating 10 to 59",
+              "active": true,
+              "numberOfRaces": 64,
+              "minRating": 10.0,
+              "maxRating": 59.0,
+              "classId": 1
+            },
+            {
+              "id": 16,
+              "name": "I/II",
+              "description": "Rating 10 to 72",
+              "active": true,
+              "numberOfRaces": 17,
+              "minRating": 10.0,
+              "maxRating": 72.0,
+              "classId": 1
+            },
+            {
+              "id": 2,
+              "name": "II",
+              "description": "Rating 60 to 72",
+              "active": true,
+              "numberOfRaces": 64,
+              "minRating": 60.0,
+              "maxRating": 72.0,
+              "classId": 1
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 2,
+            "name": "Half Fast (73+)",
+            "sort": 3,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 81,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 17,
+              "name": "III/IV",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 17,
+              "minRating": 73.0,
+              "maxRating": 200.0,
+              "classId": 2
+            },
+            {
+              "id": 3,
+              "name": "III",
+              "description": "Rating 73 to 119",
+              "active": true,
+              "numberOfRaces": 64,
+              "minRating": 73.0,
+              "maxRating": 119.0,
+              "classId": 2
+            },
+            {
+              "id": 4,
+              "name": "IV",
+              "description": "Rating 120 to 200",
+              "active": true,
+              "numberOfRaces": 64,
+              "minRating": 120.0,
+              "maxRating": 200.0,
+              "classId": 2
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 7,
+            "name": "Double Handed",
+            "sort": 4,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 2,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 28,
+              "name": "All",
+              "description": "",
+              "active": true,
+              "numberOfRaces": 2,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 7
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 9,
+            "name": "Single Handed",
+            "sort": 5,
+            "ratingType": "ORC_PHRF",
+            "numberOfRaces": 2,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 31,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 2,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 9
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 4,
+            "name": "Windseekers FS",
+            "sort": 6,
+            "ratingType": "CruisingFlyingSails",
+            "numberOfRaces": 99,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 19,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 99,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 4
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 3,
+            "name": "Windseekers NFS",
+            "sort": 7,
+            "ratingType": "CruisingNonFlyingSails",
+            "numberOfRaces": 99,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 18,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 99,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 3
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 5,
+            "name": "Windseekers FS Double Handed",
+            "sort": 8,
+            "ratingType": "CruisingFlyingSails",
+            "numberOfRaces": 2,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 29,
+              "name": "All",
+              "description": "",
+              "active": true,
+              "numberOfRaces": 2,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 5
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 8,
+            "name": "Windseeker FS Single Handed",
+            "sort": 9,
+            "ratingType": "CruisingFlyingSails",
+            "numberOfRaces": 2,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 30,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 2,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 8
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 35,
+            "name": "Windseekers NFS Double Handed",
+            "sort": 10,
+            "ratingType": "CruisingNonFlyingSails",
+            "numberOfRaces": 3,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 62,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 3,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 35
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 36,
+            "name": "Windseekers NFS Single Handed",
+            "sort": 11,
+            "ratingType": "CruisingNonFlyingSails",
+            "numberOfRaces": 3,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 63,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 3,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 36
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 40,
+            "name": "Lido 14",
+            "sort": 12,
+            "ratingType": "CruisingNonFlyingSails",
+            "numberOfRaces": 15,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 72,
+              "name": "All",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 15,
+              "minRating": -1000.0,
+              "maxRating": 1000.0,
+              "classId": 40
+            }
+          ]
+        },
+        {
+          "raceClass": {
+            "id": 41,
+            "name": "Contract Class Listed",
+            "sort": 51,
+            "ratingType": "PHRF",
+            "numberOfRaces": 0,
+            "active": true
+          },
+          "brackets": [
+            {
+              "id": 73,
+              "name": "A",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 0,
+              "minRating": 0.0,
+              "maxRating": 100.0,
+              "classId": 41
+            },
+            {
+              "id": 74,
+              "name": "B",
+              "description": null,
+              "active": true,
+              "numberOfRaces": 0,
+              "minRating": 101.0,
+              "maxRating": 200.0,
+              "classId": 41
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

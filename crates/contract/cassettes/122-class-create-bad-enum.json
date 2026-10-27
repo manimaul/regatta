@@ -1,0 +1,38 @@
+{
+  "index": 122,
+  "name": "class-create-bad-enum",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/raceClass",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "raceClass": {
+          "id": 0,
+          "name": "Bad Enum",
+          "sort": 1,
+          "ratingType": "NOPE",
+          "numberOfRaces": 0,
+          "active": true
+        },
+        "brackets": []
+      }
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

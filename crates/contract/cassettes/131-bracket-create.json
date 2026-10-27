@@ -1,0 +1,46 @@
+{
+  "index": 131,
+  "name": "bracket-create",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/bracket",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "C",
+        "description": null,
+        "active": true,
+        "numberOfRaces": 0,
+        "minRating": 201.0,
+        "maxRating": 300.0,
+        "classId": 41
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "120",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 75,
+        "name": "C",
+        "description": null,
+        "active": true,
+        "numberOfRaces": 0,
+        "minRating": 201.0,
+        "maxRating": 300.0,
+        "classId": 41
+      }
+    }
+  }
+}

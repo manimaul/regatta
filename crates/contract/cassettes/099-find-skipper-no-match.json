@@ -1,0 +1,25 @@
+{
+  "index": 99,
+  "name": "find-skipper-no-match",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/find/skipper?name=zzz-no-such-person",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "2",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": []
+    }
+  }
+}
