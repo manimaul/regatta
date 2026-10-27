@@ -300,6 +300,17 @@ impl ChartState {
         let _ = container;
     }
 
+    /// The dropdown's choice: selects the mark and flies the map to it. Tapping a mark on the map
+    /// goes through [`ChartState::select_mark`] instead, so the map does not move under the user.
+    pub fn choose_mark(&self, mark: Option<Mark>) {
+        self.select_mark(mark.clone());
+        #[cfg(feature = "hydrate")]
+        if let Some(m) = &mark {
+            self.controller.with_value(|c| c.borrow().fly_to_mark(m));
+        }
+    }
+
+    /// Selects `mark` (popup shown, the previous one hidden) without moving the map.
     pub fn select_mark(&self, mark: Option<Mark>) {
         #[cfg(feature = "hydrate")]
         {

@@ -67,6 +67,19 @@ impl ChartController {
         }
     }
 
+    /// Animates the map to `mark` at the current zoom (`flyTo`); a no-op before the map exists.
+    pub fn fly_to_mark(&self, mark: &Mark) {
+        if let Some(map) = &self.map_view {
+            let options = js_sys::Object::new();
+            let _ = js_sys::Reflect::set(
+                &options,
+                &JsValue::from_str("center"),
+                &lng_lat_array(mark.lng, mark.lat),
+            );
+            map.fly_to(&options);
+        }
+    }
+
     pub fn show_popup(&self, mark: &Mark) {
         if let (Some(popup), Some(map)) = (self.mark_popup_map.get(mark.letter), &self.map_view) {
             popup.add_to(map);
