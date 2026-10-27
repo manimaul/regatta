@@ -12,8 +12,8 @@ over TLS as the role that owns it. Dev is the podman `postgres:16` container fro
 
 Credentials, read from the environment:
   NJORD_DB_HOST, NJORD_DB_PORT      the managed cluster's endpoint (njord's variables)
-  REGATTA_PG_USER, REGATTA_PG_PASS  the role that owns the database; falls back to
-                                    ~/.gradle/gradle.properties, which the deploy tasks read
+  REGATTA_PG_USER, REGATTA_PG_PASS  the role that owns the database (the same variables
+                                    `cargo xtask` reads for the k8s manifests)
 Dev uses the compose file's defaults (regatta_admin / mysecretpassword).
 
 Passwords go to psql and pg_dump through PGPASSWORD, never on a command line or inside a URI, so
@@ -70,22 +70,10 @@ def run(cmd: list[str], *, env: dict[str, str] | None = None, stdin=None, input:
 
 # ---------------------------------------------------------------- credentials
 
-def gradle_property(name: str) -> str | None:
-    props = Path.home() / ".gradle" / "gradle.properties"
-    if not props.exists():
-        return None
-    for line in props.read_text().splitlines():
-        m = re.match(r"\s*([^#=\s]+)\s*=\s*(.*?)\s*$", line)
-        if m and m.group(1) == name:
-            return m.group(2)
-    return None
-
-
-def require_env(name: str, fallback_gradle: bool = False) -> str:
-    value = os.environ.get(name) or (gradle_property(name) if fallback_gradle else None)
+def require_env(name: str) -> str:
+    value = os.environ.get(name)
     if not value:
-        where = f" (or {name} in ~/.gradle/gradle.properties)" if fallback_gradle else ""
-        raise Fail(f"{name} is not set{where}")
+        raise Fail(f"{name} is not set")
     return value
 
 
@@ -143,8 +131,8 @@ class Conn:
 
 def prod() -> Conn:
     return Conn("prod", require_env("NJORD_DB_HOST"), require_env("NJORD_DB_PORT"),
-                require_env("REGATTA_PG_USER", fallback_gradle=True),
-                require_env("REGATTA_PG_PASS", fallback_gradle=True), ssl=True)
+                require_env("REGATTA_PG_USER"),
+                require_env("REGATTA_PG_PASS"), ssl=True)
 
 
 def dev(host: str, port: str) -> Conn:

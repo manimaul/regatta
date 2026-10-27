@@ -4,5 +4,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
+description = "Build, image and deploy tasks: `cargo xtask <task>`"
 
 [dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+xshell = { workspace = true }

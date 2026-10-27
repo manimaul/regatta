@@ -3,8 +3,8 @@
 
     python3 database/audit_scoring.py [approved_dir] [out.json]
 
-Defaults: server/src/jvmTest/resources/golden/approved and
-server/src/jvmTest/resources/golden/deviations.json, relative to the repo root.
+Defaults: crates/scoring/tests/golden/approved and
+crates/scoring/tests/golden/deviations.json, relative to the repo root.
 
 The approved files (see docs/explore_implemented/test_audit_and_plan.md §5) hold both the inputs
 (each card's resultRecord, the race schedule) and the outputs the code produced. This script
@@ -551,8 +551,8 @@ def audit_race(report, entries, warnings):
 
 def main(argv):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    approved = argv[1] if len(argv) > 1 else os.path.join(root, "server/src/jvmTest/resources/golden/approved")
-    out = argv[2] if len(argv) > 2 else os.path.join(root, "server/src/jvmTest/resources/golden/deviations.json")
+    approved = argv[1] if len(argv) > 1 else os.path.join(root, "crates/scoring/tests/golden/approved")
+    out = argv[2] if len(argv) > 2 else os.path.join(root, "crates/scoring/tests/golden/deviations.json")
 
     race_reports = {}
     for path in glob.glob(os.path.join(approved, "race-*.json")):

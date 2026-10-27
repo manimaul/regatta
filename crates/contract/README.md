@@ -1,9 +1,8 @@
 # regatta-contract
 
 The REST API contract of the regatta server as a scripted scenario, recorded into cassettes
-from one server and replayed against another (plan: `docs/explore_unimplemented/rust_port.md`,
-"The API contract", T2 and T3). The Kotlin server is the reference; the Rust port must answer
-every step the same way.
+from one server and replayed against another. The committed cassettes are the reference: the
+server must answer every step the same way.
 
 ```shell
 cargo run -p regatta-contract -- record --base-url http://localhost:8888 --out crates/contract/cassettes [--fixed-now 2026-10-14T02:10:11Z]
@@ -11,13 +10,13 @@ cargo run -p regatta-contract -- replay --base-url http://localhost:8889 --casse
 cargo run -p regatta-contract -- diff --left http://localhost:8888 --right http://localhost:8889 [--random 200 --seed 42] [--fixed-now ...]
 ```
 
-The committed `cassettes/` (274 steps) were recorded from the Kotlin server started as
-`JAVA_OPTS="-Djdbcurl=jdbc:postgresql://localhost:5433/regatta -Duser=regatta_admin -Dpassword=mysecretpassword -Dregatta.now=2026-10-14T02:10:11Z" server/build/install/regatta-jvm/bin/regatta`
-against a `postgres:16-bookworm` container holding the dump; the recorded facts are summarised in
-the plan's "Quirks to reproduce" section.
+The committed `cassettes/` (274 steps) were recorded from a server started with
+`REGATTA_FIXED_NOW=2026-10-14T02:10:11Z` against a `postgres:16-bookworm` container holding the
+dump. `cargo xtask contract` replays them against an in-process server
+(`crates/server/tests/contract.rs`).
 
 Every run needs the server(s) on a **fresh load of the golden dump**
-(`server/src/jvmTest/resources/golden/*.sql`, `python3 -I database/db_actions.py restore-dev --dump ...`):
+(`crates/scoring/tests/golden/*.sql`, `python3 -I database/db_actions.py restore-dev --dump ...`):
 the scenario references its ids (series 1, race 1, class 1, bracket 16, person 2 and 31, boat 1,
 certificate `04560003NFK`), its `auth` table is empty (the run starts in bootstrap mode) and its
 sequences decide the ids of the records the scenario creates. `replay` and `diff` exit 1 on any
@@ -38,7 +37,7 @@ JSON bodies are filled from captures (`{{series_id}}` stays a number inside JSON
 
 In order:
 
-1. **Bootstrap**: admin routes while the `auth` table is empty. Ktor's bearer provider challenges
+1. **Bootstrap**: admin routes while the `auth` table is empty. The bearer check challenges
    (401) when the header is absent or empty even then, so the bootstrap steps send `Bearer none`
    (what the web client sends when logged out; any non-empty value works); `POST auth` creates the
    admin `contract` with `hash("contract-password")`; the same routes are closed afterwards.
@@ -85,14 +84,14 @@ A unit test checks the step list against `ROUTES`, the plan's route table, in bo
 
 ## Tokens and volatile fields
 
-The harness implements the hashing of `Token.kt` / `Auth.kt` byte for byte (`src/auth.rs`,
-pinned by the `TokenTest` vectors). The live token is written to cassettes as
+The harness implements the server's token hashing byte for byte (`src/auth.rs`, pinned by the
+same test vectors as `crates/service/src/auth.rs`). The live token is written to cassettes as
 `Bearer {{token}}` and substituted on replay; forged tokens are deterministic (fixed salt and
 expiry, signed with the stored hash, auth id from the dump's sequence) and recorded verbatim.
 
 `LoginResponse.salt` and `hashOfHash` are always volatile (random server salt): compared by JSON
 type only. `expires` is `now + 30 days`, so it is volatile too unless the server runs with the
-test-only fixed clock (`-Dregatta.now` on Kotlin, `REGATTA_FIXED_NOW` on Rust) and `record` /
+test-only fixed clock (`REGATTA_FIXED_NOW`) and `record` /
 `diff` get `--fixed-now <instant>`; the instant is written to `_meta.json`, and a replay against
 a server without that clock reports `expires` as a mismatch. The fixed clock also keeps the
 series standings (`NotYetSailed` vs `Cancelled`) stable over time; `2026-10-14T02:10:11Z`, the

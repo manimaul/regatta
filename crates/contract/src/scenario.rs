@@ -1,6 +1,6 @@
 //! The contract scenario as data: every row of the plan's route table, every listed status,
 //! the auth modes, the request-parsing quirks, multipart upload, gzip, the fallback. It runs on
-//! a fresh load of the golden dump (`server/src/jvmTest/resources/golden/*.sql`), whose ids are
+//! a fresh load of the golden dump (`crates/scoring/tests/golden/*.sql`), whose ids are
 //! referenced below (series 1, race 1 with results, class 1, bracket 16 in use, person 2, boat
 //! 1, RC person 31 of race 1, certificate 04560003NFK), and whose `auth` table is empty, so the
 //! run starts in bootstrap mode. Every record a step creates is read back by later steps and

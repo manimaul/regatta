@@ -1,10 +1,10 @@
 # Local Dev
-* url = `jdbc:postgresql://localhost:5432/s57server`
+* `REGATTA_DB_URL=postgres://regatta_admin:mysecretpassword@localhost:5432/regatta` (the server's default)
 * username = `regatta_admin`
 * password = `mysecretpassword`
 
 
-Rather than installing PostGIS on your development machine just use `podman-compose` to bring up the database running
+Rather than installing PostgreSQL on your development machine just use `podman-compose` to bring up the database running
 in a container with port `5432` exposed to your host network.
 ```shell
 podman-compose up
@@ -12,7 +12,7 @@ podman-compose up
 
 ## Production database
 Production is the `regatta` database on the managed PostgreSQL cluster  
-`REGATTA_PG_USER` / `REGATTA_PG_PASS` are in `~/.gradle/gradle.properties`. 
+`REGATTA_PG_USER` / `REGATTA_PG_PASS` come from the environment (the same variables `cargo xtask` uses for the k8s manifests).
 Keep the password in `PGPASSWORD`, never in the URI.
 
 ```shell
@@ -23,7 +23,7 @@ psql "$url"                                                     # prod shell
 
 ## Backup and restore
 `db_actions.py` does all three. It reads `NJORD_DB_HOST` / `NJORD_DB_PORT` from the environment and
-`REGATTA_PG_USER` / `REGATTA_PG_PASS` from the environment or `~/.gradle/gradle.properties`; dev
+`REGATTA_PG_USER` / `REGATTA_PG_PASS` from the environment; dev
 uses `docker-compose.yaml`'s defaults. Dumps land in `database/backup/` (gitignored) as
 `prod_dump_<stamp>.sql`, and `prod_current.sql` always points at the newest.
 ```shell
@@ -52,5 +52,5 @@ REGATTA_TOKEN=<pasted token> python3 -I database/fix_orc_bands.py --base-url htt
 # Scripts
 * `fix_orc_bands.py` — make every race's ORC wind bands follow its PHRF B factor (REST API, dry run by default).
 * `orc_backfill.py` — resolve the ORC file id (certificate link) of stored certificates still on ORC's active list (REST API, dry run by default): `python3 -I database/orc_backfill.py --apply --token <token>`.
-* `audit_scoring.py`, `scrub_dump.py` — golden regression helpers, see `CLAUDE.md`.
+* `audit_scoring.py`, `scrub_dump.py` — golden regression helpers for `crates/scoring/tests/golden/`, see `CLAUDE.md`.
 * `db_actions.py` — back up production, restore production from a backup, restore the dev database from a backup (above).

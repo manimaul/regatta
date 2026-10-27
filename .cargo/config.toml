@@ -3,3 +3,7 @@
 # `cargo test` and rust-analyzer on the same name, so a binary from either loads the same files.
 [env]
 LEPTOS_OUTPUT_NAME = "regatta"
+
+# `cargo xtask <task>`: build, image and deploy tasks (crates/xtask).
+[alias]
+xtask = "run -q -p regatta-xtask --"

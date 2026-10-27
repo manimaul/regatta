@@ -4,8 +4,8 @@
 use regatta_common::{to_kotlin_pretty_json, RaceReport, StandingsSeries};
 use std::path::{Path, PathBuf};
 
-/// The approved golden files, relative to this crate (= `server/src/jvmTest/resources/golden/approved`).
-const APPROVED_DIR: &str = "../../server/src/jvmTest/resources/golden/approved";
+/// The approved golden files, relative to this crate.
+const APPROVED_DIR: &str = "../scoring/tests/golden/approved";
 
 fn approved_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join(APPROVED_DIR)

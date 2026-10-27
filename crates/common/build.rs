@@ -1,10 +1,11 @@
-//! `VersionInfo` (= the Kotlin `generateVersionInfo` task in `common/build.gradle.kts`): the
-//! short git hash, the branch, the dirty flag and the build date are captured here and handed to
-//! the crate as `cargo:rustc-env` values, so nothing is written under `src/`.
+//! `VersionInfo`: the short git hash, the branch, the dirty flag and the build date are captured
+//! here and handed to the crate as `cargo:rustc-env` values, so nothing is written under `src/`.
 //!
-//! Git is called with the same commands as the Gradle task (`rev-parse --verify --short HEAD`,
-//! `symbolic-ref --short -q HEAD`, `diff-index --quiet HEAD --`); when git is missing or the
-//! build runs outside a checkout every value falls back to `unknown` / not dirty.
+//! `REGATTA_GIT_HASH`, `REGATTA_GIT_BRANCH` and `REGATTA_GIT_DIRTY` in the build environment win
+//! (the container build has no `.git`; `cargo xtask make-img` passes them as build arguments).
+//! Otherwise git is asked (`rev-parse --verify --short HEAD`, `symbolic-ref --short -q HEAD`,
+//! `diff-index --quiet HEAD --`); when git is missing or the build runs outside a checkout every
+//! value falls back to `unknown` / not dirty.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -68,14 +69,28 @@ fn rerun_on_git_changes() {
     println!("cargo:rerun-if-changed={}", git_dir.join("index").display());
 }
 
+/// A non-empty, non-`unknown` value of `name` from the build environment.
+fn env_override(name: &str) -> Option<String> {
+    println!("cargo:rerun-if-env-changed={name}");
+    std::env::var(name)
+        .ok()
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty() && v != "unknown")
+}
+
 fn main() {
-    let hash = git_stdout(&["rev-parse", "--verify", "--short", "HEAD"])
+    let hash = env_override("REGATTA_GIT_HASH")
+        .or_else(|| git_stdout(&["rev-parse", "--verify", "--short", "HEAD"]))
         .unwrap_or_else(|| "unknown".into());
-    let branch =
-        git_stdout(&["symbolic-ref", "--short", "-q", "HEAD"]).unwrap_or_else(|| "unknown".into());
-    let dirty = git(&["diff-index", "--quiet", "HEAD", "--"])
-        .map(|o| !o.status.success())
-        .unwrap_or(false);
+    let branch = env_override("REGATTA_GIT_BRANCH")
+        .or_else(|| git_stdout(&["symbolic-ref", "--short", "-q", "HEAD"]))
+        .unwrap_or_else(|| "unknown".into());
+    let dirty = match env_override("REGATTA_GIT_DIRTY") {
+        Some(v) => v == "true",
+        None => git(&["diff-index", "--quiet", "HEAD", "--"])
+            .map(|o| !o.status.success())
+            .unwrap_or(false),
+    };
     let build_date = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| utc_iso(d.as_secs()))

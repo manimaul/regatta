@@ -42,6 +42,9 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghreg
+      # The image is built for linux/amd64 only.
+      nodeSelector:
+        kubernetes.io/arch: amd64
       containers:
         - image: ghcr.io/manimaul/regatta:latest
           imagePullPolicy: Always
@@ -52,18 +55,28 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 64Mi
             limits:
-              memory: 768Mi
+              memory: 256Mi
           env:
-            - name: JDK_JAVA_OPTIONS
-              value: "-Djdbcurl=jdbc:postgresql://localhost:5432/regatta -Duser={REGATTA_PG_USER} -Dpassword={REGATTA_PG_PASS}"
+            # Through the pgbouncer sidecar on the pod loopback; filled by `cargo xtask`.
+            - name: REGATTA_DB_URL
+              value: "{REGATTA_DB_URL}"
+            - name: RUST_LOG
+              value: "info"
           readinessProbe:
             httpGet:
               path: /
               port: 8888
-            initialDelaySeconds: 10
+            initialDelaySeconds: 3
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8888
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
         - name: pgbouncer
           image: ghcr.io/cloudnative-pg/pgbouncer:latest
           ports:

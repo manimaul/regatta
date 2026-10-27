@@ -1,6 +1,6 @@
 //! A database-free golden check against the approved files
-//! (`server/src/jvmTest/resources/golden/approved`, the output of the Kotlin server over the
-//! production snapshot with `now = GoldenDb.dumpInstant`):
+//! (`tests/golden/approved`, the reference output over the
+//! production snapshot with `now` = the dump instant):
 //!
 //! - every `race-<id>.json` is rebuilt from its own inputs: the cards are recomputed with
 //!   [`card`] from each `resultRecord` (with the certificate found on the boat, when it is
@@ -18,9 +18,9 @@ use regatta_common::{to_kotlin_pretty_json, RaceReport, RaceReportCard, Standing
 use regatta_scoring::{card, report, standings};
 use std::path::{Path, PathBuf};
 
-const APPROVED_DIR: &str = "../../server/src/jvmTest/resources/golden/approved";
+const APPROVED_DIR: &str = "tests/golden/approved";
 
-/// `GoldenDb.dumpInstant`.
+/// The instant the snapshot was taken.
 const DUMP_INSTANT: &str = "2026-10-14T02:10:11Z";
 
 fn approved_dir() -> PathBuf {
@@ -187,7 +187,7 @@ fn race_reports_are_rebuilt_byte_for_byte() {
 }
 
 /// Every approved series standings is what [`standings`] computes from its race reports with
-/// `now = GoldenDb.dumpInstant`, byte for byte.
+/// `now` = the dump instant, byte for byte.
 #[test]
 fn series_standings_are_rebuilt_byte_for_byte() {
     let files = approved_files("standings-");

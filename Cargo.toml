@@ -1,5 +1,5 @@
-# Rust port workspace (docs/explore_unimplemented/rust_port.md). Lives beside the Kotlin build
-# until cutover; nothing here is read by Gradle and nothing in Gradle is read from here.
+# The regatta workspace. Build and serve with cargo-leptos (`cargo leptos watch`), run tasks with
+# `cargo xtask <task>` (crates/xtask).
 [workspace]
 resolver = "2"
 members = [
@@ -19,7 +19,7 @@ edition = "2021"
 license = "Apache-2.0"
 publish = false
 
-# The version catalog (= gradle/libs.versions.toml). Crates reference these with
+# Every dependency version lives here. Crates reference these with
 # `name = { workspace = true }` and add only features.
 [workspace.dependencies]
 regatta-common = { path = "crates/common" }
@@ -95,7 +95,7 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
-# cargo-leptos configuration (Phase 4). `cargo leptos watch` / `cargo leptos build --release`.
+# cargo-leptos configuration. `cargo leptos watch` / `cargo leptos build --release`.
 [[workspace.metadata.leptos]]
 name = "regatta"
 bin-package = "regatta-server"
