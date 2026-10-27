@@ -93,6 +93,8 @@ extern "C" {
     pub fn remove(this: &Map);
     #[wasm_bindgen(method, js_name = jumpTo)]
     pub fn jump_to(this: &Map, options: &JsValue);
+    #[wasm_bindgen(method, js_name = flyTo)]
+    pub fn fly_to(this: &Map, options: &JsValue);
     #[wasm_bindgen(method, js_name = fitBounds)]
     pub fn fit_bounds(this: &Map, bounds: &JsValue);
     #[wasm_bindgen(method, js_name = getBounds)]

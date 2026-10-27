@@ -19,9 +19,9 @@ pub fn Course() -> impl IntoView {
                 selected_item=selected
                 name={|m: &Option<Mark>| match m {
                     Some(m) => format!("{} {} - {}", m.letter, m.name, m.desc),
-                    None => "null null - null".to_string(),
+                    None => "None".to_string(),
                 }}
-                handler={move |m: Option<Mark>| chart.select_mark(m)}
+                handler={move |m: Option<Mark>| chart.choose_mark(m)}
             />
         </div>
         <div class="grow" node_ref=container></div>
