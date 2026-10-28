@@ -1,7 +1,8 @@
-//! = `RgDropdown.kt`: the dropdown buttons (`RgDropdown`, `RgIdDropdown`, `RgDropdownNone`) and
-//! the typed pickers built on them. The menu is `position: fixed`, placed against its toggle and
-//! capped to the room on screen; it dismisses on an outside press or Escape (consumed, so a
-//! dropdown inside a modal closes only itself).
+//! The dropdown buttons ([`RgDropdown`], [`RgIdDropdown`], [`RgDropdownNone`]) and the typed pickers built on them.
+//!
+//! The toggle and its menu are block elements, so a dropdown must never sit inside `<p>`. The menu is
+//! `position: fixed`, placed against its toggle and capped to the room on screen; it dismisses on an outside press or
+//! Escape (consumed, so a dropdown inside a modal closes only itself).
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -32,7 +33,7 @@ impl<T> Namer<T> {
     }
 }
 
-/// Below this much room (px) the menu opens upward when there is more space above the toggle.
+/// Below this much room in px, the menu opens upward when there is more space above the toggle.
 pub const MIN_MENU_HEIGHT: f64 = 160.0;
 /// Gap (px) kept between the menu and the viewport edge.
 pub const VIEWPORT_GAP: f64 = 16.0;
@@ -271,6 +272,9 @@ fn item_label(selected: &str, item_name: String) -> impl IntoView {
 }
 
 /// A picker with a "None" entry and an optional type-to-filter box.
+///
+/// `handler` gets `None` for the "None" entry. `shor_name`, when given, names the selection on the toggle button
+/// instead of `name`.
 #[component]
 pub fn RgDropdownNone<T>(
     #[prop(into)] items: Signal<Vec<T>>,
@@ -353,6 +357,7 @@ where
     }
 }
 
+/// A dropdown over `items` showing `selected_item`; `handler` gets the chosen item.
 #[component]
 pub fn RgDropdown<T>(
     #[prop(into)] items: Signal<Vec<T>>,
@@ -366,6 +371,9 @@ where
     view! { <RgIdDropdown items=items selected_item=selected_item name=name handler=handler/> }
 }
 
+/// A dropdown over `items` with an optional element `id` on its root.
+///
+/// The toggle is disabled while there is at most one item; `handler` gets the chosen item.
 #[component]
 pub fn RgIdDropdown<T>(
     #[prop(optional, into)] id: Option<String>,
@@ -416,6 +424,7 @@ where
     }
 }
 
+/// A filterable series picker; choosing "None" calls nothing.
 #[component]
 pub fn RgSeriesDropdown(
     #[prop(into)] series_list: Signal<Vec<Series>>,
@@ -434,6 +443,7 @@ pub fn RgSeriesDropdown(
     }
 }
 
+/// A class picker over `items` with a "None" entry; `current` is the selected class.
 #[component]
 pub fn RgClassDropdown(
     #[prop(into)] items: Signal<Vec<RaceClassBrackets>>,
@@ -457,6 +467,7 @@ pub fn RgClassDropdown(
     }
 }
 
+/// A filterable skipper picker over `people` with a "None" entry.
 #[component]
 pub fn RgSkipperDropdown(
     #[prop(into)] people: Signal<Vec<Person>>,

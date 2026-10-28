@@ -177,6 +177,10 @@ cargo test --workspace --doc             # runs the examples
 
 Treat a rustdoc warning like a clippy warning: fix it before committing.
 
+`regatta-common`, `regatta-scoring` and `regatta-service` enable `clippy::missing_errors_doc` and
+`clippy::missing_panics_doc` (`[lints.clippy]` in their `Cargo.toml`), so `cargo clippy ... -D warnings` fails on a
+missing `# Errors` or `# Panics` section there.
+
 ## Checklist
 
 - [ ] The summary line stands alone and fits on one line.

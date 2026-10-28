@@ -1,5 +1,7 @@
-//! = `ModalTest.kt`, the markup half: modals are native <dialog>s opened by id, with the panel / header / body /
-//! footer structure and no Bootstrap data-bs-* attributes. Opening, closing and the confirmation flow are in `tests/wasm.rs`.
+//! SSR markup tests of the modals: native `<dialog>`s opened by id, with the panel / header / body / footer
+//! structure and no Bootstrap `data-bs-*` attributes.
+//!
+//! Opening, closing and the confirmation flow are tested in the browser by `crates/app/tests/wasm.rs`.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;

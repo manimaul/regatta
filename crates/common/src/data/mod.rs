@@ -1,7 +1,13 @@
-//! The `@Serializable` domain models (= `com.mxmariner.regatta.data`), one module per Kotlin file.
+//! The serde domain models: the REST bodies, the stored records and the race reports and series standings.
 //!
-//! Field order is the Kotlin declaration order; every field with a Kotlin default is optional on
-//! input and always written on output (nulls included); enums serialize by their Kotlin names.
+//! Field order is declaration order and is pinned by the golden files; every field with a default is optional on
+//! input and always written on output (`None` as `null`); enums serialize by their `name()`.
+//!
+//! - [`race_data`]: races, series, classes, brackets, boats, people, results, reports and standings.
+//! - [`orc_certificate`]: ORC certificates, scoring options and wind bands, and the named PHRF B factors.
+//! - [`finish_code`]: how a boat's race ended.
+//! - [`login_data`]: login and auth records.
+//! - [`about_info`]: the about record.
 
 pub mod about_info;
 pub mod finish_code;

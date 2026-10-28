@@ -1,5 +1,7 @@
-//! T2: the contract cassettes recorded from the Kotlin server replay cleanly against the Rust
-//! server, run in-process on a fresh load of the golden dump with the same fixed clock.
+//! The REST contract replay: every recorded cassette in `crates/contract/cassettes` matches the server.
+//!
+//! The server runs in-process on a fresh load of the golden dump with the clock fixed at the dump instant, the clock
+//! the cassettes were recorded with (T2 in `docs/explore_implemented/rust_port.md`; `crates/contract/README.md`).
 
 mod support;
 

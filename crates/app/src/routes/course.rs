@@ -1,5 +1,6 @@
-//! = `routes/Course.kt`: the course marks picker and the chart. The map container renders empty
-//! on the server; the client mounts MapLibre into it once hydrated.
+//! The Course screen: the course marks picker and the chart.
+//!
+//! The map container renders empty on the server; the browser mounts MapLibre into it once hydrated.
 
 use crate::app_style;
 use crate::chart::chart_view_model::{marks, use_chart, Mark};

@@ -1,9 +1,13 @@
-//! = `RgSortable.kt`: a drag-to-reorder list (SortableJS on the client).
+//! A drag-to-reorder list, driven by SortableJS in the browser.
 
 use crate::cb::Cb;
 use crate::components::rg_dropdown::Namer;
 use leptos::prelude::*;
 
+/// A list of `items` named by `name` that the user reorders by dragging.
+///
+/// `on_sort` gets the items in their new order after each drop. The server renders the plain list; SortableJS
+/// attaches after hydration.
 #[component]
 pub fn RgSortable<T>(
     items: Vec<T>,

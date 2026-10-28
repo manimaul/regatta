@@ -1,7 +1,8 @@
-//! = `components/routes/*.kt`, one module per screen. Server data comes through
-//! [`crate::utils::async_state::Loaded`] (a resource over a server function, rendered inside a
-//! `<Suspense>` so the server streams the screen with its data) and mutations through
-//! [`crate::utils::async_state::call`], reloading afterwards as the Kotlin view models did.
+//! The screens, one module per route.
+//!
+//! Server data comes through [`crate::utils::async_state::Loaded`] (a resource over a server function, rendered
+//! inside a `<Suspense>` so the server sends the screen with its data) and mutations through
+//! [`crate::utils::async_state::call`], reloading the affected data afterwards.
 
 pub mod admin;
 pub mod boats;
@@ -35,10 +36,12 @@ use crate::utils::async_state::Async;
 use leptos::either::EitherOf4;
 use leptos::prelude::*;
 
-/// = `Async.complete(viewModel) { ... }`: the loaded view, `ErrorDisplay` with a reload button, a
-/// spinner while loading, nothing while uninitialized. The match sits in a `<Suspense>` whose
-/// fallback is the loading view, so on the server the resource behind `state` is awaited and the
-/// chunk streams in rendered; in the browser a reload shows the spinner again.
+/// Renders a load's state: the loaded view, an error with a reload button, a spinner, or nothing.
+///
+/// The error is an `ErrorDisplay` with a reload button; the spinner shows while loading and nothing shows while
+/// uninitialized. The match sits in a `<Suspense>` whose fallback is the loading view, so on the server the
+/// resource behind `state` is awaited and the chunk arrives rendered; in the browser a reload shows the spinner
+/// again.
 pub fn async_view<T, V>(
     state: Signal<Async<T>>,
     reload: impl Fn() + Clone + Send + Sync + 'static,

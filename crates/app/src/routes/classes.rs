@@ -1,4 +1,4 @@
-//! = `routes/Classes.kt` (+ `ClassesViewModel.kt` state).
+//! The Classes screen (admin): the race classes with their brackets, their order, and the class editor.
 
 use crate::app_style;
 use crate::components::join_classes;
@@ -17,7 +17,7 @@ use regatta_common::{Bracket, RaceClass, RaceClassBrackets, RatingType};
 
 pub const ADD_EDIT_CLASS_MODAL_ID: &str = "add-edit-class";
 
-/// = `ClassesState`.
+/// The Classes screen state: the loaded classes, the class being edited and the sort mode.
 #[derive(Clone, Copy)]
 pub struct ClassesState {
     pub edit_class: RwSignal<RaceClassBrackets>,
@@ -45,7 +45,7 @@ impl ClassesState {
         self.class_list.reload();
     }
 
-    /// `nextSort()`: one past the last class's sort value.
+    /// Returns one past the last class's sort value, for a new class.
     pub fn next_sort(&self) -> i32 {
         self.class_list
             .value()
@@ -57,7 +57,7 @@ impl ClassesState {
         self.edit_class.set(class);
     }
 
-    /// A not rated type opens every bracket's rating range.
+    /// Sets the edited class's rating type; a not rated type opens every bracket's rating range.
     pub fn set_rating_type(&self, rating_type: RatingType) {
         self.edit_class.update(|c| {
             c.race_class.rating_type = rating_type;
@@ -88,8 +88,10 @@ impl ClassesState {
         });
     }
 
-    /// `isUpsertClassBracketsValid`: a name, at least one bracket, every bracket named and, in a
-    /// rated class, its max rating above its min rating.
+    /// Tells whether `class` can be saved.
+    ///
+    /// It needs a name, at least one bracket, every bracket named and, in a rated class, each bracket's max rating
+    /// above its min rating.
     pub fn is_upsert_class_brackets_valid(&self, class: &RaceClassBrackets) -> bool {
         let rating_type = class.race_class.rating_type;
         !class.race_class.name.trim().is_empty()
@@ -100,9 +102,10 @@ impl ClassesState {
                 .all(|b| !b.name.trim().is_empty() && is_range_valid(rating_type, b))
     }
 
-    /// `upsertClassBrackets`: a new class takes the next sort value; the brackets of an editable
-    /// not rated class get the open rating range (the editor hides it); the editor resets; then
-    /// reload.
+    /// Saves `class` with its brackets, resets the editor, then reloads.
+    ///
+    /// A new class takes the next sort value; the brackets of an editable not rated class get the open rating range
+    /// (the editor hides it).
     pub fn upsert_class_brackets(&self, mut class: RaceClassBrackets) {
         if class.race_class.rating_type.is_cruising() && class.race_class.number_of_races == 0 {
             open_ranges(&mut class.brackets);
@@ -131,8 +134,9 @@ impl ClassesState {
         });
     }
 
-    /// `delete(raceClassBrackets)`: every bracket, then the class (a bracket still in use stops
-    /// the deletion with the server's text), then reload.
+    /// Deletes every bracket of `class`, then the class, then reloads.
+    ///
+    /// A bracket still in use stops the deletion with the server's text.
     pub fn delete(&self, class: RaceClassBrackets) {
         let list = self.class_list;
         call(
@@ -146,7 +150,7 @@ impl ClassesState {
         );
     }
 
-    /// `saveClassOrder`: posts the list in its new order, then leaves sort mode and reloads.
+    /// Saves the classes in their new order, then leaves sort mode and reloads.
     pub fn save_class_order(&self, order: Vec<RaceClass>) {
         self.sort_mode.set(false);
         let list = self.class_list;
@@ -156,7 +160,7 @@ impl ClassesState {
     }
 }
 
-/// The open range, -1000 to 1000, that every rating falls in.
+/// Sets every bracket to the open range, -1000 to 1000, that every rating falls in.
 fn open_ranges(brackets: &mut [Bracket]) {
     let open = Bracket::default();
     for b in brackets {
@@ -165,7 +169,8 @@ fn open_ranges(brackets: &mut [Bracket]) {
     }
 }
 
-/// A not rated class's range is hidden and opened on save, so only a rated one is checked.
+/// Tells whether a bracket's rating range is valid; a not rated class's range is hidden and opened on save, so it
+/// passes.
 fn is_range_valid(rating_type: RatingType, bracket: &Bracket) -> bool {
     rating_type.is_cruising() || bracket.max_rating > bracket.min_rating
 }
@@ -344,6 +349,7 @@ pub fn ViewBracket(bracket: Bracket) -> impl IntoView {
     view! { <p>{format!("{} ({} race(s) / cannot be edited)", bracket.name, bracket.number_of_races)}</p> }
 }
 
+/// The editor row of the bracket at `index` in the class being edited. Renders block elements: never inside `<p>`.
 #[component]
 pub fn EditBracket(index: usize, state: ClassesState) -> impl IntoView {
     let bracket = Signal::derive(move || {

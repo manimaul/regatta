@@ -1,5 +1,7 @@
-//! = `ChartController.js.kt`: owns the MapLibre map, its markers and popups, and answers
-//! `styleimagemissing` with the light sector SVGs in the theme's palette.
+//! The course chart controller (hydrate only): owns the MapLibre map, its markers and popups.
+//!
+//! It answers `styleimagemissing` with the light sector SVGs of [`crate::utils::light_sector`] in the current
+//! theme's palette.
 
 use super::chart_style_url;
 use super::chart_view_model::{MapLocation, MapPoint, Mark};
@@ -249,7 +251,7 @@ impl ChartController {
     /// are dropped first and `styleimagemissing` redraws them for the new theme.
     pub fn set_theme(&mut self, theme: Theme) {
         if let Some(map) = &self.map_view {
-            // listImages throws "Style is not done loading" mid-load; there is nothing to drop then
+            // listImages raises a JS "Style is not done loading" error mid-load; there is nothing to drop then
             if map.is_style_loaded() {
                 for id in map.list_images().iter().filter_map(|v| v.as_string()) {
                     if id.starts_with(SECTOR_IMAGE_PREFIX) {

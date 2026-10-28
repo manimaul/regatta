@@ -1,6 +1,9 @@
-//! = `SeriesStandingsTest.kt`: series standings rules, GSI 14.4 / 14.5 / 1.4.1.2 with the D1, D2,
-//! D3, D5 and D8 decisions in docs/explore_implemented/test_audit_and_plan.md. Unless noted,
-//! every race is in the PHRF class "Fast", bracket I, with equal ratings, so finishing order is
+//! Series standings rules, GSI 14.4 / 14.5 / 1.4.1.2 with the scoring decisions D1 to D9.
+//!
+//! Every bare decision ID (`Dn`) in this file is a scoring decision of
+//! `docs/explore_implemented/test_audit_and_plan.md`; R-rules are in
+//! `docs/explore_implemented/orc_series_standings.md`.
+//! Unless noted, every race is in the PHRF class "Fast", bracket I, with equal ratings, so finishing order is
 //! placing order.
 
 use jiff::SignedDuration;
@@ -338,7 +341,8 @@ fn d2_race_not_sailed_in_a_bracket_scores_nothing_there_but_counts_in_the_class(
     standings.assert_class_totals(&[("X", 3 + 3)]); // in the class, race 2 had 2 starters: DNS = 3
 }
 
-/// D2: the throw-out is chosen per scoring group: worst bracket score for the bracket total, worst class score for the class total.
+/// D2: the throw-out is chosen per scoring group: worst bracket score for the bracket total, worst class score for the
+/// class total.
 #[test]
 fn d2_throw_out_is_chosen_per_scoring_group() {
     fn fast_race(s: &mut SeriesBuilder, a: &str, b: &str, z: &str, x: &str, y: &str) {
@@ -446,7 +450,8 @@ fn d1_rc_average_leaves_out_the_throw_out() {
     standings.assert_bracket_totals(&[("B", 8)]);
 }
 
-/// D1: the average of the remaining races is never worse than the thrown-out score, so the RC race is never the throw-out.
+/// D1: the average of the remaining races is never worse than the thrown-out score, so the RC race is never the
+/// throw-out.
 #[test]
 fn d1_rc_race_is_never_the_throw_out() {
     let standings = series(|s| {
@@ -502,7 +507,8 @@ fn d1_rc_with_no_other_race_scores_dns() {
     standings.assert_bracket_totals(&[("A", 1), ("C", 2), ("B", 3)]);
 }
 
-/// D1: once per series; the earliest RC race gets the average and later ones score DNS, which then counts in the average.
+/// D1: once per series; the earliest RC race gets the average and later ones score DNS, which then counts in the
+/// average.
 #[test]
 fn d1_rc_is_once_per_series() {
     let standings = series(|s| {
@@ -829,7 +835,8 @@ fn d9_orc_series_total_is_the_sum_of_orc_race_scores() {
     assert_eq!(phrf_only.bracket_places(), standings.bracket_places());
 }
 
-/// GSI 14.1.2 / D9: a boat with no ORC entry scores the ORC starters + 1 in the ORC groups, and the PHRF starters + 1 in the PHRF ones.
+/// GSI 14.1.2 / D9: a boat with no ORC entry scores the ORC starters + 1 in the ORC groups, and the PHRF starters + 1
+/// in the PHRF ones.
 #[test]
 fn d9_orc_dns_scores_orc_starters_plus_one() {
     let standings = series(|s| {
@@ -1131,7 +1138,8 @@ fn d9_orc_only_boat_does_not_count_as_a_phrf_starter() {
     assert_eq!(vec![2.0, 2.0], standings.bracket_race_scores("P")); // 2nd, then 1 PHRF starter + 1
 }
 
-/// D9: a boat that raced PHRF-only before getting a certificate is scored under both, with ORC DNS for the earlier races.
+/// D9: a boat that raced PHRF-only before getting a certificate is scored under both, with ORC DNS for the earlier
+/// races.
 #[test]
 fn d9_boat_that_switches_to_orc_phrf_mid_series_scores_dns_in_orc_before_the_switch() {
     let standings = series(|s| {

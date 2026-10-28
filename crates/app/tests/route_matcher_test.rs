@@ -1,4 +1,4 @@
-//! = `RouteMatcherTest.kt`.
+//! Tests of the nav bar's path matcher and route resolution.
 #![cfg(not(target_arch = "wasm32"))]
 
 use regatta_app::state::route::Route;
@@ -33,7 +33,7 @@ fn every_pattern_matches_itself_and_a_trailing_slash() {
         Some("2025")
     );
     assert_eq!(Routing::from("/nowhere").route, Route::NotFound);
-    // as with the Kotlin regex, "/races/results/view" is the results editor of race "view"
+    // "/races/results/view" is the results editor of race "view", not the viewer
     let edit = Routing::from("/races/results/view");
     assert_eq!(edit.route, Route::RaceResultEdit);
     assert_eq!(edit.arg("id"), Some("view"));

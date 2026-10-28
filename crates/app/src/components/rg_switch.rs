@@ -1,8 +1,9 @@
-//! = `RgSwitch.kt`.
+//! Toggle switches.
 
 use crate::cb::Cb;
 use leptos::prelude::*;
 
+/// A labelled toggle switch with element id `id` followed by `num`; `change` gets the new state.
 #[component]
 pub fn RgSwitch(
     #[prop(into)] id: String,
@@ -27,8 +28,9 @@ pub fn RgSwitch(
     }
 }
 
-/// One switch per item. The Kotlin ids were a random salt per group; here the group takes the
-/// next element id so the server and the browser agree.
+/// One switch per item, labelled by `label` and checked by `check`; `change` gets the item and its new state.
+///
+/// The group takes the next element id from [`super::ElementIds`] so the server and the browser agree on the ids.
 #[component]
 pub fn RgSwitches<T>(
     #[prop(into)] items: Signal<Vec<T>>,

@@ -1,6 +1,9 @@
-//! `regatta`: the server binary. Configuration from the environment or flags (see
-//! `regatta_service::Config`), the startup schema check (D6), then axum on `LEPTOS_SITE_ADDR`
-//! when cargo-leptos (or the image) set it, else `REGATTA_BIND`.
+//! The `regatta` server binary: reads the configuration, checks the schema, then serves the router.
+//!
+//! Configuration comes from the environment or flags ([`regatta_service::Config`]); the startup schema check is
+//! [`regatta_service::startup::prepare`] (D6 in `docs/explore_implemented/rust_port.md`). The server listens on
+//! `LEPTOS_SITE_ADDR` when cargo-leptos (or the image) set it, else on `REGATTA_BIND`, and shuts down gracefully on
+//! Ctrl-C.
 
 use anyhow::{Context, Result};
 use clap::Parser;

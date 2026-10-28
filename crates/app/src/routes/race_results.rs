@@ -1,6 +1,8 @@
-//! = `routes/RaceResults.kt`: the results list (`RaceResults`), the results editor
-//! (`RaceResultsEdit`) with its Add Result and Config modals, and the shared `AddResult` form
-//! (also used by the RC finish line). State = `RaceResultAddViewModel.kt` / `ResultsViewModel.kt`.
+//! The race results screens: the results list ([`RaceResults`]), the results editor ([`RaceResultsEdit`]) with its
+//! Add Result and Config modals, and the shared [`AddResult`] form, also used by the RC finish line.
+//!
+//! The placement helpers ([`rating_of`], [`available_classes`], [`available_brackets`]) decide which class and
+//! bracket a boat's result is entered in.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -37,19 +39,20 @@ use regatta_common::{
 pub const RACE_RESULT_ADD_EDIT_MODAL_ID: &str = "race-result-add-edit";
 pub const RACE_CONFIG_MODAL_ID: &str = "race-config";
 
-/// = `RaceResultAddState` / `RaceResultAddViewModel`: the result being added or edited, and the
-/// race day config draft. The race's schedule and results (`GET scheduleResults`) and the boats
-/// (`GET allBoat`) are resources; the available boats, classes and brackets follow the Kotlin
-/// placement rules (`getAvailableClasses`, `availableBrackets`, `getRating`).
+/// The results editor state: the result being added or edited, and the race day config draft.
+///
+/// The race's schedule and results ([`crate::server_fns::schedule_results`]) and the boats
+/// ([`crate::server_fns::all_boats`]) are resources; the available boats, classes and brackets follow
+/// [`available_classes`], [`available_brackets`] and [`rating_of`].
 #[derive(Clone, Copy)]
 pub struct RaceResultAddState {
     pub race_id: i64,
     pub race_result: RwSignal<RaceResultFull>,
     pub results: Loaded<RaceScheduleResults>,
     pub boat_skippers: Loaded<Vec<BoatSkipper>>,
-    /// `availableBoats`: the boats without a result in this race.
+    /// The boats without a result in this race.
     pub boats: Signal<Vec<BoatSkipper>>,
-    /// `findMaxHoc`: the highest HOC position recorded (at least 1).
+    /// The highest HOC position recorded (at least 1).
     pub max_hoc: Signal<i32>,
     pub allow_boat_change: RwSignal<bool>,
     pub classes: RwSignal<Vec<RaceClass>>,
@@ -58,7 +61,7 @@ pub struct RaceResultAddState {
     pub selected_class: RwSignal<Option<RaceClass>>,
     pub selected_class_start: RwSignal<Option<Timestamp>>,
     pub selected_bracket: RwSignal<Option<Bracket>>,
-    /// The Config modal's draft (R4a), `None` while closed.
+    /// The Config modal's draft (R4a, `orc_series_standings.md`), `None` while closed.
     pub config_draft: RwSignal<Option<RaceSchedule>>,
     /// The server's reason for rejecting the last config save.
     pub config_error: RwSignal<Option<String>>,
@@ -70,16 +73,17 @@ pub struct RaceResultAddState {
     pub is_valid: Signal<bool>,
 }
 
-/// `getRating(phrfRating, orcCertificate)`: the PHRF-equivalent rating a result or
-/// boat is placed by: the PHRF rating, else the certificate's virtual PHRF (an ORC boat, also in a
-/// PHRF class), else the default.
+/// Returns the PHRF-equivalent rating a result or boat is placed in a bracket by.
+///
+/// That is the PHRF rating, else the certificate's virtual PHRF (an ORC boat, also in a PHRF class), else the
+/// default rating.
 pub fn rating_of(phrf_rating: Option<i32>, orc_certificate: Option<&OrcCertificate>) -> i32 {
     phrf_rating
         .or_else(|| orc_certificate.map(OrcCertificate::virtual_phrf))
         .unwrap_or(RATING_DEFAULT)
 }
 
-/// `getRating(boat)`.
+/// Returns the PHRF-equivalent rating of `boat` (see [`rating_of`]); the default rating for `None`.
 pub fn boat_rating(boat: Option<&Boat>) -> i32 {
     rating_of(
         boat.and_then(|b| b.phrf_rating),
@@ -92,7 +96,7 @@ fn in_bracket(bracket: &Bracket, rating: i32) -> bool {
     rating <= bracket.max_rating && rating >= bracket.min_rating
 }
 
-/// `availableBrackets`: the class's brackets whose range holds the rating.
+/// Returns the class's brackets whose rating range holds `rating`.
 pub fn available_brackets(
     schedule: Option<&RaceSchedule>,
     class_id: Option<i64>,
@@ -114,8 +118,9 @@ pub fn available_brackets(
         .unwrap_or_default()
 }
 
-/// `getAvailableClasses`: the race's classes, an ORC class only for a boat with a certificate. A
-/// class without a bracket for the rating is listed; [`RaceResultAddState::invalid`] says so.
+/// Returns the race's classes a boat can enter: an ORC class only for a boat with a certificate.
+///
+/// A class without a bracket for the rating is listed; [`RaceResultAddState::invalid`] says so.
 pub fn available_classes(boat: Option<&Boat>, schedule: Option<&RaceSchedule>) -> Vec<RaceClass> {
     let can_orc = boat.is_some_and(|b| !b.orc_certs.is_empty());
     schedule
@@ -129,7 +134,7 @@ pub fn available_classes(boat: Option<&Boat>, schedule: Option<&RaceSchedule>) -
         .unwrap_or_default()
 }
 
-/// Why `result` cannot be saved in `class`, or `None`.
+/// Returns why `result` cannot be saved in `class`, or `None` if it can.
 pub fn result_invalid(
     result: &RaceResultFull,
     class: Option<&RaceClass>,
@@ -194,7 +199,7 @@ fn class_start(schedule: Option<&RaceSchedule>, class_id: Option<i64>) -> Option
         .and_then(ClassSchedule::race_start)
 }
 
-/// `RaceResultFull.asRaceResultSparse()`: what `POST results` takes.
+/// Converts a full result to the [`RaceResult`] that [`crate::server_fns::post_result`] takes.
 pub fn as_sparse(result: &RaceResultFull) -> RaceResult {
     RaceResult {
         id: result.id,
@@ -212,7 +217,7 @@ pub fn as_sparse(result: &RaceResultFull) -> RaceResult {
     }
 }
 
-/// `findMaxHoc(results)`.
+/// Returns the highest HOC position among `results`, at least 1.
 pub fn find_max_hoc(results: Option<&[RaceResultFull]>) -> i32 {
     results
         .and_then(|r| r.iter().map(|x| x.hoc_position.unwrap_or(1)).max())
@@ -284,7 +289,7 @@ impl RaceResultAddState {
             config_error: RwSignal::new(None),
             config_version: RwSignal::new(0),
             invalid,
-            // `isValid`: a boat, a class, a bracket, the rating the type needs, and a time for a timed finish
+            // valid: a boat, a class, a bracket, the rating the type needs, and a time for a timed finish
             is_valid: Signal::derive(move || {
                 invalid.with(Option::is_none)
                     && race_result.with(|r| {
@@ -298,18 +303,18 @@ impl RaceResultAddState {
         }
     }
 
-    /// `reload()`: the schedule with its results, and the boats.
+    /// Reloads the schedule with its results, and the boats.
     pub fn reload(&self) {
         self.results.reload();
         self.boat_skippers.reload();
     }
 
-    /// The loaded race schedule, untracked.
+    /// Returns the loaded race schedule, untracked.
     pub fn schedule(&self) -> Option<RaceSchedule> {
         self.results.value().map(|r| r.race_schedule)
     }
 
-    /// `clearResultForBoatSelection`: a fresh result finishing at the race end.
+    /// Starts a fresh result, finishing at the race end.
     pub fn clear_result_for_boat_selection(&self) {
         let schedule = self.schedule();
         self.race_result.set(RaceResultFull {
@@ -325,9 +330,10 @@ impl RaceResultAddState {
         self.brackets.set(Vec::new());
     }
 
-    /// `focusResultForEdit`: the result with the class and bracket its rating places it in, its
-    /// boat's certificates (plus the one on the result), and the preferred certificate when the
-    /// result has none.
+    /// Loads `result` into the editor.
+    ///
+    /// The editor gets the class and bracket its rating places it in, its boat's certificates (plus the one on the
+    /// result), and the preferred certificate when the result has none.
     pub fn focus_result_for_edit(&self, result: &RaceResultFull) {
         let schedule = self.schedule();
         let rating = rating_of(result.phrf_rating, result.orc_certificate.as_ref());
@@ -368,9 +374,10 @@ impl RaceResultAddState {
         self.orc_certs.set(certs);
     }
 
-    /// `selectBoat`: the boat's rating picks the class (its own rating type, else a compatible
-    /// one), the class start, the first fitting bracket and the preferred certificate. The finish
-    /// fields already entered are kept.
+    /// Selects the boat of the result being entered.
+    ///
+    /// The boat's rating picks the class (its own rating type, else a compatible one), the class start, the first
+    /// fitting bracket and the preferred certificate. The finish fields already entered are kept.
     pub fn select_boat(&self, boat: Option<BoatSkipper>) {
         let schedule = self.schedule();
         let b = boat.as_ref().and_then(|bs| bs.boat.as_ref());
@@ -412,8 +419,9 @@ impl RaceResultAddState {
         self.selected_bracket.set(select_bracket);
     }
 
-    /// `selectClass`: the class's brackets for the rating, its start, the first bracket; an ORC
-    /// class for a boat without a certificate is scored PHRF.
+    /// Selects the class of the result being entered, with its start and the first bracket for the rating.
+    ///
+    /// An ORC class for a boat without a certificate is scored PHRF.
     pub fn select_class(&self, class: RaceClass) {
         let schedule = self.schedule();
         let (rating, boat, can_orc) = self.race_result.with_untracked(|r| {
@@ -447,8 +455,9 @@ impl RaceResultAddState {
         self.selected_bracket.set(select_bracket);
     }
 
-    /// The selected class's brackets for the current rating: the selected bracket while it still
-    /// fits, else the first that does, else none.
+    /// Refreshes the selected class's brackets for the current rating.
+    ///
+    /// Keeps the selected bracket while it still fits, else selects the first that does, else none.
     fn refresh_brackets(&self) {
         let schedule = self.schedule();
         let class_id = self
@@ -515,14 +524,16 @@ impl RaceResultAddState {
         self.refresh_brackets();
     }
 
-    /// The PHRF box was emptied.
+    /// Clears the PHRF rating after the PHRF box was emptied.
     pub fn clear_phrf_rating(&self) {
         self.race_result.update(|r| r.phrf_rating = None);
         self.refresh_brackets();
     }
 
-    /// `postResult`: `POST results` with the sparse result; on success `on_success`, a fresh
-    /// result and a reload; the server's text (`validateResult`) replaces the list otherwise.
+    /// Saves the result being entered through [`crate::server_fns::post_result`].
+    ///
+    /// On success it runs `on_success`, starts a fresh result and reloads; otherwise the server's text (the
+    /// `validate_result` message) replaces the list.
     pub fn post_result(&self, on_success: impl FnOnce() + 'static) {
         if !self.is_valid.get_untracked() {
             self.results
@@ -551,7 +562,7 @@ impl RaceResultAddState {
         });
     }
 
-    /// `deleteResult`, then reload.
+    /// Deletes the result `id`, then reloads.
     pub fn delete_result(&self, id: i64) {
         let results = self.results;
         call(server_fns::delete_result(id), move |r| results.after(r));
@@ -568,9 +579,10 @@ impl RaceResultAddState {
         self.config_error.set(None);
     }
 
-    /// `saveConfig`: `POST raceSchedule` with the draft; on success `on_saved` closes the modal
-    /// and the page reloads; a rejection (the `validateRace` text) lands in `config_error` and
-    /// keeps it open.
+    /// Saves the Config modal's draft through [`crate::server_fns::post_race_schedule`].
+    ///
+    /// On success `on_saved` closes the modal and the page reloads; a rejection (the `validate_race` text) lands in
+    /// `config_error` and keeps the modal open.
     pub fn save_config(&self, on_saved: impl FnOnce() + 'static) {
         let Some(draft) = self.config_draft.get_untracked() else {
             return;
@@ -615,6 +627,7 @@ impl RaceResultAddState {
     }
 }
 
+/// The results editor of `race_id` (admin): the results, the Add Result modal and the Config modal.
 #[component]
 pub fn RaceResultsEdit(race_id: Option<i64>) -> impl IntoView {
     let state = RaceResultAddState::new(race_id.unwrap_or(0));
@@ -713,8 +726,10 @@ pub fn RaceResultsEdit(race_id: Option<i64>) -> impl IntoView {
     )
 }
 
-/// The race day config (class starts, PHRF B factor, ORC option and wind band) edited as a draft and
-/// saved whole (R4a). A rejected save keeps the modal open and shows the server's reason.
+/// The Config modal: the race day config (class starts, PHRF B factor, ORC option and wind band) as a draft.
+///
+/// The draft is saved whole (R4a, `docs/explore_implemented/orc_series_standings.md`). A rejected save keeps the
+/// modal open and shows the server's reason.
 #[component]
 fn RaceConfigModal(state: RaceResultAddState) -> impl IntoView {
     // the form is rebuilt when a draft opens or closes, not on an edit to it
@@ -826,7 +841,7 @@ pub fn AddResult(state: RaceResultAddState) -> impl IntoView {
     }
 }
 
-/// `RgBoatDropdown(allowNone = true)`: a filterable picker with a None entry.
+/// A filterable boat picker with a "None" entry.
 #[component]
 pub fn RgBoatDropdown(
     #[prop(into)] boats: Signal<Vec<BoatSkipper>>,
@@ -845,7 +860,7 @@ pub fn RgBoatDropdown(
     }
 }
 
-/// `RgBoatDropdown(allowNone = false)`: the boat of a result being edited; the selection is ignored.
+/// The fixed boat of a result being edited, shown as a dropdown whose selection is ignored.
 #[component]
 pub fn RgBoatDropdownFixed(
     #[prop(into)] boats: Signal<Vec<BoatSkipper>>,
@@ -854,11 +869,16 @@ pub fn RgBoatDropdownFixed(
     view! { <RgDropdown items=boats selected_item=selected_boat name=|b: &BoatSkipper| b.short_label() handler=|_: BoatSkipper| {}/> }
 }
 
-/// The races of a year grouped by series (Kotlin `Map<Series, List<RaceSchedule>>`, in series order).
+/// The races of a year grouped by series, in the order of each series' first race.
 pub type SeriesRaces = Vec<(Series, Vec<RaceSchedule>)>;
 
-/// `fetchRaces(year)`: the year's races sorted by start and grouped by series (a race without
-/// one is its own group named after it), in first-seen order like Kotlin's `groupBy`.
+/// Loads the races of `year` sorted by start and grouped by series; empty for `None`.
+///
+/// A race without a series is its own group, named after the race. Groups keep first-seen order.
+///
+/// # Errors
+///
+/// Returns the `Err` of [`crate::server_fns::all_races`].
 pub async fn races_by_series(year: Option<i32>) -> Result<SeriesRaces, ServerFnError> {
     let Some(year) = year else {
         return Ok(Vec::new());
@@ -879,8 +899,7 @@ pub async fn races_by_series(year: Option<i32>) -> Result<SeriesRaces, ServerFnE
     Ok(groups)
 }
 
-/// = `ResultState`: the year's races by series (`GET allRaces?year=`), and whether the Action
-/// column shows.
+/// The results list state: the year's races by series, and whether the Action column shows.
 #[derive(Clone, Copy)]
 pub struct ResultsState {
     pub logged_in: Signal<bool>,
@@ -911,7 +930,7 @@ impl Default for ResultsState {
     }
 }
 
-/// `List<RaceSchedule>.resultCount()`.
+/// Returns the total number of results recorded across `schedules`.
 pub fn result_count(schedules: &[RaceSchedule]) -> i64 {
     schedules.iter().map(|r| r.result_count).sum()
 }
@@ -932,6 +951,9 @@ pub fn RaceResults() -> impl IntoView {
     }
 }
 
+/// The races list grouped by series, each group with its standings link.
+///
+/// The Action column shows while `logged_in`; `navigate` gets the path a row's button opens.
 #[component]
 pub fn RaceResultsTable(
     groups: SeriesRaces,
@@ -1006,6 +1028,7 @@ pub fn RaceResultsTable(
     }
 }
 
+/// A native year `<select>` over `years`; `handler` gets the chosen year.
 #[component]
 pub fn RgYearSelect(
     #[prop(into)] year: Signal<String>,

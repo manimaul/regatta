@@ -1,4 +1,4 @@
-//! = `StatusPagesTest.kt`: the error layer never leaks exception text.
+//! Tests of the REST error layer: a failure's text never reaches the client.
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
@@ -82,7 +82,7 @@ async fn get_text(path: &str) -> (StatusCode, Option<String>, String) {
     )
 }
 
-/// `StatusPagesTest.unexpectedErrorIsAGeneric500`.
+/// An unexpected error answers the generic 500 text, without the error's detail.
 #[tokio::test]
 async fn unexpected_error_is_a_generic_500() {
     let (status, content_type, body) = get_text("/boom").await;
@@ -95,7 +95,7 @@ async fn unexpected_error_is_a_generic_500() {
     assert_eq!(content_type.as_deref(), Some("text/plain; charset=UTF-8"));
 }
 
-/// `StatusPagesTest.foreignKeyViolationIsAGeneric409`.
+/// A foreign key violation anywhere in the cause chain answers the generic 409 text, without the database detail.
 #[tokio::test]
 async fn foreign_key_violation_is_a_generic_409() {
     let (status, content_type, body) = get_text("/fk").await;

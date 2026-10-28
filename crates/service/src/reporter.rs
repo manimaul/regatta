@@ -1,6 +1,8 @@
-//! The database wrappers of `RaceResultReporter` (`getReport`, `getStandingsReport`,
-//! `reduceToCard`): load the schedule, the results and their certificates, build the cards and
-//! call the pure functions of `regatta-scoring`.
+//! Race reports and series standings from the database.
+//!
+//! [`get_report`] and [`get_standings_report`] load the schedule, the results and their certificates, build the
+//! cards and call the pure functions of `regatta-scoring` ([`regatta_scoring::report`],
+//! [`regatta_scoring::standings`]). Their JSON is what the golden files pin byte for byte.
 
 use crate::db::Db;
 use anyhow::{anyhow, Result};
@@ -9,8 +11,15 @@ use regatta_common::*;
 use regatta_scoring::{card, report, standings};
 use std::collections::HashMap;
 
-/// `getStandingsReport`: the series' race reports in the year, scored as of `now`
-/// (`FixedClock.now()` on the REST side, the dump instant in the golden test).
+/// Scores the standings of a series in `year` from its race reports, as of `now`; `None` for an unknown series.
+///
+/// `now` is [`crate::Config::now`] on the REST side and the dump instant in the golden test; it tells a cancelled
+/// race from one not yet sailed.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails.
+/// - Returns `Err` if a result names an ORC certificate that is not stored.
 pub async fn get_standings_report(
     db: &Db,
     series_id: i64,
@@ -28,7 +37,12 @@ pub async fn get_standings_report(
     Ok(Some(standings(series, year, &reports, now)))
 }
 
-/// `getReport(raceId)`: fetches the schedule and the results, and builds the cards.
+/// Builds the race report of `race_id`, or `None` if the race does not exist.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails.
+/// - Returns `Err` if a result names an ORC certificate that is not stored.
 pub async fn get_report(db: &Db, race_id: i64) -> Result<Option<RaceReport>> {
     match db.find_race_schedule(race_id).await? {
         Some(schedule) => Ok(Some(get_report_for(db, schedule).await?)),
@@ -36,8 +50,12 @@ pub async fn get_report(db: &Db, race_id: i64) -> Result<Option<RaceReport>> {
     }
 }
 
-/// `getReport(raceSchedule)` for a schedule already loaded: the results and their ORC
-/// certificates, then the cards.
+/// Builds the race report of a schedule already loaded: its results and their ORC certificates, then the cards.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails.
+/// - Returns `Err` if a result names an ORC certificate that is not stored.
 pub async fn get_report_for(db: &Db, race_schedule: RaceSchedule) -> Result<RaceReport> {
     let schedules: HashMap<i64, &ClassSchedule> = race_schedule
         .schedule
@@ -61,8 +79,9 @@ pub async fn get_report_for(db: &Db, race_schedule: RaceSchedule) -> Result<Race
     Ok(report(race_schedule, cards))
 }
 
-/// `reduceToCard`: the certificate by `orcRef` (an error when a result names one that is not
-/// stored) and the class start by the bracket's class id.
+/// Builds one result's card, with its certificate by `orc_ref` and its class start by the bracket's class id.
+///
+/// A result naming a certificate that is not in `certs` is an error.
 fn reduce_to_card(
     record: RaceResultBoatBracket,
     race_schedule: &RaceSchedule,

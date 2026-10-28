@@ -1,6 +1,7 @@
-//! = `StandingsReport.kt`: cell text and decoration of the series standings table. Pure, covered
-//! by `tests/standings_labels_test.rs`. Class names are literal strings so Tailwind's scanner
-//! finds them.
+//! Cell text and decoration of the series standings table.
+//!
+//! Pure, covered by `crates/app/tests/standings_labels_test.rs`. Class names are literal strings so Tailwind's
+//! scanner finds them. The ORC side of a row follows D9 (`docs/explore_implemented/test_audit_and_plan.md`).
 
 use regatta_common::{
     score_text, FinishCode, RaceStatus, RatingType, StandingsBoatSkipper, StandingsRace,
@@ -48,15 +49,18 @@ impl ScoreLine {
     }
 }
 
-/// D9: which sides of a row the table shows, as (PHRF, ORC). The ORC side appears only when the
-/// class is ORC-rated (`show_orc`, the race view's gate) and the row is; the PHRF side appears
-/// unless the class is ORC-rated and the row is ORC-only.
+/// Returns which sides of a row the table shows, as (PHRF, ORC), per D9 (`test_audit_and_plan.md`).
+///
+/// The ORC side appears only when the class is ORC-rated (`show_orc`, the race view's gate) and the row is; the PHRF
+/// side appears unless the class is ORC-rated and the row is ORC-only.
 fn sides(rating: RatingType, show_orc: bool) -> (bool, bool) {
     (!show_orc || rating.is_phrf(), show_orc && rating.is_orc())
 }
 
-/// Text that replaces the whole cell when the race was not sailed for any group the row is scored
-/// in (D2 / D9), else `None`. `status_text_phrf` is the Kotlin default (the PHRF side alone).
+/// Returns the text that replaces the whole race cell when the race was not sailed for any group the row is scored
+/// in, else `None`.
+///
+/// D2 and D9 (`test_audit_and_plan.md`). [`status_text_phrf`] checks the PHRF side alone.
 pub fn status_text(
     race: &StandingsRace,
     rating: RatingType,
@@ -86,7 +90,8 @@ pub fn bracket_score_text(race: &StandingsRace) -> String {
     }
 }
 
-/// Class score, shown after the bracket score when the class has more than one bracket; a dash when not sailed in the class.
+/// Class score, shown after the bracket score when the class has more than one bracket; a dash when not sailed in the
+/// class.
 pub fn class_score_text(race: &StandingsRace) -> String {
     if race.class_sailed {
         format!(", {}", score_text(race.place_in_class))
@@ -113,7 +118,7 @@ pub fn class_score_classes(race: &StandingsRace) -> Vec<&'static str> {
     }
 }
 
-// D9: the same four for the ORC groups
+// D9 (`test_audit_and_plan.md`): the same four for the ORC groups
 
 pub fn bracket_score_text_orc(race: &StandingsRace) -> String {
     if race.bracket_sailed_orc {
@@ -147,7 +152,8 @@ pub fn class_score_classes_orc(race: &StandingsRace) -> Vec<&'static str> {
     }
 }
 
-/// Finish-code suffix after the scores, e.g. " DNF", " HOC3", " DSQ", " DNS RC Volunteer"; " DNS" for no record; empty for a timed finish.
+/// Finish-code suffix after the scores, e.g. " DNF", " HOC3", " DSQ", " DNS RC Volunteer"; " DNS" for no record; empty
+/// for a timed finish.
 pub fn code_suffix(race: &StandingsRace) -> String {
     match race.finish_code {
         Some(FinishCode::Time) => String::new(),
@@ -181,12 +187,13 @@ pub fn total_class_text(row: &StandingsBoatSkipper) -> String {
     score_text(row.total_score_class)
 }
 
-/// The race cell: one line per side the row is scored on (D9). Each line is the bold bracket score
-/// and, in a class with more than one bracket, the bold class score, each red when thrown out of
-/// its total, then the rating label when the class is ORC-rated. The finish code follows the last
-/// line, except that a boat with no ORC entry that day is `DNS` on the ORC line, and the PHRF line
-/// then carries the boat's own code (a finish shows nothing, no record shows `DNS` too).
-/// Without `show_orc` this is the single unlabeled line the table has always shown.
+/// Returns the lines of a race cell: one line per side the row is scored on (D9, `test_audit_and_plan.md`).
+///
+/// Each line is the bold bracket score and, in a class with more than one bracket, the bold class score, each red
+/// when thrown out of its total, then the rating label when the class is ORC-rated. The finish code follows the
+/// last line, except that a boat with no ORC entry that day is `DNS` on the ORC line, and the PHRF line then carries
+/// the boat's own code (a finish shows nothing, no record shows `DNS` too). Without `show_orc` this is a single
+/// unlabeled line.
 pub fn score_lines(
     race: &StandingsRace,
     show_orc: bool,
@@ -246,8 +253,10 @@ pub fn score_lines(
     lines
 }
 
-/// The "Total Score" cell: one line per side (D9), each the bold bracket total (in a class with more
-/// than one bracket) and the class total, labeled with the rating when the class is ORC-rated.
+/// Returns the lines of the "Total Score" cell: one line per side (D9, `test_audit_and_plan.md`).
+///
+/// Each line is the bold bracket total (in a class with more than one bracket) and the class total, labeled with
+/// the rating when the class is ORC-rated.
 pub fn total_lines(
     row: &StandingsBoatSkipper,
     show_orc: bool,
@@ -283,7 +292,8 @@ pub fn total_lines(
     lines
 }
 
-/// A place cell in the race view's notation: `2(PHRF), ` ⏎ `1(ORC)`, `2(PHRF)`, `1(ORC)`, or the bare place outside an ORC class.
+/// A place cell in the race view's notation: `2(PHRF), ` ⏎ `1(ORC)`, `2(PHRF)`, `1(ORC)`, or the bare place outside an
+/// ORC class.
 fn place_lines(phrf_place: i32, orc_place: i32, rating: RatingType, show_orc: bool) -> Vec<String> {
     if !show_orc {
         vec![phrf_place.to_string()]

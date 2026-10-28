@@ -1,8 +1,8 @@
-//! = `RgTable.kt`.
+//! Table components with the `.rg-table` classes.
 
 use leptos::prelude::*;
 
-/// `cls` is the full class name, spelled out so Tailwind's scanner sees it.
+/// A table color; `cls` returns the full class name, spelled out so Tailwind's scanner sees it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TableColor {
     Primary,
@@ -51,6 +51,7 @@ impl Scope {
     }
 }
 
+/// A scrollable table with an optional caption and color, striped by row, or by column with `stripe_column`.
 #[component]
 pub fn RgTable(
     #[prop(optional, into)] caption: Option<String>,

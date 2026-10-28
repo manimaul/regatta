@@ -1,4 +1,4 @@
-//! = `SeriesTable.kt`.
+//! The `series` table: the named series races belong to, with their race counts.
 
 use super::race;
 use anyhow::Result;
@@ -36,6 +36,11 @@ async fn hydrate(conn: &mut PgConnection, rows: &[Row]) -> Result<Vec<Series>> {
         .collect())
 }
 
+/// Returns every series with its race count, by `sort`.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn select_all_series(conn: &mut PgConnection) -> Result<Vec<Series>> {
     let rows: Vec<Row> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM series ORDER BY sort"
@@ -45,11 +50,20 @@ pub async fn select_all_series(conn: &mut PgConnection) -> Result<Vec<Series>> {
     hydrate(conn, &rows).await
 }
 
+/// Returns the series `id` with its race count, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn select_series(conn: &mut PgConnection, id: i64) -> Result<Option<Series>> {
     Ok(find_series(conn, &[id]).await?.remove(&id))
 }
 
-/// The series with `ids`, by id; two statements for any number of series.
+/// Returns the series with `ids`, by id; two statements for any number of series.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn find_series(conn: &mut PgConnection, ids: &[i64]) -> Result<HashMap<i64, Series>> {
     if ids.is_empty() {
         return Ok(HashMap::new());
@@ -67,6 +81,11 @@ pub async fn find_series(conn: &mut PgConnection, ids: &[i64]) -> Result<HashMap
         .collect())
 }
 
+/// Deletes the series `id`, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails (a race still references the series, say).
 pub async fn delete_series(conn: &mut PgConnection, id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM series WHERE id = $1")
         .bind(id)
@@ -75,6 +94,11 @@ pub async fn delete_series(conn: &mut PgConnection, id: i64) -> Result<u64> {
         .rows_affected())
 }
 
+/// Returns the series whose name contains `name`, case-insensitively (`ILIKE`; pattern characters pass through).
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn select_by_name(conn: &mut PgConnection, name: &str) -> Result<Vec<Series>> {
     let rows: Vec<Row> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM series WHERE name ILIKE $1"
@@ -85,6 +109,13 @@ pub async fn select_by_name(conn: &mut PgConnection, name: &str) -> Result<Vec<S
     hydrate(conn, &rows).await
 }
 
+/// Inserts the series with id 0 and upserts the others by id, returning them as stored with their race counts.
+///
+/// Names are trimmed.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails.
 pub async fn upsert_series(conn: &mut PgConnection, list: &[Series]) -> Result<Vec<Series>> {
     let mut out = Vec::with_capacity(list.len());
     for series in list {

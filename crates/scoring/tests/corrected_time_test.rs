@@ -1,4 +1,7 @@
-//! = `CorrectedTimeTest.kt`: elapsed time, PHRF time-on-time (GSI 14.3), ORC correction and the season switch.
+//! Elapsed time, PHRF time-on-time (GSI 14.3), ORC correction and the 2026 season switch.
+//!
+//! Every bare decision ID (`Dn`) in this file is a scoring decision of
+//! `docs/explore_implemented/test_audit_and_plan.md`.
 
 use jiff::{SignedDuration, Timestamp};
 use pretty_assertions::assert_eq;
@@ -383,7 +386,7 @@ fn card_carries_the_certificate_file_id() {
 
 /// Before 2026 the season switch only relabels the class as PHRF, which is what hides the ORC
 /// columns in the web view. ORC places are still computed from each result's own rating type,
-/// so hasOrcResults and the ORC places are set in both years.
+/// so `has_orc_results` and the ORC places are set in both years.
 #[test]
 fn season_switch_relabels_the_class_but_still_computes_orc_places() {
     let cert = OrcCertificate {
@@ -436,12 +439,11 @@ fn season_switch_relabels_the_class_but_still_computes_orc_places() {
     assert_eq!(Some(&1.0), in_2026.class_scores_orc().get("A"));
 }
 
-/// The Kotlin test drives `RaceResultsTable.rowToResult` with an Exposed `ResultRow`; that row
-/// mapper belongs to the server crate (Phase 3). The body checks the same fallback on the
-/// shared model's default (`RaceResult.finish_code` from `finish`), which is what the mapper
-/// relies on.
+/// A result without a stored finish code is TIME with a finish time, else RET.
 ///
-/// F6: 733 rows in the production dump have a NULL finish_code. The row mapper infers TIME from a finish time, else RET.
+/// F6 (`test_audit_and_plan.md`): 733 rows in the production dump have a NULL `finish_code`. The body checks the
+/// fallback on the shared model's default (`RaceResult.finish_code` from `finish`); the database row mapper
+/// (`finish_code` in `crates/service/src/db/race_results.rs`) applies the same rule, so this test stays ignored.
 #[test]
 #[ignore = "RaceResultsTable.rowToResult is the database row mapper, ported with the server crate (Phase 3)"]
 fn null_finish_code_falls_back_to_time_or_ret() {

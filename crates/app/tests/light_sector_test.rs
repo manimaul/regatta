@@ -1,4 +1,4 @@
-//! = `LightSectorTest.kt`: light sector icon ids and SVGs, as the OpenENC style's `LIGHTS_sector` layer uses them.
+//! Tests of the light sector icon ids and SVGs, as the OpenENC style's `LIGHTS_sector` layer uses them.
 #![cfg(not(target_arch = "wasm32"))]
 
 use regatta_app::state::theme::Theme;

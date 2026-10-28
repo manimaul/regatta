@@ -1,6 +1,7 @@
-//! Lookups against ORC's public data site (= `orc/OrcClient.kt`). The site sends no CORS
-//! headers, so the browser cannot call it; the server does, on behalf of the admin adding a
-//! certificate.
+//! The ORC client: certificate lookups against ORC's public data site, data.orc.org.
+//!
+//! The site sends no CORS headers, so the browser cannot call it; the server does
+//! (`GET /v1/api/orcCert?refNo=`), on behalf of the admin adding a certificate. The entry point is [`lookup`].
 //!
 //! Two requests make a certificate: the RMS data (`DownBoatRMS`, the rating fields) and the row
 //! of the active-certificate list (`activecerts` filtered by country and reference number), which
@@ -29,8 +30,13 @@ fn http() -> &'static reqwest::Client {
     })
 }
 
-/// The certificate `ref_no` with its file id when ORC still lists it as active, or `None` when
-/// ORC has no RMS data for it.
+/// Fetches the certificate `ref_no`, with its file id when ORC still lists it as active.
+///
+/// `None` when ORC has no RMS data for it. A failed file id lookup only logs a warning and leaves `dxt_id` `None`.
+///
+/// # Errors
+///
+/// Returns `Err` if the RMS request fails, ORC answers a non-success status, or the RMS document does not parse.
 pub async fn lookup(ref_no: &str) -> Result<Option<OrcCertificate>> {
     let Some(mut cert) = fetch_certificate(ref_no).await? else {
         return Ok(None);
@@ -49,6 +55,11 @@ pub async fn lookup(ref_no: &str) -> Result<Option<OrcCertificate>> {
     Ok(Some(cert))
 }
 
+/// Fetches the RMS data of certificate `ref_no` (`DownBoatRMS`), without its file id; `None` when ORC has none.
+///
+/// # Errors
+///
+/// Returns `Err` if the request fails, ORC answers a non-success status, or the document does not parse.
 pub async fn fetch_certificate(ref_no: &str) -> Result<Option<OrcCertificate>> {
     let body = get(
         &format!(
@@ -61,6 +72,14 @@ pub async fn fetch_certificate(ref_no: &str) -> Result<Option<OrcCertificate>> {
     parse_certificate(&body)
 }
 
+/// Fetches the file id (`dxtID`) of certificate `ref_no` from the active-certificate list of `country_id`.
+///
+/// `None` when the certificate is not on the list (it is no longer active) or its id is not a number.
+///
+/// # Errors
+///
+/// Returns `Err` if the request fails, ORC answers a non-success status, or the XML is refused (see
+/// [`parse_dxt_id`]).
 pub async fn fetch_dxt_id(country_id: &str, ref_no: &str) -> Result<Option<i64>> {
     let body = get(
         &format!(
@@ -74,17 +93,27 @@ pub async fn fetch_dxt_id(country_id: &str, ref_no: &str) -> Result<Option<i64>>
     parse_dxt_id(&body, ref_no)
 }
 
-/// First certificate of an RMS JSON document; a leading UTF-8 BOM (the country feeds have one)
-/// and unknown keys are ignored.
+/// Parses the first certificate of an RMS JSON document, or `None` when it lists none.
+///
+/// A leading UTF-8 BOM (the country feeds have one) and unknown keys are ignored.
+///
+/// # Errors
+///
+/// Returns `Err` if the body is not an RMS JSON document.
 pub fn parse_certificate(body: &str) -> Result<Option<OrcCertificate>> {
     let body = body.strip_prefix(BOM).unwrap_or(body);
     let response: OrcResponse = serde_json::from_str(body).context("ORC RMS document")?;
     Ok(response.rms.into_iter().next())
 }
 
-/// The `dxtID` of the `ROW` whose `RefNo` is `ref_no` (case-insensitive) in an `activecerts` XML
-/// document, or `None` when there is none. A document with a DOCTYPE or entity references is
-/// refused, like the Kotlin parser's secure configuration.
+/// Finds the `dxtID` of the `ROW` whose `RefNo` is `ref_no` (case-insensitive) in an `activecerts` XML document.
+///
+/// `None` when no row matches or its `dxtID` is not a number. A document with a DOCTYPE or entity references is
+/// refused, so a hostile document cannot expand entities or load external ones.
+///
+/// # Errors
+///
+/// Returns `Err` if the XML is malformed or truncated, or has a DOCTYPE or an entity reference.
 pub fn parse_dxt_id(xml: &str, ref_no: &str) -> Result<Option<i64>> {
     let xml = xml.strip_prefix(BOM).unwrap_or(xml);
     let mut reader = Reader::from_str(xml);
@@ -121,7 +150,7 @@ pub fn parse_dxt_id(xml: &str, ref_no: &str) -> Result<Option<i64>> {
             Event::End(e) => {
                 let name = e.local_name().as_ref().to_string();
                 if in_row {
-                    // getElementsByTagName(tag).item(0): the first element of that name in the row
+                    // the first element of that name in the row wins
                     if name == "RefNo" && row_ref_no.is_none() {
                         row_ref_no = Some(text.trim().to_string());
                     } else if name == "dxtID" && row_dxt_id.is_none() {
@@ -163,7 +192,7 @@ async fn get(url: &str, accept: &str) -> Result<String> {
         .with_context(|| format!("reading {url}"))
 }
 
-/// `URLEncoder.encode(value.trim(), UTF_8)`: `application/x-www-form-urlencoded`, space as `+`.
+/// Encodes a trimmed query value as `application/x-www-form-urlencoded` (UTF-8, space as `+`).
 fn encode(value: &str) -> String {
     let mut out = String::new();
     for byte in value.trim().bytes() {
@@ -192,7 +221,7 @@ mod tests {
           <ERRORS/>
         </ROOT>"#;
 
-    /// `OrcClientTest.fileIdOfTheRowWithTheReferenceNumber`.
+    /// The file id is taken from the row whose reference number matches.
     #[test]
     fn file_id_of_the_row_with_the_reference_number() {
         assert_eq!(
@@ -206,7 +235,7 @@ mod tests {
         );
     }
 
-    /// `OrcClientTest.noRowMeansNoFileId`.
+    /// A document without a matching row has no file id.
     #[test]
     fn no_row_means_no_file_id() {
         assert_eq!(
@@ -221,7 +250,7 @@ mod tests {
         );
     }
 
-    /// `OrcClientTest.rmsDocumentWithByteOrderMarkAndUnknownKeys`.
+    /// An RMS document with a byte order mark and unknown keys still parses.
     #[test]
     fn rms_document_with_byte_order_mark_and_unknown_keys() {
         let body = "\u{feff}{\"rms\":[{\"NatAuth\":\"USA\",\"RefNo\":\"0456000518S\",\"YachtName\":\"FLICKA\",\"Unknown\":1}],\"Countries\":[]}";

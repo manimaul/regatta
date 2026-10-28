@@ -1,6 +1,8 @@
-//! The race report image: `POST image?raceId=` with a multipart body whose `image/*` file parts
-//! are stored (other parts are ignored), and `GET image<name>` (one path segment with a literal
-//! prefix, so `/v1/api/image/<name>` is the SPA fallback).
+//! The REST race report image routes: the multipart upload and the download by file name.
+//!
+//! `POST image?raceId=` stores every `image/*` file part of a multipart body (other parts are ignored) and answers
+//! 202. `GET image<name>` is one path segment with a literal prefix, as the contract cassettes record, so
+//! `/v1/api/imagecontract.png` is the image and `/v1/api/image/<name>` is the site fallback.
 
 use crate::error::{AppError, AppResult};
 use crate::extract::{Admin, Params};
@@ -36,7 +38,7 @@ pub async fn upload(_admin: Admin, State(state): State<AppState>, request: Reque
         if !is_image {
             continue;
         }
-        // a part with a file name is a `PartData.FileItem`; a bare form value is ignored
+        // only a file part carries a file name; a bare form value is ignored
         let Some(file_name) = field.file_name().map(str::to_string) else {
             continue;
         };
@@ -52,7 +54,7 @@ pub async fn upload(_admin: Admin, State(state): State<AppState>, request: Reque
     Ok(empty(StatusCode::ACCEPTED))
 }
 
-/// `GET image<name>`: the bytes with the content type of the file extension, 404 when unknown.
+/// Answers `GET image<name>` with the image bytes, typed by the file extension, or 404 for an unknown name.
 pub async fn download(
     _admin: Admin,
     State(state): State<AppState>,
@@ -61,7 +63,7 @@ pub async fn download(
     serve(&state, &name).await
 }
 
-/// `GET image` is the download route with an empty name: no such image, 404.
+/// Answers `GET image`, the download route with an empty name, with 404.
 pub async fn download_empty_name(_admin: Admin, State(state): State<AppState>) -> AppResult {
     serve(&state, "").await
 }

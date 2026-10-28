@@ -1,10 +1,11 @@
-//! = `RgConfirm.kt`.
+//! Inline confirmation and acknowledgement prompts.
 
 use crate::app_style;
 use crate::cb::Cb;
 use crate::components::rg_button::{RgButton, RgButtonStyle};
 use leptos::prelude::*;
 
+/// A question with No and Yes buttons; `handler` gets `true` for Yes.
 #[component]
 pub fn RgConfirm(
     #[prop(into)] msg: String,
@@ -21,6 +22,7 @@ pub fn RgConfirm(
     }
 }
 
+/// A message with an Ok button that calls `handler`.
 #[component]
 pub fn RgOk(
     #[prop(into)] title: String,

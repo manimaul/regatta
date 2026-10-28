@@ -1,4 +1,6 @@
-//! `regatta-contract record|replay|diff`: see the crate README.
+//! The `regatta-contract` command line: `record`, `replay` and `diff` over the contract scenario.
+//!
+//! See `crates/contract/README.md` for the flags and the fresh-dump requirement.
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -29,8 +31,8 @@ enum Command {
         base_url: String,
         #[arg(long, default_value = "crates/contract/cassettes")]
         out: PathBuf,
-        /// The fixed clock the server runs with (-Dregatta.now / REGATTA_FIXED_NOW); with it
-        /// LoginResponse.expires is deterministic and compared, not volatile.
+        /// The fixed clock the server runs with (REGATTA_FIXED_NOW); with it LoginResponse.expires is
+        /// deterministic and compared, not volatile.
         #[arg(long)]
         fixed_now: Option<String>,
     },
@@ -45,10 +47,10 @@ enum Command {
     /// Run the scenario against two servers (both on fresh loads of the golden dump) and compare
     /// their responses to each other; exit 1 on any difference.
     Diff {
-        /// The reference server (the Kotlin one).
+        /// A running server to diff against.
         #[arg(long, alias = "kotlin")]
         left: String,
-        /// The candidate server (the Rust one).
+        /// The server under test.
         #[arg(long, alias = "rust")]
         right: String,
         /// Append this many proptest-generated steps after the scenario.

@@ -1,5 +1,7 @@
-//! = `ThemeToggleTest.kt`, the markup half: the switch's state attributes follow the theme, the cookie and
-//! `data-theme` on the shell follow the cookie. The click is in `tests/wasm.rs`.
+//! SSR markup tests of the theme toggle: the switch's state attributes follow the theme, and `data-theme` on the
+//! shell follows the `theme` cookie.
+//!
+//! The click is tested in the browser by `crates/app/tests/wasm.rs`.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;
@@ -75,7 +77,7 @@ fn shell_renders_data_theme_from_the_cookie_default_light() {
         html.contains("id=\"route_content\""),
         "the page frame renders inside the shell"
     );
-    // D11: a screen renders in `SsrMode::Async` behind an empty Suspense fallback, so a synchronous
+    // D11 (`rust_port.md`): a screen renders in `SsrMode::Async` behind an empty Suspense fallback, so a synchronous
     // render carries the frame only; the streamed People page is covered by the server's SSR test.
     assert!(
         !html.contains("<h1>Skippers</h1>"),

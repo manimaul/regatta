@@ -1,4 +1,6 @@
-//! = `RgForm.kt` (+ `RgTimeViewModel.kt`, folded into `RgTime`).
+//! Form fields: text, number, checkbox and time inputs, and the form that wraps them.
+//!
+//! [`RgTime`] and [`RgCheck`] render block elements, so they must never sit inside `<p>`.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -9,6 +11,7 @@ use jiff::Timestamp;
 use leptos::either::Either;
 use leptos::prelude::*;
 
+/// A form that never submits: fields report their edits through their listeners instead.
 #[component]
 pub fn RgForm(children: Children) -> impl IntoView {
     view! { <form on:submit=|ev| ev.prevent_default()>{children()}</form> }
@@ -26,7 +29,7 @@ impl NumberType {
     fn format(self, value: f64) -> String {
         match self {
             NumberType::NumberInt => (value as i64).to_string(),
-            // Kotlin/JS prints a whole Float/Double without the ".0"
+            // a whole number is shown without a ".0"
             NumberType::NumberFloat | NumberType::NumberDouble => value.to_string(),
         }
     }
@@ -96,6 +99,7 @@ pub fn RgNumberInput(
     }
 }
 
+/// A labelled text field; `listener` gets every edit. `place_holder` shows the label as a placeholder.
 #[component]
 pub fn RgInput(
     #[prop(into)] label: String,
@@ -121,8 +125,9 @@ pub fn RgInput(
     }
 }
 
-/// A text field with a button beside it (the ORC reference lookup). `listener(value, clicked)`:
-/// `false` while typing, `true` when the button is pressed.
+/// A text field with a button beside it, used for the ORC reference lookup.
+///
+/// `listener` gets `(value, clicked)`: `clicked` is `false` while typing and `true` when the button is pressed.
 #[component]
 pub fn RgInputWithButton(
     #[prop(optional, into)] label: Option<String>,
@@ -158,7 +163,7 @@ pub fn RgInputWithButton(
     }
 }
 
-/// Seconds dropped unless the field shows them (`RgTimeViewModel`).
+/// Drops the seconds of `dt` unless the field shows them.
 fn truncate(dt: DateTime, seconds: bool) -> DateTime {
     if seconds {
         dt
@@ -171,7 +176,7 @@ fn truncate(dt: DateTime, seconds: bool) -> DateTime {
     }
 }
 
-/// `setInputDate`: `YYYY-MM-DD` with the time kept.
+/// Replaces the date of `local` with the `YYYY-MM-DD` of a date input, keeping the time; `None` if unparseable.
 pub fn with_input_date(local: DateTime, input: &str) -> Option<Timestamp> {
     let parts: Vec<&str> = input.split('-').collect();
     if parts.len() != 3 {
@@ -216,8 +221,9 @@ pub fn with_input_second(local: DateTime, value: &str) -> Option<Timestamp> {
     })
 }
 
-/// Hour / minute (/ second) number fields in a compact input group, with a date field above when
-/// `show_date`. Every valid edit reports the new instant.
+/// Hour, minute and optional second number fields in a compact input group, with a date field above when `show_date`.
+///
+/// Every valid edit reports the new instant to `listener`. Renders block elements: never inside `<p>`.
 #[component]
 pub fn RgTime(
     #[prop(optional, into)] label: Option<String>,
@@ -265,9 +271,10 @@ pub fn RgTime(
     }
 }
 
-/// One number field of [`RgTime`], limited to `0..=max`. `on_edit` reports whether the typed
-/// value was taken; a value out of range is replaced by the current one at once, and an empty or
-/// partial field is restored when it loses focus.
+/// One number field of [`RgTime`], limited to `0..=max`.
+///
+/// `on_edit` reports whether the typed value was taken; a value out of range is replaced by the current one at once,
+/// and an empty or partial field is restored when it loses focus.
 #[component]
 fn TimeField(
     #[prop(into)] value: Signal<String>,
@@ -300,10 +307,11 @@ fn TimeField(
     }
 }
 
-/// The date field of [`RgTime`]. The browser keeps the day, month and year typed so far in the
-/// field itself, so the value is written back only when it differs from what the field holds
-/// (writing it resets that typing). A year under 1000 is a year still being typed and is not
-/// reported; the field shows the current value again when it loses focus.
+/// The date field of [`RgTime`].
+///
+/// The browser keeps the day, month and year typed so far in the field itself, so the value is written back only when
+/// it differs from what the field holds (writing it resets that typing). A year under 1000 is a year still being typed
+/// and is not reported; the field shows the current value again when it loses focus.
 #[component]
 fn DateField(
     #[prop(into)] value: Signal<String>,
@@ -336,6 +344,7 @@ fn DateField(
     }
 }
 
+/// A labelled checkbox; `listener` gets the new state. Renders a block element: never inside `<p>`.
 #[component]
 pub fn RgCheck(
     #[prop(into)] label: String,

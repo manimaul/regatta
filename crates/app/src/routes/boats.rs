@@ -1,4 +1,6 @@
-//! = `routes/Boats.kt` (+ `BoatViewModel.kt` state: boats and people are loaded together).
+//! The Boats screen (admin) and the boat and skipper state it shares with the People screen.
+//!
+//! Boats and people are loaded together as one [`BoatPeopleComposite`].
 
 use crate::app_style;
 use crate::components::add_edit_boat_modal::{
@@ -16,7 +18,7 @@ use leptos::prelude::*;
 use regatta_common::{Boat, BoatSkipper, Person};
 use serde::{Deserialize, Serialize};
 
-/// = `BoatPeopleComposite`.
+/// Every boat with its skipper and every person, loaded together.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct BoatPeopleComposite {
     pub boats: Vec<BoatSkipper>,
@@ -24,7 +26,7 @@ pub struct BoatPeopleComposite {
 }
 
 impl BoatPeopleComposite {
-    /// `BoatViewModel.findBoatName(person, composite)`: the name of the boat the person skippers, or "-".
+    /// Returns the name of the boat `person` skippers, or `"-"`.
     pub fn find_boat_name(&self, person: &Person) -> String {
         self.boats
             .iter()
@@ -50,7 +52,7 @@ impl AddEditBoatMode {
     }
 }
 
-/// = `BoatState`: the Boats and People screens share it.
+/// The boat and skipper editing state and the loaded boats and people, shared by the Boats and People screens.
 #[derive(Clone, Copy)]
 pub struct BoatState {
     pub add_edit_state: AddEditBoatState,
@@ -67,7 +69,6 @@ impl BoatState {
             add_edit_person: RwSignal::new(Person::default()),
             show_confirm_delete_person: RwSignal::new(false),
             add_edit_mode: RwSignal::new(AddEditBoatMode::Adding),
-            // `combineAsync(Api.getAllBoats(), Api.getAllPeople())`
             response: Loaded::new(|| async {
                 let boats = server_fns::all_boats().await?;
                 let people = server_fns::all_people().await?;
@@ -99,7 +100,7 @@ impl BoatState {
         self.show_confirm_delete_person.set(show);
     }
 
-    /// `deletePerson`: the skipper being edited, then reload.
+    /// Deletes the skipper being edited, then reloads.
     pub fn delete_person(&self) {
         let id = self.add_edit_person.with_untracked(|p| p.id);
         self.set_edit_person(Person::default());
@@ -107,7 +108,7 @@ impl BoatState {
         call(server_fns::delete_person(id), move |r| response.after(r));
     }
 
-    /// `upsertPerson`: the skipper being edited, then reload.
+    /// Inserts or updates the skipper being edited, then reloads.
     pub fn upsert_person(&self) {
         let person = self.add_edit_person.get_untracked();
         self.set_edit_person(Person::default());
@@ -117,7 +118,7 @@ impl BoatState {
         });
     }
 
-    /// `saveEditedBoat`: upserts the boat, clears the editor, then reload.
+    /// Inserts or updates `boat`, clears the editor, then reloads.
     pub fn save_edited_boat(&self, boat: Boat) {
         self.add_edit_state.clear();
         let response = self.response;
@@ -126,7 +127,7 @@ impl BoatState {
         });
     }
 
-    /// `deleteBoat`, then reload.
+    /// Deletes `boat`, then reloads.
     pub fn delete_boat(&self, boat: Boat) {
         let response = self.response;
         call(server_fns::delete_boat(boat.id), move |r| response.after(r));

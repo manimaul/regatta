@@ -21,3 +21,7 @@ jiff = { workspace = true, features = ["tzdb-bundle-always"] }
 regatta-scoring = { path = ".", features = ["fixture"] }
 proptest = { workspace = true }
 pretty_assertions = { workspace = true }
+
+[lints.clippy]
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"

@@ -1,10 +1,18 @@
-//! regatta-common: the shared models, API paths and label helpers of the Rust port
-//! (= the Kotlin `common` module; see `docs/explore_implemented/rust_port.md`, Phase 1).
+//! The domain models, REST paths and label helpers shared by every other crate of the workspace.
 //!
-//! The JSON produced by these types is byte-for-byte the Kotlin server's (kotlinx.serialization
-//! with `encodeDefaults = true`): field order is the Kotlin declaration order, defaults and nulls
-//! are written, enums serialize by their Kotlin names, and `Instant` / `Duration` use the kotlinx
-//! formats through [`serde_kotlin`]. The approved golden files prove it (`tests/golden_round_trip.rs`).
+//! `regatta-scoring` scores these types, `regatta-service` stores and loads them, and the server and the UI send
+//! them over `/v1/api` and the server functions. It has no I/O.
+//!
+//! - [`data`]: the serde models (races, series, boats, results, ORC certificates, reports and standings).
+//! - [`api_paths`] and [`versioned_api`]: the REST paths.
+//! - [`utils`]: labels ([`score_text`], [`display`]) and the pretty JSON writer [`to_kotlin_pretty_json`].
+//! - [`serde_kotlin`]: the instant and duration string formats.
+//! - [`version_info`]: the git and build metadata captured by `build.rs`.
+//!
+//! The JSON of these types is pinned byte for byte by the golden files in `crates/scoring/tests/golden/approved/`
+//! and the contract cassettes: field order is declaration order, defaults and `None`s (as `null`) are written,
+//! enums serialize by the names their `name()` methods return, and instants and durations use the [`serde_kotlin`]
+//! formats. `tests/golden_round_trip.rs` checks that every approved file still round-trips.
 
 pub mod api_paths;
 pub mod data;

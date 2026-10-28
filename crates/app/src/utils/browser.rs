@@ -1,6 +1,7 @@
-//! The browser calls the components make (`LocalStorage.kt`, the `<dialog>` lookups, cookies,
-//! clipboard). Real under `hydrate`; no-ops that return nothing on the server, so the SSR render
-//! and its tests never touch a DOM.
+//! The browser calls the components make: `localStorage`, the `<dialog>` lookups, cookies, the clipboard.
+//!
+//! Real under `hydrate`; on the server they are no-ops that return nothing, so the SSR render and its tests never
+//! touch a DOM.
 
 use crate::state::theme::Theme;
 

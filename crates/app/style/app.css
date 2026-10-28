@@ -5,7 +5,7 @@
  * Component looks live here as .rg-* classes; the Rust components use Tailwind utilities only for one-off layout.
  */
 /* cargo-leptos runs Tailwind over this file (tailwind-input-file in the root Cargo.toml). Automatic source
-   detection is off so the Kotlin tree beside the crates is not scanned; only the Rust sources count. */
+   detection is off so only the Rust sources named by @source are scanned, not target/ or the rest of the repo. */
 @import "tailwindcss" source(none);
 @plugin "@tailwindcss/forms";
 @source "../src/**/*.rs";
@@ -74,7 +74,7 @@
 /* `dark:` utilities follow the toggle (html[data-theme="dark"]), not the OS setting: the site defaults to light */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* Semantic tokens as utilities, so Kotlin markup follows the theme: text-fg, text-muted, border-line, text-danger-fg */
+/* Semantic tokens as utilities, so component markup follows the theme: text-fg, text-muted, border-line, text-danger-fg */
 @theme inline {
     --color-fg: var(--rg-fg);
     --color-muted: var(--rg-muted);
@@ -459,9 +459,10 @@
         border-left: .3em solid transparent;
     }
     .rg-dropdown-menu {
-        /* fixed, not absolute: an overflow-x: auto table wrapper (RgTable) would otherwise clip the menu. The Kotlin
-           side places it against the toggle's viewport rect and caps its height to the room left on screen, so a
-           long list (skippers, boats) scrolls inside the menu instead of growing the page */
+        /* fixed, not absolute: an overflow-x: auto table wrapper (RgTable) would otherwise clip the menu.
+           RgDropdown (crates/app/src/components/rg_dropdown.rs) places it against the toggle's viewport rect and caps
+           its height to the room left on screen, so a long list (skippers, boats) scrolls inside the menu instead of
+           growing the page */
         position: fixed;
         z-index: var(--z-dropdown);
         display: flex;

@@ -1,13 +1,24 @@
 #![recursion_limit = "512"]
-//! regatta-app: the Leptos UI of the Rust port (= the Kotlin `web` module; see
-//! docs/explore_implemented/rust_port.md, Phase 4). Compiled twice: with `ssr` into
-//! regatta-server, with `hydrate` into regatta-frontend (wasm).
+//! The Leptos UI of the regatta site, rendered on the server and hydrated in the browser.
 //!
-//! Module map (Kotlin file -> Rust module): `Router.kt`/`Main.js.kt` -> [`app`], `index.html` ->
-//! [`shell`], `components/*` -> [`components`], `components/routes/*` -> [`routes`],
-//! `utils/Api.kt` -> [`server_fns`], `utils/*` -> [`utils`] / [`chart`] / [`auth_hash`],
-//! `viewmodel/*` -> [`state`],
-//! `lib/Sortable*.kt` -> [`sortable`], `styles/AppStyle.kt` -> [`app_style`].
+//! The crate is compiled twice: with the `ssr` feature into `regatta-server`, which renders every page, and with
+//! `hydrate` into `regatta-frontend`, the wasm bundle served from `/pkg`. Both builds must render the same markup
+//! from the same state or hydration panics, so never put a block element inside `<p>`. Tailwind finds classes by
+//! scanning these sources, so class names are literal strings, and components read only the `--rg-*` theme tokens
+//! of `crates/app/style/app.css`. Design notes: `docs/explore_implemented/rust_port.md`.
+//!
+//! - [`shell`]: the HTML document around the app (theme script, stylesheets, CDN scripts).
+//! - [`app`]: the page frame and the router.
+//! - [`routes`]: one module per screen.
+//! - [`components`]: the shared components and their `.rg-*` classes.
+//! - [`state`]: UI state that holds no server data (login, alerts, route, theme).
+//! - [`server_fns`]: the server functions the UI calls, over `regatta-service`.
+//! - [`utils`]: pure helpers (dates, labels, report rows) and the browser shims.
+//! - [`chart`]: the course chart over MapLibre GL.
+//! - [`sortable`]: the SortableJS bindings for drag-and-drop lists.
+//! - [`auth_hash`]: the password hashing the login form does before sending.
+//! - [`cb`]: the [`cb::Cb`] callback prop type.
+//! - [`app_style`]: the shared margin classes.
 
 pub mod app;
 pub mod app_style;
@@ -26,8 +37,10 @@ use leptos::prelude::*;
 use leptos_meta::MetaTags;
 use state::theme::Theme;
 
-/// = the inline script of `index.html`: applies the saved light/dark choice before first paint.
-/// Kept as a fallback for a browser with a `localStorage["theme"]` but no `theme` cookie yet.
+/// The inline script that applies the saved light/dark choice before first paint.
+///
+/// A fallback for a browser that has `localStorage["theme"]` but no `theme` cookie yet; the key name must stay
+/// stable so existing users keep their saved theme.
 pub const THEME_SCRIPT: &str = r#"try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}"#;
 
 pub const MAPLIBRE_CSS: &str =
@@ -35,8 +48,9 @@ pub const MAPLIBRE_CSS: &str =
 pub const MAPLIBRE_JS: &str = "https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js";
 pub const SORTABLE_JS: &str = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js";
 
-/// The `theme` cookie of the current request, when leptos_axum put the request parts in context.
-/// `None` on the client and in tests.
+/// Reads the `theme` cookie of the current request, when leptos_axum put the request parts in context.
+///
+/// Returns `None` on the client and in tests.
 pub fn theme_from_cookie() -> Option<Theme> {
     #[cfg(feature = "ssr")]
     {
@@ -54,14 +68,17 @@ pub fn theme_from_cookie() -> Option<Theme> {
     }
 }
 
-/// The theme the page starts in: the request cookie on the server, the applied attribute or saved
-/// choice in the browser, light otherwise.
+/// Returns the theme the page starts in.
+///
+/// That is the request cookie on the server, the applied attribute or saved choice in the browser, light otherwise.
 pub fn initial_theme() -> Theme {
     theme_from_cookie().unwrap_or_else(state::theme::initial_theme)
 }
 
-/// = `index.html`: the document around the app. `data-theme` comes from the `theme` cookie so the
-/// server renders the chosen theme without a flash; the CDN tags load MapLibre and SortableJS.
+/// Renders the HTML document around the app.
+///
+/// `data-theme` comes from the `theme` cookie so the server renders the chosen theme without a flash; the CDN tags
+/// load MapLibre and SortableJS, which are not bundled.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     let theme = initial_theme();
     view! {

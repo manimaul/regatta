@@ -1,4 +1,4 @@
-//! = `TimeRow.kt`: the finish time editor of a result (time, penalty, finish code, HOC place).
+//! The finish time editor of a result: finish time, penalty, finish code and HOC place.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -10,6 +10,10 @@ use jiff::Timestamp;
 use leptos::prelude::*;
 use regatta_common::{display, FinishCode};
 
+/// The finish time editor of one result.
+///
+/// `on_finish` gets the finish code with its finish time (for `Time`) or HOC place (for `Hoc`, starting at
+/// `max_hoc`); `on_penalty` gets the new penalty count. `start` is the class start, for the elapsed time shown.
 #[component]
 pub fn TimeRow(
     max_hoc: i32,
@@ -41,7 +45,7 @@ pub fn TimeRow(
                 {move || finish.get().zip(start.get()).map(|(f, s)| view! { <p>{format!("Elapsed time: {}", display(f.duration_since(s)))}</p> })}
             }
         })}
-        // D4: a scoring penalty only applies to a finishing place, timed or HOC
+        // D4 (`test_audit_and_plan.md`): a scoring penalty only applies to a finishing place, timed or HOC
         {move || finish_code.get().is_finisher().then(|| view! {
             <RgButton label=penalty_label custom_classes=penalty_classes.clone() click=move |()| on_penalty.run(Some(penalty.get_untracked().map(|p| p + 1).unwrap_or(1)))/>
             {penalty.get().map(|p| view! {

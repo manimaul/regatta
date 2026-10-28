@@ -1,4 +1,4 @@
-//! record -> replay -> diff end to end against the in-process stub (`tests/support`).
+//! End-to-end test of record, then replay, then diff against the in-process stub server (`tests/support`).
 
 mod support;
 

@@ -1,3 +1,5 @@
+//! The REST race routes: `years`, `allRaces`, `race` and `raceSchedule`.
+
 use crate::error::AppResult;
 use crate::extract::{Admin, Json, Params};
 use crate::respond::{empty, json, text};
@@ -11,7 +13,7 @@ pub async fn years(State(state): State<AppState>) -> AppResult {
     Ok(json(&state.db.all_years().await?))
 }
 
-/// `GET allRaces?year=`: `toIntOrNull()`, so a missing or non-numeric year is a 400.
+/// Answers `GET allRaces?year=` with the year's races; a missing or non-numeric year is a 400, not a 500.
 pub async fn all_races(State(state): State<AppState>, params: Params) -> AppResult {
     match params.number_or_none::<i32>("year") {
         Some(year) => Ok(json(&state.db.all_races(year).await?)),
@@ -29,7 +31,7 @@ pub async fn get_race(State(state): State<AppState>, params: Params) -> AppResul
     }
 }
 
-/// `POST race`: `validateRace` text as a 400, else the upserted race.
+/// Upserts the race for `POST race`, or answers the [`validate_race`] message as a 400 text.
 pub async fn post_race(
     _admin: Admin,
     State(state): State<AppState>,
@@ -44,8 +46,9 @@ pub async fn post_race(
     }
 }
 
-/// `DELETE race?id=`: `toLongOrNull()` (204 for a missing or non-numeric id); a race with
-/// results is refused with a 409 text.
+/// Deletes the race for `DELETE race?id=`, refusing a race with results with a 409 text.
+///
+/// A missing or non-numeric id is a 204, not a 500, as the contract cassettes record.
 pub async fn delete_race(
     _admin: Admin,
     State(state): State<AppState>,
@@ -74,7 +77,7 @@ pub async fn get_race_schedule(State(state): State<AppState>, params: Params) ->
     }
 }
 
-/// `POST raceSchedule`: `validateRace` text as a 400, else the schedule as stored.
+/// Stores the race schedule for `POST raceSchedule`, or answers the [`validate_race`] message as a 400 text.
 pub async fn post_race_schedule(
     _admin: Admin,
     State(state): State<AppState>,

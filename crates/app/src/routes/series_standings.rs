@@ -1,4 +1,4 @@
-//! = `routes/SeriesStandings.kt`.
+//! The series standings screen: one standings table per class, from [`crate::server_fns::series_standings`].
 
 use crate::components::cell_lines::{CellLines, ScoreLines};
 use crate::components::rg_table::{
@@ -16,9 +16,10 @@ use regatta_common::{StandingsBoatSkipper, StandingsClass, StandingsSeries};
 
 const COL1: [&str; 3] = ["Boat", "Skipper", "Rating"];
 
+/// The standings screen of series `id` in `year`; without both it shows the error view.
 #[component]
 pub fn SeriesStandings(id: Option<i64>, year: Option<i32>) -> impl IntoView {
-    // = `SeriesStandingsViewModel`: `GET series/standings?id=&year=`; without both ids nothing loads.
+    // without both the id and the year nothing loads
     let standings: Loaded<StandingsSeries> = Loaded::new(move || async move {
         let (Some(id), Some(year)) = (id, year) else {
             return Err(ServerFnError::ServerError(
@@ -47,13 +48,14 @@ pub fn SeriesStandings(id: Option<i64>, year: Option<i32>) -> impl IntoView {
     )
 }
 
+/// The standings table of one class, one section per bracket; the ORC columns show only in an ORC-rated class.
 #[component]
 pub fn StandingsTable(
     standings_series: StandingsSeries,
     standings_class: StandingsClass,
 ) -> impl IntoView {
     let multi_bracket = standings_class.standings.len() > 1;
-    // D9: the ORC side shows only in an ORC-rated class, the race view's gate
+    // D9 (`test_audit_and_plan.md`): the ORC side shows only in an ORC-rated class, the race view's gate
     let show_orc = standings_class.race_class.rating_type.is_orc();
     let race_count = standings_series.races.len();
     let race_headers = standings_series
@@ -109,7 +111,6 @@ pub fn StandingsTable(
                 })
                 .collect_view();
             view! {
-                // (Bootstrap's table-borderless only works on <table>, so it was a no-op on this row)
                 <RgTr classes=TableColor::Light.cls()>
                     <RgTdColor col_span=(COL1.len() + race_count + 3) as i32 color=TableColor::Warning>
                         <h6>{bracket_title}</h6>

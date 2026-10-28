@@ -1,4 +1,4 @@
-//! = `ChartViewModel.kt`: the course marks, the remembered map location and the selected mark.
+//! Course chart state: the course marks, the remembered map location and the selected mark.
 
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -26,7 +26,7 @@ pub struct MapPoint {
     pub y: i32,
 }
 
-/// A course mark; `lng` / `lat` are the `MapLibre.LngLat` of the Kotlin side.
+/// A course mark; `lng` / `lat` are WGS 84 degrees, as MapLibre takes them.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mark {
     pub name: &'static str,
@@ -185,7 +185,9 @@ pub fn marks() -> Vec<Mark> {
     MARKS.to_vec()
 }
 
-/// `localStorage["MapLocation"]`, the key the Kotlin `localStoreSet(item)` used (the class name).
+/// The `localStorage` key of the remembered map location.
+///
+/// Must stay `"MapLocation"` so existing users' saved map position survives.
 pub const MAP_LOCATION_STORAGE_KEY: &str = "MapLocation";
 
 fn saved_location() -> Option<MapLocation> {
@@ -195,7 +197,7 @@ fn saved_location() -> Option<MapLocation> {
     .ok()
 }
 
-/// = `ChartState` + the controller (browser only).
+/// The chart state in context: the map location, the selected mark and, in the browser, the controller.
 #[derive(Clone, Copy)]
 pub struct ChartState {
     pub location: RwSignal<MapLocation>,
@@ -281,8 +283,9 @@ impl ChartState {
                     crate::utils::browser::local_storage_set(MAP_LOCATION_STORAGE_KEY, &json);
                 }
             });
-            // follow the light/dark toggle while the chart is open. The current value is skipped: createMapView
-            // already picks the style for a fresh map, and touching the map before its style has loaded throws.
+            // follow the light/dark toggle while the chart is open. The current value is skipped:
+            // `create_map_view` already picks the style for a fresh map, and touching the map before its style has
+            // loaded raises a JS error.
             Effect::new(move |previous: Option<crate::state::theme::Theme>| {
                 let current = theme.0.get();
                 if let Some(previous) = previous {

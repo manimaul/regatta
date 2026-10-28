@@ -1,4 +1,6 @@
-//! = `OrcTcfTest.kt`: orcTcf picks one certificate field per scoring option and wind band. Every field has a distinct value here.
+//! Tests of `orc_tcf`, which picks one certificate field per scoring option and wind band.
+//!
+//! Every field has a distinct value here.
 
 use pretty_assertions::assert_eq;
 use regatta_common::OrcScoringOption::*;
@@ -158,7 +160,7 @@ fn five_band_options_follow_orc5_band() {
     }
 }
 
-/// Kotlin's `requireNotNull` throws `IllegalArgumentException`; here the missing band is an `Err`.
+/// A banded scoring option without its wind band returns `Err`.
 #[test]
 fn banded_options_require_their_band() {
     let cert = cert();

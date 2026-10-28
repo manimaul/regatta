@@ -1,4 +1,4 @@
-//! = `OrcTest.kt`.
+//! Parsing a data.orc.org RMS response, the preferred certificate, and the certificate file id.
 
 use regatta_common::{
     find_preferred, orc_certificate_url, OrcCertificate, OrcResponse, RaceReportCard,
@@ -23,7 +23,7 @@ fn test_encode() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(WAYMAKER_JSON);
     let content =
         std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-    // The ORC client parses with unknown keys ignored (`ignoreUnknownKeys = true`), serde's default.
+    // Unknown keys in the RMS response are ignored, serde's default.
     let response: OrcResponse = serde_json::from_str(&content).unwrap();
     assert_eq!(response.rms[0].ref_no, "04560003WR9");
     assert_eq!(
@@ -51,7 +51,7 @@ fn certificate_url_from_file_id() {
     assert_eq!(None, RaceReportCard::default().orc_cert_url());
 }
 
-/// The golden files are written with encodeDefaults = true and must not change for certificates without an id.
+/// The golden files write every default, and must not change for certificates without an id.
 #[test]
 fn file_id_is_never_encoded_while_null() {
     assert!(!serde_json::to_string(&cert("001", "", None))
@@ -70,7 +70,7 @@ fn file_id_is_never_encoded_while_null() {
     assert!(serde_json::to_string(&card)
         .unwrap()
         .contains("\"orcDxtId\":264182"));
-    // a stored certificate without the key decodes to null; one with it keeps the id
+    // A stored certificate without the key decodes to None; one with it keeps the id.
     assert_eq!(
         None,
         serde_json::from_str::<OrcCertificate>("{\"RefNo\":\"001\"}")

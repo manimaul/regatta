@@ -1,8 +1,12 @@
-//! Auth tokens (= `auth/Token.kt`) and the bearer header rules of Ktor's bearer provider that
-//! the REST side reproduces (see "Bearer auth and bootstrap" in the plan's quirks).
+//! Admin auth: stateless salted SHA-512 bearer tokens and the parsing of the `Authorization` header.
 //!
-//! `hash(a, b, c)` = `b64(sha512(c + b64(sha512(b + b64(sha512(a))))))`, standard base64 with
-//! padding; the `TokenTest` vectors pin it. The bearer token is `base64(json(LoginResponse))`.
+//! The REST routes and the UI's server functions call [`validate_admin_token`] on every admin mutation, after
+//! [`bearer_token`] (REST) or the `regatta_token` cookie (UI) gave them the token. While the `auth` table is
+//! empty every request is admin (bootstrap), so the first admin can be created.
+//!
+//! `hash(a, b, c)` = `b64(sha512(c + b64(sha512(b + b64(sha512(a))))))`, standard base64 with padding; the
+//! test vectors below pin it. The bearer token is `base64(json(LoginResponse))`, valid for [`EXPIRES_IN`]. How a
+//! malformed header or token answers (500, not 401) is pinned by the contract cassettes (`crates/contract`).
 
 use crate::db::Db;
 use anyhow::{Context, Result};
@@ -16,10 +20,10 @@ use regatta_common::{AuthRecord, Login, LoginResponse};
 use serde::Deserialize;
 use sha2::{Digest, Sha512};
 
-/// `Token.expiresIn`: 30 days.
+/// How long a login token is valid: 30 days.
 pub const EXPIRES_IN: SignedDuration = SignedDuration::from_secs(60 * 60 * 24 * 30);
 
-/// `Token.Admin.realm`.
+/// The realm named in the `WWW-Authenticate` challenge of the admin routes.
 pub const REALM: &str = "admin access";
 /// The `WWW-Authenticate` value of every 401 on an admin route.
 pub const CHALLENGE: &str = "Bearer realm=\"admin access\"";
@@ -28,7 +32,7 @@ fn hash_internal(value: &str) -> String {
     STANDARD.encode(Sha512::digest(value.as_bytes()))
 }
 
-/// `Token.hash(vararg data)`: each value is hashed with the previous result appended.
+/// Hashes the values in turn, each with the previous result appended, as base64 SHA-512.
 pub fn hash(data: &[&str]) -> String {
     let mut result = String::new();
     for value in data {
@@ -37,20 +41,29 @@ pub fn hash(data: &[&str]) -> String {
     result
 }
 
-/// `Token.timeStampHash`.
+/// Signs an instant: [`hash`] of `salt`, the instant's Unix seconds and the stored password hash.
+///
+/// The login request carries it for its `time`, and the token for its `expires`.
 pub fn time_stamp_hash(instant: Timestamp, salt: &str, hash_value: &str) -> String {
     hash(&[salt, &instant.as_second().to_string(), hash_value])
 }
 
-/// `Token.salt()`: 16 random bytes, base64.
+/// Returns a fresh salt: 16 random bytes, base64.
 pub fn salt() -> String {
     let mut bytes = [0u8; 16];
     rand::rng().fill_bytes(&mut bytes);
     STANDARD.encode(bytes)
 }
 
-/// `Token.createLoginResponse`: `None` when the user is unknown or the password hash does not match.
-/// `now` is `FixedClock.now()` (the fixed clock when configured).
+/// Checks a login and returns a token expiring [`EXPIRES_IN`] after `now`, or `None` if it is refused.
+///
+/// `None` when the user is unknown or the login's hash does not match the stored hash. `now` is
+/// [`crate::Config::now`], so `REGATTA_FIXED_NOW` makes `expires` stable for the contract recordings.
+///
+/// # Errors
+///
+/// - Returns `Err` if the query fails.
+/// - Returns `Err` if the expiry instant is out of range.
 pub async fn create_login_response(
     db: &Db,
     login: &Login,
@@ -76,8 +89,9 @@ pub async fn create_login_response(
     }))
 }
 
-/// `Token.validateHash`: not expired (against the wall clock, like Kotlin's `Clock.System.now()`)
-/// and signed with the stored hash.
+/// Tells whether a token is unexpired and signed with the stored hash.
+///
+/// Expiry is checked against the wall clock, not `REGATTA_FIXED_NOW`.
 pub fn validate_hash(response: &LoginResponse, record: &AuthRecord) -> bool {
     if response.expires.duration_since(Timestamp::now()) <= SignedDuration::ZERO {
         return false;
@@ -85,7 +99,7 @@ pub fn validate_hash(response: &LoginResponse, record: &AuthRecord) -> bool {
     time_stamp_hash(response.expires, &response.salt, &record.hash) == response.hash_of_hash
 }
 
-/// What `Token.validateAdminToken` answers.
+/// The outcome of [`validate_admin_token`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TokenCheck {
     /// The admin principal: a valid token, or any token while the `auth` table is empty (bootstrap).
@@ -94,13 +108,13 @@ pub enum TokenCheck {
     Rejected,
 }
 
-/// Java's `Base64.getDecoder()`: the standard alphabet, padding accepted but not required.
+/// The token decoder: the standard alphabet, padding accepted but not required.
 const JAVA_DECODER: GeneralPurpose = GeneralPurpose::new(
     &alphabet::STANDARD,
     GeneralPurposeConfig::new().with_decode_padding_mode(DecodePaddingMode::Indifferent),
 );
 
-/// `LoginResponse` as kotlinx decodes it: every field required, no unknown keys.
+/// The token's JSON as [`parse_token`] accepts it: every field required, no unknown keys.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct StrictLoginResponse {
@@ -111,8 +125,14 @@ struct StrictLoginResponse {
     expires: Timestamp,
 }
 
-/// `Token.parseToken`: base64 → JSON `LoginResponse`. Kotlin catches only `IOException`, so a
-/// token that is not base64 or not that JSON is an error (a 500 on the REST side), not a rejection.
+/// Decodes a bearer token: base64 of the JSON [`LoginResponse`].
+///
+/// # Errors
+///
+/// - Returns `Err` if the token is not base64.
+/// - Returns `Err` if the decoded bytes are not a `LoginResponse` with every field and no other.
+///
+/// The REST side answers such a token with a 500, not a 401, as the contract cassettes record.
 pub fn parse_token(token: &str) -> Result<LoginResponse> {
     let bytes = JAVA_DECODER
         .decode(token)
@@ -127,8 +147,15 @@ pub fn parse_token(token: &str) -> Result<LoginResponse> {
     })
 }
 
-/// `Token.validateAdminToken`: while no admin exists every token is accepted (bootstrap);
-/// afterwards the token must parse (else `Err`), name a stored record and verify.
+/// Checks that a token grants admin access.
+///
+/// While no admin exists every token is accepted (bootstrap); afterwards the token must parse, name a stored
+/// auth record and pass [`validate_hash`].
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails.
+/// - Returns `Err` if an admin exists and the token does not parse (see [`parse_token`]).
 pub async fn validate_admin_token(db: &Db, token: &str) -> Result<TokenCheck> {
     if !db.admin_exists().await? {
         return Ok(TokenCheck::Admin);
@@ -140,16 +167,16 @@ pub async fn validate_admin_token(db: &Db, token: &str) -> Result<TokenCheck> {
     }
 }
 
-/// `io.ktor.http.auth.parseAuthorizationHeader` reduced to what the bearer provider does with it.
+/// An `Authorization` header as [`parse_authorization_header`] classifies it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AuthHeader {
-    /// `HttpAuthHeader.Single`: a scheme and a token68 blob.
+    /// A scheme and a single token68 blob, the shape that carries bearer credentials.
     Single { scheme: String, blob: String },
-    /// `HttpAuthHeader.Parameterized` (or a blank scheme): never bearer credentials.
+    /// A scheme alone or with `key=value` parameters: never bearer credentials.
     Other,
 }
 
-/// Ktor's `ParseException` → `BadRequestException("Invalid auth header")` → 500 on the REST side.
+/// A malformed `Authorization` header; the REST side answers it with a 500, as the contract cassettes record.
 #[derive(Debug, thiserror::Error)]
 #[error("Invalid auth header")]
 pub struct InvalidAuthHeader;
@@ -185,7 +212,9 @@ fn match_token68(s: &[char], start: usize) -> usize {
     skip_spaces(s, i)
 }
 
-/// `matchParameter`: the index after one `key=value` (or `start` when there is none there).
+/// Returns the index after one `key=value` (or `start` when there is none there).
+///
+/// An unterminated quoted value is an [`InvalidAuthHeader`].
 fn match_parameter(s: &[char], start: usize) -> Result<usize, InvalidAuthHeader> {
     let key_start = skip_spaces(s, start);
     let mut i = key_start;
@@ -220,7 +249,9 @@ fn match_parameter(s: &[char], start: usize) -> Result<usize, InvalidAuthHeader>
     Ok(i)
 }
 
-/// `skipDelimiter`: spaces, one `,`, spaces; a `ParseException` when the delimiter is missing.
+/// Skips spaces, one `,` and spaces, returning `usize::MAX` at the end of the header.
+///
+/// A missing delimiter is an [`InvalidAuthHeader`].
 fn skip_delimiter(s: &[char], start: usize) -> Result<usize, InvalidAuthHeader> {
     let mut i = skip_spaces(s, start);
     if i == s.len() {
@@ -233,7 +264,7 @@ fn skip_delimiter(s: &[char], start: usize) -> Result<usize, InvalidAuthHeader> 
     Ok(skip_spaces(s, i))
 }
 
-/// `matchParameters`: `-1` (here `None`) when the whole remainder was parameters.
+/// Matches a run of `key=value` parameters: `None` when the whole remainder was parameters, else where they stop.
 fn match_parameters(s: &[char], start: usize) -> Result<Option<usize>, InvalidAuthHeader> {
     let mut i = start;
     while i > 0 && i < s.len() {
@@ -249,7 +280,12 @@ fn match_parameters(s: &[char], start: usize) -> Result<Option<usize>, InvalidAu
     Ok(Some(i))
 }
 
-/// `parseAuthorizationHeader(headerValue)`: `Ok(None)` for a blank scheme, `Err` where Ktor throws.
+/// Classifies an `Authorization` header value, `Ok(None)` for a blank scheme.
+///
+/// # Errors
+///
+/// Returns [`InvalidAuthHeader`] if the value is neither a scheme with one token68 blob nor a scheme with
+/// well-formed `key=value` parameters (an unterminated quote, a missing `,`, trailing garbage).
 pub fn parse_authorization_header(value: &str) -> Result<Option<AuthHeader>, InvalidAuthHeader> {
     let s: Vec<char> = value.chars().collect();
     let mut i = skip_spaces(&s, 0);
@@ -280,8 +316,13 @@ pub fn parse_authorization_header(value: &str) -> Result<Option<AuthHeader>, Inv
     }
 }
 
-/// The bearer blob the provider would validate, if the header carries one
-/// (`HttpAuthHeader.Single` with the `Bearer` scheme, case-insensitive).
+/// Returns the bearer token of an `Authorization` header value, if it carries one.
+///
+/// Only an [`AuthHeader::Single`] with the `Bearer` scheme (case-insensitive) carries one.
+///
+/// # Errors
+///
+/// Returns [`InvalidAuthHeader`] if the header is malformed (see [`parse_authorization_header`]).
 pub fn bearer_token(value: &str) -> Result<Option<String>, InvalidAuthHeader> {
     Ok(match parse_authorization_header(value)? {
         Some(AuthHeader::Single { scheme, blob }) if scheme.eq_ignore_ascii_case("Bearer") => {
@@ -295,7 +336,7 @@ pub fn bearer_token(value: &str) -> Result<Option<String>, InvalidAuthHeader> {
 mod tests {
     use super::*;
 
-    /// `TokenTest.hashTest`.
+    /// A known vector of [`hash`] with one value.
     #[test]
     fn hash_test() {
         assert_eq!(
@@ -304,7 +345,7 @@ mod tests {
         );
     }
 
-    /// `TokenTest.hashManyTest`.
+    /// A known vector of [`hash`] with several values.
     #[test]
     fn hash_many_test() {
         assert_eq!(
@@ -331,7 +372,7 @@ mod tests {
         };
         let token = STANDARD.encode(serde_json::to_string(&response).unwrap());
         assert_eq!(parse_token(&token).unwrap(), response);
-        // padding optional, like java.util.Base64
+        // padding optional
         assert_eq!(parse_token(token.trim_end_matches('=')).unwrap(), response);
         assert!(parse_token("none").is_err(), "valid base64, not JSON");
         assert!(parse_token("aGVsbG8gd29ybGQ=").is_err());

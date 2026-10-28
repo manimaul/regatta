@@ -80,10 +80,13 @@ Where a decision interprets the GSI or goes further than its text, it is marked
 *(interpretation)* so the committee can confirm it.
 
 **T1. Trophy groups on `Series`.**
-- `Series` gets a nullable `trophyGroup: TrophyGroup?`. The enum lives in `common` with a label
-  and a fixed number of drops: `PointHarbor` (1), `WindseekersWednesday` (4), `ThreeHourTour` (1).
-- `SeriesTable` stores the enum name in a nullable `varchar`, so Exposed adds the column on
-  startup and no versioned migration is needed.
+- `Series` gets an optional `trophy_group: Option<TrophyGroup>`. The enum lives in
+  `crates/common` with a label and a fixed number of drops: `PointHarbor` (1),
+  `WindseekersWednesday` (4), `ThreeHourTour` (1). The field is not written while `None`, as
+  `RaceReportCard.orc_dxt_id`, so the golden files and the contract cassettes do not change.
+- The `series` table stores the enum name in a nullable `varchar` column. That is a schema
+  change: a new SQL migration, an upgrade step in `crates/service/src/startup.rs` and a bump of
+  `SCHEMA_VERSION`, as `CLAUDE.md` lists under "Schema".
 - The Series admin modal gets a "Season trophy group" select, and the Series table a column.
 - A series with no group counts toward nothing (the Lido 14 series, for instance).
 - After deploying, set the groups on the existing series by hand: Harbor and Point Series →
@@ -92,7 +95,7 @@ Where a decision interprets the GSI or goes further than its text, it is marked
 
 **T2. Three trophies, one fleet each, keyed by rating type** *(interpretation of "PHRF,
 Challenger, and Windseekers")*.
-- `PHRF`: results whose rating type `isPHRF` (`PHRF`, `ORC_PHRF`). ORC-only results are left
+- `PHRF`: results whose rating type `is_phrf()` (`PHRF`, `ORC_PHRF`). ORC-only results are left
   out; no such class exists in the data.
 - `WindseekersFS`: `CruisingFlyingSails`. `WindseekersNFS`: `CruisingNonFlyingSails`.
 - The fleet decides which trophy a boat is listed under (T5); scores are class places (T3).
@@ -107,11 +110,11 @@ Challenger, and Windseekers")*.
 "overall" wording for PHRF)*.
 - Fast and Half Fast, like Windseekers FS and NFS, have separate start times and often different
   courses or lap counts, so finishes are only comparable within a class. The score is the
-  `placeInClass` that `classCard` already computes for the race report; no new placing is
+  `place_in_class` that `class_card` already computes for the race report; no new placing is
   needed. For PHRF that is the finish within Fast or within Half Fast, never across both, which
   is the one point where the app cannot follow the GSI text. Series standings use the same
   class place.
-- `placeInClass` already orders HOC boats by position on the course (GSI 14.2), applies D3 for
+- `place_in_class` already orders HOC boats by position on the course (GSI 14.2), applies D3 for
   DNF, RET, NSC, DSQ and D4 for penalties, shares equal places (D7), and is the PHRF place for
   `ORC_PHRF` classes. ORC places are not used; the trophies are PHRF only, like series standings.
 - Orphan cards (bracket id 0) are left out.
@@ -150,7 +153,7 @@ Challenger, and Windseekers")*.
 - Each row shows the skipper of the boat's most recent trophy race (D8).
 
 **T6. Eligibility, places and the winner.**
-- Member: the row's skipper has `Person.clubMember`. The GSI says "owner" and "as of April 1";
+- Member: the row's skipper has `Person.club_member`. The GSI says "owner" and "as of April 1";
   the app has neither an owner nor a membership date, so the flag stands in for both and the
   date stays a manual RC check. *(interpretation)*
 - PHRF only: the boat must have **participated** (a result record in the PHRF fleet that is a
@@ -175,7 +178,7 @@ Challenger, and Windseekers")*.
 **T8. RC volunteer** *(GSI 1.4.1.2 applied with D1's conventions)*.
 - In each fleet, the boat's first `DNS_RC` race in a series scores the **average of its other
   class scores in that series** (the GSI's "overall finishes" read as in T3): the races its class
-  sailed, DNS scores included, rounded to the nearest tenth with 0.05 up (`roundToTenth`, D1). Nothing is excluded for a throw-out, because
+  sailed, DNS scores included, rounded to the nearest tenth with 0.05 up (`round_to_tenth`, D1). Nothing is excluded for a throw-out, because
   the trophy has no per-series throw-out; the group discards are chosen afterwards and the RC
   score can be one of them.
 - Later `DNS_RC` races in the same series score DNS. With no other class race in that series
@@ -188,11 +191,12 @@ Challenger, and Windseekers")*.
 the class it sailed, missed races against the class of its nearest race (T3). FS ↔ NFS, or
 Windseekers ↔ PHRF: a row under each fleet it raced in (T5). *(interpretation)*
 
-**T10. The trophy year** is the Pacific calendar year, `RegattaDatabase.yearBounds` (D8). It
+**T10. The trophy year** is the Pacific calendar year, `year_bounds` in
+`crates/service/src/db/time.rs` (D8). It
 matches the GSI calendar: Harbor Series in January, Point Series in October, awards in December.
 
 **T11. Output and location.** Results are computed on every request (no stored state) from
-the same race reports as series standings, served at `ApiPaths.trophies` (`/trophies?year=`),
+the same race reports as series standings, served at `api_paths::TROPHIES` (`/trophies?year=`),
 and shown at the web route `/trophies/:year`, reached from a "Season Trophies" button next to
 the year select on the Race Results screen.
 
@@ -214,85 +218,178 @@ the year select on the Race Results screen.
 
 ## How it works
 
-### Data model (`common`)
+### Data model (`crates/common/src/data/race_data.rs`)
 
-```kotlin
-@Serializable
-enum class TrophyGroup(val label: String, val drops: Int) {
-    PointHarbor("Point + Harbor Series", 1),
-    WindseekersWednesday("Wednesday Windseekers", 4),
-    ThreeHourTour("Three Hour Tour", 1),
+```rust
+/// The season trophy group a series counts toward (T1), stored and serialized by its variant name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TrophyGroup {
+    PointHarbor,
+    WindseekersWednesday,
+    ThreeHourTour,
 }
 
-@Serializable
-enum class TrophyFleet(val label: String) {
-    PHRF("PHRF Racer of the Year"),
-    WindseekersFS("Windseekers Flying Sails Racer of the Year"),
-    WindseekersNFS("Windseekers Non-Flying Sails Racer of the Year"),
+impl TrophyGroup {
+    pub const ENTRIES: [TrophyGroup; 3] = [
+        TrophyGroup::PointHarbor,
+        TrophyGroup::WindseekersWednesday,
+        TrophyGroup::ThreeHourTour,
+    ];
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            TrophyGroup::PointHarbor => "Point + Harbor Series",
+            TrophyGroup::WindseekersWednesday => "Wednesday Windseekers",
+            TrophyGroup::ThreeHourTour => "Three Hour Tour",
+        }
+    }
+
+    pub const fn drops(self) -> i32 {
+        match self {
+            TrophyGroup::PointHarbor | TrophyGroup::ThreeHourTour => 1,
+            TrophyGroup::WindseekersWednesday => 4,
+        }
+    }
 }
 
-// Series gains: val trophyGroup: TrophyGroup? = null
+/// The fleet a trophy is scored over (T2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TrophyFleet {
+    #[serde(rename = "PHRF")]
+    Phrf,
+    WindseekersFS,
+    WindseekersNFS,
+}
 
-@Serializable data class SeasonTrophies(
-    val year: Int,
-    val groups: List<TrophyGroupRaces>,      // every trophy-group race of the year, in start order
-    val trophies: List<TrophyStandings>,     // one per fleet, PHRF, FS, NFS
-)
-@Serializable data class TrophyGroupRaces(val group: TrophyGroup, val series: List<Series>, val races: List<TrophyRaceInfo>)
-@Serializable data class TrophyRaceInfo(val race: Race, val seriesId: Long, val status: RaceStatus)
+impl TrophyFleet {
+    pub const fn label(self) -> &'static str {
+        match self {
+            TrophyFleet::Phrf => "PHRF Racer of the Year",
+            TrophyFleet::WindseekersFS => "Windseekers Flying Sails Racer of the Year",
+            TrophyFleet::WindseekersNFS => "Windseekers Non-Flying Sails Racer of the Year",
+        }
+    }
+}
 
-@Serializable data class TrophyStandings(
-    val fleet: TrophyFleet,
-    val counts: List<TrophyGroupCount>,      // how N was arrived at, per group
-    val rows: List<TrophyRow>,               // eligible boats by place, then ineligible by total
-)
-@Serializable data class TrophyGroupCount(
-    val group: TrophyGroup, val scheduled: Int, val sailed: Int, val cancelled: Int,
-    val notYetSailed: Int, val notSailedByFleet: Int, val drops: Int, val counted: Int,   // fleet-level; a row's own N is in TrophyGroupTotal
-)
-@Serializable data class TrophyRow(
-    val boatSkipper: BoatSkipper,
-    val member: Boolean,
-    val missedSeries: List<Series>,          // PHRF only; empty for Windseekers
-    val eligible: Boolean,
-    val place: Int? = null,                  // null when ineligible or nothing scored yet
-    val total: Double,
-    val groupTotals: List<TrophyGroupTotal>,
-    val races: List<TrophyRace>,             // same order as SeasonTrophies.groups' races
-)
-@Serializable data class TrophyGroupTotal(val group: TrophyGroup, val total: Double, val counted: Int)   // counted = this row's N (T4)
-@Serializable data class TrophyRace(
-    val raceId: Long,
-    val group: TrophyGroup,
-    val score: Double? = null,               // null when the race scores nothing for this fleet
-    val counted: Boolean = false,
-    val finishCode: FinishCode? = null,      // null = no record (DNS)
-    val hocPosition: Int? = null,
-    val rcAverage: Boolean = false,          // T8: the score is the RC volunteer average
-    val status: RaceStatus,
-    val classSailed: Boolean,                // T3: the boat's class had a starter
-    val raceClass: RaceClass? = null,        // the class the score or DNS was taken in
-    val otherFleet: TrophyFleet? = null,     // T5: the boat sailed this race in another fleet
-)
+// Series gains:
+//     #[serde(skip_serializing_if = "Option::is_none")]
+//     pub trophy_group: Option<TrophyGroup>,
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SeasonTrophies {
+    pub year: i32,
+    pub groups: Vec<TrophyGroupRaces>,  // every trophy-group race of the year, in start order
+    pub trophies: Vec<TrophyStandings>, // one per fleet, PHRF, FS, NFS
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyGroupRaces {
+    pub group: TrophyGroup,
+    pub series: Vec<Series>,
+    pub races: Vec<TrophyRaceInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyRaceInfo {
+    pub race: Race,
+    pub series_id: i64,
+    pub status: RaceStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyStandings {
+    pub fleet: TrophyFleet,
+    pub counts: Vec<TrophyGroupCount>, // how N was arrived at, per group
+    pub rows: Vec<TrophyRow>,          // eligible boats by place, then ineligible by total
+}
+
+/// Fleet-level counts; a row's own N is in [`TrophyGroupTotal`].
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyGroupCount {
+    pub group: TrophyGroup,
+    pub scheduled: i32,
+    pub sailed: i32,
+    pub cancelled: i32,
+    pub not_yet_sailed: i32,
+    pub not_sailed_by_fleet: i32,
+    pub drops: i32,
+    pub counted: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyRow {
+    pub boat_skipper: BoatSkipper,
+    pub member: bool,
+    pub missed_series: Vec<Series>, // PHRF only; empty for Windseekers
+    pub eligible: bool,
+    #[serde(default)]
+    pub place: Option<i32>, // None when ineligible or nothing scored yet
+    pub total: f64,
+    pub group_totals: Vec<TrophyGroupTotal>,
+    pub races: Vec<TrophyRace>, // same order as SeasonTrophies.groups' races
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyGroupTotal {
+    pub group: TrophyGroup,
+    pub total: f64,
+    pub counted: i32, // this row's N (T4)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrophyRace {
+    pub race_id: i64,
+    pub group: TrophyGroup,
+    #[serde(default)]
+    pub score: Option<f64>, // None when the race scores nothing for this fleet
+    #[serde(default)]
+    pub counted: bool,
+    #[serde(default)]
+    pub finish_code: Option<FinishCode>, // None = no record (DNS)
+    #[serde(default)]
+    pub hoc_position: Option<i32>,
+    #[serde(default)]
+    pub rc_average: bool, // T8: the score is the RC volunteer average
+    pub status: RaceStatus,
+    pub class_sailed: bool, // T3: the boat's class had a starter
+    #[serde(default)]
+    pub race_class: Option<RaceClass>, // the class the score or DNS was taken in
+    #[serde(default)]
+    pub other_fleet: Option<TrophyFleet>, // T5: the boat sailed this race in another fleet
+}
 ```
 
-Scores are `Double` for the same reason as series standings (D1), and labels use `scoreText()`.
+Scores are `f64` for the same reason as series standings (D1), and labels use `score_text`.
 
-### Scoring (`server`, `results/SeasonTrophyReporter.kt`)
+### Scoring (`crates/scoring/src/trophies.rs`)
 
-A pure function next to `RaceResultReporter.standings`:
+A pure function next to `standings` in `crates/scoring/src/reporter.rs`, re-exported from the
+crate root, with its database wrapper in `crates/service/src/reporter.rs` next to
+`get_standings_report`:
 
-```kotlin
-fun trophies(year: Int, series: List<Series>, reports: List<RaceReport>, now: Instant): SeasonTrophies
-suspend fun getSeasonTrophies(year: Int, now: Instant = Clock.System.now()): SeasonTrophies   // DB wrapper
+```rust
+// crates/scoring/src/trophies.rs
+pub fn trophies(year: i32, series: &[Series], reports: &[RaceReport], now: Timestamp) -> SeasonTrophies
+
+// crates/service/src/reporter.rs
+pub async fn get_season_trophies(db: &Db, year: i32, now: Timestamp) -> Result<SeasonTrophies>
 ```
 
-The wrapper takes `allSeries()` with a `trophyGroup`, their `seriesRaces(id, year)` and
-`getReport` for each, as `getStandingsReport` does. The function:
+The wrapper takes `db.all_series()` with a `trophy_group`, their `db.series_races(id, year)` and
+`get_report_for` over `db.find_race_schedules` for each, as `get_standings_report` does. `now`
+is the server's `state.now()` (the `REGATTA_FIXED_NOW` clock in tests). The function:
 
-1. Builds the groups: series by `trophyGroup`, races by start time, and each race's
+1. Builds the groups: series by `trophy_group`, races by start time, and each race's
    `RaceStatus` with the same rule as `standings()`.
-2. For each fleet, for each race: the fleet's cards with their `placeInClass`, and per class
+2. For each fleet, for each race: the fleet's cards with their `place_in_class`, and per class
    the starter count (T3).
 3. The fleet's boats (T5), each boat's skipper (D8), and each boat's class per series (T3).
 4. Per boat, per race: its class place, DNS = its class's starters + 1, or nothing when its
@@ -300,31 +397,42 @@ The wrapper takes `allSeries()` with a `trophyGroup`, their `seriesRaces(id, yea
    becomes the average.
 5. Per group and boat: N (T4), the best N scores flagged, the group total.
 6. Eligibility (T6), then places with a comparator of total then T7, reusing the shape of
-   `assignPlaces`; ineligible rows follow, by total.
+   `assign_places`; ineligible rows follow, by total.
 
 Nothing in `RaceReport` or the race view changes.
 
 ### API
 
-`ApiPaths.trophies = "/trophies"`, `GET /v1/api/trophies?year=2026`, public, no auth, answers
-`SeasonTrophies`; 400 without a year. The `Series` upsert already carries the new field.
+`api_paths::TROPHIES = "/trophies"` in `crates/common/src/api_paths.rs`,
+`GET /v1/api/trophies?year=2026`, public, no auth, answers `SeasonTrophies`; 400 without a
+year. The handler is a thin adapter over `get_season_trophies` in
+`crates/server/src/routes/series.rs` (next to `standings`), registered in
+`crates/server/src/routes/mod.rs`. The `Series` upsert already carries the new field. The route
+gets a scenario and cassette in `crates/contract` (see `crates/contract/README.md`).
 
 ### Web
 
-- **Button.** On the Race Results screen (`components/routes/RaceResults.kt`), next to the
-  year select: `RgButton("Season Trophies")` → `routeVm.pushRoute("/trophies/${selectedYear()}")`
-  in `ResultsViewModel`.
-- **Route.** `Route.SeasonTrophies("/trophies/:year", "Season Trophies")` in
-  `viewmodel/RouteViewModel.kt`, dispatched by `Router.kt` to `SeasonTrophies(year)` in
-  `components/routes/SeasonTrophies.kt`, backed by `viewmodel/SeasonTrophiesViewModel.kt`
-  (`Api.getSeasonTrophies(year)`). It works with `?nonav` like the standings pages.
-- **Page layout** (`SeasonTrophies.kt`), top to bottom:
-  1. `H1` "Season Trophies {year}".
+- **Button.** On the Race Results screen (`RaceResults` in `crates/app/src/routes/race_results.rs`),
+  next to the `RgRaceYearSelector`: an `RgButton` labelled "Season Trophies" that navigates to
+  `format!("/trophies/{}", selected_year().unwrap_or(0))` with `use_navigate`, as the "View
+  Standings" button does.
+- **Route.** `Route::SeasonTrophies` in `crates/app/src/state/route.rs` (path pattern
+  `/trophies/:year`, label "Season Trophies", added to `Route::ENTRIES`), and a
+  `<Route path=path!("/trophies/:year") ... ssr=SsrMode::Async/>` in `crates/app/src/app.rs`
+  rendering a `SeasonTrophiesRoute` that passes `param_i32("year")` to `SeasonTrophies(year)` in
+  `crates/app/src/routes/season_trophies.rs` (declared and re-exported in `routes/mod.rs`). The
+  screen loads through `Loaded` over a server function `season_trophies(year)` in
+  `crates/app/src/server_fns.rs` (`#[server(name = SeasonTrophiesCall, prefix = "/api",
+  endpoint = "season_trophies", input = Json)]`, calling `get_season_trophies` with
+  `ssr::now()`, as `series_standings` does) and renders through `async_view`. It works with
+  `?nonav` like the standings pages (the nav bar reads it on every route).
+- **Page layout** (`season_trophies.rs`), top to bottom:
+  1. `<h1>` "Season Trophies {year}".
   2. **Races counted** table, one row per trophy group: series names, scheduled, sailed,
      cancelled, not yet sailed, drops. When no series has a group: "No series is assigned to a
      season trophy group for {year}. Set one on the Series screen."
   3. **One section per trophy** (PHRF, Windseekers FS, Windseekers NFS), each with:
-     - `H2` trophy name and a winner line: "Winner: Boat – Skipper (total)", "Tied: A, B" when
+     - `<h2>` trophy name and a winner line: "Winner: Boat – Skipper (total)", "Tied: A, B" when
        place 1 is shared, or "No eligible boat yet".
      - A caption with the counts: "Counting the best 5 of 6 Point + Harbor races (7
        scheduled, 1 drop, 1 cancelled), 16 of 20 Wednesday Windseekers, 2 of 3 Three Hour Tour".
@@ -338,30 +446,35 @@ Nothing in `RaceReport` or the race view changes.
        fractional, e.g. `2.7 RC Volunteer`. Notes carry "Not a member" and "No race in Harbor
        Series", and ineligible rows have no place.
      - A footnote with the rule summary and GSI page references, including the tiebreak chain.
-- **Labels.** Pure cell and winner-line helpers in `utils/TrophyReport.kt`, covered by
-  `web/src/jsTest/kotlin/TrophyLabelsTest.kt`, as `utils/StandingsReport.kt` is by
-  `StandingsLabelsTest`.
-- **Admin.** `AddEditSeries` gets an `RgDropdownNone` over `TrophyGroup.entries` labelled
-  "Season trophy group" ("None" clears it); `SeriesViewModel.editTrophyGroup`; the Series table
-  gets a "Season trophy group" column.
+- **Labels.** Pure cell and winner-line helpers in `crates/app/src/utils/trophy_report.rs`
+  (declared in `utils/mod.rs`), covered by `crates/app/tests/trophy_labels_test.rs`, as
+  `standings_report.rs` is by `standings_labels_test.rs`. Class names stay literal strings so
+  Tailwind finds them.
+- **Admin.** `AddEditSeries` in `crates/app/src/routes/series.rs` gets an `RgDropdownNone` over
+  `TrophyGroup::ENTRIES` labelled "Season trophy group" ("None" clears it);
+  `SeriesState::edit_trophy_group`; the series table (`AllSeries`) gets a "Season trophy group"
+  column. The dropdown sits in a `<div class="mb-4">`, not a `<p>`.
 
 ## Test strategy
 
-- **Fixture.** Extend `Fixture.kt` with a season builder that shares one `FixtureRegistry`
-  across series, so the same boats, classes and brackets keep their ids:
-  ```kotlin
-  val s = season(year = 2026) {
-      series("Harbor Series", TrophyGroup.PointHarbor, firstDate = "2026-01-24") {
-          race { phrfClass("Fast") { bracket("I") { boat("A", rating = 48) finishes "14:10:00" } }
-                 phrfClass("Half Fast") { bracket("III") { boat("B", rating = 120) finishes "14:30:00" } } }
-      }
-      series("Early Spring Windseekers", TrophyGroup.WindseekersWednesday) { ... }
-  }
-  s.trophies().assertTotals(TrophyFleet.PHRF, "A" to 1, "B" to 2)
+- **Fixture.** Extend `crates/scoring/src/fixture.rs` with a season builder that shares one
+  `FixtureRegistry` across series, so the same boats, classes and brackets keep their ids:
+  ```rust
+  let s = season(2026, |y| {
+      y.series("Harbor Series", TrophyGroup::PointHarbor, Some("2026-01-24"), |s| {
+          s.race(|r| {
+              r.phrf_class("Fast", |c| c.bracket("I", |b| { b.boat("A", 48).finishes("14:10:00"); }));
+              r.phrf_class("Half Fast", |c| c.bracket("III", |b| { b.boat("B", 120).finishes("14:30:00"); }));
+          });
+      });
+      y.series("Early Spring Windseekers", TrophyGroup::WindseekersWednesday, None, |s| { /* ... */ });
+  });
+  s.trophies().assert_totals(TrophyFleet::Phrf, &[("A", 1), ("B", 2)]);
   ```
-  with helpers `row(fleet, boat)`, `raceScores(fleet, boat)`, `places(fleet)`.
-- **Rule tests** in `server/src/jvmTest/.../results/SeasonTrophiesTest.kt`, named after the GSI
-  item or decision they enforce:
+  with helpers `row(fleet, boat)`, `race_scores(fleet, boat)`, `places(fleet)`, in the shape
+  of the standings assertions (`assert_bracket_totals`).
+- **Rule tests** in `crates/scoring/tests/season_trophies_test.rs`, named after the GSI item or
+  decision they enforce:
   - `t3_phrf_scores_the_class_finish_not_the_overall_finish` (T3)
   - `t3_dns_uses_the_starters_of_the_boats_class_in_that_series`,
     `t3_dns_class_falls_back_to_the_nearest_trophy_race` (T3)
@@ -387,17 +500,24 @@ Nothing in `RaceReport` or the race view changes.
   - `t2_orc_only_results_are_left_out`, `t3_orphan_results_are_left_out`
   - `t1_series_without_a_group_is_ignored`
   - `d8_row_shows_the_skipper_of_the_most_recent_race`
-- **Invariants** (`InvariantsTest.kt` or a new `SeasonTrophiesInvariantsTest.kt`): shuffling
-  the input series, races and cards changes nothing; every total is the sum of the counted
-  scores; the number of counted races per group is `min(counted, scored)`; a boat appears at
-  most once per trophy; eligible rows come first and carry contiguous shared places.
-- **Golden.** `GoldenTest` adds `trophies-{year}.json` for 2024–2026 by mapping the
-  snapshot's series names to groups in the test (no SQL change to the snapshot), computed with
-  `now = GoldenDb.dumpInstant`. The 2024 and 2025 files are a sanity check against the club's
-  actual trophy results if those can be found.
-- **Web.** `RouteMatcherTest` for `/trophies/2026`; `TrophyLabelsTest` for the cell text,
-  suffixes, discard decoration and the winner line; a composition test that renders a small
-  `SeasonTrophies` and checks the winner line and an ineligible row's note.
+- **Invariants** (proptest, in `crates/scoring/tests/invariants_test.rs` or a new
+  `season_trophies_invariants_test.rs`): shuffling the input series, races and cards changes
+  nothing; every total is the sum of the counted scores; the number of counted races per group
+  is `min(counted, scored)`; a boat appears at most once per trophy; eligible rows come first
+  and carry contiguous shared places.
+- **Golden.** `crates/server/tests/golden.rs` adds `trophies-{year}.json` for 2024–2026 to
+  `crates/scoring/tests/golden/approved/` by mapping the snapshot's series names to groups in
+  the test (no SQL change to the snapshot), computed with `now = DUMP_INSTANT`
+  (`crates/server/tests/support/mod.rs`); `crates/scoring/tests/golden_test.rs` re-scores them
+  from the approved race reports without a database, as it does the standings files. The 2024
+  and 2025 files are a sanity check against the club's actual trophy results if those can be
+  found.
+- **Web.** `crates/app/tests/route_matcher_test.rs` for `/trophies/2026` (the
+  every-pattern test covers `:year`); `trophy_labels_test.rs` for the cell text, suffixes,
+  discard decoration and the winner line; an SSR render test (`common::render`, as the other
+  component tests in `crates/app/tests/`) of a small `SeasonTrophies` section that checks the
+  winner line and an ineligible row's note; and a `/trophies/2024` case in
+  `crates/server/tests/ssr.rs`, rendered through the router with its data.
 
 ## Task checklist
 
@@ -405,47 +525,56 @@ Tick each box as it lands. Phases 1–3 are server-side and can be reviewed befo
 
 ### Phase 1: Trophy group on series
 
-- [ ] `TrophyGroup` enum and `Series.trophyGroup` in `common/.../RaceData.kt` (T1).
-- [ ] `SeriesTable.trophyGroup` nullable varchar storing the enum name; map in
-      `resultRowToSeries` and `upsertSeries`. Start the server against the dev DB and check
-      the column was added.
-- [ ] `:server:jvmGoldenTest` fails because the golden JSON uses `encodeDefaults = true`;
-      re-approve and check the diff is only `"trophyGroup": null` lines in `race-*.json` and
-      `standings-*.json`.
-- [ ] Series admin: "Season trophy group" select in `AddEditSeries`, `editTrophyGroup` in
-      `SeriesViewModel`, and a column in the Series table.
+- [ ] `TrophyGroup` enum and `Series.trophy_group` in `crates/common/src/data/race_data.rs`
+      (T1), skipped while `None`; `crates/common/tests/golden_round_trip.rs` stays green.
+- [ ] Schema: a migration adding the nullable `trophy_group varchar` column to `series`, its
+      upgrade step in `crates/service/src/startup.rs`, the `SCHEMA_VERSION` bump and the rest of
+      what `CLAUDE.md` lists for a schema change; map the column in `to_series` and
+      `upsert_series` (`crates/service/src/db/series.rs`). Start the server against the dev DB
+      and check the column was added.
+- [ ] `cargo xtask golden` and `cargo xtask contract` pass unchanged: the field is not written
+      while `None`, so no approved file or cassette moves.
+- [ ] Series admin: "Season trophy group" select in `AddEditSeries`, `edit_trophy_group` on
+      `SeriesState`, and a column in the series table (`crates/app/src/routes/series.rs`).
 - [ ] After deploying: set the groups on the production series (T1).
 
 ### Phase 2: Scoring
 
-- [ ] `TrophyFleet`, `SeasonTrophies` and the row/race data classes in `common` (T2, model above).
-- [ ] `season { series(...) { race { ... } } }` builder and assertions in `Fixture.kt`.
-- [ ] `results/SeasonTrophyReporter.kt`: `trophies(year, series, reports, now)` (T3–T10).
-- [ ] Rule tests in `SeasonTrophiesTest.kt` (list above), all green.
+- [ ] `TrophyFleet`, `SeasonTrophies` and the row/race structs in `crates/common` (T2, model
+      above).
+- [ ] `season(year, |y| y.series(...))` builder and assertions in `crates/scoring/src/fixture.rs`.
+- [ ] `crates/scoring/src/trophies.rs`: `trophies(year, series, reports, now)` (T3–T10).
+- [ ] Rule tests in `crates/scoring/tests/season_trophies_test.rs` (list above), all green.
 - [ ] Invariant tests.
 
 ### Phase 3: Endpoint and golden
 
-- [ ] `ApiPaths.trophies`, `getSeasonTrophies(year)` DB wrapper, `GET` route in `Routing.kt`.
-- [ ] `GoldenTest.seasonTrophiesMatchApproved` and the approved `trophies-{year}.json` files;
-      review the 2024 and 2025 winners against the club's records if available.
+- [ ] `api_paths::TROPHIES`, the `get_season_trophies(db, year, now)` wrapper in
+      `crates/service/src/reporter.rs`, the `GET` handler in `crates/server/src/routes/series.rs`
+      registered in `routes/mod.rs`.
+- [ ] Contract scenario and cassette for `GET trophies` in `crates/contract`.
+- [ ] The approved `trophies-{year}.json` files, checked by `crates/server/tests/golden.rs` and
+      `crates/scoring/tests/golden_test.rs`; review the 2024 and 2025 winners against the club's
+      records if available.
 - [ ] Optional: extend `database/audit_scoring.py` to re-score the approved trophy files.
 
 ### Phase 4: Web
 
-- [ ] `Route.SeasonTrophies`, `Router.kt` dispatch, `RouteMatcherTest` case.
-- [ ] `Api.getSeasonTrophies`, `SeasonTrophiesViewModel`.
-- [ ] `utils/TrophyReport.kt` label helpers and `TrophyLabelsTest`.
-- [ ] `components/routes/SeasonTrophies.kt`: races-counted table, one section per trophy with
-      winner line, caption, standings table and footnote; empty state when no series has a group.
+- [ ] `Route::SeasonTrophies` in `state/route.rs`, the `<Route>` in `app.rs`, the
+      `route_matcher_test.rs` case.
+- [ ] `season_trophies` server function in `server_fns.rs`.
+- [ ] `crates/app/src/utils/trophy_report.rs` label helpers and `trophy_labels_test.rs`.
+- [ ] `crates/app/src/routes/season_trophies.rs`: races-counted table, one section per trophy
+      with winner line, caption, standings table and footnote; empty state when no series has a
+      group.
 - [ ] "Season Trophies" button next to the year select on the Race Results screen.
 - [ ] `?nonav` works on the page.
-- [ ] Composition test for the page.
+- [ ] SSR render test for the page section and the `crates/server/tests/ssr.rs` case.
 
 ### Done
 
-- [ ] `CLAUDE.md`: add `SeasonTrophies` to the route screens list and `results/SeasonTrophyReporter.kt`
-      to the scoring line.
+- [ ] `CLAUDE.md`: add `SeasonTrophies` to the screens in `routes/` and the trophies scoring
+      (`trophies.rs`) to the `regatta-scoring` row of the crate table.
 - [ ] Move this file to `docs/explore_implemented/` and update the link in
       `test_audit_and_plan.md`.
 - [ ] Take the open questions to the race committee and record their answers here.

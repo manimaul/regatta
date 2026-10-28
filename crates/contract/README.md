@@ -55,10 +55,9 @@ In order:
 6. **Mutations** per aggregate (series, class + brackets, person + boat, race + schedule +
    results, image, ORC certificate): create, read back, update, then the error paths: unknown
    JSON key, bad enum name, empty body, wrong `Content-Type`, not-a-list, defaults-only body,
-   `validateRace` / `validateResult` / `validate_boat` 400 texts (the boat steps 154-156 were
-   written for the Rust server, not recorded from Kotlin), foreign-key 409s (unknown series /
-   class / skipper / boat / certificate on insert; class, bracket, person, boat, series in use
-   on delete), delete-race-with-results 409, duplicate names, unicode names.
+   `validate_race` / `validate_result` / `validate_boat` 400 texts, foreign-key 409s (unknown
+   series / class / skipper / boat / certificate on insert; class, bracket, person, boat, series
+   in use on delete), delete-race-with-results 409, duplicate names, unicode names.
 7. **Image**: multipart with an `image/png` part (a 73-byte PNG built in `src/png.rs`) and a
    `text/plain` part the server ignores; only the text part; no parts; no `raceId`; a non-numeric
    one; an unknown race; not multipart; no token. Then the download: the route is

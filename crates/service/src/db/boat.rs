@@ -1,4 +1,4 @@
-//! = `BoatTable.kt`.
+//! The `boat` table: boats with their skipper, rating, race count and linked ORC certificates.
 
 use super::orc_table::InvalidCertificate;
 use super::{enum_from_name, orc_table, race_results};
@@ -19,7 +19,7 @@ pub(crate) struct Row {
     pub rating_type: String,
 }
 
-/// A boat row left-joined to its skipper (`p_*` null when there is none).
+/// A boat row left-joined to its skipper (`p_*` are `None` when there is none).
 #[derive(FromRow)]
 struct JoinedRow {
     #[sqlx(flatten)]
@@ -48,8 +48,10 @@ impl JoinedRow {
     }
 }
 
-/// `resultRowToBoat`: `skipperId` and `active` are not read from the row (Kotlin leaves them at
-/// their defaults, null and true), so the row does not carry them.
+/// Builds a [`Boat`] from its row, race count and certificates.
+///
+/// `skipper_id` and `active` are not read: the boat JSON always carries `None` and `true` for them, which the
+/// golden files and contract cassettes pin, so the row does not select them.
 pub(crate) fn to_boat(
     row: &Row,
     number_of_races: i64,
@@ -69,6 +71,11 @@ pub(crate) fn to_boat(
     })
 }
 
+/// Unlinks the person from every boat they skipper, returning the rows changed.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn remove_person(conn: &mut PgConnection, person_id: i64) -> Result<u64> {
     Ok(
         sqlx::query("UPDATE boat SET skipper_id = NULL WHERE skipper_id = $1")
@@ -79,6 +86,11 @@ pub async fn remove_person(conn: &mut PgConnection, person_id: i64) -> Result<u6
     )
 }
 
+/// Returns the boat `boat_id` with its skipper, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or the stored rating type is unknown.
 pub async fn find_boat_skipper(
     conn: &mut PgConnection,
     boat_id: i64,
@@ -86,7 +98,11 @@ pub async fn find_boat_skipper(
     Ok(find_boat_skippers(conn, &[boat_id]).await?.remove(&boat_id))
 }
 
-/// The boats with `boat_ids` and their skippers, by boat id; three statements for any number of boats.
+/// Returns the boats with `boat_ids` and their skippers, by boat id; three statements for any number of boats.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored rating type is unknown.
 pub async fn find_boat_skippers(
     conn: &mut PgConnection,
     boat_ids: &[i64],
@@ -107,9 +123,16 @@ pub async fn find_boat_skippers(
         .collect())
 }
 
-/// Upserts the boat row first and then links `orc_certs` to the id it got, so a new boat's
-/// certificates reference it (the `orc.boat_id` foreign key). An invalid certificate fails the
-/// call before anything is written, without taking a boat id from the sequence.
+/// Inserts the boat (id 0) or upserts it by id, then links its `orc_certs`, returning it as stored.
+///
+/// The boat row goes first so a new boat's certificates can reference the id it got (the `orc.boat_id` foreign
+/// key); an existing boat's old certificates are unlinked. An invalid certificate fails the call before anything
+/// is written, without taking a boat id from the sequence.
+///
+/// # Errors
+///
+/// - Returns [`InvalidCertificate`] in the chain if a certificate has a zero rating.
+/// - Returns `Err` if a statement fails or the stored rating type is unknown.
 pub async fn upsert_boat(conn: &mut PgConnection, boat: &Boat) -> Result<Option<Boat>> {
     if !boat.orc_certs.iter().all(orc_table::validate) {
         return Err(InvalidCertificate.into());
@@ -164,6 +187,11 @@ pub async fn upsert_boat(conn: &mut PgConnection, boat: &Boat) -> Result<Option<
     }
 }
 
+/// Unlinks the boat's certificates, then deletes the boat, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails (a result still references the boat, say).
 pub async fn delete_boat(conn: &mut PgConnection, boat_id: i64) -> Result<u64> {
     orc_table::unlink_certs(conn, boat_id).await?;
     Ok(sqlx::query("DELETE FROM boat WHERE id = $1")
@@ -173,7 +201,11 @@ pub async fn delete_boat(conn: &mut PgConnection, boat_id: i64) -> Result<u64> {
         .rows_affected())
 }
 
-/// The one boat the person skippers (`singleOrNull`: none when there are several).
+/// Returns the one boat the person skippers, or `None` when they skipper none or several.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or the stored rating type is unknown.
 pub async fn find_boat_for_skipper(
     conn: &mut PgConnection,
     person_id: i64,
@@ -188,9 +220,16 @@ pub async fn find_boat_for_skipper(
     Ok(if boats.len() == 1 { boats.pop() } else { None })
 }
 
-/// Every boat with its skipper, if any, sorted for the boats page; three statements in all.
-/// The two sorts are Kotlin's `sortedBy` / `sortedWith` (stable TimSort); the comparator is not
-/// a total order across rating types, so the Java algorithm is used.
+/// Returns every boat with its skipper, sorted for the boats page; three statements in all.
+///
+/// Boats with a skipper come first; then PHRF boats by rating, ORC boats by their best virtual PHRF rating and
+/// other pairs by rating type. That comparator is not a total order across rating types, so both stable sorts use
+/// [`java_sort`], which never panics on it and gives the order the contract cassettes recorded.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails or a stored rating type is unknown.
+/// - Returns `Err` if an ORC boat has no certificate to sort it by.
 pub async fn select_all_boats(conn: &mut PgConnection) -> Result<Vec<BoatSkipper>> {
     let rows: Vec<JoinedRow> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS}, {PERSON_COLUMNS} FROM boat LEFT JOIN person ON person.id = boat.skipper_id"
@@ -201,7 +240,7 @@ pub async fn select_all_boats(conn: &mut PgConnection) -> Result<Vec<BoatSkipper
     java_sort(&mut boats, |a, b| {
         a.skipper.is_none().cmp(&b.skipper.is_none())
     });
-    // `maxOf` on an ORC boat without certificates throws in Kotlin; the error is carried out of the sort
+    // an ORC boat without certificates cannot be compared; the first such error is carried out of the sort
     let mut failure: Option<anyhow::Error> = None;
     java_sort(&mut boats, |lhs, rhs| match compare_boats(lhs, rhs) {
         Ok(ordering) => ordering,

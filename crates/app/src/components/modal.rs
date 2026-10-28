@@ -1,5 +1,5 @@
-//! = `Modal.kt`: native `<dialog>` modals opened by id, closed by `RgButton(closes_modal)`, the
-//! × button, Escape or a backdrop click.
+//! Modals as native `<dialog>`s, opened by id and closed by `RgButton(closes_modal)`, the × button, Escape or a
+//! backdrop click.
 
 use crate::cb::Cb;
 use crate::components::rg_button::RgButtonStyle;
@@ -7,8 +7,9 @@ use crate::state::alerts::{use_alerts, CONFIRMATION_MODAL_ID};
 use crate::utils::browser;
 use leptos::prelude::*;
 
-/// Closes the enclosing `RgModalBody` (= `LocalModalClose`), provided to the modal's content and
-/// footer; `RgButton(closes_modal = true)` reads it.
+/// A handle that closes the enclosing [`RgModalBody`].
+///
+/// Provided in context to the modal's content and footer; `RgButton(closes_modal = true)` reads it.
 #[derive(Clone, Copy)]
 pub struct ModalClose(pub Cb<()>);
 
@@ -18,6 +19,7 @@ impl ModalClose {
     }
 }
 
+/// A button that opens the modal with element id `id`, running `open_action` first.
 #[component]
 pub fn RgModalButton(
     #[prop(into)] id: String,
@@ -42,9 +44,10 @@ pub fn RgModalButton(
     }
 }
 
-/// A native `<dialog>` that fills the viewport and scrolls, wrapping a centered panel that doesn't
-/// clip its content (so dropdown menus inside it aren't cut off). Mirrors Bootstrap's `.modal` >
-/// `.modal-dialog` structure.
+/// A native `<dialog>` that fills the viewport and scrolls, wrapping a centered panel.
+///
+/// The panel doesn't clip its content, so dropdown menus inside it aren't cut off. The structure follows
+/// Bootstrap's `.modal` > `.modal-dialog`.
 ///
 /// `large` widens the panel on large screens (Bootstrap's `.modal-lg`) for content with tables.
 #[component]
@@ -128,6 +131,9 @@ pub fn RgModalFooterRow(children: Children) -> impl IntoView {
     view! { <div class="rg-modal-footer-row">{children()}</div> }
 }
 
+/// A button and the modal it opens, under a fresh modal id from [`super::ElementIds`].
+///
+/// `open_action` runs before the modal opens; `footer`, when given, fills the modal's footer.
 #[component]
 pub fn RgModal(
     #[prop(into)] button_label: String,

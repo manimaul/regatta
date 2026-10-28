@@ -1,24 +1,25 @@
-//! regatta-scoring: the pure race and series scoring of the Rust port (= the Kotlin
-//! `RaceResultReporter`, `RaceValidation` and `ResultValidation`; D8 in
-//! `docs/explore_implemented/rust_port.md`).
+//! Pure race and series scoring, and the save-time validation of races, results and boats.
 //!
-//! Everything here is a function of its arguments: [`card`] builds a result's report card from
-//! its record, class start, race configuration and ORC certificate; [`report`] places the cards
-//! of a race; [`standings`] scores the race reports of a series. The database wrappers
-//! (`getReport`, `getStandingsReport`) belong to the server crate. The doc comments cite the
-//! CYCT General Sailing Instructions (GSI) and the decisions D1 to D9 of
+//! The crate is separate from the database so the rules can be tested on their own (D8 in
+//! `docs/explore_implemented/rust_port.md`); `regatta-service` loads the data and calls it
+//! (`crates/service/src/reporter.rs`). Everything here is a function of its arguments, with no I/O:
+//!
+//! - [`card`] builds a result's report card from its record, class start, race configuration and ORC certificate.
+//! - [`report`] places the cards of a race in their classes and brackets.
+//! - [`standings`] scores the race reports of a series.
+//! - [`validate_race`], [`validate_result`] and [`validate_boat`] check an entity before it is saved.
+//!
+//! The doc comments cite the CYCT General Sailing Instructions (GSI), the scoring decisions D1 to D9 of
 //! `docs/explore_implemented/test_audit_and_plan.md` ("Decisions") and R1 to R4 of
-//! `docs/explore_implemented/orc_series_standings.md`; they are the specification, carried over
-//! from the Kotlin sources.
+//! `docs/explore_implemented/orc_series_standings.md`; they are the specification.
 //!
-//! Numbers follow the Kotlin arithmetic step for step: corrected time is
-//! `(elapsed whole milliseconds as f64 * tcf)` turned into nanoseconds rounded to nearest
-//! ([`boat_corrected_time`]), and the series scores are `f64` sums in race order. The approved
-//! golden files (`tests/golden/approved`) are reproduced byte for byte
-//! from their own inputs by `tests/golden_test.rs`.
+//! The arithmetic is fixed by the golden files: corrected time is `(elapsed whole milliseconds as f64 * tcf)`
+//! turned into nanoseconds rounded to nearest ([`boat_corrected_time`]), and the series scores are `f64` sums in
+//! race order. `tests/golden_test.rs` reproduces the approved files (`tests/golden/approved`) byte for byte from
+//! their own inputs.
 //!
-//! The test fixture DSL ([`fixture`]) is compiled for this crate's tests and behind the `fixture`
-//! feature for other crates' tests.
+//! The test fixture DSL (the `fixture` module, `crates/scoring/src/fixture.rs`) is compiled for this crate's
+//! tests and behind the `fixture` feature for other crates' tests.
 
 #[cfg(any(test, feature = "fixture"))]
 pub mod fixture;

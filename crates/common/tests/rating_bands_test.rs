@@ -1,4 +1,4 @@
-//! = `RatingBandsTest.kt`: band edges of the PHRF B-factor and the ORC wind bands derived from it.
+//! Band edges of the PHRF B factor and of the ORC wind bands derived from it, and the virtual PHRF.
 
 use regatta_common::{Orc3Band, Orc5Band, OrcCertificate, OrcScoringOption, PhrfBFactor};
 
@@ -101,7 +101,7 @@ fn cert(five_band_wl_low_med_tot: f64) -> OrcCertificate {
     }
 }
 
-/// virtualPhrf = 500 / (5-band W/L low-medium TOT) - 550, rounded.
+/// `virtual_phrf` = 500 / (5-band W/L low-medium TOT) - 550, rounded.
 #[test]
 fn virtual_phrf_from_low_medium_tot() {
     assert_eq!(-50, cert(1.0).virtual_phrf());

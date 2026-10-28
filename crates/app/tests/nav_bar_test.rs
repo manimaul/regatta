@@ -1,4 +1,6 @@
-//! = `NavBarTest.kt`, the markup half: the hamburger, the collapse and the links. The toggle click is in `tests/wasm.rs`.
+//! SSR markup tests of the nav bar: the hamburger, the collapse and the links.
+//!
+//! The toggle click is tested in the browser by `crates/app/tests/wasm.rs`.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;

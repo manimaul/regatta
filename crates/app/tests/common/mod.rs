@@ -21,7 +21,7 @@ fn runtime() -> &'static tokio::runtime::Runtime {
     })
 }
 
-/// Renders a view to its HTML inside a fresh reactive owner (= `runTest { composition { ... } }`).
+/// Renders a view to its HTML inside a fresh reactive owner.
 pub fn render<V: IntoView + 'static>(f: impl FnOnce() -> V) -> String {
     let _guard = runtime().enter();
     let _ = any_spawner::Executor::init_tokio(); // Err when already initialised: fine

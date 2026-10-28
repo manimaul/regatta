@@ -1,5 +1,7 @@
-//! = `NavBar.kt`. Navigation goes through the Leptos router; the active link comes from
-//! `Routing::from(pathname)`.
+//! The nav bar: logo, theme toggle, and the screen links, collapsed into a hamburger menu below `lg`.
+//!
+//! Navigation goes through the Leptos router; the active link comes from matching the current path against
+//! [`crate::state::route`]. The cookie session decides which links show.
 
 use crate::components::rg_grid::{Customizer, RgDiv, RgSpace, RgSz};
 use crate::components::theme_toggle::ThemeToggle;

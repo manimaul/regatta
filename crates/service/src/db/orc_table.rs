@@ -1,4 +1,4 @@
-//! = `OrcTable.kt`: ORC certificates as `jsonb`, keyed by reference number, linked to a boat.
+//! The `orc` table: ORC certificates as `jsonb`, keyed by reference number, linked to a boat.
 
 use anyhow::Result;
 use regatta_common::OrcCertificate;
@@ -6,7 +6,9 @@ use sqlx::types::Json;
 use sqlx::{FromRow, PgConnection};
 use std::collections::HashMap;
 
-/// `IllegalArgumentException("invalid certificate properties")`: a certificate with a zero rating.
+/// The error for a certificate that fails [`validate`] (a zero rating).
+///
+/// The certificate update route (`crates/server/src/routes/orc.rs`) answers it with a 400.
 #[derive(Debug, thiserror::Error)]
 #[error("invalid certificate properties")]
 pub struct InvalidCertificate;
@@ -20,6 +22,12 @@ struct Row {
 
 const COLUMNS: &str = "orc_ref, boat_id, cert";
 
+/// Stores a certificate by reference number and links it to `boat`, replacing a stored one.
+///
+/// # Errors
+///
+/// - Returns [`InvalidCertificate`] if the certificate fails [`validate`]; nothing is written.
+/// - Returns `Err` if the statement fails.
 pub async fn upsert_cert(
     conn: &mut PgConnection,
     boat: i64,
@@ -40,7 +48,12 @@ pub async fn upsert_cert(
     Ok(())
 }
 
-/// Replaces the stored certificate with `certificate` (same reference number), keeping its boat link; rows changed.
+/// Replaces the stored certificate of the same reference number, keeping its boat link; returns the rows changed.
+///
+/// # Errors
+///
+/// - Returns [`InvalidCertificate`] if the certificate fails [`validate`]; nothing is written.
+/// - Returns `Err` if the statement fails.
 pub async fn update_cert(conn: &mut PgConnection, certificate: &OrcCertificate) -> Result<u64> {
     if !validate(certificate) {
         return Err(InvalidCertificate.into());
@@ -53,6 +66,11 @@ pub async fn update_cert(conn: &mut PgConnection, certificate: &OrcCertificate) 
         .rows_affected())
 }
 
+/// Returns every stored certificate.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored JSON does not decode.
 pub async fn all_certificates(conn: &mut PgConnection) -> Result<Vec<OrcCertificate>> {
     let rows: Vec<Json<OrcCertificate>> = sqlx::query_scalar("SELECT cert FROM orc")
         .fetch_all(conn)
@@ -60,6 +78,11 @@ pub async fn all_certificates(conn: &mut PgConnection) -> Result<Vec<OrcCertific
     Ok(rows.into_iter().map(|j| j.0).collect())
 }
 
+/// Returns the stored certificate `ref_no`, or `None` if it is not stored or `ref_no` is `None`.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or the stored JSON does not decode.
 pub async fn find_certificate(
     conn: &mut PgConnection,
     ref_no: Option<&str>,
@@ -70,7 +93,11 @@ pub async fn find_certificate(
     }
 }
 
-/// The certificates with `refs`, by reference number, in one query.
+/// Returns the certificates with `refs`, by reference number, in one query.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored JSON does not decode.
 pub async fn find_certificates(
     conn: &mut PgConnection,
     refs: &[String],
@@ -87,6 +114,11 @@ pub async fn find_certificates(
     Ok(rows.into_iter().map(|r| (r.orc_ref, r.cert.0)).collect())
 }
 
+/// Returns the certificates linked to `boat`.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored JSON does not decode.
 pub async fn find_certificates_of_boat(
     conn: &mut PgConnection,
     boat: i64,
@@ -97,7 +129,11 @@ pub async fn find_certificates_of_boat(
         .unwrap_or_default())
 }
 
-/// The certificates linked to each boat in `boat_ids`, in one query. Boats without any are absent.
+/// Returns the certificates linked to each boat in `boat_ids`, in one query; boats without any are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored JSON does not decode.
 pub async fn find_certificates_by_boat(
     conn: &mut PgConnection,
     boat_ids: &[i64],
@@ -120,6 +156,11 @@ pub async fn find_certificates_by_boat(
     Ok(grouped)
 }
 
+/// Unlinks every certificate from `boat`, keeping the certificates; returns the rows changed.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn unlink_certs(conn: &mut PgConnection, boat: i64) -> Result<u64> {
     Ok(
         sqlx::query("UPDATE orc SET boat_id = NULL WHERE boat_id = $1")
@@ -130,8 +171,9 @@ pub async fn unlink_certs(conn: &mut PgConnection, boat: i64) -> Result<u64> {
     )
 }
 
-/// `OrcTable.validate`: every rating the scoring options can pick must be set (the triple-number
-/// windward/leeward TODs are not checked, as in Kotlin).
+/// Tells whether every rating a scoring option can pick is set (non-zero).
+///
+/// The triple-number windward/leeward TODs are not checked, so a certificate without them still validates.
 pub fn validate(c: &OrcCertificate) -> bool {
     let values = [
         c.all_purpose_tod,

@@ -41,7 +41,7 @@ leptos_router = { workspace = true }
 leptos_meta = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-# Pacific-time display on both sides (DateUtil.kt): the server and the browser must render the same
+# Pacific-time display on both sides (src/utils/date_util.rs): the server and the browser must render the same
 # text, so the tz database is bundled into both. On wasm this costs roughly 100 KB of the bundle
 # before compression (jiff-tzdb); `jiff/js` reads the clock from `Date.now()` there.
 jiff = { workspace = true, features = ["tzdb-bundle-always"] }
@@ -56,7 +56,7 @@ regatta-service = { workspace = true, optional = true }
 regatta-scoring = { workspace = true, optional = true }
 anyhow = { workspace = true, optional = true }
 tracing = { workspace = true, optional = true }
-# only for `is_database_error` / SQLSTATE 23503 in the error mapping (= `StatusPages.kt`)
+# only for `is_database_error` / SQLSTATE 23503 in the error mapping (`server_fns::ssr::internal`)
 sqlx = { workspace = true, optional = true }
 wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { workspace = true, optional = true }

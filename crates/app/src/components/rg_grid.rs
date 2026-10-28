@@ -1,5 +1,5 @@
-//! = `RgGrid.kt`: Bootstrap's containers and positions as `.rg-*` classes, and `RgDiv` with its
-//! `Customizer` spacing helper.
+//! Layout helpers: Bootstrap-style containers and positions as `.rg-*` classes, and [`RgDiv`] with its
+//! [`Customizer`] spacing helper.
 
 use leptos::prelude::*;
 
@@ -39,7 +39,7 @@ impl RgContainerType {
     }
 }
 
-/// One class per entry; defined in app.css.
+/// A fixed or sticky position, one `.rg-*` class per entry, defined in `crates/app/style/app.css`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RgPosition {
     FixedBottom,
@@ -72,6 +72,7 @@ impl RgPosition {
     }
 }
 
+/// The full-height flex column of the page frame, with a container type and an optional position.
 #[component]
 pub fn RgGrid(
     #[prop(optional)] r#type: RgContainerType,
@@ -125,8 +126,9 @@ impl RgSide {
     ];
 }
 
-/// Bootstrap's spacer step and the Tailwind step with the same size (Bootstrap 3 = 1rem = Tailwind
-/// 4, 4 = 1.5rem = 6, 5 = 3rem = 12).
+/// A Bootstrap spacer step, mapped to the Tailwind step of the same size.
+///
+/// Bootstrap 3 = 1rem = Tailwind 4, 4 = 1.5rem = 6, 5 = 3rem = 12.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RgSz {
     S0,
@@ -174,8 +176,10 @@ impl RgSz {
     }
 }
 
-/// `space + side + size -> "mb-4"`: every combination spelled out as a literal (the Kotlin side
-/// built the name at runtime; `@source inline(...)` in app.css safelists the same set).
+/// Returns the spacing class for `space + side + size`, e.g. `"mb-4"`.
+///
+/// Every combination is spelled out as a literal so Tailwind's scanner sees it, and the `@source inline(...)`
+/// safelist in `crates/app/style/app.css` covers the same set. Never build these names with `format!`.
 pub const fn spacing_class(
     space: RgSpace,
     side: Option<RgSide>,
@@ -321,7 +325,9 @@ impl Customizer {
         self
     }
 
-    /// e.g. `M + B + S3 -> "mb-4"`; a `None` space clears the spacing class.
+    /// Sets the spacing class, replacing the previous one: `M + B + S3` gives `"mb-4"`.
+    ///
+    /// A `None` space clears the spacing class.
     pub fn set(
         mut self,
         space: Option<RgSpace>,
@@ -355,6 +361,7 @@ impl Customizer {
     }
 }
 
+/// A `<div>` with the classes of `customizer`; no `class` attribute at all when it has none.
 #[component]
 pub fn RgDiv(
     #[prop(optional, into)] id: Option<String>,

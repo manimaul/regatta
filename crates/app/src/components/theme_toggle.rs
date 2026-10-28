@@ -1,5 +1,7 @@
-//! = `ThemeToggle.kt`: light/dark switch, a sun knob on the left in light mode sliding right to a
-//! moon in dark mode (`.rg-theme-toggle`).
+//! The light/dark switch: a sun knob on the left in light mode sliding right to a moon in dark mode
+//! (`.rg-theme-toggle`).
+//!
+//! It writes the choice through [`crate::state::theme`].
 
 use crate::state::theme::{use_theme, Theme};
 use leptos::either::Either;

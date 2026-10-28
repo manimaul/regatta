@@ -1,5 +1,6 @@
-//! T5: every approved golden file parses into the typed structs and re-serializes byte for byte
-//! (which also pins the field order of every type the reports and standings reach).
+//! Every approved golden file parses into the typed structs and re-serializes byte for byte.
+//!
+//! This pins the field order, defaults and number and time formats of every type the reports and standings reach.
 
 use regatta_common::{to_kotlin_pretty_json, RaceReport, StandingsSeries};
 use std::path::{Path, PathBuf};

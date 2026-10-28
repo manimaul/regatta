@@ -1,28 +1,34 @@
-//! Race placing: the card comparators and `place` (= the top-level functions after
-//! `RaceResultReporter` in `RaceResultReporter.kt`).
+//! Race placing: the report card comparators and [`place`], which ranks the cards of a class or bracket.
+//!
+//! The rules are GSI 14.1 and the scoring decisions D3, D4, D6 and D7 of
+//! `docs/explore_implemented/test_audit_and_plan.md`, plus R1 of `docs/explore_implemented/orc_series_standings.md`.
 
 use jiff::SignedDuration;
 use regatta_common::{FinishCode, RaceReportCard};
 use std::cmp::{min, Ordering};
 
-/// `Duration.inWholeMilliseconds`: whole milliseconds, truncated toward zero.
+/// Returns the whole milliseconds of `d`, truncated toward zero.
+///
+/// Places compare and corrected times multiply at this precision, which the golden files fix.
 pub(crate) fn whole_millis(d: SignedDuration) -> i64 {
     d.as_millis() as i64
 }
 
-/// `cardComparePhrf`: the cards by PHRF corrected time (see [`compare`]).
+/// Orders two cards by PHRF corrected time (see [`compare`]).
 pub fn card_compare_phrf(lhs: &RaceReportCard, rhs: &RaceReportCard) -> Ordering {
     compare(lhs, rhs, |card| card.corrected_phrf_time)
 }
 
-/// `cardCompareOrc`: the cards by ORC corrected time (see [`compare`]).
+/// Orders two cards by ORC corrected time (see [`compare`]).
 pub fn card_compare_orc(lhs: &RaceReportCard, rhs: &RaceReportCard) -> Ordering {
     compare(lhs, rhs, |card| card.corrected_orc_time)
 }
 
-/// Corrected time (to the millisecond), a card with one before a card without; then HOC position,
-/// a card with one before a card without; then the finish code's weight (D6). A total preorder,
-/// so the standard stable sort is safe on it.
+/// Orders two cards by the corrected time `c_time` picks, then HOC position, then finish code weight.
+///
+/// Corrected time compares to the millisecond, a card with one before a card without; then the HOC position, a
+/// card with one before a card without; then the finish code's weight (D6, `test_audit_and_plan.md`). A total
+/// preorder, so the standard stable sort is safe on it.
 pub fn compare(
     lhs: &RaceReportCard,
     rhs: &RaceReportCard,
@@ -52,7 +58,9 @@ pub fn compare(
     }
 }
 
-/// Which entries [`place`] ranks: every card, the PHRF-rated ones, or the ORC-rated ones (R1).
+/// Which entries [`place`] ranks: every card, the PHRF-rated ones, or the ORC-rated ones.
+///
+/// R1 (`orc_series_standings.md`): in a rated class each rating is placed among its own entries.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlaceAmong {
     All,
@@ -61,6 +69,7 @@ pub enum PlaceAmong {
 }
 
 impl PlaceAmong {
+    /// Tells whether `card` is ranked: always for `All`, by the card's rating type otherwise.
     pub fn includes(self, card: &RaceReportCard) -> bool {
         match self {
             PlaceAmong::All => true,
@@ -70,13 +79,14 @@ impl PlaceAmong {
     }
 }
 
-/// Ranks the cards that `among` includes and hands each its place through `place_handler`.
-/// Returns the ranked cards in place order, followed by the cards `among` left out, untouched
-/// and in their input order. The ORC ranking uses the ORC corrected times.
+/// Ranks the cards in `subset` that `among` includes and hands each its place.
 ///
-/// The Kotlin extension works on shared card objects; here `cards` is the one card store and
-/// `subset` the indices into it that stand for the Kotlin receiver list. The returned indices are
-/// the Kotlin return list, and `place_handler` mutates the card in place as the Kotlin lambda did.
+/// `subset` holds indices into `cards`; the result holds the same indices, the ranked ones in place order followed
+/// by the ones `among` left out, untouched and in their input order. `place_handler` gets each ranked card with
+/// its place: 1-based for finishers, equal corrected times sharing one (D7), and the finish code's score otherwise
+/// (GSI 14.1 / D3), plus any penalty capped at the DNF score (D4); the decisions are in `test_audit_and_plan.md`.
+/// The ORC ranking orders by ORC corrected time, the others by PHRF corrected time (see [`compare`]).
+/// R1 (`orc_series_standings.md`): each rating is placed among its own entries only.
 pub fn place(
     cards: &mut [RaceReportCard],
     subset: &[usize],
@@ -119,7 +129,7 @@ pub fn place(
     //sorted by corrected time then HOC
     let mut sorted = card_list;
     sorted.sort_by(|&a, &b| card_compare(&cards[a], &cards[b]));
-    // (place, card index), the Kotlin TempPlace
+    // (place, card index)
     let mut list: Vec<(i32, usize)> = Vec::with_capacity(sorted.len());
     let mut last: Option<usize> = None;
     let mut position = 1;
@@ -128,7 +138,8 @@ pub fn place(
         let ea = &cards[i];
         let place = match ea.result_record.result.finish_code {
             FinishCode::Time | FinishCode::Hoc => {
-                // D7: equal corrected times share the place, and the next place skips (1, 1, 3)
+                // D7 (test_audit_and_plan.md): equal corrected times share the place, and the next place skips
+                // (1, 1, 3)
                 finished += 1;
                 if last.is_none_or(|l| card_compare(ea, &cards[l]) != Ordering::Equal) {
                     position = finished;
@@ -143,8 +154,8 @@ pub fn place(
         list.push((place, i));
     }
 
-    // D4 / GSI 9.2 / RRS 44.3(c): a penalty adds to the boat's own finishing place, capped at the
-    // DNF score, and changes nobody else. Only timed finishers and HOC can carry one; a penalty
+    // D4 (test_audit_and_plan.md) / GSI 9.2 / RRS 44.3(c): a penalty adds to the boat's own finishing place,
+    // capped at the DNF score, and changes nobody else. Only timed finishers and HOC can carry one; a penalty
     // left on another code is ignored.
     for tp in &mut list {
         let card = &cards[tp.1];
@@ -166,12 +177,16 @@ pub fn place(
     out
 }
 
-/// GSI 14.1 / D3: every entry except RC volunteers (and DNS) started the race.
+/// Tells whether the card's boat started the race: every entry except RC volunteers and DNS.
+///
+/// GSI 14.1, D3 (`test_audit_and_plan.md`).
 pub fn is_starter(card: &RaceReportCard) -> bool {
     card.result_record.result.finish_code.is_starter()
 }
 
-/// GSI 14.1 / D3: timed finishers and HOC boats are finishers.
+/// Tells whether the card's boat finished the race: a timed finisher or HOC.
+///
+/// GSI 14.1, D3 (`test_audit_and_plan.md`).
 pub fn is_finisher(card: &RaceReportCard) -> bool {
     card.result_record.result.finish_code.is_finisher()
 }

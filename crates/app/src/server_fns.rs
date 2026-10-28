@@ -1,16 +1,17 @@
-//! = `utils/Api.kt`: one server function per `Api` call. The bodies (compiled only with the `ssr`
-//! feature) are thin adapters over `regatta_service`, the same layer the REST handlers call, so the
-//! UI and `/v1/api` cannot drift. Every function is posted as JSON to `/api/<name>` (the prefix is
-//! not `/v1/api`, so nothing collides with the REST contract).
+//! The server functions the UI calls, one per data operation.
 //!
-//! Admin-only functions check the `regatta_token` cookie (the same bearer value the REST side
-//! takes, `base64(json(LoginResponse))`) with `validate_admin_token`, bootstrap rule included (an
-//! empty `auth` table lets everything through); a missing or bad cookie is
-//! `ServerFnError::ServerError("unauthorized")` and the UI shows its logged-out state.
+//! The bodies (compiled only with the `ssr` feature) are thin adapters over `regatta_service`, the same layer the
+//! REST handlers call, so the UI and `/v1/api` cannot drift. Every function is posted as JSON to `/api/<name>` (the
+//! prefix is not `/v1/api`, so nothing collides with the REST contract).
 //!
-//! Error texts are the REST texts: `validateRace` / `validateResult` messages, "This race has
-//! recorded results and cannot be deleted.", the foreign-key 409 text; anything else is
-//! "Internal server error" (the detail goes to the log, never to the client), like `StatusPages.kt`.
+//! Admin-only functions check the `regatta_token` cookie (the same bearer value the REST side takes,
+//! `base64(json(LoginResponse))`) through `ssr::require_admin`, bootstrap rule included (an empty `auth` table
+//! lets everything through); a missing or bad cookie is `ServerFnError::ServerError("unauthorized")`
+//! ([`UNAUTHORIZED`]) and the UI shows its logged-out state.
+//!
+//! Error texts are the REST texts: the `validate_race` / `validate_result` / `validate_boat` messages,
+//! [`RACE_HAS_RESULTS_TEXT`], the foreign-key 409 text [`FOREIGN_KEY_TEXT`]; anything else is [`INTERNAL_TEXT`]
+//! (the detail goes to the log, never to the client).
 
 use leptos::prelude::*;
 use leptos::server_fn::codec::Json;
@@ -24,23 +25,26 @@ pub const UNAUTHORIZED: &str = "unauthorized";
 /// The REST side's 409 text for a delete that something still references.
 pub const FOREIGN_KEY_TEXT: &str =
     "This record is still referenced by other records and cannot be deleted.";
+/// The error text for any failure the client did not cause; the detail goes to the server log only.
 pub const INTERNAL_TEXT: &str = "Internal server error";
+/// The error text of [`delete_race`] for a race that still has results.
 pub const RACE_HAS_RESULTS_TEXT: &str = "This race has recorded results and cannot be deleted.";
-/// What `login` answers for a wrong password or an unknown user (= the REST 401's status line,
-/// which `LoginViewModel` showed as `"${status} ${statusText}"`).
+/// The error text [`login`] returns for a wrong password or an unknown user: the status line of the REST 401.
 pub const LOGIN_FAILED: &str = "401 Unauthorized";
 
-/// The session the cookie proves: the `LoginResponse` the REST side would accept as a bearer and
-/// the admin's user name (Kotlin kept it in `localStorage["username"]`; the server renders
-/// "Logged in as …", so it travels with the login).
+/// The session the auth cookie proves.
+///
+/// Holds the `LoginResponse` the REST side would accept as a bearer and the admin's user name, which travels with
+/// the login so the server can render "Logged in as …".
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CurrentLogin {
     pub login: LoginResponse,
     pub user_name: String,
 }
 
-/// The message of a server function failure as the UI shows it: the `ServerError` text verbatim
-/// (the REST plain-text bodies), anything else as it displays.
+/// Returns the message of a server function failure as the UI shows it.
+///
+/// A `ServerError` gives its text verbatim (the REST plain-text bodies); any other error gives its display text.
 pub fn error_message(e: &ServerFnError) -> String {
     match e {
         ServerFnError::ServerError(m) => m.clone(),
@@ -50,8 +54,8 @@ pub fn error_message(e: &ServerFnError) -> String {
 
 #[cfg(feature = "ssr")]
 pub mod ssr {
-    //! The server-side helpers the function bodies share: the database and clock from context,
-    //! the auth cookie, the error mapping.
+    //! Server-side helpers the function bodies share: the database and clock from context, the auth cookie, the
+    //! error mapping.
 
     use super::{CurrentLogin, AUTH_COOKIE, FOREIGN_KEY_TEXT, INTERNAL_TEXT, UNAUTHORIZED};
     use http::header::{COOKIE, SET_COOKIE};
@@ -67,18 +71,25 @@ pub mod ssr {
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct FixedNow(pub Option<Timestamp>);
 
+    /// Returns the database the server put in context.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if no [`Db`] is in context (a render outside the server).
     pub fn db() -> Result<Db, ServerFnError> {
         use_context::<Db>()
             .ok_or_else(|| ServerFnError::ServerError("no database in context".to_string()))
     }
 
-    /// `FixedClock.now()`.
+    /// Returns `REGATTA_FIXED_NOW` when the server set it, else the wall clock.
     pub fn now() -> Timestamp {
         regatta_service::config::now(use_context::<FixedNow>().and_then(|f| f.0))
     }
 
-    /// = `StatusPages.kt`: a foreign key violation is the client's doing (409 text), anything else
-    /// is logged and answered generically.
+    /// Maps a service failure to the error the client sees.
+    ///
+    /// A foreign key violation (SQLSTATE 23503) is the client's doing and becomes [`FOREIGN_KEY_TEXT`], the REST 409
+    /// text; anything else is logged and answered with [`INTERNAL_TEXT`].
     pub fn internal(e: anyhow::Error) -> ServerFnError {
         let fk = e.chain().any(|cause| {
             cause
@@ -96,6 +107,7 @@ pub mod ssr {
         }
     }
 
+    /// The error of an admin function called without a valid cookie ([`UNAUTHORIZED`]).
     pub fn unauthorized() -> ServerFnError {
         ServerFnError::ServerError(UNAUTHORIZED.to_string())
     }
@@ -118,8 +130,9 @@ pub mod ssr {
             .next()
     }
 
-    /// Whether the request came in over TLS (directly or behind a proxy that says so): the
-    /// cookie is then `Secure`.
+    /// Tells whether the request came in over TLS, directly or behind a proxy that says so in `X-Forwarded-Proto`.
+    ///
+    /// The auth cookie is then `Secure`.
     fn is_https() -> bool {
         let Some(parts) = use_context::<Parts>() else {
             return false;
@@ -160,8 +173,15 @@ pub mod ssr {
         set_cookie_header(cookie);
     }
 
-    /// The bootstrap rule and the token check of `Token.validateAdminToken`, for the cookie: an
-    /// empty `auth` table lets everything through; afterwards the cookie must hold a valid token.
+    /// Checks that the request may make admin changes.
+    ///
+    /// An empty `auth` table lets everything through (bootstrap mode); afterwards the auth cookie must hold a token
+    /// that `regatta_service::auth::validate_admin_token` accepts.
+    ///
+    /// # Errors
+    ///
+    /// - [`unauthorized`] if the cookie is missing, unparseable or rejected.
+    /// - [`INTERNAL_TEXT`] if the admin check query fails.
     pub async fn require_admin(db: &Db) -> Result<(), ServerFnError> {
         if !db.admin_exists().await.map_err(internal)? {
             return Ok(());
@@ -173,8 +193,14 @@ pub mod ssr {
         }
     }
 
-    /// The validated session of the cookie, with its raw token: `None` without a cookie, with an
-    /// unparseable or rejected token, or while no admin exists (nothing to be logged in as).
+    /// Returns the validated session of the auth cookie, with its raw token.
+    ///
+    /// `None` without a cookie, with an unparseable or rejected token, or while no admin exists (nothing to be
+    /// logged in as).
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` with [`INTERNAL_TEXT`] if the auth record query fails.
     pub async fn session(db: &Db) -> Result<Option<(String, CurrentLogin)>, ServerFnError> {
         let Some(token) = cookie_token() else {
             return Ok(None);
@@ -197,7 +223,11 @@ pub mod ssr {
         )))
     }
 
-    /// The bearer token for a login response: `base64(json)`, what `localStorage` held.
+    /// Encodes the bearer token for a login response: `base64(json(LoginResponse))`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` with [`INTERNAL_TEXT`] if the response cannot be serialized.
     pub fn token_for(response: &regatta_common::LoginResponse) -> Result<String, ServerFnError> {
         use base64::prelude::{Engine, BASE64_STANDARD};
         let json = serde_json::to_vec(response).map_err(|e| internal(e.into()))?;
@@ -205,10 +235,14 @@ pub mod ssr {
     }
 }
 
-// ---- auth (`Auth.kt` + `LoginViewModel.kt`) ------------------------------------------------
+// ---- auth --------------------------------------------------------------------------------------
 
-/// `POST login`: the `LoginResponse`, and the auth cookie set on the response. A wrong password
-/// or unknown user is [`LOGIN_FAILED`].
+/// Logs in: returns the `LoginResponse` and sets the auth cookie on the response.
+///
+/// # Errors
+///
+/// - [`LOGIN_FAILED`] for a wrong password or an unknown user.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = LoginCall, prefix = "/api", endpoint = "login", input = Json)]
 pub async fn login(login: Login) -> Result<LoginResponse, ServerFnError> {
     let db = ssr::db()?;
@@ -225,13 +259,20 @@ pub async fn login(login: Login) -> Result<LoginResponse, ServerFnError> {
 }
 
 /// Clears the auth cookie.
+///
+/// Never returns `Err`.
 #[server(name = LogoutCall, prefix = "/api", endpoint = "logout", input = Json)]
 pub async fn logout() -> Result<(), ServerFnError> {
     ssr::clear_auth_cookie();
     Ok(())
 }
 
-/// `POST auth`: creates or replaces an admin (open while the `auth` table is empty).
+/// Creates or replaces an admin, open to anyone while the `auth` table is empty.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails or stores nothing.
 #[server(name = CreateAdminCall, prefix = "/api", endpoint = "create_admin", input = Json)]
 pub async fn create_admin(record: AuthRecord) -> Result<AuthRecord, ServerFnError> {
     let db = ssr::db()?;
@@ -242,15 +283,24 @@ pub async fn create_admin(record: AuthRecord) -> Result<AuthRecord, ServerFnErro
         .ok_or_else(|| ServerFnError::ServerError(INTERNAL_TEXT.to_string()))
 }
 
-/// The session the request's cookie proves, validated like a REST bearer; `None` when logged out.
+/// Returns the session the request's auth cookie proves, validated like a REST bearer; `None` when logged out.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = CurrentLoginCall, prefix = "/api", endpoint = "current_login", input = Json)]
 pub async fn current_login() -> Result<Option<CurrentLogin>, ServerFnError> {
     let db = ssr::db()?;
     Ok(ssr::session(&db).await?.map(|(_, current)| current))
 }
 
-/// The raw bearer token of the session ("Copy auth token"; the Python scripts take it as the
-/// bearer), `None` when logged out.
+/// Returns the raw bearer token of the session, `None` when logged out.
+///
+/// Backs "Copy auth token": the `database/*.py` scripts take it as their bearer.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AuthTokenCall, prefix = "/api", endpoint = "auth_token", input = Json)]
 pub async fn auth_token() -> Result<Option<String>, ServerFnError> {
     let db = ssr::db()?;
@@ -259,11 +309,22 @@ pub async fn auth_token() -> Result<Option<String>, ServerFnError> {
 
 // ---- series ------------------------------------------------------------------------------------
 
+/// Returns every series.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AllSeriesCall, prefix = "/api", endpoint = "all_series", input = Json)]
 pub async fn all_series() -> Result<Vec<Series>, ServerFnError> {
     ssr::db()?.all_series().await.map_err(ssr::internal)
 }
 
+/// Inserts or updates the series and returns them as stored.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostSeriesCall, prefix = "/api", endpoint = "post_series", input = Json)]
 pub async fn post_series(series: Vec<Series>) -> Result<Vec<Series>, ServerFnError> {
     let db = ssr::db()?;
@@ -271,6 +332,13 @@ pub async fn post_series(series: Vec<Series>) -> Result<Vec<Series>, ServerFnErr
     db.upsert_series(&series).await.map_err(ssr::internal)
 }
 
+/// Deletes a series.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteSeriesCall, prefix = "/api", endpoint = "delete_series", input = Json)]
 pub async fn delete_series(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -279,7 +347,11 @@ pub async fn delete_series(id: i64) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-/// `GET series/standings?id=&year=`: `None` for an unknown series.
+/// Returns the standings of a series for a year, `None` for an unknown series.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = SeriesStandingsCall, prefix = "/api", endpoint = "series_standings", input = Json)]
 pub async fn series_standings(
     id: i64,
@@ -293,12 +365,22 @@ pub async fn series_standings(
 
 // ---- classes and brackets ----------------------------------------------------------------------
 
+/// Returns every class with its brackets.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AllClassesCall, prefix = "/api", endpoint = "all_classes", input = Json)]
 pub async fn all_classes() -> Result<Vec<RaceClassBrackets>, ServerFnError> {
     ssr::db()?.all_classes().await.map_err(ssr::internal)
 }
 
-/// `POST raceClass`: the class and its brackets; brackets missing from the list are deleted.
+/// Saves a class and its brackets; brackets missing from the list are deleted.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostClassCall, prefix = "/api", endpoint = "post_class", input = Json)]
 pub async fn post_class(
     class: RaceClassBrackets,
@@ -310,6 +392,12 @@ pub async fn post_class(
         .map_err(ssr::internal)
 }
 
+/// Inserts or updates the classes and returns each with its brackets, sorted by `sort`.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostClassListCall, prefix = "/api", endpoint = "post_class_list", input = Json)]
 pub async fn post_class_list(
     classes: Vec<RaceClass>,
@@ -319,6 +407,13 @@ pub async fn post_class_list(
     db.upsert_class_list(&classes).await.map_err(ssr::internal)
 }
 
+/// Deletes a class.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteClassCall, prefix = "/api", endpoint = "delete_class", input = Json)]
 pub async fn delete_class(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -327,6 +422,13 @@ pub async fn delete_class(id: i64) -> Result<(), ServerFnError> {
     Ok(())
 }
 
+/// Deletes a bracket.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteBracketCall, prefix = "/api", endpoint = "delete_bracket", input = Json)]
 pub async fn delete_bracket(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -337,16 +439,31 @@ pub async fn delete_bracket(id: i64) -> Result<(), ServerFnError> {
 
 // ---- races -------------------------------------------------------------------------------------
 
+/// Returns every season year with a scheduled race (Pacific calendar), newest first.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = YearsCall, prefix = "/api", endpoint = "years", input = Json)]
 pub async fn years() -> Result<Vec<String>, ServerFnError> {
     ssr::db()?.all_years().await.map_err(ssr::internal)
 }
 
+/// Returns the race schedules of a year.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AllRacesCall, prefix = "/api", endpoint = "all_races", input = Json)]
 pub async fn all_races(year: i32) -> Result<Vec<RaceSchedule>, ServerFnError> {
     ssr::db()?.all_races(year).await.map_err(ssr::internal)
 }
 
+/// Returns one race schedule, `None` for an unknown race.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = RaceScheduleCall, prefix = "/api", endpoint = "race_schedule", input = Json)]
 pub async fn race_schedule(id: i64) -> Result<Option<RaceSchedule>, ServerFnError> {
     ssr::db()?
@@ -355,7 +472,14 @@ pub async fn race_schedule(id: i64) -> Result<Option<RaceSchedule>, ServerFnErro
         .map_err(ssr::internal)
 }
 
-/// `POST raceSchedule`: the `validateRace` message as the error text, else the schedule as stored.
+/// Validates and saves a race schedule, returning it as stored.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - The `regatta_scoring::validate_race` message if the race is invalid.
+/// - `"Could not save the race"` if nothing was stored.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostRaceScheduleCall, prefix = "/api", endpoint = "post_race_schedule", input = Json)]
 pub async fn post_race_schedule(schedule: RaceSchedule) -> Result<RaceSchedule, ServerFnError> {
     let db = ssr::db()?;
@@ -369,7 +493,14 @@ pub async fn post_race_schedule(schedule: RaceSchedule) -> Result<RaceSchedule, 
         .ok_or_else(|| ServerFnError::ServerError("Could not save the race".to_string()))
 }
 
-/// `DELETE race?id=`: refused with [`RACE_HAS_RESULTS_TEXT`] while results are recorded.
+/// Deletes a race that has no recorded results.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`RACE_HAS_RESULTS_TEXT`] while results are recorded for the race.
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteRaceCall, prefix = "/api", endpoint = "delete_race", input = Json)]
 pub async fn delete_race(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -385,7 +516,11 @@ pub async fn delete_race(id: i64) -> Result<(), ServerFnError> {
 
 // ---- results -----------------------------------------------------------------------------------
 
-/// `GET scheduleResults?raceId=`: `None` for an unknown race.
+/// Returns a race schedule with its results, `None` for an unknown race.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = ScheduleResultsCall, prefix = "/api", endpoint = "schedule_results", input = Json)]
 pub async fn schedule_results(race_id: i64) -> Result<Option<RaceScheduleResults>, ServerFnError> {
     ssr::db()?
@@ -394,7 +529,14 @@ pub async fn schedule_results(race_id: i64) -> Result<Option<RaceScheduleResults
         .map_err(ssr::internal)
 }
 
-/// `POST results`: the `validateResult` message as the error text, else the upserted result.
+/// Validates and inserts or updates a race result, returning it as stored.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - The `regatta_scoring::validate_result` message if the result is invalid.
+/// - `"Could not save the result"` if nothing was stored.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostResultCall, prefix = "/api", endpoint = "post_result", input = Json)]
 pub async fn post_result(result: RaceResult) -> Result<RaceResult, ServerFnError> {
     let db = ssr::db()?;
@@ -408,6 +550,12 @@ pub async fn post_result(result: RaceResult) -> Result<RaceResult, ServerFnError
         .ok_or_else(|| ServerFnError::ServerError("Could not save the result".to_string()))
 }
 
+/// Deletes a race result.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteResultCall, prefix = "/api", endpoint = "delete_result", input = Json)]
 pub async fn delete_result(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -416,7 +564,11 @@ pub async fn delete_result(id: i64) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-/// `GET report?raceId=`: the race report, `None` for an unknown race.
+/// Returns the scored report of a race, `None` for an unknown race.
+///
+/// # Errors
+///
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = ReportCall, prefix = "/api", endpoint = "report", input = Json)]
 pub async fn report(race_id: i64) -> Result<Option<RaceReport>, ServerFnError> {
     let db = ssr::db()?;
@@ -427,6 +579,12 @@ pub async fn report(race_id: i64) -> Result<Option<RaceReport>, ServerFnError> {
 
 // ---- people and boats (admin, like the REST routes) --------------------------------------------
 
+/// Returns every person; admin only, like the REST route.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AllPeopleCall, prefix = "/api", endpoint = "all_people", input = Json)]
 pub async fn all_people() -> Result<Vec<Person>, ServerFnError> {
     let db = ssr::db()?;
@@ -434,6 +592,13 @@ pub async fn all_people() -> Result<Vec<Person>, ServerFnError> {
     db.all_people().await.map_err(ssr::internal)
 }
 
+/// Inserts or updates a person, returning it as stored.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - `"Could not save the skipper"` if nothing was stored.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostPersonCall, prefix = "/api", endpoint = "post_person", input = Json)]
 pub async fn post_person(person: Person) -> Result<Person, ServerFnError> {
     let db = ssr::db()?;
@@ -444,6 +609,13 @@ pub async fn post_person(person: Person) -> Result<Person, ServerFnError> {
         .ok_or_else(|| ServerFnError::ServerError("Could not save the skipper".to_string()))
 }
 
+/// Deletes a person.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeletePersonCall, prefix = "/api", endpoint = "delete_person", input = Json)]
 pub async fn delete_person(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -452,6 +624,12 @@ pub async fn delete_person(id: i64) -> Result<(), ServerFnError> {
     Ok(())
 }
 
+/// Returns every boat with its skipper; admin only, like the REST route.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = AllBoatsCall, prefix = "/api", endpoint = "all_boats", input = Json)]
 pub async fn all_boats() -> Result<Vec<BoatSkipper>, ServerFnError> {
     let db = ssr::db()?;
@@ -459,7 +637,14 @@ pub async fn all_boats() -> Result<Vec<BoatSkipper>, ServerFnError> {
     db.all_boats().await.map_err(ssr::internal)
 }
 
-/// `POST boat`: the `validate_boat` message as the error text, else the upserted boat.
+/// Validates and inserts or updates a boat, returning it as stored.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - The `regatta_scoring::validate_boat` message if the boat is invalid.
+/// - `"Could not save the boat"` if nothing was stored.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = PostBoatCall, prefix = "/api", endpoint = "post_boat", input = Json)]
 pub async fn post_boat(boat: Boat) -> Result<Boat, ServerFnError> {
     let db = ssr::db()?;
@@ -473,6 +658,13 @@ pub async fn post_boat(boat: Boat) -> Result<Boat, ServerFnError> {
         .ok_or_else(|| ServerFnError::ServerError("Could not save the boat".to_string()))
 }
 
+/// Deletes a boat.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - [`FOREIGN_KEY_TEXT`] if other records still reference it.
+/// - [`INTERNAL_TEXT`] if the service fails.
 #[server(name = DeleteBoatCall, prefix = "/api", endpoint = "delete_boat", input = Json)]
 pub async fn delete_boat(id: i64) -> Result<(), ServerFnError> {
     let db = ssr::db()?;
@@ -481,8 +673,15 @@ pub async fn delete_boat(id: i64) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-/// `GET orcCert?refNo=`: the certificate looked up on data.orc.org by the server (the browser
-/// cannot: no CORS there); `None` when ORC has no such active certificate.
+/// Looks up an active ORC certificate on data.orc.org, `None` when ORC has no such active certificate.
+///
+/// The server makes the call because data.orc.org sends no CORS headers, so the browser cannot.
+///
+/// # Errors
+///
+/// - [`UNAUTHORIZED`] if the request is not an admin's (see `ssr::require_admin`).
+/// - `"a reference number is required"` if `ref_no` is blank.
+/// - [`INTERNAL_TEXT`] if the lookup fails.
 #[server(name = OrcCertCall, prefix = "/api", endpoint = "orc_cert", input = Json)]
 pub async fn orc_cert(ref_no: String) -> Result<Option<OrcCertificate>, ServerFnError> {
     let db = ssr::db()?;

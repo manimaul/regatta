@@ -1,6 +1,7 @@
-//! A database-free golden check against the approved files
-//! (`tests/golden/approved`, the reference output over the
-//! production snapshot with `now` = the dump instant):
+//! A database-free golden check against the approved files.
+//!
+//! The approved files (`tests/golden/approved`) are the reference output over the production snapshot with
+//! `now` = the dump instant:
 //!
 //! - every `race-<id>.json` is rebuilt from its own inputs: the cards are recomputed with
 //!   [`card`] from each `resultRecord` (with the certificate found on the boat, when it is
@@ -9,8 +10,8 @@
 //! - every `standings-<series>-<year>.json` is recomputed with [`standings`] from the race
 //!   reports it lists and compared byte for byte.
 //!
-//! The full T1 golden test (the dump in a container, the server's own data access) is the
-//! server crate's; this one proves the pure scoring given the server's inputs.
+//! The full golden test (the dump in a container, the server's own data access) is
+//! `crates/server/tests/golden.rs`; this one proves the pure scoring given the server's inputs.
 
 use jiff::Timestamp;
 use pretty_assertions::assert_eq;

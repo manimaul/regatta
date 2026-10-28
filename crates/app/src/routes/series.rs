@@ -1,4 +1,4 @@
-//! = `routes/Series.kt` (+ `SeriesViewModel.kt` state).
+//! The Series screen (admin): the series list, its order, and the add/edit series modal.
 
 use crate::app_style;
 use crate::components::join_classes;
@@ -17,7 +17,7 @@ use regatta_common::Series as SeriesModel;
 
 pub const ADD_EDIT_SERIES_MODAL_ID: &str = "add-edit-series";
 
-/// = `SeriesState`.
+/// The Series screen state: the loaded series, the series being edited and the sort mode.
 #[derive(Clone, Copy)]
 pub struct SeriesState {
     pub series: Loaded<Vec<SeriesModel>>,
@@ -38,7 +38,7 @@ impl SeriesState {
         self.series.reload();
     }
 
-    /// `nextSort()`: one past the highest sort value.
+    /// Returns one past the highest sort value, for a new series.
     pub fn next_sort(&self) -> i32 {
         self.series
             .value()
@@ -55,7 +55,7 @@ impl SeriesState {
         self.add_edit_series.update(|s| s.name = name);
     }
 
-    /// `saveOrder`: posts the list in its new order, then reloads and leaves sort mode.
+    /// Saves the series in their new order, then reloads and leaves sort mode.
     pub fn save_order(&self, order: Vec<SeriesModel>) {
         self.sort_mode.set(false);
         let series = self.series;
@@ -64,7 +64,7 @@ impl SeriesState {
         });
     }
 
-    /// `upsert`: a new series takes the next sort value; then reload.
+    /// Saves `series`, a new one taking the next sort value, then reloads.
     pub fn upsert(&self, series: SeriesModel) {
         let s = if series.id > 0 {
             series
@@ -80,7 +80,7 @@ impl SeriesState {
         });
     }
 
-    /// `delete`, then reload.
+    /// Deletes `series`, then reloads.
     pub fn delete(&self, series: SeriesModel) {
         let list = self.series;
         call(server_fns::delete_series(series.id), move |r| list.after(r));

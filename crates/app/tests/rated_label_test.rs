@@ -1,4 +1,5 @@
-//! = `RatedLabelTest.kt`: the rating cell links the ORC reference number to the certificate's public page in a new tab when its id is known.
+//! Tests that the rating cell links the ORC reference number to the certificate's public page in a new tab when
+//! its id is known.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;

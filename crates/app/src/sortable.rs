@@ -1,5 +1,7 @@
-//! = `lib/Sortable.kt` + `lib/SortableUtil.kt`: externs to the SortableJS 1.15.2 global
-//! (`window.Sortable`, loaded by a CDN tag in the shell; webpack used to bundle it).
+//! wasm-bindgen externs to the SortableJS 1.15.2 global `window.Sortable`, for drag-and-drop lists.
+//!
+//! The library is loaded by a CDN tag in the shell ([`crate::SORTABLE_JS`]), not bundled; the bindings are
+//! hydrate only.
 
 #[cfg(feature = "hydrate")]
 pub mod imp {
@@ -17,12 +19,12 @@ pub mod imp {
         pub fn destroy(this: &Sortable);
     }
 
-    /// `Sortable.create(element, options)`.
+    /// Makes `element`'s children sortable with the options object `args` (`Sortable.create`).
     pub fn create(element: &web_sys::Element, args: &JsValue) -> Sortable {
         Sortable::sortable_create(element, args)
     }
 
-    /// `SortEvent.oldIndex` / `newIndex`.
+    /// A drop: the item's index before and after the move.
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct SortEvent {
         pub old_index: usize,
@@ -36,8 +38,9 @@ pub mod imp {
             .map(|f| f as usize)
     }
 
-    /// `sortableArgs(ghostClass, onSort)`: the options object; the closure is kept alive by the
-    /// returned handle.
+    /// The SortableJS options object with its `onSort` closure.
+    ///
+    /// The closure lives as long as this handle, so keep it for as long as the list is sortable.
     pub struct SortableArgs {
         pub object: Object,
         _on_sort: Option<Closure<dyn FnMut(JsValue)>>,

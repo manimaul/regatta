@@ -1,4 +1,4 @@
-//! = `CellLines.kt`.
+//! Multi-line table cells for the results and standings tables.
 
 use crate::utils::standings_report::ScoreLine;
 use leptos::either::Either;
@@ -14,7 +14,9 @@ pub fn CellLines(lines: Vec<String>) -> impl IntoView {
         .collect_view()
 }
 
-/// Decorated lines of a standings cell (utils/standings_report.rs): bold or plain segments with their classes, then a plain suffix.
+/// Decorated lines of a standings cell: bold or plain segments with their classes, then a plain suffix.
+///
+/// The lines come from [`crate::utils::standings_report`].
 #[component]
 pub fn ScoreLines(lines: Vec<ScoreLine>) -> impl IntoView {
     lines

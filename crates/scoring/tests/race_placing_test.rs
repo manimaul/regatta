@@ -1,5 +1,8 @@
-//! = `RacePlacingTest.kt`: race placing rules, GSI 14.1 / 14.2 with the D3, D4 and D7 decisions in
-//! docs/explore_implemented/test_audit_and_plan.md.
+//! Race placing rules, GSI 14.1 / 14.2 with the scoring decisions D2, D3, D4, D6 and D7.
+//!
+//! Every bare decision ID (`Dn`) in this file is a scoring decision of
+//! `docs/explore_implemented/test_audit_and_plan.md`; R-rules are in
+//! `docs/explore_implemented/orc_series_standings.md`.
 
 use pretty_assertions::assert_eq;
 use regatta_common::FinishCode::*;
@@ -103,7 +106,8 @@ fn gsi_14_1_1_dnf_and_ret_score_finishers_plus_one() {
     report.assert_bracket_scores(&[("A", 1), ("B", 2), ("H", 3), ("DNF", 4), ("RET", 4)]);
 }
 
-/// GSI 14.1.4 / D3: NSC scores the other starters + 1, the same as DNS, one worse than DNF when every other starter but one finished.
+/// GSI 14.1.4 / D3: NSC scores the other starters + 1, the same as DNS, one worse than DNF when every other starter but
+/// one finished.
 #[test]
 fn gsi_14_1_4_nsc_scores_starters_plus_one() {
     let report = race(|r| {
@@ -138,7 +142,8 @@ fn d3_rc_volunteer_is_not_a_starter() {
     report.assert_bracket_scores(&[("A", 1), ("B", 2), ("NSC", 3)]);
 }
 
-/// GSI 14.1.5 / D6: DSQ scores the other starters + 2, one worse than DNS; the DSQ boat is a starter for the others, not for itself.
+/// GSI 14.1.5 / D6: DSQ scores the other starters + 2, one worse than DNS; the DSQ boat is a starter for the others,
+/// not for itself.
 #[test]
 fn gsi_14_1_5_dsq_scores_starters_plus_two() {
     let report = race(|r| {
@@ -156,7 +161,8 @@ fn gsi_14_1_5_dsq_scores_starters_plus_two() {
     report.assert_bracket_scores(&[("A", 1), ("B", 2), ("DNF", 3), ("DSQ", 5)]);
 }
 
-/// GSI 14.1.2 / D6: a DNS record scores starters + 1 and is not a starter, the same as having no record; the NSC boat is a starter for it.
+/// GSI 14.1.2 / D6: a DNS record scores starters + 1 and is not a starter, the same as having no record; the NSC boat
+/// is a starter for it.
 #[test]
 fn gsi_14_1_2_dns_record_scores_starters_plus_one_and_is_not_a_starter() {
     let report = race(|r| {
@@ -390,7 +396,8 @@ fn class_places_span_brackets_and_bracket_places_do_not() {
     ]);
 }
 
-/// R3 (orc_series_standings.md): the class report carries the race's ORC scoring option and bands, which the race view's heading shows.
+/// R3 (orc_series_standings.md): the class report carries the race's ORC scoring option and bands, which the race
+/// view's heading shows.
 #[test]
 fn class_report_carries_the_races_orc_scoring_option_and_bands() {
     let report = race_with(

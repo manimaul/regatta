@@ -1,23 +1,28 @@
-//! `timestamp without time zone` columns hold civil times that the Kotlin server read in its
-//! JVM's default zone: UTC in production (`main` forces it, D7), but the host's zone in the Gradle
-//! golden test, which is how the approved golden files came to carry Pacific-interpreted
-//! instants. The zone is therefore a parameter ([`Db::naive_time_zone`](super::Db)), UTC unless
-//! a test says otherwise. Values travel as text: `col::text` on the way out
-//! (`2024-04-11 02:00:00[.ffffff]`) and `$n::text::timestamp` on the way in. Season years
-//! follow the Pacific calendar (D8), like `RegattaDatabase.yearBounds` and `RaceTimeTable.allYears`.
+//! Conversions between instants and the civil times of the `timestamp without time zone` columns.
+//!
+//! Production reads and writes those columns as UTC (D7 in `docs/explore_implemented/rust_port.md`). The golden
+//! test reads them in Pacific time, the zone the approved golden files were recorded in, so the zone is a
+//! parameter ([`Db::naive_time_zone`](super::Db::naive_time_zone)), UTC unless a test says otherwise. Values travel
+//! as text: `col::text` on the way out (`2024-04-11 02:00:00[.ffffff]`) and `$n::text::timestamp` on the way in.
+//! Season years follow the Pacific calendar (D8 in `docs/explore_implemented/test_audit_and_plan.md`).
 
 use anyhow::{Context, Result};
 use jiff::civil::{date, DateTime};
 use jiff::tz::TimeZone;
 use jiff::Timestamp;
 
+/// The zone of the season calendar.
 pub const PACIFIC: &str = "America/Los_Angeles";
 
 fn pacific() -> Result<TimeZone> {
     TimeZone::get(PACIFIC).context("tz database")
 }
 
-/// A Postgres `timestamp::text` value as an instant, the civil time read in `tz`.
+/// Parses a Postgres `timestamp::text` value as an instant, reading the civil time in `tz`.
+///
+/// # Errors
+///
+/// Returns `Err` if the text is not a civil date-time or the time is out of range in `tz`.
 pub fn from_pg(text: &str, tz: &TimeZone) -> Result<Timestamp> {
     let civil: DateTime = text
         .trim()
@@ -26,12 +31,18 @@ pub fn from_pg(text: &str, tz: &TimeZone) -> Result<Timestamp> {
     Ok(civil.to_zoned(tz.clone())?.timestamp())
 }
 
-/// An instant as the civil text in `tz` that Postgres reads into a `timestamp` column.
+/// Formats an instant as the civil time in `tz`, which Postgres reads into a `timestamp` column.
 pub fn to_pg(ts: Timestamp, tz: &TimeZone) -> String {
     ts.to_zoned(tz.clone()).datetime().to_string()
 }
 
-/// D8: the season year's bounds, midnight Pacific on January 1st of `year` and of `year + 1`.
+/// Returns the season year's bounds: midnight Pacific on January 1st of `year` and of `year + 1`.
+///
+/// D8 (`test_audit_and_plan.md`): seasons follow the Pacific calendar, not UTC.
+///
+/// # Errors
+///
+/// Returns `Err` if the time zone database has no Pacific zone or the year is out of range.
 pub fn year_bounds(year: i32) -> Result<(Timestamp, Timestamp)> {
     let tz = pacific()?;
     let start = date(year as i16, 1, 1).to_zoned(tz.clone())?.timestamp();
@@ -39,7 +50,11 @@ pub fn year_bounds(year: i32) -> Result<(Timestamp, Timestamp)> {
     Ok((start, end))
 }
 
-/// The Pacific calendar year of an instant.
+/// Returns the Pacific calendar year of an instant.
+///
+/// # Errors
+///
+/// Returns `Err` if the time zone database has no Pacific zone.
 pub fn pacific_year(ts: Timestamp) -> Result<i32> {
     Ok(ts.to_zoned(pacific()?).year() as i32)
 }
@@ -58,7 +73,7 @@ mod tests {
         assert_eq!(frac.to_string(), "2026-07-09T10:45:56.233Z");
         assert_eq!(to_pg(frac, &utc), "2026-07-09T10:45:56.233");
         assert!(from_pg("yesterday", &utc).is_err());
-        // the Gradle golden test's JVM ran in the host's Pacific zone: race-1.json's 02:00Z start
+        // the golden test reads the dump in Pacific time: race-1.json's 02:00Z start
         let pacific = pacific().unwrap();
         let local = from_pg("2024-01-20 18:00:00", &pacific).unwrap();
         assert_eq!(local.to_string(), "2024-01-21T02:00:00Z");

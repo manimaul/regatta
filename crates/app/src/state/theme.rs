@@ -1,6 +1,8 @@
-//! = `ThemeViewModel.kt`, plus the `theme` cookie of the Rust port (rust_port.md D3): the toggle
-//! writes `data-theme` on `<html>`, `localStorage["theme"]` and the cookie, so the next
-//! server render starts in the chosen theme without a flash.
+//! The light/dark theme state and its persistence.
+//!
+//! The toggle writes `data-theme` on `<html>`, `localStorage["theme"]` and the `theme` cookie (D3,
+//! `docs/explore_implemented/rust_port.md`), so the next server render starts in the chosen theme without a flash.
+//! Components follow the theme only through the `--rg-*` tokens of `crates/app/style/app.css`.
 
 use leptos::prelude::*;
 
@@ -35,14 +37,16 @@ impl Theme {
     }
 }
 
-/// `localStorage` key; the inline script in the shell reads it before the bundle loads.
+/// The `localStorage` key of the saved theme; the inline script in the shell reads it before the bundle loads.
+///
+/// Must stay stable so existing users keep their saved choice.
 pub const THEME_STORAGE_KEY: &str = "theme";
-/// Cookie name; `shell()` reads it to render `data-theme` on the server.
+/// The theme cookie's name; [`crate::shell`] reads it to render `data-theme` on the server.
 pub const THEME_COOKIE: &str = "theme";
-/// One year, like the inline script's fallback expects.
+/// The theme cookie's lifetime in seconds: one year.
 pub const THEME_COOKIE_MAX_AGE: u32 = 31_536_000;
 
-/// The `Set-Cookie`-style value the toggle writes through `document.cookie`.
+/// Formats the `Set-Cookie`-style value the toggle writes through `document.cookie`.
 pub fn theme_cookie(theme: Theme) -> String {
     format!(
         "{THEME_COOKIE}={}; path=/; max-age={THEME_COOKIE_MAX_AGE}; SameSite=Lax",
@@ -50,7 +54,7 @@ pub fn theme_cookie(theme: Theme) -> String {
     )
 }
 
-/// The `theme` cookie's value out of a `Cookie:` header, or `None` when absent.
+/// Parses the `theme` cookie's value out of a `Cookie:` header, `None` when absent.
 pub fn theme_from_cookie_header(header: &str) -> Option<Theme> {
     header.split(';').find_map(|pair| {
         let (name, value) = pair.trim().split_once('=')?;
@@ -58,8 +62,10 @@ pub fn theme_from_cookie_header(header: &str) -> Option<Theme> {
     })
 }
 
-/// The app-wide theme signal (`themeViewModel`), provided by `App` and read by `ThemeToggle`,
-/// the chart controller and anything else that follows the theme.
+/// The app-wide theme signal.
+///
+/// Provided by [`crate::App`] and read by the theme toggle, the chart controller and anything else that follows the
+/// theme.
 #[derive(Debug, Clone, Copy)]
 pub struct ThemeState(pub RwSignal<Theme>);
 
@@ -90,8 +96,10 @@ impl ThemeState {
     }
 }
 
-/// The browser's saved choice (the attribute the shell or inline script already applied, then
-/// `localStorage`), or light. On the server `App` passes the cookie's value in instead.
+/// Returns the browser's saved theme, or light.
+///
+/// Reads the `data-theme` attribute the shell or inline script already applied, then `localStorage`. On the server
+/// the cookie's value is used instead (see [`crate::initial_theme`]).
 pub fn initial_theme() -> Theme {
     crate::utils::browser::initial_theme()
 }

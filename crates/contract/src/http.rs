@@ -1,5 +1,7 @@
-//! Sends resolved requests and records responses. Automatic decompression is off so the
-//! `Content-Encoding` header is observed; gzip and deflate bodies are decoded here.
+//! The contract's HTTP client: sends resolved requests and records the responses.
+//!
+//! Automatic decompression is off so the `Content-Encoding` header is observed; gzip and deflate bodies are decoded
+//! here ([`decode`]).
 
 use crate::cassette::{Headers, RecordedResponse};
 use crate::step::ResolvedRequest;
@@ -74,7 +76,11 @@ impl HttpClient {
     }
 }
 
-/// Decodes a `Content-Encoding` the server may apply (Ktor: gzip, deflate, identity).
+/// Decodes a body by its `Content-Encoding`: identity (or none), gzip or deflate.
+///
+/// # Errors
+///
+/// Returns `Err` for an unsupported encoding or a body that does not decode under its encoding.
 pub fn decode(encoding: &str, raw: &[u8]) -> Result<Vec<u8>> {
     let mut out = Vec::new();
     match encoding.trim() {
@@ -85,7 +91,7 @@ pub fn decode(encoding: &str, raw: &[u8]) -> Result<Vec<u8>> {
                 .context("decoding the gzip body")?;
         }
         "deflate" => {
-            // Ktor's deflate is a zlib stream; fall back to raw deflate.
+            // HTTP deflate is a zlib stream, but some servers send raw deflate: try zlib first.
             if flate2::read::ZlibDecoder::new(raw)
                 .read_to_end(&mut out)
                 .is_err()

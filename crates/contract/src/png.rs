@@ -2,7 +2,7 @@
 
 const SIGNATURE: [u8; 8] = [0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
 
-/// CRC-32 (IEEE 802.3, reflected, as PNG uses it), table-less.
+/// Computes the CRC-32 (IEEE 802.3, reflected, as PNG uses it) without a table.
 pub fn crc32(data: &[u8]) -> u32 {
     let mut crc = 0xFFFF_FFFFu32;
     for &byte in data {
@@ -15,7 +15,7 @@ pub fn crc32(data: &[u8]) -> u32 {
     !crc
 }
 
-/// Adler-32, the zlib trailer checksum.
+/// Computes the Adler-32 checksum, the zlib trailer.
 pub fn adler32(data: &[u8]) -> u32 {
     let (mut a, mut b) = (1u32, 0u32);
     for &byte in data {
@@ -36,7 +36,7 @@ fn chunk(kind: &[u8; 4], data: &[u8]) -> Vec<u8> {
     out
 }
 
-/// A zlib stream with one stored (uncompressed) block holding `raw`.
+/// Wraps `raw` in a zlib stream with one stored (uncompressed) block.
 fn zlib_stored(raw: &[u8]) -> Vec<u8> {
     let len = raw.len() as u16;
     let mut out = vec![0x78, 0x01, 0x01];
@@ -47,7 +47,7 @@ fn zlib_stored(raw: &[u8]) -> Vec<u8> {
     out
 }
 
-/// The PNG: 1x1, 8-bit RGBA, one opaque red pixel. 73 bytes.
+/// Builds the upload PNG: 1x1, 8-bit RGBA, one opaque red pixel, 73 bytes.
 pub fn tiny_png() -> Vec<u8> {
     let mut ihdr = Vec::with_capacity(13);
     ihdr.extend_from_slice(&1u32.to_be_bytes()); // width

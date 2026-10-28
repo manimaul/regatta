@@ -1,5 +1,6 @@
-//! `cargo xtask <task>` (the alias is in `.cargo/config.toml`): running the server, the container
-//! image and the Kubernetes deploy. Every command runs from the repository root.
+//! The `cargo xtask` tasks: running the server, building the container image and the Kubernetes deploy.
+//!
+//! The `xtask` alias is in `.cargo/config.toml`, and every command runs from the repository root.
 //!
 //! The k8s manifests in `k8s_deploy/` carry `{REGATTA_PG_USER}`, `{REGATTA_PG_PASS}` and
 //! `{REGATTA_DB_URL}` placeholders. They are filled from the `REGATTA_PG_USER` /
@@ -92,6 +93,10 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
+/// Builds the linux/amd64 image and checks that it really is amd64.
+///
+/// The build stage has no `.git`, so the git hash, branch and dirty flag go in as the `REGATTA_GIT_*` build
+/// arguments (`unknown` when git cannot tell).
 fn make_img(sh: &Shell) -> Result<()> {
     let git = |args: &[&str]| -> String {
         cmd!(sh, "git {args...}")
@@ -147,7 +152,7 @@ fn rollout_restart(sh: &Shell) -> Result<()> {
     Ok(())
 }
 
-/// `kubectl <verb> -f -` with `k8s_deploy/<manifest>` filled from the environment on stdin.
+/// Runs `kubectl <verb> -f -` with `k8s_deploy/<manifest>` on stdin, its placeholders filled from the environment.
 fn kubectl(sh: &Shell, verb: &str, manifest: &str, dry_run: bool) -> Result<()> {
     let path = Path::new("k8s_deploy").join(manifest);
     let template = sh
@@ -159,6 +164,10 @@ fn kubectl(sh: &Shell, verb: &str, manifest: &str, dry_run: bool) -> Result<()> 
     Ok(())
 }
 
+/// Fills the `{REGATTA_PG_USER}`, `{REGATTA_PG_PASS}` and `{REGATTA_DB_URL}` placeholders of a manifest.
+///
+/// The database URL points at the pgbouncer sidecar with the credentials percent-encoded; a missing or empty
+/// `REGATTA_PG_USER` / `REGATTA_PG_PASS` is an error.
 fn fill(template: &str) -> Result<String> {
     let user = require_env("REGATTA_PG_USER")?;
     let pass = require_env("REGATTA_PG_PASS")?;
@@ -180,7 +189,7 @@ fn require_env(name: &str) -> Result<String> {
     }
 }
 
-/// RFC 3986 userinfo encoding: everything but the unreserved characters.
+/// Percent-encodes a URL userinfo part per RFC 3986: everything but the unreserved characters.
 fn percent_encode(value: &str) -> String {
     let mut out = String::with_capacity(value.len());
     for b in value.bytes() {

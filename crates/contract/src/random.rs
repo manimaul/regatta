@@ -1,6 +1,7 @@
-//! Proptest-generated extra steps for `diff --random N`: valid and invalid payloads (results,
-//! races with every scoring option and band, series lists, unicode names), deterministic from a
-//! seed, all sent with the admin token and compared in full between the two servers.
+//! Proptest-generated extra steps for `diff --random N`, deterministic from a seed.
+//!
+//! [`random_steps`] makes valid and invalid payloads (results, races with every scoring option and band, series lists,
+//! unicode names), all sent with the admin token and compared in full between the two servers.
 
 use crate::step::{post, Step};
 use proptest::prelude::*;
@@ -44,7 +45,7 @@ const ORC_REFS: &[&str] = &[
     "04560004KI4",
 ];
 
-/// A field that is omitted, explicitly null, or set.
+/// A generated field: omitted from the body, an explicit JSON `null`, or set.
 #[derive(Debug, Clone)]
 enum Field {
     Omit,
@@ -228,7 +229,7 @@ fn kind() -> impl Strategy<Value = Kind> {
     ]
 }
 
-/// `count` generated steps, the same for the same `seed`.
+/// Generates `count` admin `POST` steps, the same for the same `seed`.
 pub fn random_steps(count: usize, seed: u64) -> Vec<Step> {
     let mut seed_bytes = [0u8; 32];
     seed_bytes[..8].copy_from_slice(&seed.to_le_bytes());
@@ -258,7 +259,7 @@ pub fn random_steps(count: usize, seed: u64) -> Vec<Step> {
         .collect()
 }
 
-/// The JSON of a series list: used by the scenario test to pin the generator's shape.
+/// Returns the JSON of a series list, which the scenario test uses to pin the generator's shape.
 pub fn example_series_list() -> Value {
     json!([{"id": 0, "name": "x", "sort": 1, "active": true}])
 }

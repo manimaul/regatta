@@ -1,4 +1,4 @@
-//! = `AuthTable.kt`.
+//! The `auth` table: the admin accounts, a user name and the stored password hash.
 
 use anyhow::Result;
 use regatta_common::AuthRecord;
@@ -21,7 +21,11 @@ fn to_record(row: &Row) -> AuthRecord {
     }
 }
 
-/// `AuthTable.selectAll().count() > 0`: false means bootstrap mode.
+/// Tells whether any admin account exists; `false` means bootstrap mode, where every request is admin.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn admin_exists(conn: &mut PgConnection) -> Result<bool> {
     let count: i64 = sqlx::query_scalar("SELECT count(*) FROM auth")
         .fetch_one(conn)
@@ -36,6 +40,11 @@ fn single(rows: Vec<Row>) -> Option<AuthRecord> {
     }
 }
 
+/// Returns the account of `user_name`, or `None` if there is not exactly one.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn get_auth_by_name(
     conn: &mut PgConnection,
     user_name: &str,
@@ -49,6 +58,11 @@ pub async fn get_auth_by_name(
     Ok(single(rows))
 }
 
+/// Returns the account `id`, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn get_auth(conn: &mut PgConnection, id: i64) -> Result<Option<AuthRecord>> {
     let rows: Vec<Row> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM auth WHERE id = $1"
@@ -59,6 +73,11 @@ pub async fn get_auth(conn: &mut PgConnection, id: i64) -> Result<Option<AuthRec
     Ok(single(rows))
 }
 
+/// Inserts the account (id 0) or upserts it by id, returning it as stored.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn save_auth(conn: &mut PgConnection, record: &AuthRecord) -> Result<Option<AuthRecord>> {
     let set = "hash = EXCLUDED.hash, user_name = EXCLUDED.user_name";
     let row: Option<Row> = if record.id > 0 {

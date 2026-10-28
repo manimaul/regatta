@@ -1,12 +1,14 @@
-//! = `RaceReport.kt`: the labels of the race results tables (finish, elapsed, corrected time)
-//! and the lines of the place columns. Pure, covered by `tests/race_report_labels_test.rs`.
+//! The labels of the race results tables (finish, elapsed, corrected time) and the lines of the place columns.
+//!
+//! Pure, covered by `crates/app/tests/race_report_labels_test.rs`.
 
 use crate::utils::date_util::ts_time_str;
 use jiff::{SignedDuration, Timestamp};
 use regatta_common::{display, FinishCode, RaceReportCard, RaceResultFull, RatingType};
 
-/// `RaceResultFull.finishText(startTime)`: the local finish time (with `P+n` for a penalty) when
-/// the class has a start, else the finish code's text.
+/// Formats a result's finish for the editor tables.
+///
+/// The local finish time (with `P+n` for a penalty) when the class has a start, else the finish code's text.
 pub fn full_finish_text(result: &RaceResultFull, start_time: Option<Timestamp>) -> String {
     match (result.finish, start_time) {
         (Some(finish), Some(_)) => penalized(ts_time_str(finish), result.penalty),
@@ -14,7 +16,7 @@ pub fn full_finish_text(result: &RaceResultFull, start_time: Option<Timestamp>) 
     }
 }
 
-/// `FinishCode.finishText(hocPosition)`.
+/// Returns a finish code's label; HOC shows its place from `hoc_position`.
 pub fn finish_code_text(code: FinishCode, hoc_position: Option<i32>) -> String {
     match code {
         FinishCode::Time
@@ -38,7 +40,7 @@ fn penalized(time: String, penalty: Option<i32>) -> String {
     }
 }
 
-/// `RaceReportCard.finishText()`.
+/// Formats a report card's finish cell.
 pub fn card_finish_text(card: &RaceReportCard) -> String {
     match (card.finish_time, card.start_time) {
         (Some(finish), Some(_)) => penalized(ts_time_str(finish), card.penalty),
@@ -46,14 +48,14 @@ pub fn card_finish_text(card: &RaceReportCard) -> String {
     }
 }
 
-/// `RaceReportCard.elapsedText()`.
+/// Formats a report card's elapsed time cell.
 pub fn elapsed_text(card: &RaceReportCard) -> String {
     card.elapsed_time
         .map(display)
         .unwrap_or_else(|| "n/a".to_string())
 }
 
-/// JS `toFixed(4)`.
+/// Formats a time correction factor with four decimals.
 fn cf_text(tcf: f64) -> String {
     format!("{tcf:.4}")
 }
@@ -75,7 +77,7 @@ fn cor_time_text(tcf: f64, duration: Option<SignedDuration>, label: &str) -> Str
 // Place columns of the race results table. Each function returns the lines of one cell; the
 // view renders them separated by <br>.
 
-/// "Place In Bracket" cell of a class with more than one bracket.
+/// Returns the lines of the "Place In Bracket" cell of a class with more than one bracket.
 pub fn bracket_place_lines(card: &RaceReportCard, show_orc: bool) -> Vec<String> {
     let rating = card.rating_type();
     if !show_orc {
@@ -94,7 +96,7 @@ pub fn bracket_place_lines(card: &RaceReportCard, show_orc: bool) -> Vec<String>
     }
 }
 
-/// "Place In Class" cell of a class with more than one bracket.
+/// Returns the lines of the "Place In Class" cell of a class with more than one bracket.
 pub fn class_place_lines(card: &RaceReportCard, show_orc: bool) -> Vec<String> {
     let rating = card.rating_type();
     if !show_orc {
@@ -113,7 +115,9 @@ pub fn class_place_lines(card: &RaceReportCard, show_orc: bool) -> Vec<String> {
     }
 }
 
-/// The single "Place In Class" cell of a class with one bracket, where bracket place equals class place.
+/// Returns the lines of the single "Place In Class" cell of a class with one bracket.
+///
+/// There the bracket place equals the class place.
 pub fn single_bracket_place_lines(card: &RaceReportCard) -> Vec<String> {
     let rating = card.rating_type();
     if rating == RatingType::OrcPhrf && card.place_in_bracket_orc != 0 {

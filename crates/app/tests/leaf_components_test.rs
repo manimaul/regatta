@@ -1,5 +1,6 @@
-//! = `LeafComponentsTest.kt`, the markup half: Bootstrap classes replaced by rg-*, public APIs unchanged.
-//! The interaction half (open/select/dismiss, typing) is in `tests/wasm.rs`.
+//! SSR markup tests of the leaf components: their `.rg-*` classes and element structure.
+//!
+//! The interactions (open, select, dismiss, typing) are tested in the browser by `crates/app/tests/wasm.rs`.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;

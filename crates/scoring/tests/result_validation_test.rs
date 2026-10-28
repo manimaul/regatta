@@ -1,4 +1,7 @@
-//! = `ResultValidationTest.kt`: validateResult guards the POST results route (D8).
+//! Tests of `validate_result`, which guards the POST results route.
+//!
+//! D8 (`test_audit_and_plan.md`): a PHRF result needs a rating; R2 (`orc_series_standings.md`): an ORC result
+//! needs a certificate.
 
 use pretty_assertions::assert_eq;
 use regatta_common::{RaceResult, RatingType};
@@ -62,7 +65,7 @@ fn accepts_cruising_and_orc_results_without_a_phrf_rating() {
     );
 }
 
-/// D8: a PHRF or ORC_PHRF result needs a PHRF rating; the message is what the UI shows.
+/// D8 (`test_audit_and_plan.md`): a PHRF or ORC_PHRF result needs a PHRF rating; the message is what the UI shows.
 #[test]
 fn d8_rejects_a_phrf_result_without_a_rating() {
     assert!(validate_result(&result(RatingType::Phrf, None, None)).is_some());

@@ -1,4 +1,4 @@
-//! = `AboutInfo.kt`.
+//! The about record.
 
 use serde::{Deserialize, Serialize};
 

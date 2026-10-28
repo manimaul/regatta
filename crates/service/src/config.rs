@@ -10,10 +10,12 @@
 use clap::Parser;
 use jiff::Timestamp;
 
-/// The defaults match `database/docker-compose.yaml`.
+/// The database URL used without `REGATTA_DB_URL`: the database of `database/docker-compose.yaml`.
 pub const DEFAULT_DB_URL: &str = "postgres://regatta_admin:mysecretpassword@localhost:5432/regatta";
+/// The listen address used without `REGATTA_BIND` or `LEPTOS_SITE_ADDR`.
 pub const DEFAULT_BIND: &str = "0.0.0.0:8888";
 
+/// The server configuration, parsed by clap from the flags or their environment variables (see the module doc).
 #[derive(Parser, Debug, Clone)]
 #[command(name = "regatta", about = "The regatta scoring server", version)]
 pub struct Config {
@@ -37,18 +39,22 @@ fn parse_fixed_now(value: &str) -> Result<Timestamp, String> {
 }
 
 impl Config {
-    /// `FixedClock.now()`: the fixed instant when configured, else the wall clock.
+    /// Returns the configured `REGATTA_FIXED_NOW` instant, or the wall clock when none is set.
     pub fn now(&self) -> Timestamp {
         now(self.fixed_now)
     }
 }
 
-/// `FixedClock.now()` for a parsed `REGATTA_FIXED_NOW`.
+/// Returns `fixed_now`, a parsed `REGATTA_FIXED_NOW`, or the wall clock when it is `None`.
 pub fn now(fixed_now: Option<Timestamp>) -> Timestamp {
     fixed_now.unwrap_or_else(Timestamp::now)
 }
 
-/// `FixedClock.parse`: the instant a `REGATTA_FIXED_NOW` value names, or `None` when absent or blank.
+/// Parses a `REGATTA_FIXED_NOW` value into its instant, or `None` when absent or blank.
+///
+/// # Errors
+///
+/// Returns `Err` if the value is not an ISO-8601 instant.
 pub fn parse_fixed_now_value(value: Option<&str>) -> Result<Option<Timestamp>, jiff::Error> {
     match value.map(str::trim) {
         None | Some("") => Ok(None),

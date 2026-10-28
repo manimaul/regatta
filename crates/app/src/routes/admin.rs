@@ -1,4 +1,4 @@
-//! = `routes/Admin.kt`: login and create-admin forms.
+//! The Admin screen: the login and create-admin forms.
 
 use crate::components::rg_button::{RgButton, RgButtonStyle};
 use crate::components::rg_grid::{Customizer, RgDiv, RgSide, RgSpace, RgSz};
@@ -8,6 +8,7 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_navigate;
 use leptos_router::NavigateOptions;
 
+/// The Admin screen; `create` shows the create-admin form (also while logged in) instead of the login form.
 #[component]
 pub fn Admin(create: bool) -> impl IntoView {
     let login = use_login();
@@ -33,6 +34,7 @@ pub fn Admin(create: bool) -> impl IntoView {
     }
 }
 
+/// The user name and password form; `create` makes it create or replace an admin instead of logging in.
 #[component]
 pub fn Login(create: bool) -> impl IntoView {
     let login = use_login();
@@ -58,7 +60,7 @@ pub fn Login(create: bool) -> impl IntoView {
                 click=move |()| if create {
                     login.submit_new()
                 } else {
-                    // a successful login goes Home, like `routeViewModel.pushRoute(Route.Home)`
+                    // a successful login goes Home
                     let navigate = navigate.clone();
                     login.login(move || navigate("/", NavigateOptions::default()))
                 }

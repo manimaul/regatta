@@ -1,5 +1,9 @@
-//! = the `RaceResultReporter` object, minus its two database wrappers (`getStandingsReport`,
-//! `getReport`), which the server crate provides over these pure seams.
+//! Race reports and series standings: report cards, time correction, race places and series scores.
+//!
+//! The entry points are [`card`], [`report`] and [`standings`]; `crates/service/src/reporter.rs` loads their
+//! inputs from the database. The rules are the GSI sections and the scoring decisions D1 to D9 of
+//! `docs/explore_implemented/test_audit_and_plan.md`, and R1 to R4 of
+//! `docs/explore_implemented/orc_series_standings.md`, cited on each item.
 
 use crate::place::{is_starter, place, whole_millis, PlaceAmong};
 use crate::sort::java_sort;
@@ -14,21 +18,21 @@ use regatta_common::{
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-/// The time zone of the club: the season (`effective_race_class`) is the class start's year here.
+/// The time zone of the club: the season ([`effective_race_class`]) is the class start's year here.
 pub const PACIFIC_ZONE: &str = "America/Los_Angeles";
 
-/// Kotlin `sumOf` over `Double`s: a left fold from `0.0` in iteration order (never `-0.0`, which
-/// `f64::sum` starts from and serde_json would print).
+/// Sums `values` as a left fold from `0.0` in iteration order.
+///
+/// Never `-0.0`, which `f64::sum` starts from and serde_json would print into the golden standings.
 fn sum_of(values: impl IntoIterator<Item = f64>) -> f64 {
     values.into_iter().fold(0.0, |acc, v| acc + v)
 }
 
-/// Pure series standings from the race reports. `now` tells a canceled race from one not yet
-/// sailed (D2) when a race has no results at all.
+/// Scores the series standings of `year` from the series' race reports.
 ///
-/// The reports are sorted by their race's earliest class start (stable, so reports with equal
-/// starts keep their input order). Kotlin's `startTime` throws on a report whose schedule is
-/// empty; here such a report sorts first.
+/// `now` tells a cancelled race from one not yet sailed (D2, `test_audit_and_plan.md`) when a race has no
+/// results at all. The reports are sorted by their race's earliest class start (stable, so reports with equal
+/// starts keep their input order); a report whose schedule is empty sorts first.
 pub fn standings(
     series: Series,
     year: i32,
@@ -68,7 +72,7 @@ pub fn standings(
         races,
     };
 
-    //calculate place in class, per rating (D9)
+    //calculate place in class, per rating (D9, test_audit_and_plan.md)
     for standings_class in &mut standings.standings {
         let orc_class = standings_class.race_class.rating_type.is_orc();
         let mut rows: Vec<&mut StandingsBoatSkipper> = standings_class
@@ -98,13 +102,13 @@ pub fn standings(
     standings
 }
 
-/// Sorts the rows by total, then by the tiebreak, and writes 1-based places. Boats the
-/// tiebreak cannot separate share the place, and the next place skips (D5). The sort is
-/// stable and the comparator only looks at scores, so the input order never shows.
+/// Sorts the rows in `subset` by total, then by the tiebreak, and writes their 1-based places through `set`.
 ///
-/// `subset` names the rows (indices into `rows`) that take part, the Kotlin receiver list; the
-/// others are left alone. The comparator is not a total order (the tiebreak skips the RC races
-/// of either boat of a pair), so the sort is Java's ([`java_sort`]), never `slice::sort_by`.
+/// Boats the tiebreak cannot separate share the place, and the next place skips (GSI 14.5, D5 in
+/// `test_audit_and_plan.md`). The sort is stable and the comparator only looks at scores, so the input order never
+/// shows. `subset` holds indices into `rows`; the other rows are left alone. The comparator is not a total order
+/// (the tiebreak skips the RC races of either boat of a pair), so the sort is [`java_sort`], never
+/// `slice::sort_by`.
 pub fn assign_places(
     rows: &mut [&mut StandingsBoatSkipper],
     subset: &[usize],
@@ -134,11 +138,13 @@ pub fn assign_places(
     }
 }
 
-/// GSI 14.5: "If two or more boats are tied in a series, the boat with the highest finishing
-/// place in the last race of the series will be scored the series winner." D5 continues to
-/// the next-to-last race and so on when a race is equal. Races not sailed for this group
-/// (D2) and races where either boat was the RC volunteer (GSI 1.4.1.2) are skipped. Raw
-/// scores are compared, thrown-out races included. 0 means the boats cannot be separated.
+/// Breaks a series tie between two rows by their race scores, last race first.
+///
+/// GSI 14.5: "If two or more boats are tied in a series, the boat with the highest finishing place in the last
+/// race of the series will be scored the series winner." D5 (`test_audit_and_plan.md`) continues to the
+/// next-to-last race and so on when a race is equal. Races not sailed for this group (D2) and races where either
+/// boat was the RC volunteer (GSI 1.4.1.2) are skipped. Raw scores are compared, thrown-out races included.
+/// [`Ordering::Equal`] means the boats cannot be separated.
 pub fn tie_breaker(
     lhs: &StandingsBoatSkipper,
     rhs: &StandingsBoatSkipper,
@@ -171,7 +177,7 @@ fn get_standings_class(
     reports: &[&RaceReport],
     statuses: &HashMap<i64, RaceStatus>,
 ) -> Vec<StandingsClass> {
-    // distinctBy id, first occurrence kept, then a stable sort by `sort`
+    // the distinct classes by id, first occurrence kept, then a stable sort by `sort`
     let mut classes: Vec<RaceClass> = Vec::new();
     for class_report in reports
         .iter()
@@ -225,8 +231,10 @@ fn get_standings_bracket(
         .collect()
 }
 
-/// D9 / R1: which entries a rating's groups are scored among. In an ORC class each rating is
-/// placed among its own entries; elsewhere every entry is PHRF (or cruising) and none is ORC.
+/// Tells whether a card counts for the PHRF groups: in an ORC class only PHRF-rated cards, elsewhere every card.
+///
+/// D9 (`test_audit_and_plan.md`) / R1 (`orc_series_standings.md`): in an ORC class each rating is placed among
+/// its own entries; elsewhere every entry is PHRF (or cruising) and none is ORC.
 fn phrf_card(card: &RaceReportCard, orc_class: bool) -> bool {
     !orc_class || card.rating_type().is_phrf()
 }
@@ -235,7 +243,9 @@ fn orc_card(card: &RaceReportCard, orc_class: bool) -> bool {
     orc_class && card.rating_type().is_orc()
 }
 
-/// D9: the rows a rating's series places are assigned among; the others keep place 0.
+/// Returns the rows the PHRF series places are assigned among; the others keep place 0.
+///
+/// D9 (`test_audit_and_plan.md`).
 fn phrf_rows(rows: &[&mut StandingsBoatSkipper], orc_class: bool) -> Vec<usize> {
     (0..rows.len())
         .filter(|&i| !orc_class || rows[i].rating_type.is_phrf())
@@ -252,7 +262,10 @@ fn orc_rows(rows: &[&mut StandingsBoatSkipper], orc_class: bool) -> Vec<usize> {
     }
 }
 
-/// GSI 14.1.2: no entry in the group scores starters + 1, per group (D2 / D9)
+/// Returns a row's score in one race for one group: its place, or starters + 1 without a placed entry.
+///
+/// GSI 14.1.2, applied per group (D2 / D9, `test_audit_and_plan.md`): 0 when the row is not scored under the
+/// rating or the race was not sailed for the group.
 fn score(eligible: bool, sailed: bool, placed: bool, place: i32, starters: i32) -> f64 {
     if !eligible || !sailed {
         0.0
@@ -263,10 +276,12 @@ fn score(eligible: bool, sailed: bool, placed: bool, place: i32, starters: i32) 
     }
 }
 
-/// The rows of one bracket. Each row is scored under up to two ratings (D9): the PHRF groups
-/// (bracket, class) and, in an ORC class, the ORC groups, each with its own starters, sailed
-/// races, DNS scores, throw-out, RC average, total and tiebreak. A row is scored under a
-/// rating when any of its results in the series carries it; the other rating's fields stay 0.
+/// Builds the standings rows of one bracket, one per boat, with their race scores and totals.
+///
+/// Each row is scored under up to two ratings (D9, `test_audit_and_plan.md`): the PHRF groups (bracket, class)
+/// and, in an ORC class, the ORC groups, each with its own starters, sailed races, DNS scores, throw-out, RC
+/// average, total and tiebreak. A row is scored under a rating when any of its results in the series carries it;
+/// the other rating's fields stay 0.
 fn get_standings_boat_bracket(
     race_class: &RaceClass,
     bracket: &Bracket,
@@ -293,7 +308,8 @@ fn get_standings_boat_bracket(
         .collect();
 
     let orc_class = race_class.rating_type.is_orc();
-    // D2 / D3: the starters of each group per race, which decide "sailed" and the DNS score
+    // D2 / D3 (test_audit_and_plan.md): the starters of each group per race, which decide "sailed" and the DNS
+    // score
     let starters =
         |records: &[&RaceReportCard], include: &dyn Fn(&RaceReportCard) -> bool| -> Vec<i32> {
             races
@@ -325,7 +341,7 @@ fn get_standings_boat_bracket(
         .enumerate()
         .map(|(i, race)| (race.id, i))
         .collect();
-    // groupBy boat id (0 without a boat): one group per key, in order of first appearance
+    // group by boat id (0 without a boat): one group per key, in order of first appearance
     let mut groups: Vec<(i64, Vec<&RaceReportCard>)> = Vec::new();
     for card in &bracket_records {
         let key = card
@@ -342,13 +358,14 @@ fn get_standings_boat_bracket(
     let mut result: Vec<StandingsBoatSkipper> = groups
         .into_iter()
         .map(|(_, race_report_cards)| {
-            // D8: one row per boat, shown with the skipper of its most recent race in the series
+            // D8 (test_audit_and_plan.md): one row per boat, shown with the skipper of its most recent race in the
+            // series
             let order = |card: &RaceReportCard| -> i64 {
                 race_order
                     .get(&card.result_record.result.race_id)
                     .map_or(-1, |&i| i as i64)
             };
-            // maxBy keeps the first of equal maxima
+            // the first of equal maxima wins
             let latest = race_report_cards
                 .iter()
                 .copied()
@@ -381,7 +398,7 @@ fn get_standings_boat_bracket(
                         .get(&race.id)
                         .copied()
                         .unwrap_or(RaceStatus::Sailed);
-                    // D2: a race is sailed for a group when the group had a starter
+                    // D2 (test_audit_and_plan.md): a race is sailed for a group when the group had a starter
                     let bracket_sailed = bracket_starters[i] > 0;
                     let class_sailed = class_starters[i] > 0;
                     let bracket_sailed_orc = bracket_starters_orc[i] > 0;
@@ -555,26 +572,36 @@ pub struct GroupScores {
     pub scores: Vec<Option<f64>>,
     /// The race index thrown out, if any.
     pub throw_out: Option<usize>,
+    /// The sum of the sailed races' scores, the throw-out left out.
     pub total: f64,
 }
 
-/// RRS A10(a): to the nearest tenth of a point, 0.05 rounded upward. The epsilon absorbs binary representation error.
+/// Rounds a score to the nearest tenth of a point, 0.05 upward (RRS A10(a), D1 in `test_audit_and_plan.md`).
+///
+/// The epsilon absorbs binary representation error.
 pub fn round_to_tenth(score: f64) -> f64 {
     (score * 10.0 + 0.5 + 1e-9).floor() / 10.0
 }
 
 /// Scores one group (bracket or class) of a boat's series row, by race index.
 ///
-/// - D2: a race not sailed for the group scores null and is left out of everything.
+/// The decisions are those of `docs/explore_implemented/test_audit_and_plan.md`:
+///
+/// - D2: a race not sailed for the group scores `None` and is left out of everything.
 /// - GSI 14.4 / D2: with 5 or more sailed races, the worst scored race is thrown out. Among
 ///   equal worst scores the one with the worse `tie_score` goes, the first on a full tie.
 /// - GSI 1.4.1.2 / D1: the boat's first RC volunteer race scores the average of its other
 ///   sailed races, the throw-out left out, rounded to the nearest tenth of a point with 0.05
-///   rounded up (RRS A10(a), [round_to_tenth]); later RC races score DNS (`dns`) and count in
+///   rounded up (RRS A10(a), [`round_to_tenth`]); later RC races score DNS (`dns`) and count in
 ///   that average; with no other race to average, the RC race scores DNS too. The RC race is
 ///   never the throw-out, since the average cannot be worse than the worst of the races it is
 ///   taken from.
 /// - The total is the sum of the sailed races that were not thrown out.
+///
+/// # Panics
+///
+/// Never in practice: every sailed race is given a score before the throw-out and the total read them, so a
+/// panic means that invariant of this function was broken.
 pub fn group_scores(
     cells: &[StandingsRace],
     sailed: impl Fn(&StandingsRace) -> bool,
@@ -608,7 +635,7 @@ pub fn group_scores(
             .iter()
             .map(|&i| scored(i))
             .fold(f64::NEG_INFINITY, f64::max);
-        // maxByOrNull keeps the first of equal maxima
+        // the first of equal maxima wins
         scored_idx
             .iter()
             .copied()
@@ -732,9 +759,11 @@ pub fn class_card(
     (!class_report.bracket_report.is_empty()).then_some(class_report)
 }
 
-/// The 2025→2026 switch: ORC scoring only applies from the 2026 season on. Before that a rated
-/// class scores as PHRF only, whatever its rating type says. The season is the class start's
-/// year in America/Los_Angeles. Cruising classes are returned unchanged.
+/// Returns the class as it is scored in its season: a rated class before 2026 scores as PHRF only.
+///
+/// ORC scoring only applies from the 2026 season on; before that a rated class scores as PHRF, whatever its
+/// rating type says. The season is the class start's year in [`PACIFIC_ZONE`]. Cruising classes are returned
+/// unchanged.
 pub fn effective_race_class(class_schedule: &ClassSchedule) -> RaceClass {
     let race_class = &class_schedule.race_class;
     if !race_class.rating_type.is_orc_or_phrf() {
@@ -754,8 +783,11 @@ pub fn effective_race_class(class_schedule: &ClassSchedule) -> RaceClass {
     }
 }
 
-/// Pure race report: places every card in its class and bracket. Each card belongs to at most
-/// one class (by its bracket's class id), so the cards can be shared across the class loop.
+/// Builds a race report, placing every card in its class and bracket.
+///
+/// Each card belongs to at most one class (by its bracket's class id), so the cards can be shared across the
+/// class loop. Cards whose bracket is missing (id 0) are placed among themselves and reported in an "Incorrectly
+/// classed" class, in their input order.
 pub fn report(race_schedule: RaceSchedule, mut cards: Vec<RaceReportCard>) -> RaceReport {
     let mut class_report_list: Vec<ClassReportCards> = Vec::new();
 
@@ -796,7 +828,7 @@ pub fn report(race_schedule: RaceSchedule, mut cards: Vec<RaceReportCard>) -> Ra
                 name: "Invalid result records".to_string(),
                 ..Bracket::default()
             },
-            // the orphans in their input order, not in place order (Kotlin passes the receiver list)
+            // the orphans in their input order, not in place order, as the golden reports list them
             cards: orphans.iter().map(|&i| cards[i].clone()).collect(),
         };
         class_report_list.push(ClassReportCards {
@@ -819,11 +851,16 @@ pub fn report(race_schedule: RaceSchedule, mut cards: Vec<RaceReportCard>) -> Ra
     }
 }
 
-/// Pure card: elapsed time from the class start, PHRF and ORC time correction factors, and
-/// corrected times. Places are left at 0 for [class_card] to fill in.
+/// Builds a result's report card: elapsed time from the class start, PHRF and ORC time correction factors, and
+/// corrected times.
 ///
-/// (= `card`; the Kotlin `reduceToCard` that picks the certificate by `orcRef` and the class
-/// start by the bracket's class id is the server crate's.)
+/// Places are left at 0 for [`class_card`] to fill in. A cruising result gets a PHRF factor of 1, and a result
+/// without a certificate an ORC factor of 1. The caller picks the certificate by the result's `orc_ref` and the
+/// class start by the bracket's class id (`crates/service/src/reporter.rs`).
+///
+/// # Panics
+///
+/// Never in practice: a [`Race`] always carries both ORC wind bands, so [`orc_tcf`] cannot fail here.
 pub fn card(
     record: RaceResultBoatBracket,
     class_start: Option<Timestamp>,
@@ -882,7 +919,9 @@ pub fn card(
     }
 }
 
-/// GSI 14.3 time-on-time: `650 / (B + rating)`; 1.0 without a B factor or a rating (D8 legacy rows).
+/// Returns the PHRF time-on-time factor `650 / (B + rating)` (GSI 14.3).
+///
+/// 1.0 without a B factor or a rating, which scores the legacy rows D8 (`test_audit_and_plan.md`) keeps loadable.
 pub fn phrf_tcf(factor: Option<i32>, phrf_rating: Option<i32>) -> f64 {
     match (factor, phrf_rating) {
         (Some(cf), Some(rating)) => 650.0 / (f64::from(cf) + f64::from(rating)),
@@ -890,7 +929,7 @@ pub fn phrf_tcf(factor: Option<i32>, phrf_rating: Option<i32>) -> f64 {
     }
 }
 
-/// `orc_tcf` was asked for a banded option without its band (Kotlin `requireNotNull`).
+/// The error of [`orc_tcf`]: a banded scoring option was asked for without its wind band.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OrcTcfError {
     /// A triple-number option needs the 3-band wind band.
@@ -914,8 +953,14 @@ impl std::fmt::Display for OrcTcfError {
 
 impl std::error::Error for OrcTcfError {}
 
-/// The certificate's time-on-time factor for the race's scoring option and wind band: one
-/// certificate field per option × band; the single-number options ignore the bands.
+/// Returns the certificate's time-on-time factor for the race's scoring option and wind band.
+///
+/// One certificate field per option × band; the single-number options ignore the bands.
+///
+/// # Errors
+///
+/// - Returns [`OrcTcfError::Missing3Band`] if a triple-number option is given no 3-band wind band.
+/// - Returns [`OrcTcfError::Missing5Band`] if a five-band option is given no 5-band wind band.
 pub fn orc_tcf(
     orc3_band: Option<Orc3Band>,
     orc5_band: Option<Orc5Band>,
@@ -997,16 +1042,16 @@ pub fn orc_tcf(
     })
 }
 
-/// Kotlin `Duration.MAX_NANOS`: the largest magnitude a `Duration` stores in nanoseconds.
+/// The largest corrected time magnitude kept to the nanosecond (about 146 years); larger ones keep milliseconds.
 const MAX_NANOS: i64 = i64::MAX / 2 / 1_000_000 * 1_000_000 - 1;
-/// Kotlin `Duration.MAX_MILLIS`.
+/// The largest corrected time magnitude in milliseconds; larger ones saturate.
 const MAX_MILLIS: i64 = i64::MAX / 2;
 
-/// The corrected time: `(finish - start).inWholeMilliseconds * tcf` as a `Double`, then Kotlin's
-/// `Double.toDuration(MILLISECONDS)`, which stores the value in nanoseconds rounded to nearest
-/// (`roundToLong`, ties toward positive infinity) and falls back to whole milliseconds only for
-/// magnitudes over ~146 years. The ISO strings of the golden files carry exactly those
-/// nanoseconds (`PT1H0M10.173160173S`).
+/// Returns the corrected time, the elapsed whole milliseconds times `tcf`, or `None` without a start or finish.
+///
+/// The product is an `f64` of milliseconds, stored in nanoseconds rounded to nearest (ties toward positive
+/// infinity), falling back to whole milliseconds only for magnitudes over about 146 years. The ISO strings of the
+/// golden files carry exactly those nanoseconds (`PT1H0M10.173160173S`).
 pub fn boat_corrected_time(
     tcf: f64,
     start: Option<Timestamp>,
@@ -1017,8 +1062,10 @@ pub fn boat_corrected_time(
     Some(double_millis_to_duration(ms))
 }
 
-/// Kotlin `Double.toDuration(DurationUnit.MILLISECONDS)` (NaN, which cannot occur here, becomes
-/// zero where Kotlin throws).
+/// Converts `f64` milliseconds to a duration in nanoseconds rounded to nearest (ties toward positive infinity).
+///
+/// Beyond [`MAX_NANOS`] it keeps whole milliseconds, saturating at [`MAX_MILLIS`]. NaN, which cannot occur here,
+/// becomes zero.
 fn double_millis_to_duration(ms: f64) -> SignedDuration {
     let value_in_ns = ms * 1_000_000.0;
     let nanos = round_to_long(value_in_ns);

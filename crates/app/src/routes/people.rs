@@ -1,4 +1,4 @@
-//! = `routes/People.kt` (skippers), with the `BoatViewModel` person-editing state.
+//! The People screen (admin): the skippers, edited through the shared [`crate::routes::boats::BoatState`].
 
 use crate::app_style;
 use crate::components::join_classes;

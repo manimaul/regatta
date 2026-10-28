@@ -1,5 +1,6 @@
-//! `VersionInfo`: the short git hash, the branch, the dirty flag and the build date are captured
-//! here and handed to the crate as `cargo:rustc-env` values, so nothing is written under `src/`.
+//! Captures the build metadata of `VersionInfo`: the short git hash, the branch, the dirty flag and the build date.
+//!
+//! They are handed to the crate as `cargo:rustc-env` values, so nothing is written under `src/`.
 //!
 //! `REGATTA_GIT_HASH`, `REGATTA_GIT_BRANCH` and `REGATTA_GIT_DIRTY` in the build environment win
 //! (the container build has no `.git`; `cargo xtask make-img` passes them as build arguments).

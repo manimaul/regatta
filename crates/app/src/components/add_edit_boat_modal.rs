@@ -1,5 +1,7 @@
-//! = `AddEditBoatModal.kt`. The draft boat is the `BoatViewModel.addEditState` of the Kotlin side,
-//! here an `AddEditBoatState` of signals owned by the Boats screen, which also saves (`save`).
+//! The add/edit boat modal.
+//!
+//! The draft boat is an [`AddEditBoatState`] of signals owned by the Boats screen, which also saves it through the
+//! modal's `save` callback.
 
 use crate::cb::Cb;
 use crate::components::modal::{RgModalBody, RgModalButton, RgModalFooterRow};
@@ -14,7 +16,7 @@ use regatta_common::{Boat, OrcCertificate, Person, RatingType};
 
 pub const ADD_EDIT_BOAT_MODAL_ID: &str = "add-edit-boat";
 
-/// = `AddEditBoatState`.
+/// The draft boat and skipper the add/edit boat modal edits, with its validity.
 #[derive(Clone, Copy)]
 pub struct AddEditBoatState {
     pub add_boat: RwSignal<Boat>,
@@ -105,6 +107,7 @@ impl Default for AddEditBoatState {
     }
 }
 
+/// The button that opens the add/edit boat modal, running `open_action` first.
 #[component]
 pub fn AddEditBoatModalButton(
     style: RgButtonStyle,
@@ -117,12 +120,13 @@ pub fn AddEditBoatModalButton(
     }
 }
 
+/// The modal that adds or edits a boat, its skipper and its rating.
 #[component]
 pub fn AddEditBoatModal(
     #[prop(into)] people: Signal<Vec<Person>>,
     #[prop(into)] modal_title: TextProp,
     state: AddEditBoatState,
-    /// `saveEditedBoat`: the Boats screen upserts the boat (`POST boat`) and reloads the list.
+    /// Saves the draft: the Boats screen upserts the boat ([`crate::server_fns::post_boat`]) and reloads the list.
     #[prop(into)]
     save: Cb<Boat>,
 ) -> impl IntoView {

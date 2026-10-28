@@ -1,5 +1,7 @@
-//! = `RgRaceYearSelector.kt`: the year picker above the race lists. The list of years is server
-//! data (`years`, = `GET /v1/api/years`); the selected year is shared app state (`selectedYear()`).
+//! The year picker above the race lists.
+//!
+//! The list of years is server data ([`crate::server_fns::years`]); the selected year is shared app state
+//! ([`selected_year`]), so every screen with a picker starts at the same year.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -10,7 +12,7 @@ use crate::utils::async_state::Loaded;
 use crate::utils::date_util::current_year;
 use leptos::prelude::*;
 
-/// = `RgRaceYearState`.
+/// The selected race year (the current year at first) and the years that have races.
 #[derive(Clone, Copy)]
 pub struct RgRaceYearState {
     pub year: RwSignal<Option<i32>>,
@@ -26,12 +28,12 @@ fn provide(years: Loaded<Vec<String>>) -> RgRaceYearState {
     state
 }
 
-/// The app's state: the years from the server (`Api.getYears()`).
+/// Provides the app's year state, loading the years from the server.
 pub fn provide_race_year_loaded() -> RgRaceYearState {
     provide(Loaded::new(server_fns::years))
 }
 
-/// A state that never loads, for components rendered outside the app.
+/// Provides a year state that never loads, for components rendered outside the app.
 pub fn provide_race_year() -> RgRaceYearState {
     provide(Loaded::inert())
 }
@@ -40,7 +42,7 @@ pub fn use_race_year() -> RgRaceYearState {
     use_context::<RgRaceYearState>().unwrap_or_else(provide_race_year)
 }
 
-/// `selectedYear()`.
+/// Returns the selected race year without tracking it.
 pub fn selected_year() -> Option<i32> {
     use_race_year().year.get_untracked()
 }
@@ -57,6 +59,7 @@ impl RgRaceYearState {
     }
 }
 
+/// The year picker; `on_year_select` gets the newly selected year.
 #[component]
 pub fn RgRaceYearSelector(
     #[prop(optional, into)] on_year_select: Option<Cb<Option<i32>>>,

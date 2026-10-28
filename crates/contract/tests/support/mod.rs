@@ -1,7 +1,8 @@
-//! An in-process stand-in for the regatta server: just enough of the API (bootstrap, admin
-//! creation, login with the real hashing, bearer validation, id-assigning echoes, image upload
-//! and download, a stored certificate, the SPA fallback) for the scenario to run end to end.
-//! Knobs change its answers so replay and diff have something to report.
+//! An in-process stand-in for the regatta server, just enough of the API for the scenario to run end to end.
+//!
+//! It covers bootstrap, admin creation, login with the real hashing, bearer validation, id-assigning echoes, image
+//! upload and download, a stored certificate and the site fallback. Knobs change its answers so replay and diff have
+//! something to report.
 
 use axum::body::Bytes;
 use axum::extract::{Path, Query, State};
@@ -65,7 +66,7 @@ fn unauthorized() -> Response {
         .into_response()
 }
 
-/// Bootstrap: open while no admin exists; otherwise a correctly signed, unexpired token.
+/// Checks the bearer token: open while no admin exists (bootstrap), else a correctly signed, unexpired token.
 fn authorize(stub: &Stub, headers: &HeaderMap) -> Result<(), Box<Response>> {
     let store = stub.store.lock().unwrap();
     let Some((id, stored_hash, _)) = &store.admin else {
@@ -265,7 +266,7 @@ async fn upload_image(
     StatusCode::ACCEPTED.into_response()
 }
 
-/// `GET /v1/api/image<name>`: the real route is one segment with a literal prefix.
+/// Answers `GET /v1/api/image<name>`, one segment with a literal prefix like the real route.
 fn get_image(stub: &Stub, name: &str) -> Response {
     let store = stub.store.lock().unwrap();
     match &store.image {

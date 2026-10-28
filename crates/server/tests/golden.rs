@@ -1,15 +1,15 @@
-//! T1 (= `GoldenTest.kt`): every race report and every series standings over the production
-//! snapshot, through the server's own data access, byte for byte against the approved files.
-//! No re-approval here: a mismatch writes `<name>.received.json` next to the approved file
-//! (git-ignored) and fails with the list.
+//! The golden regression: every race report and series standings over the snapshot, byte for byte.
 //!
-//! The approved files were written by the Kotlin `GoldenTest` under Gradle, whose JVM ran in the
-//! host's zone (`TimeZone.setDefault(UTC)` is in the server's `main`, not in the test), so pgjdbc
-//! read the `timestamp without time zone` columns as Pacific wall-clock times: race-1.json's
-//! start is `2024-01-21T02:00:00Z` where the dump holds `2024-01-20 18:00:00` and the contract
-//! cassettes (recorded from the UTC server) say `2024-01-20T18:00:00Z`. This test therefore reads
-//! the snapshot in `America/Los_Angeles` ([`Db::with_naive_time_zone`]); the production path is
-//! UTC (D7).
+//! Loads the production snapshot through the server's own startup path and data access and compares each report and
+//! standings page with its approved file in `crates/scoring/tests/golden/approved/` (T1 in
+//! `docs/explore_implemented/rust_port.md`). There is no re-approval: a mismatch writes `<name>.received.json` next
+//! to the approved file (git-ignored) and fails with the list.
+//!
+//! The approved files hold the `timestamp without time zone` columns read as Pacific wall-clock times: race-1.json's
+//! start is `2024-01-21T02:00:00Z` where the dump holds `2024-01-20 18:00:00`, while the contract cassettes say
+//! `2024-01-20T18:00:00Z`. This test therefore reads the snapshot in `America/Los_Angeles`
+//! ([`Db::with_naive_time_zone`]); the production path reads those columns as UTC (D7 in
+//! `docs/explore_implemented/rust_port.md`).
 
 mod support;
 
@@ -79,7 +79,7 @@ async fn golden_reports_and_standings_match_approved() {
     let pacific = jiff::tz::TimeZone::get(PACIFIC).unwrap();
     let db = &Db::with_naive_time_zone(golden.pool.clone(), pacific);
 
-    // GoldenTest.schemaVersionIsCurrentAfterStartup
+    // the startup path leaves the schema at the supported version
     assert_eq!(
         startup::schema_version(&golden.pool).await.unwrap(),
         startup::SCHEMA_VERSION
@@ -88,7 +88,7 @@ async fn golden_reports_and_standings_match_approved() {
     let years = years(&db.all_years().await.unwrap());
     assert!(!years.is_empty(), "the snapshot has no race years");
 
-    // GoldenTest.raceReportsMatchApproved
+    // every race report of every year
     let mut approvals = Approvals::new();
     let mut race_count = 0;
     for year in &years {
@@ -107,7 +107,7 @@ async fn golden_reports_and_standings_match_approved() {
     }
     println!("checked {race_count} race reports for years {years:?}");
 
-    // GoldenTest.seriesStandingsMatchApproved
+    // every series standings with races in a year
     let now: Timestamp = support::DUMP_INSTANT.parse().unwrap();
     let mut standings_count = 0;
     for series in db.all_series().await.unwrap() {

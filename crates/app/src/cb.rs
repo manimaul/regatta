@@ -1,7 +1,8 @@
-//! `Cb<In, Out>`: a `Callback` that converts from any `Fn(In) -> Out` closure through `#[prop(into)]`.
-//! leptos's own `Callback<In>` only converts from closures when `In` is a tuple (`Callback<(T,)>`),
-//! which would make every single-argument handler `|(v,)|`; this wrapper keeps the Kotlin shape
-//! (`listener: (String) -> Unit` -> `listener: Cb<String>`).
+//! [`Cb`], a callback prop type that converts from any `Fn(In) -> Out` closure through `#[prop(into)]`.
+//!
+//! leptos's own `Callback<In>` only converts from closures when `In` is a tuple (`Callback<(T,)>`), which would
+//! make every single-argument handler `|(v,)|`; with this wrapper a prop is `listener: Cb<String>` and the call site
+//! passes `|v| ...`.
 
 use leptos::prelude::{Callable, Callback};
 

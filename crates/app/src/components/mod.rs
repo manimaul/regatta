@@ -1,5 +1,8 @@
-//! = `web/src/jsMain/kotlin/components/*.kt`, one module per Kotlin file, same `.rg-*` classes
-//! and element structure (Tailwind scans these sources, so every class is a literal string).
+//! The shared UI components, one module per component family, plus element ids and class-list props.
+//!
+//! Components keep their look in the `.rg-*` classes of `crates/app/style/app.css` and read only the `--rg-*` theme
+//! tokens. Tailwind scans these sources, so every class is a literal string. Server and browser must render the
+//! same markup, so never put a block element (a dropdown, [`RgCheck`], [`RgTime`]) inside `<p>`.
 
 pub mod add_edit_boat_modal;
 pub mod alerts;
@@ -51,9 +54,10 @@ use leptos::prelude::*;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
-/// Element ids the forms and modals hand out (`"${++num}_input"`, `"modal-${++num}"`). The
-/// Kotlin counters were globals; here one counter per `App` (in context) so the server and the
-/// hydrating browser, rendering the same tree in the same order, agree on every id.
+/// Counters for the element ids the forms and modals hand out (`"<n>_input"`, `"modal-<n>"`).
+///
+/// There is one counter per [`crate::App`] (in context), so the server and the hydrating browser, rendering the
+/// same tree in the same order, agree on every id.
 #[derive(Clone, Default)]
 pub struct ElementIds {
     inputs: Arc<AtomicUsize>,
@@ -75,7 +79,8 @@ pub fn next_modal_id() -> String {
     format!("modal-{}", ids().modals.fetch_add(1, Ordering::Relaxed) + 1)
 }
 
-/// A class-list prop: `"me-2"`, `String`, or a `[&str]` slice convert through `#[prop(into)]`.
+/// A class-list prop: `"me-2"`, a `String`, or a `[&str]` slice convert through `#[prop(into)]`.
+///
 /// Empty by default. The values are literal class strings from the call sites, never built names.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Cls(pub String);
@@ -107,8 +112,9 @@ impl<const N: usize> From<[&str; N]> for Cls {
     }
 }
 
-/// Joins class lists; `None`/empty parts are dropped. The parts are literal class strings from
-/// the call sites, never built names.
+/// Joins class lists, dropping empty parts.
+///
+/// The parts are literal class strings from the call sites, never built names.
 pub fn join_classes(parts: &[&str]) -> String {
     parts
         .iter()

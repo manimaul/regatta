@@ -1,4 +1,5 @@
-//! = `RaceReportLabelsTest.kt`: finish text, elapsed and corrected time text, and the place columns (utils/race_report.rs).
+//! Tests of the race results labels in `crates/app/src/utils/race_report.rs`: finish, elapsed and corrected time
+//! text, and the place columns.
 #![cfg(not(target_arch = "wasm32"))]
 
 use jiff::{SignedDuration, Timestamp};
@@ -238,7 +239,7 @@ fn multi_bracket_places_for_orc_phrf_bracket_column() {
     );
 }
 
-/// D7: the class column shows the ORC place in class, not in bracket.
+/// D7 (`test_audit_and_plan.md`): the class column shows the ORC place in class, not in bracket.
 #[test]
 fn d7_multi_bracket_orc_phrf_class_column_shows_class_orc_place() {
     assert_eq!(

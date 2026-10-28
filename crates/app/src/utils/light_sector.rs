@@ -1,5 +1,5 @@
-//! = `LightSector.kt`: light sector images for the OpenENC chart style, ported from njord's
-//! `SvgLightSector.kt` (mxmariner.com / openenc.com draw them the same way).
+//! Light sector images for the OpenENC chart style, drawn the same way as njord's `SvgLightSector.kt`
+//! (mxmariner.com / openenc.com).
 //!
 //! The style's `LIGHTS_sector` layer uses the feature's `SI` property as its icon id, and the id
 //! encodes everything needed to draw the sector:
@@ -59,8 +59,9 @@ pub fn parse_sector_image_id(id: &str) -> Option<SectorImage> {
     })
 }
 
-/// A 200×200 SVG of the light's visible arc with dashed sector limit lines from the light at the
-/// center. SECTR1/SECTR2 are bearings *from seaward toward the light*, so they are reversed to
+/// Draws a 200×200 SVG of the light's visible arc, with dashed sector limit lines from the light at the center.
+///
+/// SECTR1/SECTR2 are bearings *from seaward toward the light*, so they are reversed to
 /// draw from the light outward; equal bearings mean an all-round light, drawn as a full circle.
 pub fn sector_svg(
     sectr1: f64,
@@ -71,7 +72,7 @@ pub fn sector_svg(
 ) -> String {
     let sector1 = (sectr1 + 180.0) % 360.0;
     let sector2 = (sectr2 + 180.0) % 360.0;
-    // the Kotlin/JS doubles 100.0 print as "100"
+    // whole-number coordinates are written without a fraction
     let cx = "100";
     let cy = "100";
     let (cxf, cyf) = (100.0_f64, 100.0_f64);
@@ -120,7 +121,9 @@ pub fn sector_svg(
     )
 }
 
-/// One decimal, Kotlin `round` (half to even) on tenths: `32.0`, `168.0`, `-0.5` -> `-0.5`.
+/// Formats `x` with one decimal, rounding half to even on tenths: `32.0`, `168.0`, `-0.5`.
+///
+/// The SVG text `crates/app/tests/light_sector_test.rs` pins depends on the half-to-even rounding.
 fn fmt(x: f64) -> String {
     let tenths = (x * 10.0).round_ties_even() as i64;
     format!("{}.{}", tenths / 10, (tenths % 10).abs())

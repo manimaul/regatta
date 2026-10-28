@@ -1,5 +1,7 @@
-//! = `RatingSelections.kt`: the rating type picker with its PHRF number and ORC certificate
-//! fields (edit mode on the boat form, select mode on the result form).
+//! The rating type picker with its PHRF number and ORC certificate fields.
+//!
+//! Edit mode on the boat form adds and removes certificates; select mode on the result form picks one of the
+//! boat's certificates.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -14,6 +16,7 @@ use leptos::either::{Either, EitherOf3, EitherOf4};
 use leptos::prelude::*;
 use regatta_common::{find_preferred, Boat, OrcCertificate, RatingType, RATING_DEFAULT};
 
+/// What an `on_orc` callback is asked to do with a certificate.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
     Add,
@@ -55,6 +58,10 @@ pub fn RatingSelectionsBoat(
     }
 }
 
+/// The rating type dropdown with the PHRF rating box and the ORC certificate fields the type needs.
+///
+/// `type_change` gets the new type with the PHRF rating. In `select_mode` the ORC types are offered only when `certs`
+/// is not empty; `hide_cruising` leaves out the cruising types.
 #[component]
 pub fn RatingSelections(
     #[prop(optional)] select_mode: bool,
@@ -117,6 +124,7 @@ pub fn RatingSelections(
     }
 }
 
+/// The ORC certificate fields: a dropdown over `certs` in `select_mode`, else the list with remove and add.
 #[component]
 pub fn OrcInfo(
     select_mode: bool,
@@ -151,7 +159,7 @@ pub fn OrcInfo(
     }
 }
 
-/// = `OrcViewModel.kt`'s state: the reference number being typed and the lookup's outcome.
+/// The ORC certificate lookup state: the reference number being typed and the lookup's outcome.
 #[derive(Clone, Copy)]
 pub struct OrcState {
     pub ref_number: RwSignal<String>,
@@ -169,8 +177,10 @@ impl OrcState {
         }
     }
 
-    /// `confirmRef`: the server looks the certificate up on data.orc.org (`orc_cert`), then
-    /// `on_orc(Add, cert)`; the reference number field clears either way.
+    /// Looks up the typed reference number on data.orc.org and adds the certificate found.
+    ///
+    /// The server makes the lookup ([`crate::server_fns::orc_cert`]), then `on_orc` gets `(Add, cert)`; a missing
+    /// certificate or a failure becomes the error state. The reference number field clears either way.
     pub fn confirm_ref(&self, on_orc: Cb<(Action, OrcCertificate)>) {
         let (cert, ref_number) = (self.cert, self.ref_number);
         let ref_no = ref_number.get_untracked().trim().to_string();
@@ -201,6 +211,7 @@ impl Default for OrcState {
     }
 }
 
+/// The certificates in `certs`, each with a remove button, and the reference number field to add one.
 #[component]
 pub fn OrcViewAndAdd(
     #[prop(optional, into)] certs: Signal<Vec<OrcCertificate>>,
@@ -218,6 +229,7 @@ pub fn OrcViewAndAdd(
     }
 }
 
+/// The ORC reference number field with its "Add Cert" button; `state` defaults to a fresh lookup.
 #[component]
 pub fn OrcFetch(
     #[prop(into)] on_orc: Cb<(Action, OrcCertificate)>,
@@ -241,6 +253,7 @@ pub fn OrcFetch(
     }
 }
 
+/// One certificate's details with a remove button that sends `(Delete, certificate)` to `on_orc`.
 #[component]
 pub fn OrcDisplay(
     certificate: OrcCertificate,

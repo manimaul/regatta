@@ -1,6 +1,9 @@
-//! = `RaceConfigForm.kt`: the race day config, one start time per class, the PHRF B factor, and
-//! the ORC scoring option with its wind band. Shared by the RC page and the results editor's
-//! Config modal (R4a). The callers apply the edits with the helpers in utils/race_config.rs.
+//! The race day config form: one start time per class, the PHRF B factor, and the ORC scoring option with its wind
+//! band.
+//!
+//! Shared by the RC page and the results editor's Config modal (R4a,
+//! `docs/explore_implemented/orc_series_standings.md`). The form only reports edits; the callers apply them with the
+//! helpers in [`crate::utils::race_config`].
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -15,6 +18,10 @@ use regatta_common::{
     ClassSchedule, Orc3Band, Orc5Band, OrcScoringOption, PhrfBFactor, RaceSchedule,
 };
 
+/// The race day config of `schedule`, reporting each edit through its callback.
+///
+/// `on_class_start` gets a class and its new start, `on_phrf_b_factor` the new B factor (`None` when cleared) and
+/// `on_orc_option` the scoring option with both wind bands.
 #[component]
 pub fn RaceConfigForm(
     #[prop(into)] schedule: Signal<RaceSchedule>,
@@ -63,6 +70,7 @@ pub fn RaceConfigForm(
     }
 }
 
+/// The ORC scoring option dropdown with the 3-band or 5-band wind band the option needs.
 #[component]
 pub fn OrcScoringOptionSelect(
     #[prop(into)] selected: Signal<OrcScoringOption>,

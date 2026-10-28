@@ -1,4 +1,8 @@
-//! = `RaceTable.kt` and the raw year queries of `Database.kt`.
+//! The `race` table, the race schedules assembled from it, and the season year queries.
+//!
+//! A [`RaceSchedule`] is the race with its series, RC volunteer, result count and, per class, the class times and
+//! brackets ([`find_race_schedules`]). Season years follow the Pacific calendar (D8 in
+//! `docs/explore_implemented/test_audit_and_plan.md`).
 
 use super::time::{to_pg, year_bounds};
 use super::{
@@ -48,12 +52,17 @@ fn to_race(row: &Row, report_image: Option<String>) -> Result<Race> {
     })
 }
 
-/// `rowToRace(row)`: with the race's report image name (one extra query).
+/// Builds a [`Race`] from its row with its report image name (one extra query).
 async fn to_race_with_image(conn: &mut PgConnection, row: &Row) -> Result<Race> {
     let image = image::get_race_report_image_name(conn, row.id).await?;
     to_race(row, image)
 }
 
+/// Returns the number of races in the series.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_count_for_series(conn: &mut PgConnection, series_id: i64) -> Result<i64> {
     Ok(race_counts_by_series(conn, &[series_id])
         .await?
@@ -62,7 +71,11 @@ pub async fn race_count_for_series(conn: &mut PgConnection, series_id: i64) -> R
         .unwrap_or(0))
 }
 
-/// Races per series, one grouped query for all of `series_ids`. Series with no races are absent.
+/// Returns the races per series, one grouped query for all of `series_ids`; series with no races are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_counts_by_series(
     conn: &mut PgConnection,
     series_ids: &[i64],
@@ -82,6 +95,13 @@ pub async fn race_counts_by_series(
         .collect())
 }
 
+/// Inserts the race (id 0) or upserts it by id, returning it as stored with its report image name.
+///
+/// The name is trimmed.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or a stored ORC option or band name is unknown.
 pub async fn upsert_race(conn: &mut PgConnection, race: &Race) -> Result<Option<Race>> {
     let set = "name = EXCLUDED.name, series_id = EXCLUDED.series_id, rc_id = EXCLUDED.rc_id, \
                correction_factor = EXCLUDED.correction_factor, orc_option = EXCLUDED.orc_option, \
@@ -122,7 +142,7 @@ pub async fn upsert_race(conn: &mut PgConnection, race: &Race) -> Result<Option<
     }
 }
 
-/// `insertClassSchedule`: the class time, then its bracket junctions; true when every bracket went in.
+/// Stores one class's time, then its bracket junctions; `true` when every bracket went in.
 async fn insert_class_schedule(
     conn: &mut PgConnection,
     race_id: i64,
@@ -150,6 +170,12 @@ async fn insert_class_schedule(
 }
 
 /// Replaces the race's times and junctions, upserts the race, then reads the schedule back.
+///
+/// `None` if the race row did not come back. A class whose brackets did not all go in is not reported.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or a stored value does not parse (enum name, timestamp).
 pub async fn insert_schedule(
     conn: &mut PgConnection,
     schedule: &RaceSchedule,
@@ -166,6 +192,11 @@ pub async fn insert_schedule(
     find_race_schedule(conn, race.id, tz).await
 }
 
+/// Returns the schedule of race `race_id`, or `None` if it does not exist (see [`find_race_schedules`]).
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored value does not parse (enum name, timestamp).
 pub async fn find_race_schedule(
     conn: &mut PgConnection,
     race_id: i64,
@@ -177,13 +208,19 @@ pub async fn find_race_schedule(
         .next())
 }
 
-/// The schedules of `race_ids`, in that order, skipping ids with no race row. Fourteen statements
-/// however many races are asked for: the races, their report image names, the bracket junctions,
-/// the brackets and classes those name (with race counts), the class times, the result counts,
-/// the series (with race counts) and the RC volunteers.
+/// Returns the schedules of `race_ids`, in that order, skipping ids with no race row.
 ///
-/// Classes are ordered by class sort then class id, and brackets within a class by min rating
-/// then id, so the order does not depend on how the junction rows happen to be stored.
+/// Fourteen statements however many races are asked for: the races, their report image names, the bracket
+/// junctions, the brackets and classes those name (with race counts), the class times, the result counts, the
+/// series (with race counts) and the RC volunteers.
+///
+/// Classes are ordered by class sort then class id, and brackets within a class by min rating then id, so the
+/// order does not depend on how the junction rows happen to be stored. A class without exactly one time row is
+/// left out of the schedule.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored value does not parse (enum name, timestamp).
 pub async fn find_race_schedules(
     conn: &mut PgConnection,
     race_ids: &[i64],
@@ -274,7 +311,7 @@ pub async fn find_race_schedules(
                 .then(a.min_rating.total_cmp(&b.min_rating))
                 .then(a.id.cmp(&b.id))
         });
-        // groupBy keeps the first-seen order of the keys
+        // group by class, the classes in first-seen order
         let mut class_order: Vec<i64> = Vec::new();
         let mut by_class: HashMap<i64, Vec<Bracket>> = HashMap::new();
         for b in race_brackets {
@@ -305,6 +342,11 @@ pub async fn find_race_schedules(
     Ok(out)
 }
 
+/// Returns the race `race_id` with its report image name, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored ORC option or band name is unknown.
 pub async fn find_race(conn: &mut PgConnection, race_id: i64) -> Result<Option<Race>> {
     let rows: Vec<Row> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM race WHERE id = $1"
@@ -318,6 +360,11 @@ pub async fn find_race(conn: &mut PgConnection, race_id: i64) -> Result<Option<R
     }
 }
 
+/// Deletes the race row, returning the rows deleted; delete its times and junctions first.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails (a result or image still references the race, say).
 pub async fn delete_race(conn: &mut PgConnection, race_id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM race WHERE id = $1")
         .bind(race_id)
@@ -326,8 +373,13 @@ pub async fn delete_race(conn: &mut PgConnection, race_id: i64) -> Result<u64> {
         .rows_affected())
 }
 
-/// `RegattaDatabase.allRaces(year)`: the races with a class start in the Pacific calendar year,
-/// by start time (a stable sort over the `DISTINCT` order, like `sortedBy`).
+/// Returns the schedules of the races with a class start in the Pacific calendar year, by start time.
+///
+/// The sort is stable over the order `SELECT DISTINCT` returns.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored value does not parse (enum name, timestamp).
 pub async fn all_races(
     conn: &mut PgConnection,
     year: i32,
@@ -346,7 +398,11 @@ pub async fn all_races(
     Ok(schedules)
 }
 
-/// `RegattaDatabase.seriesRaces`: the ids of the series' races with a class start in the year.
+/// Returns the ids of the series' races with a class start in the Pacific calendar year.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn series_races(
     conn: &mut PgConnection,
     series_id: i64,

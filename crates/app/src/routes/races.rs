@@ -1,4 +1,4 @@
-//! = `routes/Races.kt` (+ `RacesViewModel.kt` / `RacesEditViewModel.kt` state).
+//! The Races screen (admin): the year's race schedules and the add/edit race modal.
 
 use crate::app_style;
 use crate::cb::Cb;
@@ -24,7 +24,7 @@ use regatta_common::{
 
 pub const RACE_MODAL_ID: &str = "add-edit-race";
 
-/// = `ClassScheduleDraft`: one class row of the race editor before it is saved.
+/// One class row of the race editor before it is saved.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ClassScheduleDraft {
     pub key: u32,
@@ -59,9 +59,10 @@ impl ClassScheduleDraft {
     }
 }
 
-/// = `RacesEditViewModel`: the race being added or edited. `race_id == 0` is a new race. The
-/// editor only exists once the modal is opened in the browser, so its loads are plain calls
-/// (`Api.getRaceSchedule`, `Api.allSeries`, `Api.getAllClasses`) into `Async` signals.
+/// The race editor state: the race being added or edited; `race_id == 0` is a new race.
+///
+/// The editor only exists once the modal is opened in the browser, so its loads (the race schedule, the series and
+/// the classes) are plain calls into `Async` signals rather than resources.
 #[derive(Clone, Copy)]
 pub struct RacesEditState {
     pub race_id: i64,
@@ -70,9 +71,9 @@ pub struct RacesEditState {
     pub classes: RwSignal<Async<Vec<RaceClassBrackets>>>,
     pub drafts: RwSignal<Vec<ClassScheduleDraft>>,
     next_key: RwSignal<u32>,
-    /// `onSaved`: the races list shows an alert and reloads.
+    /// Runs after a save: the races list shows an alert and reloads.
     on_saved: Cb<RaceSchedule>,
-    /// `onDeleted`.
+    /// Runs after a delete.
     on_deleted: Cb<RaceSchedule>,
 }
 
@@ -96,8 +97,7 @@ impl RacesEditState {
         state
     }
 
-    /// `reload()`: the race (a default schedule for a new one) with its class times as drafts,
-    /// the series and the classes.
+    /// Loads the race (a default schedule for a new one) with its class times as drafts, the series and the classes.
     pub fn reload(&self) {
         let this = *self;
         this.series.set(Async::Loading(None));
@@ -153,8 +153,7 @@ impl RacesEditState {
         });
     }
 
-    /// `addDraft`: an empty draft starting from the previous draft's times (classes usually
-    /// start close together).
+    /// Adds an empty class draft starting from the previous draft's times (classes usually start close together).
     pub fn add_draft(&self) {
         let key = self.take_key();
         self.drafts.update(|d| {
@@ -186,7 +185,7 @@ impl RacesEditState {
         });
     }
 
-    /// `draftedSchedule()`: the schedule to save, or `None` while a draft is incomplete.
+    /// Returns the schedule to save, or `None` while a draft is incomplete.
     pub fn drafted_schedule(&self) -> Option<RaceSchedule> {
         let Async::Complete(mut schedule) = self.race.get() else {
             return None;
@@ -212,8 +211,9 @@ impl RacesEditState {
         Some(schedule)
     }
 
-    /// `save`: `POST raceSchedule`; `on_saved` on success, else the server's text (the
-    /// `validateRace` message) in the alert banner.
+    /// Saves `schedule` through [`crate::server_fns::post_race_schedule`].
+    ///
+    /// Runs `on_saved` on success, else shows the server's text (the `validate_race` message) in the alert banner.
     pub fn save(&self, schedule: RaceSchedule) {
         let this = *self;
         let alerts = use_alerts();
@@ -230,8 +230,9 @@ impl RacesEditState {
         );
     }
 
-    /// `delete`: `DELETE race?id=`; `on_deleted` on success, else an alert (a race with results
-    /// is refused by the server).
+    /// Deletes the race through [`crate::server_fns::delete_race`].
+    ///
+    /// Runs `on_deleted` on success, else shows an alert (the server refuses a race with results).
     pub fn delete(&self) {
         let Some(schedule) = self.race.with_untracked(|r| r.value().cloned()) else {
             return;
@@ -245,15 +246,18 @@ impl RacesEditState {
     }
 }
 
-/// = `RacesState`: the races of the selected year (`GET allRaces?year=`, sorted by start), and
-/// the editor behind the modal.
+/// The Races screen state: the races of the selected year, sorted by start, and the editor behind the modal.
 #[derive(Clone, Copy)]
 pub struct RacesState {
     pub races: Loaded<Vec<RaceSchedule>>,
     pub edit: RwSignal<Option<RacesEditState>>,
 }
 
-/// `Api.getAllRaces(year)` sorted by `startTime`.
+/// Loads the race schedules of `year` sorted by start time; empty for `None`.
+///
+/// # Errors
+///
+/// Returns the `Err` of [`crate::server_fns::all_races`].
 pub async fn races_of_year(year: Option<i32>) -> Result<Vec<RaceSchedule>, ServerFnError> {
     let Some(year) = year else {
         return Ok(Vec::new());
@@ -287,8 +291,8 @@ impl RacesState {
         self.open_editor(race.id);
     }
 
-    /// `openEditor`: a fresh editor each time the modal opens; saving or deleting shows an alert
-    /// and reloads the list.
+    /// Opens a fresh editor for `race_id` each time the modal opens; saving or deleting shows an alert and reloads
+    /// the list.
     fn open_editor(&self, race_id: i64) {
         let alerts = use_alerts();
         let races = self.races;
@@ -386,8 +390,10 @@ pub fn RaceList(schedules: Vec<RaceSchedule>, state: RacesState) -> impl IntoVie
     }
 }
 
-/// Adds or edits a race: name, series, then the class start times edited in place with +/- buttons like the brackets of
-/// the Add Race Class modal. The race committee and correction factor are not set here: they are entered on race day
+/// The add/edit race form: name, series, then the class start times.
+///
+/// The class rows are edited in place with +/- buttons like the brackets of the Add Race Class modal. The race
+/// committee and correction factor are not set here: they are entered on race day
 /// from the RC tab or afterwards in the race's config. `edit` is `None` until the modal is first opened.
 #[component]
 pub fn AddEditRaceModal(#[prop(into)] edit: Signal<Option<RacesEditState>>) -> impl IntoView {
@@ -488,8 +494,9 @@ fn RaceFields(edit: RacesEditState) -> impl IntoView {
     )
 }
 
-/// One class's row: remove button and class picker, start and end, then the class's brackets as switches. The picker
-/// offers only classes no other draft has taken.
+/// One class row of the race form: remove button and class picker, start and end, then the brackets as switches.
+///
+/// The picker offers only classes no other draft has taken.
 #[component]
 fn EditClassSchedule(
     draft_key: u32,

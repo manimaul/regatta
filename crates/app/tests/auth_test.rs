@@ -1,4 +1,5 @@
-//! = `AuthTest.kt`, with the vectors of the server's `TokenTest`.
+//! Tests of the browser-side password hashing, with the same vectors as the server's tests in
+//! `crates/service/src/auth.rs`.
 #![cfg(not(target_arch = "wasm32"))]
 
 use regatta_app::auth_hash::hash;

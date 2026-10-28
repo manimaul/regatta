@@ -1,7 +1,8 @@
-//! A throwaway Postgres loaded with the scrubbed production snapshot, for the contract and
-//! golden tests. Needs a container runtime: `DOCKER_HOST` is taken from
-//! `podman machine inspect` when unset and there is no `/var/run/docker.sock`, and Ryuk is
-//! disabled.
+//! A throwaway Postgres loaded with the scrubbed production snapshot, for the container-backed server tests.
+//!
+//! [`start`] gives the golden, contract, SSR and boat tests a fresh load each. It needs a container runtime:
+//! `DOCKER_HOST` is taken from `podman machine inspect` when unset and there is no `/var/run/docker.sock`, and Ryuk
+//! is disabled.
 
 #![allow(dead_code)]
 
@@ -133,7 +134,9 @@ pub async fn start() -> GoldenDb {
     }
 }
 
-/// The entrypoint restarts the server once after init; wait for the final one.
+/// Waits until Postgres accepts connections, panicking after 30 seconds.
+///
+/// The image's entrypoint restarts the server once after init, so readiness is polled until the final one answers.
 async fn wait_until_ready(container: &ContainerAsync<GenericImage>) {
     for _ in 0..60 {
         let ready = container

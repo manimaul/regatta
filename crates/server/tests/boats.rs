@@ -1,5 +1,6 @@
-//! `upsert_boat` over the golden dump: a boat's certificates are linked to the id the boat row
-//! got, so a new boat can be saved with its certificate (the `orc.boat_id` foreign key).
+//! Tests of `Db::upsert_boat` over the golden dump: a boat's certificates link to the id its row got.
+//!
+//! So a new boat can be saved together with its certificate (the `orc.boat_id` foreign key).
 
 mod support;
 

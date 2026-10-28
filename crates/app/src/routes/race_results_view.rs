@@ -1,4 +1,4 @@
-//! = `routes/RaceResultsView.kt`: the public race report.
+//! The public race report: one results table per class, from [`crate::server_fns::report`].
 
 use crate::app_style;
 use crate::components::cell_lines::CellLines;
@@ -21,9 +21,9 @@ use leptos_router::hooks::use_navigate;
 use leptos_router::NavigateOptions;
 use regatta_common::{ClassReportCards, PhrfBFactor, RaceReport, RaceReportCard, RatingType};
 
+/// The race report screen of `race_id`; without an id it shows the error view.
 #[component]
 pub fn RaceResultsView(race_id: Option<i64>) -> impl IntoView {
-    // = `RaceResultViewViewModel`: `GET report?raceId=`.
     let report: Loaded<RaceReport> = Loaded::new(move || async move {
         let Some(id) = race_id else {
             return Err(ServerFnError::ServerError("missing race id".to_string()));
@@ -58,6 +58,9 @@ pub fn RaceResultsView(race_id: Option<i64>) -> impl IntoView {
     )
 }
 
+/// The results table of one class of `report`, one section per bracket.
+///
+/// The ORC columns show only in an ORC-rated class; `add_divider` puts space above the table.
 #[component]
 pub fn RaceResultsClassTable(
     add_divider: bool,
@@ -136,7 +139,6 @@ pub fn RaceResultsClassTable(
                 })
                 .collect_view();
             view! {
-                // (Bootstrap's table-borderless only works on <table>, so it was a no-op on this row)
                 <RgTr classes=TableColor::Light.cls()>
                     <RgTdColor col_span=15 color=TableColor::Warning>
                         <h6>{bracket_title}</h6>

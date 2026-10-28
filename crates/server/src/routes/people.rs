@@ -1,3 +1,5 @@
+//! The REST person routes: `allSkippers`, `find/skipper` and `GET`/`POST`/`DELETE skipper`.
+
 use crate::error::AppResult;
 use crate::extract::{Admin, Json, Params};
 use crate::respond::{empty, json};

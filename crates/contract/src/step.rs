@@ -1,6 +1,8 @@
-//! The scenario's building block: a [`Step`] is data (method, path, query, headers, body, auth
-//! mode, compare mode, volatile pointers, captures). Placeholders `{{name}}` in paths, query
-//! values and JSON bodies are filled from the [`State`] the earlier steps recorded.
+//! The scenario's building block: a [`Step`], one request described as data, and its resolution.
+//!
+//! A step holds the method, path, query, headers, body, auth mode, compare mode, volatile pointers and captures.
+//! Placeholders `{{name}}` in paths, query values and JSON bodies are filled from the [`State`] the earlier steps
+//! recorded ([`resolve`]), and [`capture`] records what a response gives later steps.
 
 use crate::auth;
 use crate::cassette::{Headers, RecordedBody, RecordedPart, RecordedRequest};
@@ -273,7 +275,7 @@ impl Step {
         self
     }
 
-    /// The row of the plan's route table this step exercises, or `None` for absolute (fallback) paths.
+    /// Returns the [`ROUTES`](crate::scenario::ROUTES) entry this step exercises, `None` for absolute (fallback) paths.
     pub fn route(&self) -> Option<String> {
         if self.path.starts_with('/') {
             None
@@ -287,16 +289,19 @@ impl Step {
     }
 }
 
-/// Builder entry points: `get("series")`, `post("series")`, ...
+/// Starts a `GET` step named `name` (the cassette name) for `path`, relative to `/v1/api` unless it starts with `/`.
 pub fn get(name: &str, path: &str) -> Step {
     Step::new(name, Method::Get, path)
 }
+/// Starts a `POST` step; see [`get`].
 pub fn post(name: &str, path: &str) -> Step {
     Step::new(name, Method::Post, path)
 }
+/// Starts a `PUT` step; see [`get`].
 pub fn put(name: &str, path: &str) -> Step {
     Step::new(name, Method::Put, path)
 }
+/// Starts a `DELETE` step; see [`get`].
 pub fn delete(name: &str, path: &str) -> Step {
     Step::new(name, Method::Delete, path)
 }
@@ -330,6 +335,10 @@ impl State {
     }
 
     /// Replaces every `{{name}}` in `text` with the captured value's text form.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` for an unterminated placeholder or a name no earlier step captured.
     pub fn fill_text(&self, text: &str) -> Result<String> {
         let mut out = String::new();
         let mut rest = text;
@@ -347,8 +356,14 @@ impl State {
         Ok(out)
     }
 
-    /// Replaces placeholders in a JSON value: a string that is exactly `{{name}}` becomes the
-    /// captured value itself (a number stays a number); other strings are filled textually.
+    /// Replaces placeholders in a JSON value, keeping a captured number a number.
+    ///
+    /// A string that is exactly `{{name}}` becomes the captured value itself; other strings are filled textually
+    /// ([`State::fill_text`]).
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` for an unterminated placeholder or a name no earlier step captured.
     pub fn fill_json(&self, value: &Value) -> Result<Value> {
         Ok(match value {
             Value::String(s) => {
@@ -411,6 +426,10 @@ pub fn encode_query(value: &str) -> String {
 }
 
 /// Fills the step's placeholders and builds the wire request.
+///
+/// # Errors
+///
+/// Returns `Err` when a placeholder names a value no earlier step captured, or the body cannot be built.
 pub fn resolve(step: &Step, state: &State) -> Result<ResolvedRequest> {
     let path = state.fill_text(&step.path)?;
     let mut url = if path.starts_with('/') {
@@ -595,6 +614,10 @@ fn encode_body(body: &Body, state: &State) -> Result<EncodedBody> {
 }
 
 /// Applies a step's captures to the response it got.
+///
+/// # Errors
+///
+/// Returns `Err` when a capture cannot be made from the response (a later step would need it).
 pub fn capture(
     step: &Step,
     status: u16,

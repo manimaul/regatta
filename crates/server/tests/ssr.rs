@@ -1,7 +1,9 @@
-//! T7: the server-rendered UI over the golden dump. Each route answers 200 `text/html` with its
-//! data already in the markup (not just a shell), the nav bar follows the auth cookie, the theme
-//! cookie sets `data-theme`, and every unknown path (including under `/v1/api`) is the shell
-//! with the NotFound view, 200 like Ktor's `index.html`.
+//! SSR integration tests: every screen rendered through the router over the golden dump.
+//!
+//! Each route answers 200 `text/html` with its data already in the markup (not just a shell), the nav bar follows the
+//! auth cookie, the theme cookie sets `data-theme`, and every unknown path (including under `/v1/api`) is the shell
+//! with the NotFound view and 200, as the contract cassettes record for the fallback (T7 in
+//! `docs/explore_implemented/rust_port.md`).
 
 mod support;
 
@@ -64,7 +66,7 @@ async fn html(app: &App, path: &str, cookie: Option<&str>) -> Page {
     page
 }
 
-/// The frame every page carries: the nav bar and the footer with the build hash.
+/// Asserts the frame every page carries: the nav bar and the footer with the build hash.
 fn assert_frame(page: &Page, path: &str) {
     assert!(page.has("rg-navbar"), "{path}: nav bar");
     assert!(page.has("rg-nav-link"), "{path}: nav links");
@@ -74,7 +76,7 @@ fn assert_frame(page: &Page, path: &str) {
     );
 }
 
-/// The nav link labels rendered on the page, in order.
+/// Returns the nav link labels rendered on the page, in order.
 fn nav_links(page: &Page) -> Vec<&str> {
     page.html
         .split("class=\"rg-nav-link\"")

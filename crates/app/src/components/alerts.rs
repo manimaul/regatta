@@ -1,4 +1,5 @@
-//! = `Alerts.kt`: the shared confirmation dialog and the success banner.
+//! The shared confirmation dialog and the success banner, rendered once by the page frame from
+//! [`crate::state::alerts`].
 
 use crate::components::modal::{RgModalBody, RgModalFooterRow};
 use crate::components::rg_button::{RgButton, RgButtonStyle};

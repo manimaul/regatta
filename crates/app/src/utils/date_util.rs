@@ -1,6 +1,7 @@
-//! = `DateUtil.kt`. The Kotlin side formatted in the browser's zone; the Rust port renders in
-//! Pacific time on both sides (rust_port.md, Phase 4) so the server's HTML and the hydrated
-//! page agree. Both crates bundle jiff's tz database for that.
+//! Date and time formatting for the UI, always in the club's Pacific time zone ([`TIME_ZONE`]).
+//!
+//! The server and the browser both render in Pacific time, not the viewer's zone, so the server's HTML and the
+//! hydrated page agree; both builds bundle jiff's tz database for that (see `crates/app/Cargo.toml`).
 
 use jiff::civil::DateTime;
 use jiff::tz::TimeZone;
@@ -21,7 +22,7 @@ pub fn quad_digit(n: i32) -> String {
     format!("{n:04}")
 }
 
-/// `HH:MM:SS`.
+/// Formats the time of day as `HH:MM:SS`.
 pub fn time_str(dt: &DateTime) -> String {
     format!(
         "{}:{}:{}",
@@ -31,12 +32,12 @@ pub fn time_str(dt: &DateTime) -> String {
     )
 }
 
-/// `M/D/YYYY`.
+/// Formats the date as `M/D/YYYY`.
 pub fn date_str(dt: &DateTime) -> String {
     format!("{}/{}/{}", dt.month(), dt.day(), dt.year())
 }
 
-/// `YYYY-MM-DD`, the value of an `<input type="date">`.
+/// Formats the date as `YYYY-MM-DD`, the value of an `<input type="date">`.
 pub fn input_str(dt: &DateTime) -> String {
     format!(
         "{}-{}-{}",
@@ -46,7 +47,7 @@ pub fn input_str(dt: &DateTime) -> String {
     )
 }
 
-/// The local date-time back to an instant, at whole-second precision (Kotlin `LocalDateTime.instant()`).
+/// Converts a Pacific local date-time back to an instant, truncated to whole seconds.
 pub fn instant(dt: &DateTime) -> Timestamp {
     let ts = time_zone()
         .to_timestamp(*dt)
@@ -78,7 +79,7 @@ pub fn ts_time_str(ts: Timestamp) -> String {
     time_str(&local_date_time(ts))
 }
 
-/// `M/D/YYYY HH:MM:SS ` (the trailing space is the Kotlin original's).
+/// Formats an instant as `M/D/YYYY HH:MM:SS ` (with a trailing space) in Pacific time.
 pub fn display(ts: Timestamp) -> String {
     let dt = local_date_time(ts);
     format!("{} {} ", date_str(&dt), time_str(&dt))
@@ -88,7 +89,7 @@ pub fn year(ts: Timestamp) -> String {
     local_date_time(ts).year().to_string()
 }
 
-/// `Option<Timestamp>` display for the schedule tables (`startTime.display()`), "-" when a race has no classes.
+/// Formats an optional start for the schedule tables like [`display`]; `"-"` for `None` (a race with no classes).
 pub fn display_opt(ts: Option<Timestamp>) -> String {
     ts.map(display).unwrap_or_else(|| "-".to_string())
 }

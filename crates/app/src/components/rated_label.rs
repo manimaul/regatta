@@ -1,11 +1,13 @@
-//! = `RatedLabel.kt`: the rating cell of a results table, `RatingType.ratedLabel` with the ORC
-//! reference number linked to the certificate's public page when `orc_url` is known (a new tab).
-//! Without a URL, or when the label does not contain the reference, the plain label is rendered.
+//! The rating cell of a results table.
 
 use leptos::either::Either;
 use leptos::prelude::*;
 use regatta_common::RatingType;
 
+/// The rating label of an entry (`RatingType::rated_label`), with the ORC reference number linked.
+///
+/// The reference number links to the certificate's public page `orc_url` in a new tab. Without a URL, or when the
+/// label does not contain the reference, the plain label is rendered.
 #[component]
 pub fn RatedLabel(
     rating_type: RatingType,

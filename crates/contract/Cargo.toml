@@ -23,7 +23,7 @@ jiff = { workspace = true }
 proptest = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
-# preserve_order: key order is part of the contract (Kotlin declaration order); with it the canonical
+# preserve_order: key order is part of the contract (the recorded cassettes pin it); with it the canonical
 # re-serialisation keeps each side's order so order mismatches are reported, separately from value ones.
 serde_json = { workspace = true, features = ["preserve_order"] }
 sha2 = { workspace = true }

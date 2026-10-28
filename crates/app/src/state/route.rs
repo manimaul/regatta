@@ -1,6 +1,7 @@
-//! = the `Route` enum of `RouteViewModel.kt`: every screen's path pattern and nav label. The
-//! Leptos router owns navigation and history; this enum keeps the nav bar's list, its labels
-//! and the active-link test (`crate::utils::route_matcher`).
+//! Every screen's path pattern and nav label.
+//!
+//! The Leptos router owns navigation and history; this enum keeps the nav bar's list, its labels and the
+//! active-link test ([`crate::utils::route_matcher`]).
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Route {
@@ -22,7 +23,7 @@ pub enum Route {
 }
 
 impl Route {
-    /// Kotlin `entries`, in declaration order (the matcher tries them in this order).
+    /// Every route in declaration order, the order the matcher tries them in.
     pub const ENTRIES: [Route; 15] = [
         Route::Home,
         Route::Series,

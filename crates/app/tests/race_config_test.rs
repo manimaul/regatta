@@ -1,4 +1,6 @@
-//! = `RaceConfigTest.kt`: race config edits shared by the RC page, the races editor and the Config modal (utils/race_config.rs, R4a).
+//! Tests of the race config edits in `crates/app/src/utils/race_config.rs`.
+//!
+//! R4a (`docs/explore_implemented/orc_series_standings.md`): the ORC wind bands follow the PHRF B factor.
 #![cfg(not(target_arch = "wasm32"))]
 
 use jiff::Timestamp;

@@ -1,4 +1,4 @@
-//! = `RaceClassTable.kt`.
+//! The `raceclass` table: the classes, each with a rating type, a sort position and brackets.
 
 use super::{bracket, enum_from_name, race_bracket_junction as junction};
 use anyhow::Result;
@@ -55,7 +55,11 @@ async fn with_brackets(
         .collect())
 }
 
-/// Every class with its brackets, in sort order; four statements however many classes there are.
+/// Returns every class with its brackets, in sort order; four statements however many classes there are.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored rating type is unknown.
 pub async fn all_classes(conn: &mut PgConnection) -> Result<Vec<RaceClassBrackets>> {
     let rows: Vec<Row> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM raceclass ORDER BY sort"
@@ -66,6 +70,13 @@ pub async fn all_classes(conn: &mut PgConnection) -> Result<Vec<RaceClassBracket
     with_brackets(conn, classes).await
 }
 
+/// Upserts a class and replaces its brackets with `body.brackets`, which are moved into the class.
+///
+/// `None` if the class row did not come back. See [`bracket::upsert_brackets`].
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or the stored rating type is unknown.
 pub async fn upsert_class_brackets(
     conn: &mut PgConnection,
     body: &RaceClassBrackets,
@@ -91,7 +102,7 @@ pub async fn upsert_class_brackets(
     }))
 }
 
-/// `Bracket.copy(classId = ...)`.
+/// Copies a bracket into another class.
 struct Bracketed;
 impl Bracketed {
     fn with_class(b: &regatta_common::Bracket, class_id: i64) -> regatta_common::Bracket {
@@ -102,6 +113,11 @@ impl Bracketed {
     }
 }
 
+/// Inserts the class (id 0) or upserts it by id, returning it as stored with its race count; the name is trimmed.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or the stored rating type is unknown.
 pub async fn upsert_class(conn: &mut PgConnection, item: &RaceClass) -> Result<Option<RaceClass>> {
     let set = "name = EXCLUDED.name, active = EXCLUDED.active, rating_type = EXCLUDED.rating_type, sort = EXCLUDED.sort";
     let row: Option<Row> = if item.id > 0 {
@@ -137,7 +153,11 @@ pub async fn upsert_class(conn: &mut PgConnection, item: &RaceClass) -> Result<O
     }
 }
 
-/// Upserts every class and answers each with its brackets, sorted by `sort`.
+/// Upserts every class and returns each with its brackets, sorted by `sort`.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or a stored rating type is unknown.
 pub async fn upsert_class_list(
     conn: &mut PgConnection,
     list: &[RaceClass],
@@ -153,6 +173,11 @@ pub async fn upsert_class_list(
     Ok(out)
 }
 
+/// Deletes the class `class_id`, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails (a bracket still references the class, say).
 pub async fn delete_class(conn: &mut PgConnection, class_id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM raceclass WHERE id = $1")
         .bind(class_id)
@@ -161,11 +186,20 @@ pub async fn delete_class(conn: &mut PgConnection, class_id: i64) -> Result<u64>
         .rows_affected())
 }
 
+/// Returns the class `id` with its race count, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or the stored rating type is unknown.
 pub async fn select_by_id(conn: &mut PgConnection, id: i64) -> Result<Option<RaceClass>> {
     Ok(find_classes(conn, &[id]).await?.remove(&id))
 }
 
-/// The classes with `class_ids`, by id; two statements for any number of classes.
+/// Returns the classes with `class_ids`, by id; two statements for any number of classes.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored rating type is unknown.
 pub async fn find_classes(
     conn: &mut PgConnection,
     class_ids: &[i64],

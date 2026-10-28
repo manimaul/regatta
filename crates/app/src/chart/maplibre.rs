@@ -1,6 +1,7 @@
-//! = `MapLibre.kt`: wasm-bindgen externs to the MapLibre GL JS 4.7.1 UMD global
-//! (`window.maplibregl`, loaded by a CDN tag in the shell; never bundled). The subset the chart
-//! controller uses.
+//! wasm-bindgen externs to the MapLibre GL JS 4.7.1 UMD global `window.maplibregl` (hydrate only).
+//!
+//! The library is loaded by a CDN tag in the shell ([`crate::MAPLIBRE_JS`]), never bundled. Only the subset the
+//! chart controller uses is bound.
 
 use wasm_bindgen::prelude::*;
 
@@ -125,7 +126,7 @@ extern "C" {
     pub fn add_layer(this: &Map, options: &JsValue);
 }
 
-/// `{ closeButton, closeOnClick }` (the `PopupOptions` the controller sets).
+/// Builds the `{ closeButton, closeOnClick }` popup options object.
 pub fn popup_options(close_button: bool, close_on_click: bool) -> JsValue {
     let o = js_sys::Object::new();
     let _ = js_sys::Reflect::set(
@@ -141,7 +142,7 @@ pub fn popup_options(close_button: bool, close_on_click: bool) -> JsValue {
     o.into()
 }
 
-/// `{ element }` (`MarkerOptions`).
+/// Builds the `{ element }` marker options object.
 pub fn marker_options(element: &web_sys::HtmlElement) -> JsValue {
     let o = js_sys::Object::new();
     let _ = js_sys::Reflect::set(&o, &JsValue::from_str("element"), element);

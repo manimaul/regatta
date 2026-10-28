@@ -1,8 +1,9 @@
-//! = `InvariantsTest.kt`: property-style checks over random fleets (test_audit_and_plan.md §4).
-//! Each test builds many random races or series with the fixture DSL and checks a rule that must
-//! hold whatever the fleet looks like. The Kotlin tests draw their fleets from seeded
-//! `kotlin.random.Random`s; here proptest strategies generate them (and shrink a failing one),
-//! with the same case counts. The entry shuffles come from a small seeded PRNG, as in Kotlin.
+//! Property-style checks over random fleets (`docs/explore_implemented/test_audit_and_plan.md` §4).
+//!
+//! Each test builds many random races or series with the fixture DSL and checks a rule that must hold whatever
+//! the fleet looks like. proptest strategies generate the fleets (and shrink a failing one); the entry shuffles
+//! come from a small seeded PRNG. Every bare decision ID (`Dn`) in this file is a scoring decision of
+//! `test_audit_and_plan.md`.
 
 use proptest::prelude::*;
 use proptest::test_runner::{Config, TestRunner};
@@ -32,7 +33,8 @@ struct BoatSpec {
     orc_ref: Option<String>,
 }
 
-/// bracket name -> entries (in order of first appearance); [orc_class] enters them in an ORC/PHRF class instead of a PHRF one
+/// bracket name -> entries (in order of first appearance); [orc_class] enters them in an ORC/PHRF class instead of a
+/// PHRF one
 #[derive(Clone, Debug)]
 struct RaceSpec {
     brackets: Vec<(String, Vec<BoatSpec>)>,
@@ -67,7 +69,7 @@ struct SeriesSpec {
     certs: HashMap<String, OrcCertificate>,
 }
 
-/// Kotlin `groupBy`: groups in order of first appearance.
+/// Groups `items` by `key`, the groups in order of first appearance.
 fn group_by<T: Clone>(items: &[T], key: impl Fn(&T) -> String) -> Vec<(String, Vec<T>)> {
     let mut groups: Vec<(String, Vec<T>)> = Vec::new();
     for item in items {
@@ -80,7 +82,7 @@ fn group_by<T: Clone>(items: &[T], key: impl Fn(&T) -> String) -> Vec<(String, V
     groups
 }
 
-/// A seeded xorshift PRNG for the entry shuffles (the Kotlin tests use `Random(seed)`).
+/// A seeded xorshift PRNG for the entry shuffles, so a failing shuffle can be replayed.
 struct Rng(u64);
 
 impl Rng {
@@ -493,7 +495,8 @@ proptest! {
         }
     }
 
-    /// Timed finishers take places 1..k in corrected-time order, HOC boats k+1..k+h by position, and no score is below 1.
+    /// Timed finishers take places 1..k in corrected-time order, HOC boats k+1..k+h by position, and no score is below
+    /// 1.
     #[test]
     fn places_are_contiguous_and_follow_corrected_time_then_hoc(spec in random_race(vec![Dnf, Ret, Nsc], false)) {
         let report = build_race(&spec, None);
@@ -546,7 +549,7 @@ proptest! {
         }
     }
 
-    /// Shuffling with penalties present must not change a score either (D4 reworks the penalty pass).
+    /// Shuffling with penalties present must not change a score either (D4 applies each penalty independently).
     #[test]
     fn shuffling_race_entries_with_penalties_never_changes_a_score(spec in random_race(vec![Dnf, Ret, Nsc], true), seeds in seeds()) {
         let base = build_race(&spec, None);
@@ -637,7 +640,8 @@ fn a_penalty_never_changes_another_boats_score() {
 proptest! {
     #![proptest_config(config(200))]
 
-    /// A series total is the sum of the counted race scores, with at most one score excluded, and only when 5 or more races were started.
+    /// A series total is the sum of the counted race scores, with at most one score excluded, and only when 5 or more
+    /// races were started.
     #[test]
     fn series_total_is_the_sum_of_counted_scores_with_at_most_one_excluded(spec in random_series(false, false)) {
         let standings = build_series(&spec, None);
@@ -694,7 +698,8 @@ proptest! {
 
     // ---- ORC series invariants (D9)
 
-    /// D9: an ORC-rated row's ORC total follows the same rules as the PHRF one; a row not rated for a side has that side at zero.
+    /// D9: an ORC-rated row's ORC total follows the same rules as the PHRF one; a row not rated for a side has that
+    /// side at zero.
     #[test]
     fn d9_orc_series_total_is_the_sum_of_counted_orc_scores_with_at_most_one_excluded(spec in random_series(false, true)) {
         let standings = build_series(&spec, None);
@@ -727,7 +732,8 @@ proptest! {
         }
     }
 
-    /// D9: ORC places follow ORC totals among the ORC-rated rows, and PHRF places follow PHRF totals among the PHRF-rated rows.
+    /// D9: ORC places follow ORC totals among the ORC-rated rows, and PHRF places follow PHRF totals among the
+    /// PHRF-rated rows.
     #[test]
     fn d9_series_places_follow_totals_per_rating(spec in random_series(false, true)) {
         let standings = build_series(&spec, None);
@@ -865,9 +871,8 @@ fn an_rc_volunteer_never_changes_another_boat() {
             // ... unless they are tied on total with the volunteer: the D5 tiebreak skips the RC
             // race for every pair that contains the volunteer, so three tied boats can form a
             // cycle (G beats A on race 1, A beats H on race 1, H beats G on the RC race), and the
-            // volunteer's row between them can reverse their mutual order. The Kotlin algorithm
-            // (java.util.Arrays.sort, reproduced by `java_sort`) does exactly that; the Kotlin
-            // test's 200 seeds never draw such a fleet, proptest does. Those ties are left out.
+            // volunteer's row between them can reverse their mutual order. `java_sort` does exactly that,
+            // as the golden standings were recorded; proptest can draw such a fleet. Those ties are left out.
             let rc_bracket_totals: HashMap<String, Vec<f64>> = with
                 .standings
                 .iter()

@@ -1,5 +1,7 @@
-//! = `styles/AppStyle.kt`: the CSS-in-Kotlin 8px margins, folded into Tailwind's scale (8px =
-//! step 2). Every value is in app.css's `@source inline(...)` safelist.
+//! Shared 8px margin classes on Tailwind's spacing scale (8px = step 2).
+//!
+//! Every value is also listed in the `@source inline(...)` safelist of `crates/app/style/app.css`; a new
+//! constant needs an entry there.
 
 pub const MARGIN_ALL: &str = "m-2";
 pub const MARGIN_START: &str = "ms-2";

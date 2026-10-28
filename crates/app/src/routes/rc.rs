@@ -1,4 +1,4 @@
-//! = `routes/Rc.kt`: race committee day (config, check-in, finish line). State = `RcViewModel.kt`.
+//! The RC screen for the race committee on race day: the race config, boat check-in and the finish line.
 
 use crate::components::modal::{RgModalBody, RgModalButton};
 use crate::components::race_config_form::RaceConfigForm;
@@ -52,7 +52,7 @@ pub enum SyncState {
     Synced,
 }
 
-/// = `CheckIn`: a boat on race day, its check-in state and its result so far.
+/// A boat on race day: its check-in state and its result so far.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CheckIn {
     pub bs: BoatSkipper,
@@ -61,11 +61,13 @@ pub struct CheckIn {
     pub start_time: Option<Timestamp>,
 }
 
-/// = `RcState` / `RcViewModel`. The year's races (`GET allRaces`) are a resource, so the server
-/// renders the day with its race config; the selected race is the dropdown pick, else the first
-/// race starting after yesterday. The boats, their results and the check-ins are loaded in the
-/// browser once a race is selected (`refreshResults`), as the Kotlin view model did; check-ins are
-/// kept in `localStorage["checkin_<raceId>"]`, not on the server.
+/// The RC screen state: the selected race, its config edits, the check-ins and the result editor.
+///
+/// The year's races are a resource, so the server renders the day with its race config; the selected race is the
+/// dropdown pick, else the first race starting after yesterday. The boats, their results and the check-ins are
+/// loaded in the browser once a race is selected ([`RcState::refresh_results`]). Check-ins are kept in
+/// `localStorage["checkin_<raceId>"]`, not on the server; the key format must stay stable so check-ins saved
+/// earlier on race day survive a reload of the app.
 #[derive(Clone, Copy)]
 pub struct RcState {
     pub races: Loaded<Vec<RaceSchedule>>,
@@ -73,8 +75,7 @@ pub struct RcState {
     manual_race: RwSignal<Option<RaceSchedule>>,
     /// The selected race with the config edits not yet (or just) saved.
     edited_race: RwSignal<Option<RaceSchedule>>,
-    /// Schedules saved on this page, newer than their copy in `races` (`checkSchedule` replaced
-    /// the race in the list).
+    /// Schedules saved on this page, newer than their copy in `races`.
     saved_races: RwSignal<Vec<RaceSchedule>>,
     pub selected_race: Signal<Option<RaceSchedule>>,
     pub boats: RwSignal<Async<Vec<CheckIn>>>,
@@ -84,8 +85,7 @@ pub struct RcState {
     pub sync_state: RwSignal<SyncState>,
 }
 
-/// `RaceSchedule.findClassSchedule(boatSkipper)`: the class of the boat's rating type, else a
-/// compatible one.
+/// Returns the class schedule a boat races in: the class of its rating type, else a compatible one.
 pub fn find_class_schedule<'a>(
     schedule: &'a RaceSchedule,
     bs: &BoatSkipper,
@@ -103,8 +103,9 @@ pub fn find_class_schedule<'a>(
         })
 }
 
-/// `getCheckins`: every boat sorted by name, checked in when its id is in the list or it has a
-/// result, with its result and its class start.
+/// Builds the check-in rows: every boat sorted by name, with its result and its class start.
+///
+/// A boat is checked in when its id is in the list or it has a result.
 pub fn check_ins(
     ids: &[i64],
     boats: &[BoatSkipper],
@@ -144,7 +145,7 @@ impl RcState {
         let manual_race = RwSignal::new(None::<RaceSchedule>);
         let edited_race = RwSignal::new(None::<RaceSchedule>);
         let saved_races = RwSignal::new(Vec::<RaceSchedule>::new());
-        // `fetchRaces`: the first race starting after yesterday is selected
+        // without a pick, the first race starting after yesterday is selected
         let selected_race = Signal::derive(move || {
             if let Some(edited) = edited_race.get() {
                 return Some(edited);
@@ -182,7 +183,7 @@ impl RcState {
         }
     }
 
-    /// `reload()`: the races again (the browser then refreshes the boats of the selection).
+    /// Reloads the races; the browser then refreshes the boats of the selection.
     pub fn reload(&self) {
         self.edited_race.set(None);
         self.saved_races.set(Vec::new());
@@ -198,8 +199,9 @@ impl RcState {
         self.manual_race.set(Some(race));
     }
 
-    /// The browser's half of `selectRace`: the race's saved check-ins, a fresh result editor for
-    /// it and its boats and results. Runs when the selected race id changes, not on config edits
+    /// Loads the browser's side of a race selection: its saved check-ins, a fresh result editor, its boats and results.
+    ///
+    /// Runs when the selected race id changes, not on config edits
     /// (those keep the race id, and resetting the sync state here would drop the pending save).
     pub fn race_selected(&self, race: Option<&RaceSchedule>) {
         let Some(race) = race else {
@@ -222,7 +224,7 @@ impl RcState {
         self.refresh_results();
     }
 
-    /// `refreshResults`: the race's results and every boat, combined into the check-in rows.
+    /// Loads the race's results and every boat, combined into the check-in rows.
     pub fn refresh_results(&self) {
         let this = *self;
         let Some(race) = self.selected_race.get_untracked() else {
@@ -259,7 +261,7 @@ impl RcState {
         self.tab.set(tab);
     }
 
-    /// A config edit: the race is dirty and saves itself 3 s later (`checkSchedule`).
+    /// Applies a config edit: the race is dirty and saves itself 3 s later ([`RcState::check_schedule`]).
     fn edit_race(&self, f: impl FnOnce(&RaceSchedule) -> RaceSchedule) {
         if let Some(race) = self.selected_race.get_untracked() {
             self.edited_race.set(Some(f(&race)));
@@ -269,9 +271,10 @@ impl RcState {
         }
     }
 
-    /// `checkSchedule`: posts a dirty race (`POST raceSchedule`); `Synced` with the stored
-    /// schedule on success, `Dirty` again otherwise and retried 3 s later. An edit made while the
-    /// post is in flight stays dirty and is posted by its own timeout.
+    /// Posts a dirty race through [`crate::server_fns::post_race_schedule`].
+    ///
+    /// The race is `Synced` with the stored schedule on success, `Dirty` again otherwise and retried 3 s later. An edit
+    /// made while the post is in flight stays dirty and is posted by its own timeout.
     fn check_schedule(&self) {
         if self.sync_state.get_untracked() != SyncState::Dirty {
             return;
@@ -329,7 +332,7 @@ impl RcState {
         });
     }
 
-    /// `checkIn`: remembers the boat for this race (`localStorage`).
+    /// Checks a boat in, remembering it for this race in `localStorage`.
     pub fn check_in(&self, bs: BoatSkipper) {
         let Some(id) = bs.boat.as_ref().map(|b| b.id) else {
             return;
@@ -344,7 +347,7 @@ impl RcState {
         self.set_checkins(ids);
     }
 
-    /// `checkOut`.
+    /// Checks a boat out, removing it from this race's `localStorage` list.
     pub fn check_out(&self, bs: BoatSkipper) {
         let Some(id) = bs.boat.as_ref().map(|b| b.id) else {
             return;
@@ -358,7 +361,7 @@ impl RcState {
         self.set_checkins(ids);
     }
 
-    /// `focusBoatFinish`: the boat's result for editing, or a new timed finish at now.
+    /// Opens the boat's result for editing, or a new timed finish at now.
     pub fn focus_boat_finish(&self, check_in: &CheckIn) {
         let Some(add) = self.add_state.get_untracked() else {
             return;
@@ -373,7 +376,7 @@ impl RcState {
         }
     }
 
-    /// `postResult`: through the result editor, then the boats refresh.
+    /// Saves the result through the result editor, then refreshes the boats.
     pub fn post_result(&self) {
         let this = *self;
         if let Some(add) = self.add_state.get_untracked() {
@@ -381,7 +384,7 @@ impl RcState {
         }
     }
 
-    /// `delete(result)`: the boat stays checked in; then the boats refresh.
+    /// Deletes `result`, keeping the boat checked in, then refreshes the boats.
     pub fn delete(&self, result: RaceResultFull) {
         let this = *self;
         if let Some(id) = result.boat.boat.as_ref().map(|b| b.id) {
@@ -424,7 +427,7 @@ pub fn RcLoggedIn() -> impl IntoView {
         state.races.signal(),
         move || state.reload(),
         move |races: Vec<RaceSchedule>| {
-            // the browser's half of `selectRace`: check-ins, result editor, boats (effects never run on the server)
+            // the browser's side of a race selection: check-ins, result editor, boats (effects never run on the server)
             let selected_id = Memo::new(move |_| selected.with(|r| r.as_ref().map(|r| r.race.id)));
             Effect::new(move |_| {
                 selected_id.track();

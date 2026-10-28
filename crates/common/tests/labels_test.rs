@@ -1,4 +1,4 @@
-//! = `LabelsTest.kt`: shared label helpers: Bracket.label, RatingType.ratedLabel and Duration.display.
+//! The shared label helpers: `Bracket::label`, `RatingType::rated_label`, `score_text` and `display`.
 
 use jiff::SignedDuration;
 use regatta_common::{display, score_text, Bracket, RatingType};
@@ -42,8 +42,7 @@ fn bracket_label_with_both_ends() {
     );
 }
 
-/// The cruising labels follow `RatingType.label` as of commit a045817 ("Not Rated (FS)" /
-/// "Not Rated"); the Kotlin test still expects the older "Cruising Flying Sails" wording.
+/// The rated labels of every rating type; the cruising ones read `Not Rated (FS)` / `Not Rated`.
 #[test]
 fn rated_label_per_rating_type() {
     assert_eq!("PHRF (48)", RatingType::Phrf.rated_label(Some(48), None));
@@ -68,7 +67,7 @@ fn rated_label_per_rating_type() {
     );
 }
 
-/// D1: whole scores have no decimal, fractions one or two.
+/// D1 (`docs/explore_implemented/test_audit_and_plan.md`): whole scores have no decimal, fractions one or two.
 #[test]
 fn score_text_formats_fractions() {
     assert_eq!("4", score_text(4.0));
@@ -102,7 +101,7 @@ fn display_whole_seconds_are_unchanged_by_sub_second_zero() {
     assert_eq!("0h:0m:12s", display(hms(0, 0, 12, 0)));
 }
 
-/// D7: labels round to the nearest second instead of truncating.
+/// D7 (`docs/explore_implemented/test_audit_and_plan.md`): labels round to the nearest second instead of truncating.
 #[test]
 fn d7_display_rounds_to_nearest_second() {
     assert_eq!("0h:0m:13s", display(hms(0, 0, 12, 900)));

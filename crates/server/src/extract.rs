@@ -1,8 +1,12 @@
-//! Request extractors with Ktor's semantics: the first value of a query parameter and
-//! `toLong()` (a 500 on anything that is not a number), bodies decoded strictly like kotlinx
-//! (unknown keys, missing required fields and bad enum names are a 500), and the admin bearer
-//! check of `Token.validateAdminToken` behind Ktor's bearer provider (missing or non-bearer
-//! header: 401 with the challenge; unparseable header: 500; bootstrap: any bearer value).
+//! Request extractors for the REST handlers, with the parsing failures the contract cassettes record.
+//!
+//! - [`Params`]: the first value of a query parameter; a number that does not parse is a 500 (or `None` through
+//!   [`Params::number_or_none`] on the routes recorded that way).
+//! - [`Json`]: a body decoded strictly ([`decode_strict`]): a non-JSON content type, unknown keys, missing required
+//!   fields and bad enum names are all a 500, never a 400.
+//! - [`Admin`]: the bearer check in front of every admin route. A missing or non-bearer header is a 401 with the
+//!   [`challenge`], even in bootstrap mode; an unparseable header is a 500; in bootstrap mode (empty `auth` table)
+//!   any bearer value passes ([`regatta_service::auth::validate_admin_token`]).
 
 use crate::error::{AppError, AppResult};
 use crate::respond::empty;
@@ -19,7 +23,9 @@ use serde::Serialize;
 use serde_json::Value;
 use std::str::FromStr;
 
-/// The query string, decoded; `get` answers the first value like Ktor's `queryParameters[name]`.
+/// The decoded query string as `(name, value)` pairs in request order.
+///
+/// [`Params::get`] answers the first value of a repeated name; `+` decodes as a space.
 #[derive(Debug, Clone, Default)]
 pub struct Params(pub Vec<(String, String)>);
 
@@ -47,12 +53,20 @@ impl Params {
             .map(|(_, v)| v.as_str())
     }
 
-    /// `queryParameters[name]?.toLong()`: `None` when absent, an error (500) when not a number.
+    /// Parses the first value of `name` as an `i64`, `None` when absent.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` (answered as a 500) when the value is not a number or overflows.
     pub fn long(&self, name: &str) -> AppResult<Option<i64>> {
         self.number::<i64>(name)
     }
 
-    /// `queryParameters[name]?.toInt()`.
+    /// Parses the first value of `name` as an `i32`, `None` when absent.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` (answered as a 500) when the value is not a number or overflows.
     pub fn int(&self, name: &str) -> AppResult<Option<i32>> {
         self.number::<i32>(name)
     }
@@ -67,13 +81,16 @@ impl Params {
         }
     }
 
-    /// `queryParameters[name]?.toLongOrNull()` / `toIntOrNull()`: `None` for anything not a number.
+    /// Parses the first value of `name`, `None` when it is absent or not a number.
+    ///
+    /// For the routes the cassettes record answering a non-numeric parameter like a missing one (`allRaces`,
+    /// `DELETE race`) rather than with a 500.
     pub fn number_or_none<T: FromStr>(&self, name: &str) -> Option<T> {
         self.get(name).and_then(|v| v.parse::<T>().ok())
     }
 }
 
-/// Percent-decoding with `+` as space (Ktor's `decodeURLQueryComponent(plusIsSpace = true)`).
+/// Percent-decodes a query component with `+` as a space; a malformed `%` escape is kept literally.
 fn decode(s: &str) -> String {
     let bytes = s.as_bytes();
     let mut out = Vec::with_capacity(bytes.len());
@@ -106,7 +123,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Params {
 /// The admin principal: present only when the request passed the bearer check.
 pub struct Admin;
 
-/// `UnauthorizedResponse(HttpAuthHeader.bearerAuthChallenge(...))`: 401, the challenge, no body.
+/// Builds the 401 bearer refusal: the `WWW-Authenticate` challenge and an empty body.
 pub fn challenge() -> Response {
     let mut response = empty(StatusCode::UNAUTHORIZED);
     response.headers_mut().insert(
@@ -142,8 +159,9 @@ impl FromRequestParts<AppState> for Admin {
     }
 }
 
-/// A JSON body received like `call.receive<T>()`: the content type must be `application/json`,
-/// and the document must decode strictly (kotlinx: no unknown keys). Any failure is a 500.
+/// A JSON request body: the content type must be `application/json` and the document must pass [`decode_strict`].
+///
+/// Any failure is a 500, as the contract cassettes record for every body that does not decode.
 pub struct Json<T>(pub T);
 
 impl<T, S> FromRequest<S> for Json<T>
@@ -180,9 +198,17 @@ fn is_json(content_type: Option<&HeaderValue>) -> bool {
         .unwrap_or(false)
 }
 
-/// kotlinx-strict decoding: parse, then re-serialize and require every input key to be a known
-/// one at the same place (the common types write every field, so a key missing from the output
-/// was unknown). `dxtId` / `orcDxtId` are skipped when null, the one case a known key is absent.
+/// Decodes a JSON document strictly, rejecting any key the target type does not know.
+///
+/// It parses, re-serializes and requires every input key to be present at the same place in the output: the common
+/// types write every field, so a key missing from the output was unknown. `dxtId` / `orcDxtId` are not written while
+/// `None`, so a JSON `null` under either is accepted, the one case where a known key is absent. Missing fields with
+/// serde defaults are filled.
+///
+/// # Errors
+///
+/// Returns `Err` when the bytes are not JSON, do not decode into `T` (missing required field, bad enum name, wrong
+/// shape) or hold an unknown key.
 pub fn decode_strict<T: DeserializeOwned + Serialize>(bytes: &[u8]) -> AppResult<T> {
     let input: Value = serde_json::from_slice(bytes).context("request body is not JSON")?;
     let value: T = serde_json::from_value(input.clone()).context("request body does not decode")?;
@@ -241,6 +267,7 @@ mod tests {
         assert_eq!(Params::parse(Some("id=%2B7")).long("id").unwrap(), Some(7));
     }
 
+    /// Strict decoding fills defaults and rejects unknown keys, wrong shapes, empty bodies and bad values.
     #[test]
     fn strict_decoding_matches_kotlinx() {
         let series: Vec<Series> = decode_strict(br#"[{"name": "Contract Defaults"}]"#).unwrap();

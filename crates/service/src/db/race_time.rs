@@ -1,4 +1,4 @@
-//! = `RaceTimeTable.kt`: the class start and end times of a race.
+//! The `racetime` table: the start and end time of each class in a race.
 
 use super::time::{from_pg, pacific_year, to_pg};
 use anyhow::Result;
@@ -27,7 +27,13 @@ fn to_time(row: &Row, tz: &TimeZone) -> Result<RaceTime> {
     })
 }
 
-/// Every season year with a scheduled race, by the Pacific calendar (D8), newest first.
+/// Returns every season year with a scheduled class start or end, by the Pacific calendar, newest first.
+///
+/// D8 (`test_audit_and_plan.md`): seasons follow the Pacific calendar.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored timestamp does not parse.
 pub async fn all_years(conn: &mut PgConnection, tz: &TimeZone) -> Result<Vec<String>> {
     let rows: Vec<(String, String)> =
         sqlx::query_as("SELECT start_date::text, end_date::text FROM racetime")
@@ -41,6 +47,11 @@ pub async fn all_years(conn: &mut PgConnection, tz: &TimeZone) -> Result<Vec<Str
     Ok(years.into_iter().rev().map(|y| y.to_string()).collect())
 }
 
+/// Deletes every class time of the race, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn delete_race(conn: &mut PgConnection, race_id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM racetime WHERE race_id = $1")
         .bind(race_id)
@@ -49,7 +60,11 @@ pub async fn delete_race(conn: &mut PgConnection, race_id: i64) -> Result<u64> {
         .rows_affected())
 }
 
-/// Replaces the race and class pair's row.
+/// Replaces the row of the time's race and class pair, returning it as stored.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails or the stored timestamps do not parse.
 pub async fn update_race_time(
     conn: &mut PgConnection,
     time: &RaceTime,
@@ -73,8 +88,13 @@ pub async fn update_race_time(
     row.as_ref().map(|r| to_time(r, tz)).transpose()
 }
 
-/// The class start and end times of `race_ids`, keyed by race id to class id, in one query.
+/// Returns the class start and end times of `race_ids`, keyed by (race id, class id), in one query.
+///
 /// A race and class pair with more than one row is left out, as it is not a usable schedule.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored timestamp does not parse.
 pub async fn find_by_races(
     conn: &mut PgConnection,
     race_ids: &[i64],

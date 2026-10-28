@@ -1,7 +1,10 @@
-//! The interactive halves of `ModalTest.kt`, `LeafComponentsTest.kt`, `NavBarTest.kt` and
-//! `ThemeToggleTest.kt`: dialogs open and close, dropdowns dismiss, the hamburger and the theme
-//! toggle flip. Run in a browser with `wasm-pack test --headless --chrome crates/app --features hydrate`
-//! (or compile-check with `cargo test -p regatta-app --features hydrate --target wasm32-unknown-unknown --no-run`).
+//! Browser tests of the interactive components: dialogs open and close, dropdowns dismiss, the hamburger and the
+//! theme toggle flip.
+//!
+//! The markup of the same components is tested natively by `modal_test.rs`, `leaf_components_test.rs`,
+//! `nav_bar_test.rs` and `theme_toggle_test.rs`. Run in a browser with
+//! `wasm-pack test --headless --chrome crates/app --features hydrate` (or compile-check with
+//! `cargo test -p regatta-app --features hydrate --target wasm32-unknown-unknown --no-run`).
 #![cfg(target_arch = "wasm32")]
 
 use leptos::prelude::*;
@@ -98,7 +101,7 @@ async fn tick() {
     let _ = wasm_bindgen_futures::JsFuture::from(promise).await;
 }
 
-// ---- ModalTest
+// ---- modals
 
 #[wasm_bindgen_test]
 async fn modal_button_opens_by_id_and_closes_modal_buttons_close() {
@@ -238,7 +241,7 @@ async fn confirmation_answers_and_dismissal() {
     assert_eq!(answer.get_untracked(), None);
 }
 
-// ---- LeafComponentsTest
+// ---- leaf components
 
 #[wasm_bindgen_test]
 async fn dropdown_opens_selects_and_closes() {
@@ -466,7 +469,7 @@ async fn check_and_switch_report() {
     assert_eq!(switched.get_untracked(), Some(false));
 }
 
-// ---- NavBarTest
+// ---- nav bar
 
 #[wasm_bindgen_test]
 async fn hamburger_toggles_and_link_click_closes_menu() {
@@ -525,7 +528,7 @@ async fn hamburger_toggles_and_link_click_closes_menu() {
         .unwrap();
 }
 
-// ---- ThemeToggleTest
+// ---- theme toggle
 
 #[wasm_bindgen_test]
 async fn toggle_switches_theme_and_remembers_it() {

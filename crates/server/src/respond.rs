@@ -1,5 +1,7 @@
-//! Response shapes, byte for byte as Ktor sent them: JSON is `application/json` with no charset,
-//! text is `text/plain; charset=UTF-8`, empty answers carry no `Content-Type`.
+//! Response builders for the REST handlers, with the headers the contract cassettes record byte for byte.
+//!
+//! JSON is `application/json` with no charset, text is `text/plain; charset=UTF-8`, and empty answers carry no
+//! `Content-Type`.
 
 use axum::body::Body;
 use axum::http::{header, HeaderValue, StatusCode};
@@ -10,6 +12,7 @@ pub const JSON: &str = "application/json";
 pub const TEXT: &str = "text/plain; charset=UTF-8";
 pub const HTML: &str = "text/html; charset=UTF-8";
 
+/// Serializes `value` compactly as a 200 JSON response, or answers a 500 if it does not serialize.
 pub fn json<T: Serialize>(value: &T) -> Response {
     match serde_json::to_vec(value) {
         Ok(body) => with_type(StatusCode::OK, JSON, body),

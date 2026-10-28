@@ -1,20 +1,30 @@
-//! Shared helpers (= `Utils.kt`), plus the Kotlin number-to-string rules the labels depend on.
+//! Shared helpers: API URLs, the score and duration labels, and the number formats the labels and golden JSON use.
+//!
+//! The number formats ([`round_to_long`], [`kotlin_f64_to_string`], [`kotlin_f32_to_string`]) and
+//! [`to_kotlin_pretty_json`] produce exactly the strings recorded in the golden files
+//! (`crates/scoring/tests/golden/approved/`) and the contract cassettes (`crates/contract/cassettes/`), so their
+//! output must not change.
 
 use jiff::SignedDuration;
 use serde::Serialize;
 
-/// Default PHRF B factor (`correctionFactorDefault`).
+/// The PHRF B factor used when a race has none set, also the starting value for a new race schedule.
 pub const CORRECTION_FACTOR_DEFAULT: i32 = 600;
-/// Default PHRF rating (`ratingDefault`).
+/// The PHRF rating used when a boat or result has none set.
 pub const RATING_DEFAULT: i32 = 200;
 
-/// `"/v1/api/<path>"` with the query string built from `params` in order, no encoding
-/// (`String.versionedApi(params)`); an empty slice is Kotlin's `null`.
+/// Builds the version 1 REST URL `/v1/api/<path>` with the query string from `params`.
+///
+/// See [`versioned_api_v`] for the format.
 pub fn versioned_api(path: &str, params: &[(&str, &str)]) -> String {
     versioned_api_v(path, 1, params)
 }
 
-/// `String.versionedApi(version, params)`.
+/// Builds the REST URL `/v<version>/api/<path>` with the query string from `params`.
+///
+/// `path` is appended after `/api/` as given, so the [`crate::api_paths`] constants with a leading slash produce
+/// `/v1/api//race`; the server treats repeated slashes as one. `params` become `?k=v&k=v` in order, without URL
+/// encoding, so callers pass only values that need none; an empty slice gives no query string.
 pub fn versioned_api_v(path: &str, version: i32, params: &[(&str, &str)]) -> String {
     let mut out = format!("/v{version}/api/{path}");
     for (index, (key, value)) in params.iter().enumerate() {
@@ -26,8 +36,11 @@ pub fn versioned_api_v(path: &str, version: i32, params: &[(&str, &str)]) -> Str
     out
 }
 
-/// `Double.roundToLong()` on the JVM = `Math.round`: nearest, ties toward positive infinity,
-/// NaN → 0, saturating.
+/// Rounds to the nearest integer, ties toward positive infinity (`2.5` -> 3, `-2.5` -> -2).
+///
+/// NaN gives 0 and out-of-range values saturate at `i64::MIN` / `i64::MAX`. The tie rule differs from
+/// [`f64::round`] (ties away from zero) and is the one the score and time labels in the golden files were
+/// produced with.
 pub fn round_to_long(x: f64) -> i64 {
     if x.is_nan() {
         return 0;
@@ -41,8 +54,11 @@ pub fn round_to_long(x: f64) -> i64 {
     r as i64
 }
 
-/// `Double.toString()` of the JVM: plain decimal for `1e-3 <= |x| < 1e7` (and 0) with at least
-/// one fraction digit, otherwise computerized scientific notation (`1.0E7`, `1.0E-5`).
+/// Formats an `f64` as the shortest round-tripping decimal, always with a fraction digit (`4.0`, `3.33`).
+///
+/// Plain notation for 0 and `1e-3 <= |x| < 1e7`, otherwise scientific with an upper-case `E` and a fraction digit
+/// on the mantissa (`1.0E7`, `1.0E-4`, `1.23456785E7`); `NaN`, `Infinity` and `-Infinity` for the special values.
+/// This is the number format of the labels pinned by the golden files.
 pub fn kotlin_f64_to_string(x: f64) -> String {
     if x.is_nan() {
         return "NaN".into();
@@ -62,8 +78,9 @@ pub fn kotlin_f64_to_string(x: f64) -> String {
     }
 }
 
-/// `Float.toString()` of the JVM, same rules as [`kotlin_f64_to_string`] on the `f32` shortest
-/// representation (`101.0`, `160.5`).
+/// Formats an `f32` by the rules of [`kotlin_f64_to_string`], from the shortest `f32` representation.
+///
+/// Bracket labels use it for their rating bounds (`101.0`, `160.5`), so a rating of `101` reads `101.0`.
 pub fn kotlin_f32_to_string(x: f32) -> String {
     if x.is_nan() {
         return "NaN".into();
@@ -95,7 +112,10 @@ fn scientific(s: String) -> String {
     format!("{}E{}", with_fraction_digit(mantissa.to_string()), exponent)
 }
 
-/// A series score as a label: whole numbers without a decimal ("4"), others with one or two ("3.5", "3.33").
+/// Formats a series score as a label: whole numbers without a decimal (`4`), others with one or two (`3.5`, `3.33`).
+///
+/// The score is first rounded to hundredths with [`round_to_long`]. Fractional scores come from the RC volunteer
+/// average, D1 (`docs/explore_implemented/test_audit_and_plan.md`).
 pub fn score_text(score: f64) -> String {
     let rounded = round_to_long(score * 100.0) as f64 / 100.0;
     let whole = round_to_long(rounded);
@@ -108,7 +128,10 @@ pub fn score_text(score: f64) -> String {
         .to_string()
 }
 
-/// "1h:2m:3s", rounded to the nearest second (D7). Places still use millisecond precision.
+/// Formats an elapsed or corrected time as `1h:2m:3s`, rounded to the nearest second.
+///
+/// D7 (`docs/explore_implemented/test_audit_and_plan.md`): labels round to the nearest second, ties up (see
+/// [`round_to_long`]), while places are still decided at millisecond precision. Hours are not folded into days.
 pub fn display(duration: SignedDuration) -> String {
     let whole_millis = duration.as_millis() as i64;
     let total_seconds = round_to_long(whole_millis as f64 / 1000.0);
@@ -118,8 +141,9 @@ pub fn display(duration: SignedDuration) -> String {
     format!("{hrs}h:{min}m:{sec}s")
 }
 
-/// `List.moveItem(up, predicate)`: a copy of the list with the first matching item swapped one
-/// place up or down; unchanged when there is no match or it is already at the end.
+/// Returns a copy of `list` with the first item matching `predicate` swapped one place up or down.
+///
+/// `up` moves it toward index 0. The copy is unchanged when nothing matches or the item is already at that end.
 pub fn move_item<T: Clone>(list: &[T], up: bool, predicate: impl Fn(&T) -> bool) -> Vec<T> {
     let mut lst = list.to_vec();
     let Some(i) = list.iter().position(predicate) else {
@@ -135,8 +159,18 @@ pub fn move_item<T: Clone>(list: &[T], up: bool, predicate: impl Fn(&T) -> bool)
     lst
 }
 
-/// The JSON of the golden files and of the Kotlin server's pretty printer: 4-space indent,
-/// `": "` after keys, `[]` for empty arrays, no trailing newline.
+/// Serializes `value` as pretty-printed JSON in the exact layout of the golden files.
+///
+/// 4-space indent, `": "` after keys, `[]` for an empty array, no trailing newline. Field order and the written
+/// defaults and `null`s come from the type's serde derive; see [`crate::data`].
+///
+/// # Errors
+///
+/// Returns `Err` if `value`'s `Serialize` implementation fails, such as a map with non-string keys.
+///
+/// # Panics
+///
+/// Never in practice: it would mean `serde_json` wrote bytes that are not UTF-8.
 pub fn to_kotlin_pretty_json<T: Serialize + ?Sized>(value: &T) -> serde_json::Result<String> {
     let mut buf = Vec::new();
     let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");

@@ -1,10 +1,11 @@
-//! The contract scenario as data: every row of the plan's route table, every listed status,
-//! the auth modes, the request-parsing quirks, multipart upload, gzip, the fallback. It runs on
-//! a fresh load of the golden dump (`crates/scoring/tests/golden/*.sql`), whose ids are
-//! referenced below (series 1, race 1 with results, class 1, bracket 16 in use, person 2, boat
-//! 1, RC person 31 of race 1, certificate 04560003NFK), and whose `auth` table is empty, so the
-//! run starts in bootstrap mode. Every record a step creates is read back by later steps and
-//! deleted at the end.
+//! The contract scenario as data: the steps that exercise every `/v1/api` route the cassettes record.
+//!
+//! [`scenario()`] covers every route in [`ROUTES`] with its statuses, the auth modes, the request-parsing failures,
+//! multipart upload, gzip and the fallback. It runs on a fresh load of the golden dump
+//! (`crates/scoring/tests/golden/*.sql`), whose ids are referenced below (series 1, race 1 with results, class 1,
+//! bracket 16 in use, person 2, boat 1, RC person 31 of race 1, certificate 04560003NFK), and whose `auth` table is
+//! empty, so the run starts in bootstrap mode. Every record a step creates is read back by later steps and deleted at
+//! the end. The step list is described in order in `crates/contract/README.md`.
 
 use crate::auth;
 use crate::png::tiny_png;
@@ -21,11 +22,11 @@ pub const LOGIN_TIME: &str = "2026-10-14T02:10:11Z";
 pub const FORGED_SALT: &str = "contract-forged-salt";
 pub const FORGED_VALID_EXPIRES: &str = "2099-01-01T00:00:00Z";
 pub const FORGED_EXPIRED_EXPIRES: &str = "2000-01-01T00:00:00Z";
-/// The golden dump's instant: the clock to run the servers with (`-Dregatta.now` / `REGATTA_FIXED_NOW`).
+/// The golden dump's instant: the clock to run the servers with (`REGATTA_FIXED_NOW`).
 pub const DEFAULT_FIXED_NOW: &str = "2026-10-14T02:10:11Z";
 pub const IMAGE_NAME: &str = "contract.png";
 
-/// Every `method path` of the plan's route table (`image/{name}` stands for any name).
+/// Every `method path` of the REST API under `/v1/api` (`image{name}` stands for the download by any name).
 pub const ROUTES: &[(&str, &str)] = &[
     ("GET", "series"),
     ("GET", "allSeries"),
@@ -137,7 +138,7 @@ fn bracket_json(id: Value, name: &str, min: f64, max: f64, class_id: Value) -> V
     json!({"id": id, "name": name, "description": null, "active": true, "numberOfRaces": 0, "minRating": min, "maxRating": max, "classId": class_id})
 }
 
-/// `orc` = (scoring option, 3-band, 5-band).
+/// Builds a race body; `orc` is (scoring option, 3-band wind, 5-band wind).
 fn race_json(
     id: Value,
     name: &str,
@@ -212,8 +213,8 @@ pub fn steps(options: &ScenarioOptions) -> Vec<Step> {
     let mut s: Vec<Step> = Vec::new();
 
     // --- Bootstrap: the auth table is empty, admin routes are open to any bearer value ---
-    // Ktor's bearer provider challenges when the header is absent (or the value is empty) before
-    // the token is validated, so bootstrap needs a bearer value: the web client sends `Bearer none`.
+    // The bearer check challenges when the header is absent (or the value is empty) before the token is
+    // validated, even in bootstrap mode, so bootstrap needs a bearer value: the UI sends `Bearer none`.
     let none = || raw("Bearer none");
     s.push(get("bootstrap-missing-header", "allSkippers"));
     s.push(get("bootstrap-empty-bearer", "allSkippers").auth(raw("Bearer ")));
@@ -995,9 +996,8 @@ pub fn steps(options: &ScenarioOptions) -> Vec<Step> {
     );
 
     // --- Image upload and download (race 1 keeps the image: there is no delete route) ---
-    // The download route is `ApiPaths.image.versionedApi() + "{name}"` = `/v1/api//image{name}`: one
-    // segment with a literal prefix, so the image is at `/v1/api/imagecontract.png` and
-    // `/v1/api/image/contract.png` is the SPA fallback.
+    // The download route is `/v1/api/image{name}`: one segment with a literal prefix, so the image is at
+    // `/v1/api/imagecontract.png` and `/v1/api/image/contract.png` is the site fallback.
     s.push(
         post("image-upload", "image")
             .query("raceId", "1")

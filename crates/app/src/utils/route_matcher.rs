@@ -1,10 +1,10 @@
-//! = `RouteMatcher.kt` and `Routing` of `RouteViewModel.kt`. The Leptos router matches the
-//! `<Route>`s; this matcher is what the nav bar uses to tell which [`Route`] a pathname is on
-//! (the `aria-current` link) without a router context, so it stays testable natively.
+//! The path matcher the nav bar uses to tell which [`Route`] a pathname is on (the `aria-current` link).
 //!
-//! A pattern compiles to the Kotlin regex `/seg/seg/(?<key>[^/]*)[/]?` matched in full: static
-//! segments must be equal, a `:key` segment captures anything without a slash (the empty string
-//! included), and one trailing slash is allowed.
+//! The Leptos router matches the `<Route>`s; this matcher works without a router context, so it stays testable
+//! natively (`crates/app/tests/route_matcher_test.rs`).
+//!
+//! A pattern matches like the regex `/seg/seg/(?<key>[^/]*)[/]?` in full: static segments must be equal, a `:key`
+//! segment captures anything without a slash (the empty string included), and one trailing slash is allowed.
 
 use crate::state::route::Route;
 
@@ -47,10 +47,10 @@ impl RouteMatcher {
         self.groups(path).is_some()
     }
 
-    /// The captured `:key` values, or `None` when the path does not match.
+    /// Returns the captured `:key` values, or `None` when the path does not match.
     pub fn groups(&self, path: &str) -> Option<Vec<(String, String)>> {
         if self.segments.is_empty() {
-            // the Kotlin regex is "/[/]?"
+            // the root pattern is the regex "/[/]?"
             return (path == "/" || path == "//").then(Vec::new);
         }
         let rest = path.strip_prefix('/')?;
@@ -73,7 +73,7 @@ impl RouteMatcher {
     }
 }
 
-/// = `Routing`: the route a path resolves to, with its captured arguments.
+/// The route a path resolves to, with its captured arguments.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Routing {
     pub route: Route,

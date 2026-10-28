@@ -1,4 +1,4 @@
-//! = `RaceBracketJunction.kt`: which brackets sail in which race under which class.
+//! The `racebracketjunction` table: which brackets sail in which race under which class.
 
 use anyhow::Result;
 use regatta_common::Bracket;
@@ -13,6 +13,11 @@ pub struct JunctionRow {
     pub bracket_id: i64,
 }
 
+/// Returns the number of distinct races the bracket sailed in.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_count_for_bracket(conn: &mut PgConnection, bracket_id: i64) -> Result<i64> {
     Ok(race_counts_by_bracket(conn, &[bracket_id])
         .await?
@@ -21,6 +26,11 @@ pub async fn race_count_for_bracket(conn: &mut PgConnection, bracket_id: i64) ->
         .unwrap_or(0))
 }
 
+/// Returns the number of distinct races the class sailed in.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_count_for_class(conn: &mut PgConnection, class_id: i64) -> Result<i64> {
     Ok(race_counts_by_class(conn, &[class_id])
         .await?
@@ -29,7 +39,13 @@ pub async fn race_count_for_class(conn: &mut PgConnection, class_id: i64) -> Res
         .unwrap_or(0))
 }
 
-/// Distinct races per bracket, one grouped query for all of `bracket_ids`. Brackets with no races are absent.
+/// Returns the distinct races per bracket, one grouped query for all of `bracket_ids`.
+///
+/// Brackets with no races are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_counts_by_bracket(
     conn: &mut PgConnection,
     bracket_ids: &[i64],
@@ -46,7 +62,13 @@ pub async fn race_counts_by_bracket(
     Ok(rows.into_iter().collect())
 }
 
-/// Distinct races per class, one grouped query for all of `class_ids`. Classes with no races are absent.
+/// Returns the distinct races per class, one grouped query for all of `class_ids`.
+///
+/// Classes with no races are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_counts_by_class(
     conn: &mut PgConnection,
     class_ids: &[i64],
@@ -63,7 +85,11 @@ pub async fn race_counts_by_class(
     Ok(rows.into_iter().collect())
 }
 
-/// Replaces the race and class pair's brackets; the number of rows inserted (distinct bracket ids).
+/// Replaces the brackets of a race and class pair, returning the rows inserted (one per distinct bracket id).
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails.
 pub async fn set_brackets(
     conn: &mut PgConnection,
     race_id: i64,
@@ -97,7 +123,11 @@ pub async fn set_brackets(
     Ok(count)
 }
 
-/// The junction rows of `race_ids` in table order, one query.
+/// Returns the junction rows of `race_ids` in table order, in one query.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn select_for_races(
     conn: &mut PgConnection,
     race_ids: &[i64],
@@ -113,6 +143,11 @@ pub async fn select_for_races(
     .await?)
 }
 
+/// Deletes every junction row of the race, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn delete_race(conn: &mut PgConnection, race_id: i64) -> Result<u64> {
     Ok(
         sqlx::query("DELETE FROM racebracketjunction WHERE race_id = $1")

@@ -1,5 +1,12 @@
-//! = `OrcCertificate.kt`: the PHRF B factor, the ORC wind bands, the ORC scoring options and the
-//! certificate itself (every `@SerialName` key verbatim).
+//! The ORC certificate model, the ORC scoring options and wind bands, and the named PHRF B factors.
+//!
+//! [`OrcCertificate`] is ORC's RMS record as data.orc.org serves it (fetched by `crates/service/src/orc.rs`); its
+//! serde keys are ORC's own (`RefNo`, `US_5B_LM_TOT`), and the same JSON is what the REST API and the golden files
+//! carry. A race picks an [`OrcScoringOption`] and, for the banded options, an [`Orc3Band`] / [`Orc5Band`]; together
+//! they select the one time-on-time factor of the certificate that scores the race (`orc_tcf` in
+//! `crates/scoring/src/reporter.rs`). The bands follow the race's PHRF B factor, R4
+//! (`docs/explore_implemented/orc_series_standings.md`): [`Orc3Band::from_phrf_b_factor`],
+//! [`Orc5Band::from_phrf_b_factor`].
 
 use crate::serde_kotlin::{kotlin_instant, DISTANT_FUTURE};
 use jiff::Timestamp;
@@ -8,10 +15,15 @@ use serde::{Deserialize, Serialize};
 /// Public page of an ORC certificate copy, by ORC's file id ([`OrcCertificate::dxt_id`]).
 pub const ORC_CERTIFICATE_URL: &str = "https://data.orc.org/public/WPub.dll/CC/";
 
+/// Returns the public page of the certificate with ORC file id `dxt_id`, or `None` without an id.
 pub fn orc_certificate_url(dxt_id: Option<i64>) -> Option<String> {
     dxt_id.map(|id| format!("{ORC_CERTIFICATE_URL}{id}"))
 }
 
+/// The four named PHRF B factors, one per wind condition.
+///
+/// A race stores the number ([`crate::Race::phrf_b_factor`]); this names the condition it stands for, for the race
+/// configuration form and the race view heading.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PhrfBFactor {
     Calm,
@@ -21,6 +33,7 @@ pub enum PhrfBFactor {
 }
 
 impl PhrfBFactor {
+    /// Every B factor, calm to heavy (descending B).
     pub const ENTRIES: [PhrfBFactor; 4] = [
         PhrfBFactor::Calm,
         PhrfBFactor::Light,
@@ -28,6 +41,7 @@ impl PhrfBFactor {
         PhrfBFactor::Hvy,
     ];
 
+    /// Returns the serialized form, the variant name.
     pub const fn name(self) -> &'static str {
         match self {
             PhrfBFactor::Calm => "Calm",
@@ -37,6 +51,7 @@ impl PhrfBFactor {
         }
     }
 
+    /// Returns the condition with its wind range, such as `Light 5 to 10 knots`.
     pub const fn label(self) -> &'static str {
         match self {
             PhrfBFactor::Calm => "Calm / Drifting 1 to 5 knots",
@@ -46,6 +61,7 @@ impl PhrfBFactor {
         }
     }
 
+    /// Returns the one-line description of when to use it, such as `Light air or all windward work`.
     pub const fn desc(self) -> &'static str {
         match self {
             PhrfBFactor::Calm => "Very light air",
@@ -55,6 +71,7 @@ impl PhrfBFactor {
         }
     }
 
+    /// Returns the B factor: 650, 600, 550 or 480.
     pub const fn cf(self) -> i32 {
         match self {
             PhrfBFactor::Calm => 650,
@@ -64,8 +81,11 @@ impl PhrfBFactor {
         }
     }
 
-    /// `PhrfBFactor.fromBFactor(cf)`: the band whose half-way edges enclose `cf`; at or below
-    /// `Hvy.cf` is `Hvy`, at or above 650 is `Calm`.
+    /// Returns the named B factor nearest to `cf`.
+    ///
+    /// Each name covers from half-way to its lower neighbour up to half-way to its upper one (integer halves,
+    /// an edge value going to the heavier name): `Calm` 626 and up, `Light` 576 to 625, `Avg` 516 to 575, `Hvy` 515
+    /// and below.
     pub fn from_b_factor(cf: i32) -> PhrfBFactor {
         if cf <= PhrfBFactor::Hvy.cf() {
             return PhrfBFactor::Hvy;
@@ -99,16 +119,22 @@ impl PhrfBFactor {
     }
 }
 
+/// The wind band of the 3-band (triple number) ORC scoring options.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Orc3Band {
+    /// 9 knots or less.
     Low,
+    /// 9 to 14 knots.
     Medium,
+    /// 14 knots or more.
     High,
 }
 
 impl Orc3Band {
+    /// Every band, light to heavy.
     pub const ENTRIES: [Orc3Band; 3] = [Orc3Band::Low, Orc3Band::Medium, Orc3Band::High];
 
+    /// Returns the serialized form, the variant name.
     pub const fn name(self) -> &'static str {
         match self {
             Orc3Band::Low => "Low",
@@ -117,10 +143,12 @@ impl Orc3Band {
         }
     }
 
+    /// Returns the display name, the same as [`Orc3Band::name`].
     pub const fn label(self) -> &'static str {
         self.name()
     }
 
+    /// Returns the wind range, such as `9 to 14 kts`.
     pub const fn desc(self) -> &'static str {
         match self {
             Orc3Band::Low => "9 kts or less",
@@ -129,6 +157,8 @@ impl Orc3Band {
         }
     }
 
+    /// Returns the PHRF B factor that stands for this band (600, 550, 480); [`Orc3Band::from_phrf_b_factor`] maps it
+    /// back.
     pub const fn phrf_b_factor(self) -> i32 {
         match self {
             Orc3Band::Low => 600,
@@ -137,7 +167,10 @@ impl Orc3Band {
         }
     }
 
-    /// `Orc3Band.fromPhrfBFactor(cf)`.
+    /// Returns the 3-band wind band a PHRF B factor maps to: 600 and up `Low`, 550 to 599 `Medium`, below 550 `High`.
+    ///
+    /// R4 (`docs/explore_implemented/orc_series_standings.md`): the B factor is the authority on the wind, so a race's
+    /// 3-band band must be this one.
     pub fn from_phrf_b_factor(cf: i32) -> Orc3Band {
         if cf >= Orc3Band::Low.phrf_b_factor() {
             Orc3Band::Low
@@ -149,16 +182,23 @@ impl Orc3Band {
     }
 }
 
+/// The wind band of the 5-band ORC scoring options.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Orc5Band {
+    /// 7 knots or less.
     Low,
+    /// 7 to 10 knots.
     LowMedium,
+    /// 10 to 13 knots.
     Medium,
+    /// 13 to 17 knots.
     MediumHigh,
+    /// 17 knots or more.
     High,
 }
 
 impl Orc5Band {
+    /// Every band, light to heavy.
     pub const ENTRIES: [Orc5Band; 5] = [
         Orc5Band::Low,
         Orc5Band::LowMedium,
@@ -167,6 +207,7 @@ impl Orc5Band {
         Orc5Band::High,
     ];
 
+    /// Returns the serialized form, the variant name.
     pub const fn name(self) -> &'static str {
         match self {
             Orc5Band::Low => "Low",
@@ -177,6 +218,7 @@ impl Orc5Band {
         }
     }
 
+    /// Returns the display name, such as `Low/Medium`.
     pub const fn label(self) -> &'static str {
         match self {
             Orc5Band::Low => "Low",
@@ -187,6 +229,7 @@ impl Orc5Band {
         }
     }
 
+    /// Returns the wind range, such as `7 to 10 kts`.
     pub const fn desc(self) -> &'static str {
         match self {
             Orc5Band::Low => "7 kts or less",
@@ -197,6 +240,8 @@ impl Orc5Band {
         }
     }
 
+    /// Returns the PHRF B factor that stands for this band (650, 600, 550, 510, 480);
+    /// [`Orc5Band::from_phrf_b_factor`] maps it back.
     pub const fn phrf_b_factor(self) -> i32 {
         match self {
             Orc5Band::Low => 650,
@@ -207,7 +252,11 @@ impl Orc5Band {
         }
     }
 
-    /// `Orc5Band.fromPhrfBFactor(cf)`.
+    /// Returns the 5-band wind band a PHRF B factor maps to.
+    ///
+    /// 650 and up `Low`, 600 to 649 `LowMedium`, 550 to 599 `Medium`, 510 to 549 `MediumHigh`, below 510 `High`. R4
+    /// (`docs/explore_implemented/orc_series_standings.md`): the B factor is the authority on the wind, so a race's
+    /// 5-band band must be this one.
     pub fn from_phrf_b_factor(cf: i32) -> Orc5Band {
         use Orc5Band::*;
         if cf >= Low.phrf_b_factor() {
@@ -224,6 +273,11 @@ impl Orc5Band {
     }
 }
 
+/// The ORC scoring option of a race: which of the certificate's time-on-time factors corrects the elapsed times.
+///
+/// The triple-number options also need an [`Orc3Band`] ([`OrcScoringOption::uses_3_band`]) and the five-band ones
+/// an [`Orc5Band`] ([`OrcScoringOption::uses_5_band`]); the single-number options use one factor in all winds. New
+/// races default to [`OrcScoringOption::FiveBandWindwardLeeward`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum OrcScoringOption {
     SingleNumberAllPurpose,
@@ -243,6 +297,7 @@ pub enum OrcScoringOption {
 }
 
 impl OrcScoringOption {
+    /// Every option, in declaration order (the order the race configuration form lists them).
     pub const ENTRIES: [OrcScoringOption; 13] = [
         OrcScoringOption::SingleNumberAllPurpose,
         OrcScoringOption::SingleNumberWindwardLeeward,
@@ -259,6 +314,7 @@ impl OrcScoringOption {
         OrcScoringOption::FiveBandAllPurpose,
     ];
 
+    /// Returns the serialized form: the variant name, except `WindwardLeeward60_40`.
     pub const fn name(self) -> &'static str {
         use OrcScoringOption::*;
         match self {
@@ -278,7 +334,9 @@ impl OrcScoringOption {
         }
     }
 
-    /// The Kotlin `label` (note the trailing space of `PredominantUpwind`, kept verbatim).
+    /// Returns the display name, such as `5-Band Windward/Leeward`.
+    ///
+    /// `PredominantUpwind`'s label ends in a space (`Predominant Upwind `), and pages render it that way.
     pub const fn label(self) -> &'static str {
         use OrcScoringOption::*;
         match self {
@@ -298,6 +356,7 @@ impl OrcScoringOption {
         }
     }
 
+    /// Returns whether the option picks its factor by [`Orc3Band`]: the two triple-number options.
     pub const fn uses_3_band(self) -> bool {
         matches!(
             self,
@@ -306,6 +365,7 @@ impl OrcScoringOption {
         )
     }
 
+    /// Returns whether the option picks its factor by [`Orc5Band`]: the predominant-course, 5-band and 60-40 ones.
     pub const fn uses_5_band(self) -> bool {
         use OrcScoringOption::*;
         matches!(
@@ -319,8 +379,8 @@ impl OrcScoringOption {
         )
     }
 
-    /// `"<label> - <desc>"` of the band the option scores with, or `None` for the single-number
-    /// options.
+    /// Returns `"<label> - <desc>"` of the band the option scores with (`Low/Medium - 7 to 10 kts`), or `None` for
+    /// the single-number options.
     pub fn orc_band_label(self, orc5_band: Orc5Band, orc3_band: Orc3Band) -> Option<String> {
         if self.uses_3_band() {
             Some(format!("{} - {}", orc3_band.label(), orc3_band.desc()))
@@ -332,15 +392,17 @@ impl OrcScoringOption {
     }
 }
 
-/// The `rms` envelope of data.orc.org's RMS JSON (the ORC client ignores the other keys).
+/// The `rms` envelope of data.orc.org's RMS JSON; the other keys of the response are ignored.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct OrcResponse {
     #[serde(default)]
     pub rms: Vec<OrcCertificate>,
 }
 
-/// `List<OrcCertificate>.findPreferred()`: a stable sort by the Kotlin comparator (a `CLUB`
-/// certificate before any other type, same types by issue date), then the first.
+/// Returns the certificate a boat races under by default, or `None` without certificates.
+///
+/// A `CLUB` certificate wins over any other type; among certificates of the same type the earliest issue date
+/// wins. Two certificates of different non-`CLUB` types compare equal and keep their input order.
 pub fn find_preferred(certs: &[OrcCertificate]) -> Option<&OrcCertificate> {
     use std::cmp::Ordering;
     let compare = |lhs: &OrcCertificate, rhs: &OrcCertificate| -> Ordering {
@@ -356,8 +418,8 @@ pub fn find_preferred(certs: &[OrcCertificate]) -> Option<&OrcCertificate> {
             lhs.issue_date.cmp(&rhs.issue_date)
         }
     };
-    // The comparator is not a total order (Kotlin does not care, `sortedWith` is a stable
-    // TimSort); a plain stable insertion sort never panics on it.
+    // The comparator is not a total order (different non-CLUB types compare equal, so it is not
+    // transitive), and `sort_by` may panic on such a comparator; a stable insertion sort never does.
     let mut sorted: Vec<&OrcCertificate> = certs.iter().collect();
     for i in 1..sorted.len() {
         let mut j = i;
@@ -374,21 +436,30 @@ fn distant_future() -> Timestamp {
 }
 
 /// An ORC certificate: ORC's RMS record with every US scoring option over 3 and 5 wind bands.
+///
+/// The serde keys are ORC's RMS keys verbatim, and every field may be left out on input. The `_tot` fields are
+/// time-on-time factors: corrected time = elapsed time × factor, so a faster boat has a larger factor. The `_tod`
+/// fields are time-on-distance allowances in seconds per nautical mile; they are stored but not used in scoring. A
+/// race's [`OrcScoringOption`] and wind band pick the one `_tot` factor that scores it.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct OrcCertificate {
-    /// ORC's file id of this certificate, the key of its public page (see [`OrcCertificate::certificate_url`]). Not part of
-    /// the RMS data: it comes from ORC's active-certificate list, so it is null for certificates that
-    /// were never resolved (e.g. expired before the lookup existed). Never written while null, so the
-    /// JSON of such certificates is unchanged.
+    /// ORC's file id of this certificate, the key of its public page (see [`OrcCertificate::certificate_url`]).
+    ///
+    /// Not part of the RMS data: it comes from ORC's active-certificate list, so it is `None` for certificates that
+    /// were never resolved (for example ones that expired before the lookup existed). It is never written while
+    /// `None`, so the JSON of such certificates matches the golden files.
     #[serde(rename = "dxtId", skip_serializing_if = "Option::is_none")]
     pub dxt_id: Option<i64>,
+    /// The issuing national authority, such as `USA`.
     #[serde(rename = "NatAuth")]
     pub nat_auth: String,
     #[serde(rename = "BIN")]
     pub bin: String,
     #[serde(rename = "CertNo")]
     pub cert_no: String,
+    /// ORC's reference number: the key a result stores as [`crate::RaceResult::orc_ref`] and the server fetches by
+    /// (`GET /v1/api/orcCert?refNo=`).
     #[serde(rename = "RefNo")]
     pub ref_no: String,
     #[serde(rename = "SailNo")]
@@ -401,10 +472,12 @@ pub struct OrcCertificate {
     pub builder: String,
     #[serde(rename = "Designer")]
     pub designer: String,
+    /// The certificate type, such as `CLUB` or `INTL`; [`find_preferred`] prefers `CLUB`.
     #[serde(rename = "C_Type")]
     pub c_type: String,
     #[serde(rename = "Division")]
     pub division: String,
+    /// [`DISTANT_FUTURE`] when missing, so an undated certificate loses to a dated one in [`find_preferred`].
     #[serde(
         rename = "IssueDate",
         with = "kotlin_instant",
@@ -413,192 +486,272 @@ pub struct OrcCertificate {
     pub issue_date: Timestamp,
 
     // Single Number All Purpose
+    /// Time-on-distance allowance in seconds per mile: Single number all purpose, all winds.
     #[serde(rename = "APHD")]
     pub all_purpose_tod: f64,
+    /// Time-on-time factor: Single number all purpose, all winds.
     #[serde(rename = "APHT")]
     pub all_purpose_tot: f64,
 
     // Single Number Windward/Leeward
+    /// Time-on-distance allowance in seconds per mile: Single number windward/leeward, all winds.
     #[serde(rename = "ILCWA")]
     pub wl_single_number_tod: f64,
+    /// Time-on-time factor: Single number windward/leeward, all winds.
     #[serde(rename = "TMF_Inshore")]
     pub wl_single_number_tot: f64,
 
     // Triple Number All Purpose (Low, Med, High)
+    /// Time-on-distance allowance in seconds per mile: Triple number all purpose, Low band (9 kts or less).
     #[serde(rename = "TND_Offshore_Low")]
     pub triple_number_all_purpose_low_tod: f64,
+    /// Time-on-time factor: Triple number all purpose, Low band (9 kts or less).
     #[serde(rename = "TN_Offshore_Low")]
     pub triple_number_all_purpose_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Triple number all purpose, Medium band (9 to 14 kts).
     #[serde(rename = "TND_Offshore_Medium")]
     pub triple_number_all_purpose_med_tod: f64,
+    /// Time-on-time factor: Triple number all purpose, Medium band (9 to 14 kts).
     #[serde(rename = "TN_Offshore_Medium")]
     pub triple_number_all_purpose_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Triple number all purpose, High band (14 kts or more).
     #[serde(rename = "TND_Offshore_High")]
     pub triple_number_all_purpose_hi_tod: f64,
+    /// Time-on-time factor: Triple number all purpose, High band (14 kts or more).
     #[serde(rename = "TN_Offshore_High")]
     pub triple_number_all_purpose_hi_tot: f64,
 
     // Triple Number Windward/Leeward (Low, Med, High)
+    /// Time-on-time factor: Triple number windward/leeward, Low band (9 kts or less).
     #[serde(rename = "US_TN_Inshore_Low")]
     pub triple_number_wl_low_tot: f64,
+    /// Time-on-time factor: Triple number windward/leeward, Medium band (9 to 14 kts).
     #[serde(rename = "TN_Inshore_Medium")]
     pub triple_number_wl_med_tot: f64,
+    /// Time-on-time factor: Triple number windward/leeward, High band (14 kts or more).
     #[serde(rename = "TN_Inshore_High")]
     pub triple_number_wl_hi_tot: f64,
 
     // Single Number Predominant Upwind
+    /// Time-on-time factor: Single number predominant upwind, all winds.
     #[serde(rename = "US_PREDUP_TOT")]
     pub single_number_predominant_upwind_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Single number predominant upwind, all winds.
     #[serde(rename = "US_PREDUP_TOD")]
     pub single_number_predominant_upwind_tod: f64,
 
     // Single Number Predominant Reaching
+    /// Time-on-time factor: Single number predominant reaching, all winds.
     #[serde(rename = "US_PREDRC_TOT")]
     pub single_number_predominant_reaching_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Single number predominant reaching, all winds.
     #[serde(rename = "US_PREDRC_TOD")]
     pub single_number_predominant_reaching_tod: f64,
 
     // Single Number Predominant Downwind
+    /// Time-on-time factor: Single number predominant downwind, all winds.
     #[serde(rename = "US_PREDDN_TOT")]
     pub single_number_predominant_downwind_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Single number predominant downwind, all winds.
     #[serde(rename = "US_PREDDN_TOD")]
     pub single_number_predominant_downwind_tod: f64,
 
     // Predominant Upwind (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-time factor: Predominant upwind, Low band (7 kts or less).
     #[serde(rename = "US_PREDUP_L_TOT")]
     pub predominant_upwind_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant upwind, Low band (7 kts or less).
     #[serde(rename = "US_PREDUP_L_TOD")]
     pub predominant_upwind_low_tod: f64,
+    /// Time-on-time factor: Predominant upwind, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDUP_LM_TOT")]
     pub predominant_upwind_low_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant upwind, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDUP_LM_TOD")]
     pub predominant_upwind_low_med_tod: f64,
+    /// Time-on-time factor: Predominant upwind, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDUP_M_TOT")]
     pub predominant_upwind_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant upwind, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDUP_M_TOD")]
     pub predominant_upwind_med_tod: f64,
+    /// Time-on-time factor: Predominant upwind, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDUP_MH_TOT")]
     pub predominant_upwind_med_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant upwind, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDUP_MH_TOD")]
     pub predominant_upwind_med_hi_tod: f64,
+    /// Time-on-time factor: Predominant upwind, High band (17 kts or more).
     #[serde(rename = "US_PREDUP_H_TOT")]
     pub predominant_upwind_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant upwind, High band (17 kts or more).
     #[serde(rename = "US_PREDUP_H_TOD")]
     pub predominant_upwind_hi_tod: f64,
 
     // Predominant Downwind (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-time factor: Predominant downwind, Low band (7 kts or less).
     #[serde(rename = "US_PREDDN_L_TOT")]
     pub predominant_downwind_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant downwind, Low band (7 kts or less).
     #[serde(rename = "US_PREDDN_L_TOD")]
     pub predominant_downwind_low_tod: f64,
+    /// Time-on-time factor: Predominant downwind, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDDN_LM_TOT")]
     pub predominant_downwind_low_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant downwind, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDDN_LM_TOD")]
     pub predominant_downwind_low_med_tod: f64,
+    /// Time-on-time factor: Predominant downwind, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDDN_M_TOT")]
     pub predominant_downwind_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant downwind, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDDN_M_TOD")]
     pub predominant_downwind_med_tod: f64,
+    /// Time-on-time factor: Predominant downwind, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDDN_MH_TOT")]
     pub predominant_downwind_med_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant downwind, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDDN_MH_TOD")]
     pub predominant_downwind_med_hi_tod: f64,
+    /// Time-on-time factor: Predominant downwind, High band (17 kts or more).
     #[serde(rename = "US_PREDDN_H_TOT")]
     pub predominant_downwind_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant downwind, High band (17 kts or more).
     #[serde(rename = "US_PREDDN_H_TOD")]
     pub predominant_downwind_hi_tod: f64,
 
     // Predominant Reaching (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-time factor: Predominant reaching, Low band (7 kts or less).
     #[serde(rename = "US_PREDRC_L_TOT")]
     pub predominant_reaching_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant reaching, Low band (7 kts or less).
     #[serde(rename = "US_PREDRC_L_TOD")]
     pub predominant_reaching_low_tod: f64,
+    /// Time-on-time factor: Predominant reaching, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDRC_LM_TOT")]
     pub predominant_reaching_low_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant reaching, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_PREDRC_LM_TOD")]
     pub predominant_reaching_low_med_tod: f64,
+    /// Time-on-time factor: Predominant reaching, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDRC_M_TOT")]
     pub predominant_reaching_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant reaching, Medium band (10 to 13 kts).
     #[serde(rename = "US_PREDRC_M_TOD")]
     pub predominant_reaching_med_tod: f64,
+    /// Time-on-time factor: Predominant reaching, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDRC_MH_TOT")]
     pub predominant_reaching_med_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant reaching, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_PREDRC_MH_TOD")]
     pub predominant_reaching_med_hi_tod: f64,
+    /// Time-on-time factor: Predominant reaching, High band (17 kts or more).
     #[serde(rename = "US_PREDRC_H_TOT")]
     pub predominant_reaching_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Predominant reaching, High band (17 kts or more).
     #[serde(rename = "US_PREDRC_H_TOD")]
     pub predominant_reaching_hi_tod: f64,
 
     // 5-Band Windward/Leeward (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-time factor: 5-band windward/leeward, Low band (7 kts or less).
     #[serde(rename = "US_5B_L_TOT")]
     pub five_band_wl_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band windward/leeward, Low band (7 kts or less).
     #[serde(rename = "US_5B_L_TOD")]
     pub five_band_wl_low_tod: f64,
+    /// Time-on-time factor: 5-band windward/leeward, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_5B_LM_TOT")]
     pub five_band_wl_low_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band windward/leeward, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_5B_LM_TOD")]
     pub five_band_wl_low_med_tod: f64,
+    /// Time-on-time factor: 5-band windward/leeward, Medium band (10 to 13 kts).
     #[serde(rename = "US_5B_M_TOT")]
     pub five_band_wl_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band windward/leeward, Medium band (10 to 13 kts).
     #[serde(rename = "US_5B_M_TOD")]
     pub five_band_wl_med_tod: f64,
+    /// Time-on-time factor: 5-band windward/leeward, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_5B_MH_TOT")]
     pub five_band_wl_med_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band windward/leeward, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_5B_MH_TOD")]
     pub five_band_wl_med_hi_tod: f64,
+    /// Time-on-time factor: 5-band windward/leeward, High band (17 kts or more).
     #[serde(rename = "US_5B_H_TOT")]
     pub five_band_wl_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band windward/leeward, High band (17 kts or more).
     #[serde(rename = "US_5B_H_TOD")]
     pub five_band_wl_hi_tod: f64,
 
     // Windward/Leeward 60-40 (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-distance allowance in seconds per mile: Windward/leeward 60-40, Low band (7 kts or less).
     #[serde(rename = "US_WL6040_L_TOD")]
     pub us_wl6040_l_tod: f64,
+    /// Time-on-time factor: Windward/leeward 60-40, Low band (7 kts or less).
     #[serde(rename = "US_WL6040_L_TOT")]
     pub us_wl6040_l_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Windward/leeward 60-40, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_WL6040_LM_TOD")]
     pub us_wl6040_lm_tod: f64,
+    /// Time-on-time factor: Windward/leeward 60-40, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_WL6040_LM_TOT")]
     pub us_wl6040_lm_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Windward/leeward 60-40, Medium band (10 to 13 kts).
     #[serde(rename = "US_WL6040_M_TOD")]
     pub us_wl6040_m_tod: f64,
+    /// Time-on-time factor: Windward/leeward 60-40, Medium band (10 to 13 kts).
     #[serde(rename = "US_WL6040_M_TOT")]
     pub us_wl6040_m_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Windward/leeward 60-40, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_WL6040_MH_TOD")]
     pub us_wl6040_mh_tod: f64,
+    /// Time-on-time factor: Windward/leeward 60-40, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_WL6040_MH_TOT")]
     pub us_wl6040_mh_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: Windward/leeward 60-40, High band (17 kts or more).
     #[serde(rename = "US_WL6040_H_TOD")]
     pub us_wl6040_h_tod: f64,
+    /// Time-on-time factor: Windward/leeward 60-40, High band (17 kts or more).
     #[serde(rename = "US_WL6040_H_TOT")]
     pub us_wl6040_h_tot: f64,
 
     // 5-Band All Purpose (Low, Low/Med, Medium, Med/High, High)
+    /// Time-on-time factor: 5-band all purpose, Low band (7 kts or less).
     #[serde(rename = "US_AP_L_TOT")]
     pub five_band_all_purpose_low_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band all purpose, Low band (7 kts or less).
     #[serde(rename = "US_AP_L_TOD")]
     pub five_band_all_purpose_low_tod: f64,
+    /// Time-on-time factor: 5-band all purpose, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_AP_LM_TOT")]
     pub five_band_all_purpose_low_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band all purpose, Low/Medium band (7 to 10 kts).
     #[serde(rename = "US_AP_LM_TOD")]
     pub five_band_all_purpose_low_med_tod: f64,
+    /// Time-on-time factor: 5-band all purpose, Medium band (10 to 13 kts).
     #[serde(rename = "US_AP_M_TOT")]
     pub five_band_all_purpose_med_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band all purpose, Medium band (10 to 13 kts).
     #[serde(rename = "US_AP_M_TOD")]
     pub five_band_all_purpose_med_tod: f64,
+    /// Time-on-time factor: 5-band all purpose, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_AP_MH_TOT")]
     pub five_band_all_purpose_med_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band all purpose, Medium/High band (13 to 17 kts).
     #[serde(rename = "US_AP_MH_TOD")]
     pub five_band_all_purpose_med_hi_tod: f64,
+    /// Time-on-time factor: 5-band all purpose, High band (17 kts or more).
     #[serde(rename = "US_AP_H_TOT")]
     pub five_band_all_purpose_hi_tot: f64,
+    /// Time-on-distance allowance in seconds per mile: 5-band all purpose, High band (17 kts or more).
     #[serde(rename = "US_AP_H_TOD")]
     pub five_band_all_purpose_hi_tod: f64,
 }
 
 impl Default for OrcCertificate {
-    /// The Kotlin defaults: empty strings, `0.0`, no file id and `IssueDate = DISTANT_FUTURE`.
+    /// Creates an empty certificate: empty strings, `0.0` factors, no file id and an issue date of
+    /// [`DISTANT_FUTURE`].
     fn default() -> Self {
         OrcCertificate {
             dxt_id: None,
@@ -698,6 +851,7 @@ impl Default for OrcCertificate {
 }
 
 impl OrcCertificate {
+    /// Returns `"<yacht name> <ref no> <type> <division>"`, the certificate's text in the rating pickers.
     pub fn label(&self) -> String {
         format!(
             "{} {} {} {}",
@@ -705,13 +859,17 @@ impl OrcCertificate {
         )
     }
 
-    /// The public page of this certificate, or null when [`OrcCertificate::dxt_id`] was never resolved.
+    /// Returns the public page of this certificate, or `None` when [`OrcCertificate::dxt_id`] was never resolved.
     pub fn certificate_url(&self) -> Option<String> {
         orc_certificate_url(self.dxt_id)
     }
 
-    /// An equivalent PHRF rating for bracket sorting: `500 / (5-band W/L low-medium TOT) - 550`,
-    /// rounded (`Double.roundToInt()`, ties toward positive infinity).
+    /// Returns an equivalent PHRF rating, in seconds per mile, for placing an ORC boat in a bracket.
+    ///
+    /// `500 / TOT - 550` from the 5-band windward/leeward Low/Medium factor, rounded by
+    /// [`crate::utils::round_to_long`] (ties toward positive infinity) and clamped to `i32`. A certificate whose
+    /// factor is 0 (the default) gives `i32::MAX`. Only bracket placement uses it; scoring uses the ORC factors
+    /// themselves.
     pub fn virtual_phrf(&self) -> i32 {
         /*
         Coefficient A (The Numerator)

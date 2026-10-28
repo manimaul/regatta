@@ -1,10 +1,14 @@
-//! regatta-service: everything the regatta server does besides HTTP (= the Kotlin `server`
-//! module without `plugins/`): configuration, the startup schema check (D6), the database
-//! service layer over sqlx (one module per Kotlin `*Table.kt`, the `RegattaDatabase` functions
-//! in [`db`]), the report and standings wrappers over `regatta-scoring` ([`reporter`]), the
-//! auth tokens ([`auth`]) and the ORC client ([`orc`]). The axum REST handlers and, in Phase 4,
-//! the Leptos server functions are thin adapters over this crate.
-//! See `docs/explore_implemented/rust_port.md`, Phase 3.
+//! Everything the regatta server does besides HTTP, which the REST handlers and server functions adapt.
+//!
+//! - [`config`]: the server [`Config`] from the environment or flags.
+//! - [`startup`]: the startup schema check (D6 in `docs/explore_implemented/rust_port.md`).
+//! - [`db`]: the data layer over sqlx, [`Db`], one module per table.
+//! - [`reporter`]: race reports and series standings, loaded from the database and scored by `regatta-scoring`.
+//! - [`auth`]: the admin bearer tokens.
+//! - [`orc`]: the client of ORC's data site.
+//!
+//! The axum REST handlers (`crates/server/src/routes/`) and the Leptos server functions
+//! (`crates/app/src/server_fns.rs`) are thin adapters over this crate. See `docs/explore_implemented/rust_port.md`.
 
 pub mod auth;
 pub mod config;

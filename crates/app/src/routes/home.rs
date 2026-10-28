@@ -1,4 +1,6 @@
-//! = `routes/Home.kt`.
+//! The Home screen: the logged-in admin's session details and "Copy auth token".
+//!
+//! A logged-out visitor is redirected to the race results.
 
 use crate::components::rg_button::{RgButton, RgButtonStyle};
 use crate::server_fns;

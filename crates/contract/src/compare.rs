@@ -1,8 +1,10 @@
-//! Response comparison (plan T2): status exact; `Content-Type` exact string (and
-//! `WWW-Authenticate`); JSON bodies equal as parsed values **and** byte for byte after canonical
-//! re-serialisation, with key-order differences reported apart from value differences; text and
-//! binary bodies exact; volatile JSON pointers compared by type only; fallback steps by status and
-//! media type. `Content-Encoding`, `Content-Length`, `Date` and `Server` are recorded, never compared.
+//! Response comparison for replay and diff: what counts as the same answer, as [`Mismatch`]es.
+//!
+//! Status exact; `Content-Type` (and `WWW-Authenticate`) as exact strings; JSON bodies equal as parsed values **and**
+//! byte for byte after canonical re-serialisation, with key-order differences reported apart from value differences;
+//! text and binary bodies exact; volatile JSON pointers compared by type only; fallback steps by status and media
+//! type. `Content-Encoding`, `Content-Length`, `Date` and `Server` are recorded, never compared. The rules are T2 in
+//! `docs/explore_implemented/rust_port.md`.
 
 use crate::cassette::{base64_decode, RecordedBody, RecordedRequest, RecordedResponse};
 use crate::step::Compare;
@@ -11,7 +13,7 @@ use std::fmt;
 
 /// Response headers compared as exact strings when a step is compared in full.
 pub const COMPARED_HEADERS: &[&str] = &["content-type", "www-authenticate"];
-/// Recorded for the reader, never compared.
+/// Response headers recorded for the reader, never compared.
 pub const RECORDED_ONLY_HEADERS: &[&str] =
     &["content-encoding", "content-length", "date", "server"];
 
@@ -212,7 +214,7 @@ pub fn type_name(value: &Value) -> &'static str {
     }
 }
 
-/// The media type of a `Content-Type` value: everything before the first `;`, trimmed, lower case.
+/// Returns the media type of a `Content-Type` value: everything before the first `;`, trimmed, lower case.
 pub fn media_type(content_type: Option<&str>) -> Option<String> {
     content_type.map(|ct| {
         ct.split(';')
@@ -324,7 +326,7 @@ fn compare_bodies(
     }
 }
 
-/// Parsed equality, then canonical-bytes equality (key order), after masking volatile pointers.
+/// Compares two JSON bodies by parsed value, then by canonical bytes (key order), after masking volatile pointers.
 pub fn compare_json(volatile: &[String], expected: &Value, actual: &Value) -> Vec<Mismatch> {
     let mut e = expected.clone();
     let mut a = actual.clone();
@@ -463,7 +465,7 @@ pub fn value_diffs(pointer: &str, expected: &Value, actual: &Value, out: &mut Ve
     }
 }
 
-/// Objects whose keys are the same set in a different sequence (values already known equal).
+/// Collects into `out` the objects whose keys are the same set in a different sequence (values already known equal).
 pub fn order_diffs(pointer: &str, expected: &Value, actual: &Value, out: &mut Vec<OrderDiff>) {
     match (expected, actual) {
         (Value::Object(e), Value::Object(a)) => {
@@ -491,7 +493,7 @@ pub fn order_diffs(pointer: &str, expected: &Value, actual: &Value, out: &mut Ve
     }
 }
 
-/// A unified diff of two texts, capped in length.
+/// Renders a unified diff of two texts, capped in length.
 pub fn text_diff(expected: &str, actual: &str) -> String {
     let diff = similar::TextDiff::from_lines(expected, actual);
     let text = diff
@@ -512,7 +514,7 @@ pub fn text_diff(expected: &str, actual: &str) -> String {
     }
 }
 
-/// The recorded request against the one the scenario builds now (after token substitution).
+/// Compares the recorded request with the one the scenario builds now (after token substitution).
 pub fn compare_requests(expected: &RecordedRequest, actual: &RecordedRequest) -> Option<Mismatch> {
     let mut lines = Vec::new();
     if expected.method != actual.method {

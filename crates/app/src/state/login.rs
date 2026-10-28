@@ -1,7 +1,9 @@
-//! = `LoginViewModel.kt`. The session lives in the `regatta_token` cookie (D3): the server renders
-//! the logged-in state from it through the `current_login` server function (a blocking resource,
-//! so the first HTML already carries the right nav bar), and `login` / `logout` / `create_admin`
-//! are the server functions that set, clear and bootstrap it.
+//! Login state: the admin session and its expiry countdown.
+//!
+//! The session lives in the `regatta_token` cookie (D3, `docs/explore_implemented/rust_port.md`): the server
+//! renders the logged-in state from it through [`crate::server_fns::current_login`] (a blocking resource, so the
+//! first HTML already carries the right nav bar), and [`crate::server_fns::login`],
+//! [`crate::server_fns::logout`] and [`crate::server_fns::create_admin`] set, clear and bootstrap it.
 
 use crate::server_fns::{self, CurrentLogin};
 use crate::utils::async_state::call;
@@ -48,13 +50,14 @@ impl Default for LoginState {
     }
 }
 
-/// `LoginResponse.isExpired()`.
+/// Tells whether `login` has expired at `now`.
 pub fn is_expired(login: &LoginResponse, now: Timestamp) -> bool {
     login.expires < now
 }
 
-/// The expiry countdown shown on the home screen (`loginExpires`): `"d days, h hours, m minutes,
-/// s seconds"`, `"EXPIRED"`, or `"NOT LOGGED IN"`.
+/// Formats the login expiry countdown shown on the home screen.
+///
+/// The text is `"d days, h hours, m minutes, s seconds"`, `"EXPIRED"`, or `"NOT LOGGED IN"` for `None`.
 pub fn login_expires(login: Option<&LoginResponse>, now: Timestamp) -> String {
     let Some(login) = login else {
         return "NOT LOGGED IN".to_string();
@@ -77,7 +80,7 @@ pub struct LoginContext {
     /// The session the request cookie proves (`current_login`); `None` in contexts created outside
     /// the app (component tests), which render logged out.
     pub session: Option<Resource<Option<CurrentLogin>>>,
-    /// `ClockState`: refreshed every 250 ms in the browser.
+    /// The current time of day, refreshed every 250 ms in the browser.
     pub clock_display: RwSignal<String>,
     pub expires_display: RwSignal<String>,
 }
@@ -93,13 +96,14 @@ fn new_context(session: Option<Resource<Option<CurrentLogin>>>) -> LoginContext 
     ctx
 }
 
-/// A context without a session (logged out), for components rendered outside the app.
+/// Provides a login context without a session (logged out), for components rendered outside the app.
 pub fn provide_login() -> LoginContext {
     new_context(None)
 }
 
-/// The app's context: the cookie session as a blocking resource (the page is not sent before it
-/// resolves, so a `<Redirect>` from Home can still become a 302) and the expiry clock.
+/// Provides the app's login context: the cookie session as a blocking resource, and the expiry clock.
+///
+/// The page is not sent before the session resolves, so a `<Redirect>` from Home can still become a 302.
 pub fn provide_login_session() -> LoginContext {
     let session = Resource::new_blocking(
         || (),
@@ -182,8 +186,9 @@ impl LoginContext {
         });
     }
 
-    /// `submitNew()`: `POST auth` with the hashed password; `Complete` or `Failed` for 3 s, then
-    /// the form again.
+    /// Creates an admin from the form through [`crate::server_fns::create_admin`], with the hashed password.
+    ///
+    /// The status is `Complete` or `Failed` for 3 s, then the form shows again.
     pub fn submit_new(&self) {
         let state = self.state;
         state.update(|s| s.login_status = LoginStatus::Loading);
@@ -212,8 +217,10 @@ impl LoginContext {
         });
     }
 
-    /// `login()`: salt + hash of hash, the `login` server function (which sets the cookie), then
-    /// `on_success` (the caller navigates Home).
+    /// Logs in with the form's credentials, then runs `on_success` (the caller navigates Home).
+    ///
+    /// Sends [`crate::server_fns::login`] (which sets the cookie) the chained hash of a fresh salt, the current time in
+    /// seconds and the password hash.
     pub fn login(&self, on_success: impl FnOnce() + 'static) {
         let state = self.state;
         state.update(|s| s.login_status = LoginStatus::Loading);
@@ -249,8 +256,9 @@ impl LoginContext {
         });
     }
 
-    /// `logout()`: clears the cookie through the server function and forgets the session, then
-    /// `on_done` (the caller navigates Home, which sends a logged-out visitor to the results).
+    /// Clears the cookie through [`crate::server_fns::logout`] and forgets the session, then runs `on_done`.
+    ///
+    /// The caller navigates Home, which sends a logged-out visitor to the results.
     pub fn logout(&self, on_done: impl FnOnce() + 'static) {
         let state = self.state;
         call(server_fns::logout(), move |_| {
@@ -263,7 +271,7 @@ impl LoginContext {
         });
     }
 
-    /// `reload()`: a failed login shows its message for 3 s, then the form again.
+    /// Resets after a failed login: its message shows for 3 s, then the form again.
     pub fn reload(&self) {
         let state = self.state;
         browser::set_timeout(
@@ -274,8 +282,9 @@ impl LoginContext {
         );
     }
 
-    /// The 250 ms clock of `LoginViewModel.init`: the time and the expiry countdown; an expired
-    /// login logs out after 3 s. A no-op on the server.
+    /// Starts the 250 ms clock that updates the time and the expiry countdown.
+    ///
+    /// An expired login logs out after 3 s. A no-op on the server.
     fn start_clock(&self) {
         let ctx = *self;
         let expiring = RwSignal::new(false);

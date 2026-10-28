@@ -1,6 +1,9 @@
-//! One handler per row of the plan's route table (= `plugins/Routing.kt`), nested under
-//! `/v1/api` by [`crate::build_router`]. Admin routes take the [`Admin`](crate::extract::Admin)
-//! extractor first, so the bearer check answers before any body is read or parsed.
+//! The REST API handlers, one module per resource, nested under `/v1/api` by [`crate::build_router`].
+//!
+//! [`api_router`] lists every route (the same table as "The API contract" in `docs/explore_implemented/rust_port.md`
+//! and `crates/contract/src/scenario.rs`). Admin routes take the [`Admin`](crate::extract::Admin) extractor first, so
+//! the bearer check answers before any body is read or parsed. A wrong method on a known path is the site fallback,
+//! as the cassettes record.
 
 pub mod auth;
 pub mod boats;
@@ -17,6 +20,7 @@ use crate::AppState;
 use axum::routing::{get, post};
 use axum::Router;
 
+/// Builds the `/v1/api` router with every REST route.
 pub fn api_router() -> Router<AppState> {
     Router::new()
         // series

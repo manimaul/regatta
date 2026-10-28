@@ -1,7 +1,8 @@
-//! = `RgSpinner.kt`: an SVG arc spinning on a gradient stroke.
+//! The loading spinner: an SVG arc spinning on a gradient stroke.
 
 use leptos::prelude::*;
 
+/// A spinner `size` px square.
 #[component]
 pub fn RgSpinner(
     #[prop(default = 50.0)] size: f64,
@@ -11,7 +12,6 @@ pub fn RgSpinner(
     let stroke = size / 10.0;
     let radius = center - stroke;
     let amt = (2.0 * std::f64::consts::PI * radius) * 0.8;
-    // Rust's `{}` prints whole doubles without a fraction, as Kotlin/JS did
     let rotate_from = format!("0, {center}, {center}");
     let rotate_to = format!("360, {center}, {center}");
     view! {

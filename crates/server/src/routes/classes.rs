@@ -1,3 +1,5 @@
+//! The REST race class and bracket routes: `raceClass`, `allClasses`, `raceClassList` and `bracket`.
+
 use crate::error::AppResult;
 use crate::extract::{Admin, Json, Params};
 use crate::respond::{empty, json};
@@ -20,7 +22,7 @@ pub async fn all_classes(State(state): State<AppState>) -> AppResult {
     Ok(json(&state.db.all_classes().await?))
 }
 
-/// `POST raceClass`: upserts the class and its brackets; brackets missing from the list are deleted.
+/// Upserts the class and its brackets for `POST raceClass`, deleting the class's brackets missing from the list.
 pub async fn post_class(
     _admin: Admin,
     State(state): State<AppState>,

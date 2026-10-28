@@ -1,4 +1,6 @@
-//! = `StandingsLabelsTest.kt`: series standings cell text and decoration (utils/standings_report.rs).
+//! Tests of the series standings cell text and decoration in `crates/app/src/utils/standings_report.rs`.
+//!
+//! Decision IDs are the scoring decisions of `docs/explore_implemented/test_audit_and_plan.md`.
 #![cfg(not(target_arch = "wasm32"))]
 
 use regatta_app::utils::standings_report::*;
@@ -133,7 +135,7 @@ fn score_text() {
     assert_eq!(class_score_text(&plain_race()), ", 5");
 }
 
-/// D1: an RC volunteer average is fractional and shown with one or two decimals.
+/// D1 (`test_audit_and_plan.md`): an RC volunteer average is fractional and shown with one or two decimals.
 #[test]
 fn fractional_scores_are_formatted() {
     assert_eq!(
@@ -295,7 +297,7 @@ fn totals() {
     assert_eq!(total_class_text(&r), "17");
 }
 
-// ---- D9: the ORC side
+// ---- D9 (`test_audit_and_plan.md`): the ORC side
 
 #[test]
 fn orc_score_text_and_decoration() {
@@ -326,7 +328,7 @@ fn orc_score_text_and_decoration() {
     );
 }
 
-/// Without the ORC gate the race cell is the single unlabeled line it has always been, whatever the row's rating.
+/// Without the ORC gate the race cell is a single unlabeled line, whatever the row's rating.
 #[test]
 fn score_lines_without_orc_is_the_single_unlabeled_line() {
     assert_eq!(

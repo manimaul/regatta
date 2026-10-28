@@ -1,7 +1,9 @@
-//! Build metadata captured by `build.rs` (= the generated Kotlin `VersionInfo` object).
+//! The git and build metadata of this build, captured at compile time by `crates/common/build.rs`.
 
-/// Git hash, branch, dirty flag and build date of this build. Values are `unknown` when the
-/// build ran without git or outside a checkout.
+/// Git hash, branch, dirty flag and build date of this build.
+///
+/// Values are `unknown` (and `dirty` false) when the build ran without git or outside a checkout, unless the
+/// `REGATTA_GIT_*` build arguments supplied them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VersionInfo {
     /// `git rev-parse --verify --short HEAD`.
@@ -17,6 +19,7 @@ pub struct VersionInfo {
 }
 
 impl VersionInfo {
+    /// The values of the running binary.
     pub const CURRENT: VersionInfo = VersionInfo {
         git_hash: env!("REGATTA_GIT_HASH"),
         branch: env!("REGATTA_GIT_BRANCH"),

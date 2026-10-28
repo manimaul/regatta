@@ -1,5 +1,4 @@
-//! = `Router.kt` + `Main.js.kt`: the page frame (nav bar, alerts, the routed screen, footer) and the
-//! 15 routes.
+//! The page frame (nav bar, alerts, the routed screen, footer) and the 15 routes, mounted by [`App`].
 
 use crate::chart::resize_observer::observe_scroll_height;
 use crate::components::alerts::Alerts;
@@ -41,15 +40,15 @@ pub fn App() -> impl IntoView {
     }
 }
 
-/// = `Router()`: the grid with the nav bar, the alerts, `#route_content` and the footer.
+/// The app root: the grid with the nav bar, the alerts, `#route_content` and the footer.
 ///
-/// Every route renders in `SsrMode::Async`: the server awaits the screen's resources and sends one
-/// complete document with the data in the markup (T7), and a `<Redirect>` rendered while logged
-/// out (Home) can still set the 302. `<Routes>` must not sit under a `<Suspense>`: the route list
-/// is generated with a synchronous render in which a Suspense shows only its fallback, so routes
-/// hidden that way never register, every page falls to the file handler (out-of-order streaming,
-/// the frame shipped as a template chunk after the body, `ssr=` ignored, no redirect status).
-/// The session resource is therefore read under two smaller boundaries: the nav bar's and each
+/// Every route renders in `SsrMode::Async` (D11, `docs/explore_implemented/rust_port.md`): the server awaits the
+/// screen's resources and sends one complete document with the data in the markup (checked by
+/// `crates/server/tests/ssr.rs`), and a `<Redirect>` rendered while logged out (Home) can still set the 302.
+/// `<Routes>` must not sit under a `<Suspense>`: the route list is generated with a synchronous render in which a
+/// Suspense shows only its fallback, so routes hidden that way never register and every page falls to the file
+/// handler (out-of-order streaming, the frame shipped as a template chunk after the body, `ssr=` ignored, no
+/// redirect status). The session resource is therefore read under two smaller boundaries: the nav bar's and each
 /// screen's ([`Screen`]).
 #[component]
 fn PageFrame() -> impl IntoView {
@@ -82,9 +81,10 @@ fn PageFrame() -> impl IntoView {
     }
 }
 
-/// A routed screen under its own `<Suspense>`: the screens read the session resource (admin
-/// gates, Home's redirect, the Action column), and a blocking resource is awaited by the server
-/// only when read inside a Suspense. The fallback is empty: the session is resolved before the
+/// A routed screen under its own `<Suspense>`.
+///
+/// The screens read the session resource (admin gates, Home's redirect, the Action column), and the server awaits a
+/// blocking resource only when it is read inside a Suspense. The fallback is empty: the session is resolved before the
 /// first paint and on every client-side navigation.
 #[component]
 fn Screen(children: ChildrenFn) -> impl IntoView {
@@ -142,7 +142,7 @@ pub fn Footer() -> impl IntoView {
     }
 }
 
-/// Exposed for the theme state: the shell and `App` agree on the initial theme.
+/// Returns `theme`, or the default (light) theme when `None`, so the shell and [`App`] agree on the starting theme.
 pub fn theme_or_default(theme: Option<Theme>) -> Theme {
     theme.unwrap_or_default()
 }

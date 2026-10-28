@@ -1,4 +1,4 @@
-//! = `FinishCodeDrop.kt`.
+//! The finish code dropdown of the result forms.
 
 use crate::cb::Cb;
 use crate::components::rg_dropdown::RgDropdown;
@@ -6,6 +6,9 @@ use crate::utils::race_report::finish_code_text;
 use leptos::prelude::*;
 use regatta_common::FinishCode;
 
+/// A dropdown of finish codes that calls `handler` with the chosen one.
+///
+/// `hoc_position` fills in the place shown for the HOC code; `show_hoc = false` leaves HOC out of the list.
 #[component]
 pub fn FinishCodeDrop(
     #[prop(into)] selected: Signal<FinishCode>,

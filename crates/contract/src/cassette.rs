@@ -1,6 +1,8 @@
-//! Cassettes: one pretty-printed JSON file per step, `NNN-<name>.json`, holding the request as
-//! sent (the live admin token replaced by `{{token}}`) and the response as received, plus the
-//! step's compare mode and volatile pointers.
+//! Cassettes: the recorded exchanges, one pretty-printed JSON file per step named `NNN-<name>.json`.
+//!
+//! A [`Cassette`] holds the request as sent (the live admin token replaced by `{{token}}`) and the response as
+//! received, plus the step's compare mode and volatile pointers; [`Meta`] (`_meta.json`) says how the set was
+//! recorded. Key order is preserved on write and read (`serde_json`'s `preserve_order`).
 
 use crate::step::{AuthMode, Compare};
 use anyhow::{anyhow, Context, Result};
@@ -31,8 +33,9 @@ pub struct RecordedPart {
     pub base64: Option<String>,
 }
 
-/// A body as written to a cassette: `{"json": ...}`, `{"text": "..."}`, `{"base64": "..."}` or
-/// `{"multipart": [...]}`; `null` when there was none.
+/// A body as written to a cassette: `{"json": ...}`, `{"text": "..."}`, `{"base64": "..."}` or `{"multipart": [...]}`.
+///
+/// A request or response without a body holds `None`, written as JSON `null`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RecordedBody {
@@ -129,6 +132,7 @@ pub fn base64_decode(text: &str) -> Result<Vec<u8>> {
         .context("cassette body is not base64")
 }
 
+/// One recorded step: its scenario position and name, how it was authenticated and compared, and the exchange.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Cassette {
     /// 1-based position in the scenario.
@@ -166,6 +170,11 @@ impl Cassette {
     }
 
     /// Reads the cassette of step `index` named `name` from `dir`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` when the file is missing (not recorded, or the scenario changed since), unreadable or not a
+    /// cassette.
     pub fn read_step(dir: &Path, index: usize, name: &str) -> Result<Cassette> {
         let path = dir.join(Cassette::file_name(index, name));
         if !path.exists() {
@@ -183,7 +192,7 @@ impl Cassette {
 pub struct Meta {
     pub base_url: String,
     pub recorded_at: String,
-    /// The fixed clock the recorded server ran with, if any (`-Dregatta.now` / `REGATTA_FIXED_NOW`).
+    /// The fixed clock the recorded server ran with (`REGATTA_FIXED_NOW`), if any.
     pub fixed_now: Option<String>,
     pub steps: usize,
 }

@@ -1,4 +1,4 @@
-//! = `RaceResultsTable.kt`.
+//! The `raceresults` table: one result per boat and race, with its finish, rating, finish code and penalty.
 
 use super::time::{from_pg, to_pg};
 use super::{boat, enum_from_name, orc_table, person, race};
@@ -59,7 +59,7 @@ impl JoinedRow {
     }
 }
 
-/// The stored code, else `TIME` with a finish and `RET` without.
+/// Returns the stored finish code, or for a legacy row without one, `TIME` with a finish and `RET` without.
 fn finish_code(code: &Option<String>, finish: Option<Timestamp>) -> Result<FinishCode> {
     match code {
         Some(c) => enum_from_name(c),
@@ -123,6 +123,11 @@ fn to_result_full(
     })
 }
 
+/// Returns the number of results of race `race_id`.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn count(conn: &mut PgConnection, race_id: i64) -> Result<i64> {
     Ok(counts_by_race(conn, &[race_id])
         .await?
@@ -131,7 +136,11 @@ pub async fn count(conn: &mut PgConnection, race_id: i64) -> Result<i64> {
         .unwrap_or(0))
 }
 
-/// Results per race, one grouped query for all of `race_ids`. Races with no results are absent.
+/// Returns the results per race, one grouped query for all of `race_ids`; races with no results are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn counts_by_race(
     conn: &mut PgConnection,
     race_ids: &[i64],
@@ -148,6 +157,13 @@ pub async fn counts_by_race(
     Ok(rows.into_iter().collect())
 }
 
+/// Inserts the result or updates the one of the same boat and race, returning it as stored.
+///
+/// The finish time is stored only for a TIME result and the HOC position only for an HOC one.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails or the stored row does not parse.
 pub async fn upsert_result(
     conn: &mut PgConnection,
     result: &RaceResult,
@@ -187,6 +203,11 @@ pub async fn upsert_result(
     }
 }
 
+/// Returns the number of results of boat `boat_id`.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_count(conn: &mut PgConnection, boat_id: i64) -> Result<i64> {
     Ok(race_counts_by_boat(conn, &[boat_id])
         .await?
@@ -195,7 +216,11 @@ pub async fn race_count(conn: &mut PgConnection, boat_id: i64) -> Result<i64> {
         .unwrap_or(0))
 }
 
-/// Results per boat, one grouped query for all of `boat_ids`. Boats with no results are absent.
+/// Returns the results per boat, one grouped query for all of `boat_ids`; boats with no results are absent.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails.
 pub async fn race_counts_by_boat(
     conn: &mut PgConnection,
     boat_ids: &[i64],
@@ -212,10 +237,16 @@ pub async fn race_counts_by_boat(
     Ok(rows.into_iter().collect())
 }
 
-/// The results of race `race_id` with their boat, skipper and bracket, placed against
-/// `race_schedule` (the schedule of that same race, loaded once by the caller). Four statements
-/// for any number of results: the results joined to boat, then the boats' race counts, ORC
+/// Returns the results of race `race_id` with their boat, skipper and bracket in `race_schedule`.
+///
+/// `race_schedule` is the schedule of that same race, loaded once by the caller. The boat carries the result's
+/// rating type and PHRF rating; a result whose bracket is not in the schedule gets the default bracket (id 0).
+/// Four statements for any number of results: the results joined to boat, then the boats' race counts, ORC
 /// certificates and skippers.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails or a stored value does not parse (enum name, timestamp).
 pub async fn results_boat_bracket_by_race_id(
     conn: &mut PgConnection,
     race_id: i64,
@@ -272,6 +303,11 @@ pub async fn results_boat_bracket_by_race_id(
     Ok(out)
 }
 
+/// Returns the results of race `race_id`, in table order.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails or a stored value does not parse (enum name, timestamp).
 pub async fn results_by_race_id(
     conn: &mut PgConnection,
     race_id: i64,
@@ -286,7 +322,14 @@ pub async fn results_by_race_id(
     rows.iter().map(|r| to_result(r, tz)).collect()
 }
 
-/// The schedule of race `race_id` with its full results; the boats and certificates load in bulk.
+/// Returns the schedule of race `race_id` with its full results, or `None` if the race does not exist.
+///
+/// The boats and certificates load in bulk.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails or a stored value does not parse (enum name, timestamp).
+/// - Returns `Err` if a result's boat does not exist.
 pub async fn schedule_results_by_race_id(
     conn: &mut PgConnection,
     race_id: i64,
@@ -325,6 +368,11 @@ pub async fn schedule_results_by_race_id(
     }))
 }
 
+/// Deletes the result `id`, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn delete_result(conn: &mut PgConnection, id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM raceresults WHERE id = $1")
         .bind(id)
@@ -333,9 +381,15 @@ pub async fn delete_result(conn: &mut PgConnection, id: i64) -> Result<u64> {
         .rows_affected())
 }
 
-/// `findBoatBracket`: the result's bracket in the schedule. `bracketId` is never null in the
-/// Kotlin model (it defaults to 0), so the lookup is always by id; the rating-based branches are
-/// kept for a result whose bracket is not in the schedule, as the Kotlin code reads.
+/// Returns the result's bracket in the schedule, found by its bracket id, or `None` if the schedule lacks it.
+///
+/// A result's bracket id is always set (0 when missing), so the lookup is only by id, never by rating; a result
+/// whose bracket is not in the schedule is an orphan, which the race report lists under "Incorrectly classed".
+/// `conn` is unused.
+///
+/// # Errors
+///
+/// Never returns `Err`; the `Result` keeps the signature of the other queries.
 pub async fn find_boat_bracket(
     conn: &mut PgConnection,
     race: &RaceSchedule,
@@ -348,7 +402,6 @@ pub async fn find_boat_bracket(
     if let Some(bracket) = by_id {
         return Ok(Some(bracket.clone()));
     }
-    // Kotlin: `result.bracketId != null` is always true for a `Long`, so only the id lookup runs.
     let _ = conn;
     Ok(None)
 }

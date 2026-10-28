@@ -1,27 +1,38 @@
-//! The kotlinx.serialization wire formats of `Instant` and `Duration` (rust_port.md, "JSON rules").
+//! The JSON string formats of instants and durations that the golden files and contract cassettes pin.
 //!
-//! - [`kotlin_instant`]: `kotlin.time.Instant.toString()`: UTC with `Z`, fractional seconds only
-//!   when non-zero and then in groups of 3 digits (`.233`, `.233000` never, nanos as 9 digits).
-//! - [`kotlin_duration`]: `kotlin.time.Duration.toIsoString()`: `PT4H5M29S`, `PT1H0M10.173160173S`,
-//!   `PT0S`, negative as `-PT…`.
+//! The race reports, series standings and REST bodies carry [`Timestamp`] and [`SignedDuration`] values in these
+//! exact formats, so changing either one changes the approved files in `crates/scoring/tests/golden/approved/` and
+//! the cassettes in `crates/contract/cassettes/`. The models in [`crate::data`] use them through serde attributes:
 //!
-//! `Instant.DISTANT_PAST` / `DISTANT_FUTURE` (years -100001 / +100000) are outside
-//! `jiff::Timestamp`'s range, so [`DISTANT_PAST`] / [`DISTANT_FUTURE`] are `Timestamp::MIN` /
-//! `Timestamp::MAX` and are formatted and parsed as the exact kotlinx strings.
+//! - [`kotlin_instant`] (with [`format_instant`] / [`parse_instant`]): UTC with `Z`, fractional seconds only when
+//!   non-zero and then as 3, 6 or 9 digits (`.233`, `.233100`, `.000000001`; never `.233000`).
+//! - [`kotlin_duration`] (with [`format_duration`] / [`parse_duration`]): ISO-8601 durations in hours, minutes and
+//!   seconds: `PT4H5M29S`, `PT1H0M10.173160173S`, `PT0S`, negative as `-PT…`.
+//! - [`non_null`]: an optional field that may be left out but must not be an explicit JSON `null`.
+//! - [`KotlinInstant`]: a [`Timestamp`] newtype in the instant format, for values rather than fields.
+//!
+//! [`DISTANT_PAST`] / [`DISTANT_FUTURE`] are the open ends of a date range (a series without a start or end date).
+//! They are `Timestamp::MIN` / `Timestamp::MAX` and are written and read as the fixed strings
+//! `-100001-12-31T23:59:59.999999999Z` / `+100000-01-01T00:00:00Z`, which lie outside the range [`Timestamp`] can
+//! hold.
 
 use jiff::tz::TimeZone;
 use jiff::{SignedDuration, Timestamp};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-/// Stands in for `Instant.DISTANT_PAST`; serialized as `-100001-12-31T23:59:59.999999999Z`.
+/// The open start of a date range, earlier than any real instant; serialized as `-100001-12-31T23:59:59.999999999Z`.
 pub const DISTANT_PAST: Timestamp = Timestamp::MIN;
-/// Stands in for `Instant.DISTANT_FUTURE`; serialized as `+100000-01-01T00:00:00Z`.
+/// The open end of a date range, later than any real instant; serialized as `+100000-01-01T00:00:00Z`.
 pub const DISTANT_FUTURE: Timestamp = Timestamp::MAX;
 
 const DISTANT_PAST_STR: &str = "-100001-12-31T23:59:59.999999999Z";
 const DISTANT_FUTURE_STR: &str = "+100000-01-01T00:00:00Z";
 
-/// `kotlin.time.Instant.toString()` of the timestamp.
+/// Formats an instant as the UTC string the golden files pin.
+///
+/// `YYYY-MM-DDTHH:MM:SS` then `Z`, with the fraction only when it is non-zero, as 3, 6 or 9 digits (the fewest
+/// that hold it exactly): `2025-04-08T19:32:22.815Z`, `2026-07-09T10:45:56.233001Z`. Years before 0 get a `-` and
+/// years after 9999 a `+`. [`DISTANT_PAST`] and [`DISTANT_FUTURE`] give their fixed sentinel strings.
 pub fn format_instant(ts: Timestamp) -> String {
     if ts == DISTANT_PAST {
         return DISTANT_PAST_STR.to_string();
@@ -63,8 +74,14 @@ pub fn format_instant(ts: Timestamp) -> String {
     out
 }
 
-/// `Instant.parse(…)`: an ISO-8601 instant; the two kotlinx sentinel strings map to
+/// Parses an ISO-8601 instant, the inverse of [`format_instant`].
+///
+/// Any offset is accepted and normalized to UTC (`2024-07-03T02:46:40-07:00`). The two sentinel strings map to
 /// [`DISTANT_PAST`] / [`DISTANT_FUTURE`].
+///
+/// # Errors
+///
+/// Returns `Err` if `s` is not an ISO-8601 instant with an offset or `Z`, or is outside [`Timestamp`]'s range.
 pub fn parse_instant(s: &str) -> Result<Timestamp, jiff::Error> {
     match s {
         DISTANT_PAST_STR => Ok(DISTANT_PAST),
@@ -73,10 +90,12 @@ pub fn parse_instant(s: &str) -> Result<Timestamp, jiff::Error> {
     }
 }
 
-/// `kotlin.time.Duration.toIsoString()`. From the stdlib source: `-` for negative durations, then
-/// `PT`; hours are printed when non-zero; minutes when non-zero or when both hours and seconds
-/// are present; seconds when non-zero (including a fraction) or when nothing else was printed;
-/// the fraction is the 9-digit nanos with trailing zeros trimmed to a multiple of 3 digits.
+/// Formats a duration as the ISO-8601 string the golden files pin (`PT1H0M10.173160173S`).
+///
+/// `-` for a negative duration, then `PT`. Hours are written when non-zero and are not folded into days (`PT25H`);
+/// minutes when non-zero or when both hours and seconds are present (`PT1H0M5S`); seconds when non-zero, including
+/// a fraction, or when nothing else was written (`PT0S`). The fraction is the 9-digit nanoseconds with trailing
+/// zeros trimmed to a multiple of 3 digits (`PT45M12.500S`).
 pub fn format_duration(d: SignedDuration) -> String {
     let mut out = String::with_capacity(24);
     if d.is_negative() {
@@ -114,7 +133,15 @@ pub fn format_duration(d: SignedDuration) -> String {
     out
 }
 
-/// `Duration.parseIsoString(…)`: `[+-]P[nD][T[nH][nM][n[.f]S]]`.
+/// Parses an ISO-8601 duration of the form `[+-]P[nD][T[nH][nM][n[.f]S]]`, the inverse of [`format_duration`].
+///
+/// A day is 24 hours. Only seconds may have a fraction; digits past the ninth round the nanoseconds half up.
+///
+/// # Errors
+///
+/// Returns `Err` with a message naming the input if `s` does not start with `P` (after an optional sign), has no
+/// component, has components out of order or repeated, a unit other than `D` before `T` or `H`/`M`/`S` after it, a
+/// fraction on anything but seconds, an empty `T` part, or a value that overflows `i64` seconds.
 pub fn parse_duration(s: &str) -> Result<SignedDuration, String> {
     let err = |msg: &str| format!("invalid ISO duration {s:?}: {msg}");
     let mut rest = s;
@@ -210,23 +237,41 @@ pub fn parse_duration(s: &str) -> Result<SignedDuration, String> {
     Ok(if negative { -d } else { d })
 }
 
-/// `#[serde(with = "kotlin_instant")]` for a `jiff::Timestamp`; `kotlin_instant::option` for an
-/// `Option<Timestamp>` (add `default`).
+/// Serde adapter that writes a [`Timestamp`] field in the [`format_instant`] format.
+///
+/// Use `#[serde(with = "kotlin_instant")]` on a `Timestamp` field and `#[serde(with = "kotlin_instant::option",
+/// default)]` on an `Option<Timestamp>` one.
 pub mod kotlin_instant {
     use super::*;
 
+    /// Writes the timestamp as a [`format_instant`] string.
+    ///
+    /// # Errors
+    ///
+    /// Returns the serializer's error if it fails to write the string.
     pub fn serialize<S: Serializer>(ts: &Timestamp, s: S) -> Result<S::Ok, S::Error> {
         s.serialize_str(&format_instant(*ts))
     }
 
+    /// Reads a timestamp from a string through [`parse_instant`].
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if the value is not a string or [`parse_instant`] rejects it.
     pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Timestamp, D::Error> {
         let s = String::deserialize(d)?;
         parse_instant(&s).map_err(serde::de::Error::custom)
     }
 
+    /// The same format for an `Option<Timestamp>`, with `None` as JSON `null`.
     pub mod option {
         use super::*;
 
+        /// Writes `Some` as a [`format_instant`] string and `None` as JSON `null`.
+        ///
+        /// # Errors
+        ///
+        /// Returns the serializer's error if it fails to write the value.
         pub fn serialize<S: Serializer>(ts: &Option<Timestamp>, s: S) -> Result<S::Ok, S::Error> {
             match ts {
                 Some(ts) => s.serialize_some(&format_instant(*ts)),
@@ -234,6 +279,11 @@ pub mod kotlin_instant {
             }
         }
 
+        /// Reads JSON `null` as `None` and a string through [`parse_instant`].
+        ///
+        /// # Errors
+        ///
+        /// Returns `Err` if the value is neither `null` nor a string, or [`parse_instant`] rejects it.
         pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Option<Timestamp>, D::Error> {
             match Option::<String>::deserialize(d)? {
                 Some(s) => parse_instant(&s)
@@ -245,23 +295,41 @@ pub mod kotlin_instant {
     }
 }
 
-/// `#[serde(with = "kotlin_duration")]` for a `jiff::SignedDuration`; `kotlin_duration::option`
-/// for an `Option<SignedDuration>` (add `default`).
+/// Serde adapter that writes a [`SignedDuration`] field in the [`format_duration`] format.
+///
+/// Use `#[serde(with = "kotlin_duration")]` on a `SignedDuration` field and `#[serde(with =
+/// "kotlin_duration::option", default)]` on an `Option<SignedDuration>` one.
 pub mod kotlin_duration {
     use super::*;
 
+    /// Writes the duration as a [`format_duration`] string.
+    ///
+    /// # Errors
+    ///
+    /// Returns the serializer's error if it fails to write the string.
     pub fn serialize<S: Serializer>(d: &SignedDuration, s: S) -> Result<S::Ok, S::Error> {
         s.serialize_str(&format_duration(*d))
     }
 
+    /// Reads a duration from a string through [`parse_duration`].
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if the value is not a string or [`parse_duration`] rejects it.
     pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<SignedDuration, D::Error> {
         let s = String::deserialize(d)?;
         parse_duration(&s).map_err(serde::de::Error::custom)
     }
 
+    /// The same format for an `Option<SignedDuration>`, with `None` as JSON `null`.
     pub mod option {
         use super::*;
 
+        /// Writes `Some` as a [`format_duration`] string and `None` as JSON `null`.
+        ///
+        /// # Errors
+        ///
+        /// Returns the serializer's error if it fails to write the value.
         pub fn serialize<S: Serializer>(
             d: &Option<SignedDuration>,
             s: S,
@@ -272,6 +340,11 @@ pub mod kotlin_duration {
             }
         }
 
+        /// Reads JSON `null` as `None` and a string through [`parse_duration`].
+        ///
+        /// # Errors
+        ///
+        /// Returns `Err` if the value is neither `null` nor a string, or [`parse_duration`] rejects it.
         pub fn deserialize<'de, D: Deserializer<'de>>(
             d: D,
         ) -> Result<Option<SignedDuration>, D::Error> {
@@ -285,13 +358,19 @@ pub mod kotlin_duration {
     }
 }
 
-/// `#[serde(default, deserialize_with = "non_null::deserialize")]` for an `Option<T>` that stands
-/// in for a non-nullable Kotlin property with a computed default: a missing key keeps the
-/// container's `None` (the Kotlin default applies), an explicit `null` is an error, as kotlinx
-/// rejects `null` for a non-nullable type.
+/// Serde adapter for an optional input field whose `None` means "compute the default", not "no value".
+///
+/// Use `#[serde(default, deserialize_with = "non_null::deserialize")]` on an `Option<T>`. A missing key leaves the
+/// field `None`, and the model fills in its computed default; an explicit JSON `null` is rejected, because the API
+/// treats the field as required to hold a value whenever it is present.
 pub mod non_null {
     use super::*;
 
+    /// Reads a present value as `Some`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if the value is JSON `null` or does not deserialize as `T`.
     pub fn deserialize<'de, D: Deserializer<'de>, T: Deserialize<'de>>(
         d: D,
     ) -> Result<Option<T>, D::Error> {
@@ -299,8 +378,10 @@ pub mod non_null {
     }
 }
 
-/// A `Timestamp` newtype that serializes like a Kotlin `Instant`, for places that need a
-/// `Serialize`/`Deserialize` value rather than a field attribute.
+/// A [`Timestamp`] that serializes in the [`format_instant`] format, for values rather than struct fields.
+///
+/// Use it where a `Serialize`/`Deserialize` value is needed and a `#[serde(with = "kotlin_instant")]` attribute
+/// can't be attached, such as a collection element.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct KotlinInstant(pub Timestamp);
 

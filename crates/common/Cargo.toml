@@ -13,3 +13,7 @@ jiff = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
+
+[lints.clippy]
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"

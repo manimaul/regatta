@@ -1,23 +1,30 @@
-//! Startup (D6 in `docs/explore_implemented/rust_port.md`): connect, apply the baseline schema
-//! to an empty database, and refuse any schema version other than 5 (or 15, what a fresh Kotlin
-//! install writes). Nothing is ever altered or upgraded here.
+//! The startup schema check: connect, apply the baseline schema to an empty database, and refuse any other version.
+//!
+//! D6 in `docs/explore_implemented/rust_port.md`: the server serves schema version 5 only (or 15, which older fresh
+//! installs wrote for the same schema). Nothing is ever altered or upgraded here. The entry points are
+//! [`connect`] and [`prepare`], called by the server's `main`.
 
 use anyhow::{anyhow, bail, Context, Result};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
-/// `migrations/0001_baseline.sql`: the schema the Kotlin server creates in an empty database.
+/// The schema applied to an empty database: `migrations/0001_baseline.sql`, which ends by writing version 5.
 pub const BASELINE_SQL: &str = include_str!("../../../migrations/0001_baseline.sql");
 
-/// The schema version this server serves (`currentDbVersion` of the last Kotlin release).
+/// The schema version this server serves.
 pub const SCHEMA_VERSION: i32 = 5;
-/// What a fresh Kotlin install writes (`currentDbVersion + 10`); the same schema.
+/// The version older fresh installs wrote (`SCHEMA_VERSION + 10`) for the same schema; accepted as 5.
 pub const FRESH_INSTALL_VERSION: i32 = 15;
 
+/// The hint that ends the startup error for a missing or unsupported schema version: how to reach version 5.
 pub const RUN_KOTLIN_FIRST: &str =
     "run the last Kotlin release of the regatta server first to bring the schema to version 5";
 
-/// Opens the pool.
+/// Opens a connection pool of up to 10 connections to `db_url`.
+///
+/// # Errors
+///
+/// Returns `Err` if the database cannot be reached; the message carries the URL with its password redacted.
 pub async fn connect(db_url: &str) -> Result<PgPool> {
     PgPoolOptions::new()
         .max_connections(10)
@@ -26,8 +33,15 @@ pub async fn connect(db_url: &str) -> Result<PgPool> {
         .with_context(|| format!("connecting to {}", redact(db_url)))
 }
 
-/// The startup rule: no `metadata` table → apply the baseline; then the version must be 5 or 15.
-/// Returns the version found. Logs `db migration version = N` like the Kotlin server.
+/// Applies the baseline to an empty database, then checks the schema version and returns it.
+///
+/// No `metadata` table means an empty database, which gets [`BASELINE_SQL`]. The version must then be
+/// [`SCHEMA_VERSION`] or [`FRESH_INSTALL_VERSION`]. Logs `db migration version = N`.
+///
+/// # Errors
+///
+/// - Returns `Err` if a query fails or the baseline cannot be applied.
+/// - Returns `Err` if `metadata.version` is missing, not an integer, or not a supported version.
 pub async fn prepare(pool: &PgPool) -> Result<i32> {
     let has_metadata: bool = sqlx::query_scalar(
         "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'metadata')",
@@ -54,7 +68,11 @@ pub async fn prepare(pool: &PgPool) -> Result<i32> {
     }
 }
 
-/// `metadata.version` as an integer.
+/// Reads `metadata.version` as an integer.
+///
+/// # Errors
+///
+/// Returns `Err` if the query fails, there is no version row, or its value is not an integer.
 pub async fn schema_version(pool: &PgPool) -> Result<i32> {
     let value: Option<String> =
         sqlx::query_scalar("SELECT value FROM metadata WHERE name = 'version'")

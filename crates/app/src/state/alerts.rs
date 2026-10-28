@@ -1,5 +1,6 @@
-//! = `AlertsViewModel.kt`: the success banner and the shared confirmation dialog
-//! (`Alerts` component, id `confirmation`).
+//! App-wide alert state: the success banner and the shared confirmation dialog.
+//!
+//! Rendered by the [`crate::components::alerts`] component; the dialog's element id is `confirmation`.
 
 use crate::cb::Cb;
 use crate::utils::browser;
@@ -18,7 +19,7 @@ pub struct Confirmation {
 pub struct AlertsState {
     pub message: RwSignal<Option<String>>,
     pub confirmation: RwSignal<Option<Confirmation>>,
-    /// Set while an `Alerts` component is mounted (`confirmationModalCreated`).
+    /// Set while an [`crate::components::alerts::Alerts`] component is mounted.
     pub confirmation_modal_mounted: RwSignal<bool>,
     /// Bumped by every `show_alert`, so a later alert cancels the earlier one's timeout.
     generation: RwSignal<u64>,

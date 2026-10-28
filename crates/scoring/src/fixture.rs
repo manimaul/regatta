@@ -1,6 +1,8 @@
-//! Test fixture DSL for race and series scoring (= `Fixture.kt`, test_audit_and_plan.md §2).
-//! Builds the same `RaceSchedule` / `RaceResultBoatBracket` records the database would, then
-//! scores them through the pure seams [`card`], [`report`] and [`standings`]. No database.
+//! Test fixture DSL for race and series scoring (`docs/explore_implemented/test_audit_and_plan.md` §2).
+//!
+//! Builds the same `RaceSchedule` / `RaceResultBoatBracket` records the database would, then scores them through
+//! the pure entry points [`card`], [`report`] and [`standings`], with no database. Compiled for this crate's tests
+//! and behind the `fixture` feature for other crates' tests.
 //!
 //! ```
 //! use regatta_common::FinishCode;
@@ -20,9 +22,9 @@
 //! Times are Pacific local times. A boat named in a race with no outcome is RET, which is also the
 //! `RaceResult` default. A boat not named in a race has no record, which standings score as DNS.
 //!
-//! Kotlin's named default arguments become `*_with(opts, ..)` variants taking a [`RaceOpts`] /
-//! [`SeriesOpts`] / [`BoatOpts`] struct (`..Default::default()` for the rest), and the infix
-//! outcome helpers are methods on the [`BoatEntry`] the `boat(..)` call returns.
+//! Optional arguments go through the `*_with(opts, ..)` variants, which take a [`RaceOpts`] / [`SeriesOpts`] /
+//! [`BoatOpts`] struct (`..Default::default()` for the rest), and the outcome helpers are methods on the
+//! [`BoatEntry`] the `boat(..)` call returns.
 
 use crate::{card, report, standings};
 use jiff::civil::Date;
@@ -35,10 +37,17 @@ use regatta_common::{
 };
 use std::collections::HashMap;
 
+/// The time zone every fixture date and time is read in.
 pub const PACIFIC_ZONE: &str = "America/Los_Angeles";
 
-/// "2026-06-17" and "18:00[:ss[.SSS]]" in America/Los_Angeles. A time with its own date,
-/// "2026-06-18 10:00:00", overrides `date`, for finishes on a later day.
+/// Returns the instant of a Pacific local date ("2026-06-17") and time ("18:00[:ss[.SSS]]").
+///
+/// A time with its own date, "2026-06-18 10:00:00", overrides `date`, for finishes on a later day.
+///
+/// # Panics
+///
+/// Panics if the date or time does not parse, or the local time does not exist in [`PACIFIC_ZONE`]: the test
+/// itself is malformed.
 pub fn pacific(date: &str, time: &str) -> Timestamp {
     let trimmed = time.trim();
     let (day, clock) = match trimmed.split_once(' ') {
@@ -87,12 +96,16 @@ impl Default for FixtureRegistry {
 }
 
 impl FixtureRegistry {
+    /// Returns the next id; ids are shared by every entity kind and start at 1.
     pub fn id(&mut self) -> i64 {
         let id = self.next_id;
         self.next_id += 1;
         id
     }
 
+    /// Returns the class named `name`, creating it with the next id and sort position on first use.
+    ///
+    /// A class that exists keeps its first rating type.
     pub fn race_class(&mut self, name: &str, rating_type: RatingType) -> RaceClass {
         if let Some(existing) = self.classes.get(name) {
             return existing.clone();
@@ -109,6 +122,7 @@ impl FixtureRegistry {
         race_class
     }
 
+    /// Returns the bracket `name` of `race_class`, creating it on first use.
     pub fn bracket(&mut self, race_class: &RaceClass, name: &str) -> Bracket {
         let key = (race_class.id, name.to_string());
         if let Some(existing) = self.brackets.get(&key) {
@@ -124,6 +138,7 @@ impl FixtureRegistry {
         bracket
     }
 
+    /// Returns the person with the full name `name`, creating it on first use; the first word is the first name.
     pub fn person(&mut self, name: &str) -> Person {
         if let Some(existing) = self.people.get(name) {
             return existing.clone();
@@ -139,6 +154,9 @@ impl FixtureRegistry {
         person
     }
 
+    /// Returns the boat named `name`, creating it on first use with its skipper ("`name` Skipper" by default).
+    ///
+    /// A boat that exists keeps its first rating type, rating and skipper.
     pub fn boat(
         &mut self,
         name: &str,
@@ -174,6 +192,7 @@ pub struct BoatEntry {
     pub boat: Boat,
     pub skipper: Person,
     pub rating_type: RatingType,
+    /// The PHRF rating of this result; `None` for an unrated entry.
     pub rating: Option<i32>,
     finish: Option<String>,
     hoc_position: Option<i32>,
@@ -212,7 +231,8 @@ impl BoatEntry {
         }
     }
 
-    /// Timed finish at a Pacific local time on the race date, e.g. "20:51:26", "20:51:26.250", or "2026-06-18 10:00:00" for a later day.
+    /// Timed finish at a Pacific local time on the race date, e.g. "20:51:26", "20:51:26.250", or "2026-06-18 10:00:00"
+    /// for a later day.
     pub fn finishes(&mut self, time: &str) -> &mut Self {
         self.finish = Some(time.to_string());
         self.hoc_position = None;
@@ -226,7 +246,7 @@ impl BoatEntry {
         self
     }
 
-    /// A finish code other than TIME or HOC: DNF, RET, NSC, DNS_RC.
+    /// A finish code other than TIME or HOC: DNF, RET, NSC, DNS, DSQ, DNS_RC.
     pub fn code(&mut self, code: FinishCode) -> &mut Self {
         self.finish_code = Some(code);
         self
@@ -244,13 +264,15 @@ impl BoatEntry {
         self
     }
 
-    /// A legacy row with no finish code stored: the result keeps the RaceResult default (TIME with a finish, else RET).
+    /// A legacy row with no finish code stored: the result keeps the [`RaceResult`] default (TIME with a finish,
+    /// else RET).
     pub fn legacy(&mut self) -> &mut Self {
         self.legacy = true;
         self
     }
 
-    /// A result whose bracket no longer matches the race (bracket id 0), which the report lists under "Incorrectly classed".
+    /// A result whose bracket no longer matches the race (bracket id 0), which the report lists under
+    /// "Incorrectly classed".
     pub fn orphan(&mut self) -> &mut Self {
         self.orphan = true;
         self
@@ -264,7 +286,7 @@ impl BoatEntry {
     ) -> RaceResultBoatBracket {
         let finish_instant = self.finish.as_deref().map(|time| pacific(date, time));
         let finish_code = if self.legacy {
-            // left at the data class default, as the row mapper does for a NULL finish_code
+            // left at the struct default, as the row mapper does for a NULL finish_code
             if finish_instant.is_some() {
                 FinishCode::Time
             } else {
@@ -314,6 +336,7 @@ pub struct BoatOpts<'a> {
     pub rating_type: Option<RatingType>,
 }
 
+/// The builder a [`ClassBuilder::bracket`] block gets, to enter boats in that bracket.
 pub struct BracketBuilder<'a> {
     registry: &'a mut FixtureRegistry,
     race_class: RaceClass,
@@ -328,6 +351,11 @@ impl BracketBuilder<'_> {
         self.boat_with(name, rating, BoatOpts::default())
     }
 
+    /// Enters a boat with a skipper or rating type other than the defaults (see [`BracketBuilder::boat`]).
+    ///
+    /// # Panics
+    ///
+    /// Never in practice: the entry is read back right after it is pushed.
     pub fn boat_with(
         &mut self,
         name: &str,
@@ -355,6 +383,7 @@ impl BracketBuilder<'_> {
     }
 }
 
+/// The builder a class block of [`RaceBuilder`] gets, to add brackets to that class.
 pub struct ClassBuilder<'a> {
     registry: &'a mut FixtureRegistry,
     race_class: RaceClass,
@@ -363,6 +392,7 @@ pub struct ClassBuilder<'a> {
 }
 
 impl ClassBuilder<'_> {
+    /// Adds the bracket `name` to the class and runs `block` to enter its boats.
     pub fn bracket(&mut self, name: &str, block: impl FnOnce(&mut BracketBuilder<'_>)) {
         let bracket = self.registry.bracket(&self.race_class, name);
         self.brackets.push(bracket.clone());
@@ -399,6 +429,7 @@ impl Default for RaceOpts {
     }
 }
 
+/// The builder a race block gets, to add classes to the race.
 pub struct RaceBuilder<'a> {
     registry: &'a mut FixtureRegistry,
     name: String,
@@ -448,14 +479,17 @@ impl<'a> RaceBuilder<'a> {
         }
     }
 
+    /// Adds a PHRF class starting at the race start.
     pub fn phrf_class(&mut self, name: &str, block: impl FnOnce(&mut ClassBuilder<'_>)) {
         self.race_class(name, RatingType::Phrf, None, block)
     }
 
+    /// Adds an ORC/PHRF class starting at the race start.
     pub fn orc_phrf_class(&mut self, name: &str, block: impl FnOnce(&mut ClassBuilder<'_>)) {
         self.race_class(name, RatingType::OrcPhrf, None, block)
     }
 
+    /// Adds an ORC class starting at the race start.
     pub fn orc_class(&mut self, name: &str, block: impl FnOnce(&mut ClassBuilder<'_>)) {
         self.race_class(name, RatingType::Orc, None, block)
     }
@@ -465,6 +499,7 @@ impl<'a> RaceBuilder<'a> {
         self.cruising_class_with(name, false, None, block)
     }
 
+    /// Adds a cruising class, flying sails when `flying`, with its own start (see [`RaceBuilder::race_class`]).
     pub fn cruising_class_with(
         &mut self,
         name: &str,
@@ -480,7 +515,13 @@ impl<'a> RaceBuilder<'a> {
         self.race_class(name, rating_type, start, block)
     }
 
-    /// A class with its own start time ("HH:mm\[:ss\]", Pacific), defaulting to the race start.
+    /// Adds a class with its own start time ("HH:mm\[:ss\]", Pacific), defaulting to the race start.
+    ///
+    /// The class ends 6 hours after its start.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the start time does not parse (see [`pacific`]).
     pub fn race_class(
         &mut self,
         name: &str,
@@ -565,7 +606,11 @@ pub struct RaceFixture {
 }
 
 impl RaceFixture {
-    /// Scores the race through the pure seams. `orc_certs` resolves `orc` references.
+    /// Scores the race through [`card`] and [`report`]; `orc_certs` resolves the entries' `orc` references.
+    ///
+    /// # Panics
+    ///
+    /// Panics if an entry names an ORC reference that `orc_certs` does not hold.
     pub fn report(&self, orc_certs: &HashMap<String, OrcCertificate>) -> RaceReport {
         let starts: HashMap<i64, Timestamp> = self
             .schedule
@@ -633,6 +678,7 @@ pub fn race_in(
     builder.finish().build(registry)
 }
 
+/// The builder a [`series`] block gets, to add races and RC volunteers.
 pub struct SeriesBuilder {
     registry: FixtureRegistry,
     series_id: i64,
@@ -649,6 +695,10 @@ impl SeriesBuilder {
 
     /// Adds a race. `date` defaults to a week after the previous race, starting at the series'
     /// first date.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the series' first date does not parse.
     pub fn race_with(&mut self, opts: RaceOpts, block: impl FnOnce(&mut RaceBuilder<'_>)) {
         let name = opts
             .name
@@ -743,6 +793,7 @@ pub struct SeriesFixture {
 }
 
 impl SeriesFixture {
+    /// Scores every race of the series (see [`RaceFixture::report`]), in race order.
     pub fn reports(&self, orc_certs: &HashMap<String, OrcCertificate>) -> Vec<RaceReport> {
         self.races
             .iter()
@@ -751,6 +802,10 @@ impl SeriesFixture {
     }
 
     /// The default `now` of [`SeriesFixture::standings`]: a day after the last race.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the series has no race.
     pub fn default_now(&self) -> Timestamp {
         self.races
             .iter()
@@ -761,12 +816,12 @@ impl SeriesFixture {
             .expect("now")
     }
 
-    /// Standings through the pure seam, with `now` a day after the last race and no certificates.
+    /// Scores the series standings, with `now` a day after the last race and no certificates.
     pub fn standings(&self) -> StandingsSeries {
         self.standings_with(None, &HashMap::new())
     }
 
-    /// Standings through the pure seam. `now` defaults to a day after the last race.
+    /// Scores the series standings; `now` defaults to a day after the last race.
     pub fn standings_with(
         &self,
         now: Option<Timestamp>,
@@ -805,6 +860,7 @@ pub fn series(block: impl FnOnce(&mut SeriesBuilder)) -> SeriesFixture {
     series_with(SeriesOpts::default(), block)
 }
 
+/// A series of races that share boats, classes and brackets, with a name, year or first date of its own.
 pub fn series_with(opts: SeriesOpts, block: impl FnOnce(&mut SeriesBuilder)) -> SeriesFixture {
     let mut registry = FixtureRegistry::default();
     let series = Series {
@@ -826,7 +882,7 @@ pub fn series_with(opts: SeriesOpts, block: impl FnOnce(&mut SeriesBuilder)) -> 
     builder.build(series, opts.year)
 }
 
-// ---- assertions: scores are compared as f64 so the same tests compile before and after D1
+// ---- assertions: scores are compared as f64, since an RC volunteer's average (D1) can be fractional
 
 /// A map literal: `scores(&[("A", 1), ("B", 2)])`.
 pub fn scores<T: Into<f64> + Copy>(entries: &[(&str, T)]) -> HashMap<String, f64> {
@@ -845,6 +901,10 @@ pub fn places(entries: &[(&str, i32)]) -> HashMap<String, i32> {
 }
 
 /// Asserts each expected boat's score. Boats not listed are not checked.
+///
+/// # Panics
+///
+/// Panics if a listed boat has no score or a different one: the assertion failed.
 pub fn assert_scores<T: Into<f64> + Copy>(actual: &HashMap<String, f64>, expected: &[(&str, T)]) {
     for (boat, score) in expected {
         let value = actual
@@ -855,8 +915,9 @@ pub fn assert_scores<T: Into<f64> + Copy>(actual: &HashMap<String, f64>, expecte
     }
 }
 
-/// The race report helpers of the Kotlin fixture, as an extension trait.
+/// Race report helpers for the scoring tests: scores by boat name and assertions on them.
 pub trait RaceReportExt {
+    /// Every card of the report, class by class and bracket by bracket.
     fn cards(&self) -> Vec<&RaceReportCard>;
     /// Bracket scores of the race by boat name.
     fn bracket_scores(&self) -> HashMap<String, f64>;
@@ -881,7 +942,7 @@ pub trait RaceReportExt {
     }
 }
 
-/// `associate`: a later card with the same boat name overrides an earlier one.
+/// Maps boat names to values; a later card with the same boat name overrides an earlier one.
 fn associate(
     cards: &[&RaceReportCard],
     value: impl Fn(&RaceReportCard) -> f64,
@@ -926,7 +987,7 @@ fn boat_name(row: &StandingsBoatSkipper) -> String {
         .map_or_else(String::new, |b| b.name.clone())
 }
 
-/// `groupBy { boat name }.mapValues { first() }`: the first row of each boat.
+/// Returns the first row of each boat, by boat name.
 fn first_rows<'a>(rows: &[&'a StandingsBoatSkipper]) -> Vec<&'a StandingsBoatSkipper> {
     let mut seen: Vec<String> = Vec::new();
     let mut out = Vec::new();
@@ -940,9 +1001,11 @@ fn first_rows<'a>(rows: &[&'a StandingsBoatSkipper]) -> Vec<&'a StandingsBoatSki
     out
 }
 
-/// The standings helpers of the Kotlin fixture, as an extension trait. A boat that appears in
-/// more than one bracket keeps its first row.
+/// Series standings helpers for the scoring tests: totals, places and race scores by boat name.
+///
+/// A boat that appears in more than one bracket keeps its first row.
 pub trait StandingsExt {
+    /// Every row of the standings, class by class and bracket by bracket.
     fn rows(&self) -> Vec<&StandingsBoatSkipper>;
     /// The standings row of one boat (its first row, if it appears in more than one bracket).
     fn row(&self, boat: &str) -> &StandingsBoatSkipper {
@@ -996,7 +1059,7 @@ pub trait StandingsExt {
         assert_scores(&self.class_totals(), expected)
     }
 
-    // ---- the ORC side of the same rows (D9); 0 for a row not scored under ORC
+    // ---- the ORC side of the same rows (D9, test_audit_and_plan.md); 0 for a row not scored under ORC
 
     fn bracket_totals_orc(&self) -> HashMap<String, f64> {
         self.row_values(|r| r.total_score_bracket_orc)

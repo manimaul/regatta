@@ -118,7 +118,11 @@ fn progress(options: &Options, index: usize, name: &str, detail: &str) {
     }
 }
 
-/// Runs the scenario against `base_url` and writes one cassette per step into `out_dir`.
+/// Runs the scenario against `base_url` and writes one cassette per step into `out_dir`, plus `_meta.json`.
+///
+/// # Errors
+///
+/// Returns `Err` when the client cannot be built, a step cannot be resolved or sent, or a file cannot be written.
 pub async fn record(
     base_url: &str,
     out_dir: &Path,
@@ -170,6 +174,13 @@ pub async fn record(
 }
 
 /// Runs the scenario against `base_url` and compares every response to its cassette.
+///
+/// Mismatches are reported per step in the [`Report`], not as errors.
+///
+/// # Errors
+///
+/// Returns `Err` when the client cannot be built, `_meta.json` cannot be read, or a step cannot be resolved or
+/// sent.
 pub async fn replay(
     base_url: &str,
     cassette_dir: &Path,
@@ -253,8 +264,14 @@ pub async fn replay(
     Ok(report)
 }
 
-/// Runs the scenario against two servers and compares their responses to each other
-/// (`left` is the reference, `right` the candidate).
+/// Runs the scenario against two servers and compares their responses to each other.
+///
+/// `left` is a running server to diff against and `right` the server under test; differences are reported per
+/// step in the [`Report`].
+///
+/// # Errors
+///
+/// Returns `Err` when a client cannot be built or a step cannot be resolved or sent to either server.
 pub async fn diff(
     left: &str,
     right: &str,

@@ -1,11 +1,11 @@
-//! The regatta auth scheme, byte for byte (`server/.../auth/Token.kt` and `web/.../utils/Auth.kt`).
+//! The regatta auth scheme, byte for byte, so the scenario can log in and forge tokens.
 //!
-//! `hash(a, b, c)` = `b64(sha512(c + b64(sha512(b + b64(sha512(a))))))`, standard base64 with
-//! padding. Admin creation stores `hash(password)`; a login sends
-//! `hash(salt, epochSeconds, hash(password))`; the server answers a `LoginResponse` whose
-//! `hashOfHash` is `hash(serverSalt, expiresEpochSeconds, storedHash)`; the bearer token is
-//! `base64(json(LoginResponse))`, validated by recomputing that hash. Knowing the stored hash (the
-//! scenario created the admin), the harness can forge a correctly signed token with any `expires`.
+//! It mirrors the server's `crates/service/src/auth.rs` and the UI's login. `hash(a, b, c)` =
+//! `b64(sha512(c + b64(sha512(b + b64(sha512(a))))))`, standard base64 with padding. Admin creation stores
+//! `hash(password)`; a login sends `hash(salt, epochSeconds, hash(password))`; the server answers a `LoginResponse`
+//! whose `hashOfHash` is `hash(serverSalt, expiresEpochSeconds, storedHash)`; the bearer token is
+//! `base64(json(LoginResponse))`, validated by recomputing that hash. Knowing the stored hash (the scenario created
+//! the admin), the harness can forge a correctly signed token with any `expires`.
 
 use anyhow::{anyhow, Context, Result};
 use base64::engine::general_purpose::STANDARD;
@@ -14,7 +14,7 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha512};
 use std::str::FromStr;
 
-/// `Token.hash(vararg data)`: each part is prefixed to the running result and hashed.
+/// Hashes the parts in order: each part is prefixed to the running result, SHA-512 hashed and base64 encoded.
 pub fn hash(parts: &[&str]) -> String {
     let mut result = String::new();
     for part in parts {
@@ -26,24 +26,34 @@ pub fn hash(parts: &[&str]) -> String {
     result
 }
 
-/// `Token.timeStampHash(instant, salt, hash)` = `hash(salt, "${instant.epochSeconds}", hash)`.
+/// Signs an instant: `hash(salt, epoch_seconds, stored_hash)`, the seconds as a decimal string.
 pub fn time_stamp_hash(epoch_seconds: i64, salt: &str, stored_hash: &str) -> String {
     hash(&[salt, &epoch_seconds.to_string(), stored_hash])
 }
 
-/// The epoch seconds of an ISO-8601 instant, as kotlin `Instant.epochSeconds` gives them.
+/// Returns the whole epoch seconds of an ISO-8601 instant, the number the login and token hashes sign.
+///
+/// # Errors
+///
+/// Returns `Err` when `instant` is not an ISO-8601 instant.
 pub fn epoch_seconds(instant: &str) -> Result<i64> {
     let ts =
         jiff::Timestamp::from_str(instant).with_context(|| format!("not an instant: {instant}"))?;
     Ok(ts.as_second())
 }
 
-/// The stored admin hash: `hash(password)`, computed in the browser on admin creation.
+/// Returns the stored admin hash, `hash(password)`, which the UI computes on admin creation.
 pub fn stored_hash(password: &str) -> String {
     hash(&[password])
 }
 
-/// The `Login` body the web client sends, in Kotlin declaration order, with a fixed salt and time.
+/// Builds the `Login` body the UI sends, with a fixed salt and time so the recorded login step is deterministic.
+///
+/// The keys are in the order `userName`, `hashOfHash`, `salt`, `time`, the body the cassettes record.
+///
+/// # Errors
+///
+/// Returns `Err` when `time` is not an ISO-8601 instant.
 pub fn login_body(user_name: &str, password: &str, salt: &str, time: &str) -> Result<Value> {
     let secs = epoch_seconds(time)?;
     Ok(json!({
@@ -54,12 +64,14 @@ pub fn login_body(user_name: &str, password: &str, salt: &str, time: &str) -> Re
     }))
 }
 
-/// The bearer token the web client stores: base64 of the `LoginResponse` JSON exactly as received.
+/// Encodes the bearer token the UI keeps: base64 of the `LoginResponse` JSON exactly as received.
 pub fn encode_token(login_response_json: &[u8]) -> String {
     STANDARD.encode(login_response_json)
 }
 
-/// A `LoginResponse` JSON document in Kotlin field order.
+/// Serializes a `LoginResponse` JSON document with keys in the order `id`, `hashOfHash`, `salt`, `expires`.
+///
+/// That is the order the server writes and the cassettes record, so a forged token encodes like a real one.
 pub fn login_response_json(id: i64, hash_of_hash: &str, salt: &str, expires: &str) -> String {
     serde_json::to_string(&json!({
         "id": id,
@@ -70,8 +82,13 @@ pub fn login_response_json(id: i64, hash_of_hash: &str, salt: &str, expires: &st
     .expect("json")
 }
 
-/// A bearer token signed as the server would (`correct`) or with a wrong hash, for auth record
-/// `id` whose stored hash is `stored_hash`, with a client-chosen `salt` and `expires`.
+/// Forges a bearer token for auth record `id` with a client-chosen `salt` and `expires`.
+///
+/// With `correct` it is signed with `stored_hash` as the server would sign it, else with a wrong hash.
+///
+/// # Errors
+///
+/// Returns `Err` when `expires` is not an ISO-8601 instant.
 pub fn forge_token(
     id: i64,
     stored_hash: &str,
@@ -90,13 +107,23 @@ pub fn forge_token(
 }
 
 /// Parses a bearer token the way the server does: base64, then `LoginResponse` JSON.
+///
+/// # Errors
+///
+/// Returns `Err` when the token is not base64 or the decoded bytes are not JSON.
 pub fn decode_token(token: &str) -> Result<Value> {
     let bytes = STANDARD.decode(token).context("token is not base64")?;
     serde_json::from_slice(&bytes).context("token is not LoginResponse json")
 }
 
-/// Validates a token against a stored hash as `Token.validateHash` does (no expiry check here);
-/// returns the auth id the token names.
+/// Validates a token's signature against a stored hash, returning the auth id the token names.
+///
+/// The signature is checked the way the server checks it; the expiry is not.
+///
+/// # Errors
+///
+/// Returns `Err` when the token does not decode, lacks `id`, `salt`, `expires` or `hashOfHash`, has an `expires`
+/// that is not an instant, or is not signed with `stored_hash`.
 pub fn validate_token(token: &str, stored_hash: &str) -> Result<i64> {
     let value = decode_token(token)?;
     let id = value
@@ -127,7 +154,7 @@ pub fn validate_token(token: &str, stored_hash: &str) -> Result<i64> {
 mod tests {
     use super::*;
 
-    /// The `TokenTest` vectors (`server/src/jvmTest/.../auth/TokenTest.kt`).
+    /// The hash vectors the server's token tests in `crates/service/src/auth.rs` also check.
     #[test]
     fn hash_single_vector() {
         assert_eq!(
@@ -144,6 +171,7 @@ mod tests {
         );
     }
 
+    /// Epoch seconds are whole seconds since 1970, the numbers the recorded login and token hashes sign.
     #[test]
     fn epoch_seconds_matches_kotlin() {
         assert_eq!(epoch_seconds("1970-01-01T00:00:10Z").unwrap(), 10);

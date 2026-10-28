@@ -1,4 +1,6 @@
-//! = `BracketTable.kt`. A bracket belongs to one class; a small set of them exists in the system.
+//! The `bracket` table: the rating bands of a class, with their race counts.
+//!
+//! A bracket belongs to one class; a small set of them exists in the system.
 
 use super::race_bracket_junction as junction;
 use anyhow::Result;
@@ -42,6 +44,11 @@ async fn hydrate(conn: &mut PgConnection, rows: &[Row]) -> Result<Vec<Bracket>> 
         .collect())
 }
 
+/// Inserts the bracket (id 0) or upserts it by id, returning it as stored with its race count.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails.
 pub async fn upsert_bracket(conn: &mut PgConnection, item: &Bracket) -> Result<Option<Bracket>> {
     let set =
         "name = EXCLUDED.name, description = EXCLUDED.description, active = EXCLUDED.active, \
@@ -84,7 +91,11 @@ pub async fn upsert_bracket(conn: &mut PgConnection, item: &Bracket) -> Result<O
     }
 }
 
-/// Deletes the class's brackets missing from the list, then upserts the listed ones.
+/// Deletes the class's brackets missing from the list, then upserts the listed ones, returning them as stored.
+///
+/// # Errors
+///
+/// Returns `Err` if a statement fails (a deleted bracket still referenced by a result, say).
 pub async fn upsert_brackets(
     conn: &mut PgConnection,
     brackets: &RaceClassBrackets,
@@ -104,6 +115,11 @@ pub async fn upsert_brackets(
     Ok(out)
 }
 
+/// Deletes the bracket `bracket_id`, returning the rows deleted.
+///
+/// # Errors
+///
+/// Returns `Err` if the statement fails.
 pub async fn delete_bracket(conn: &mut PgConnection, bracket_id: i64) -> Result<u64> {
     Ok(sqlx::query("DELETE FROM bracket WHERE id = $1")
         .bind(bracket_id)
@@ -112,6 +128,11 @@ pub async fn delete_bracket(conn: &mut PgConnection, bracket_id: i64) -> Result<
         .rows_affected())
 }
 
+/// Returns the brackets of class `class_id`, sorted by min rating.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn find_class_brackets(conn: &mut PgConnection, class_id: i64) -> Result<Vec<Bracket>> {
     Ok(find_class_brackets_of(conn, &[class_id])
         .await?
@@ -119,7 +140,11 @@ pub async fn find_class_brackets(conn: &mut PgConnection, class_id: i64) -> Resu
         .unwrap_or_default())
 }
 
-/// The brackets of each class in `class_ids`, sorted by min rating; two statements for any number of classes.
+/// Returns the brackets of each class in `class_ids`, sorted by min rating; two statements for any number of them.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn find_class_brackets_of(
     conn: &mut PgConnection,
     class_ids: &[i64],
@@ -143,13 +168,22 @@ pub async fn find_class_brackets_of(
     Ok(grouped)
 }
 
+/// Returns the bracket `bracket_id` with its race count, or `None` if it does not exist.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn find_bracket(conn: &mut PgConnection, bracket_id: i64) -> Result<Option<Bracket>> {
     Ok(find_brackets(conn, &[bracket_id])
         .await?
         .remove(&bracket_id))
 }
 
-/// The brackets with `bracket_ids`, by id; two statements for any number of brackets.
+/// Returns the brackets with `bracket_ids`, by id; two statements for any number of brackets.
+///
+/// # Errors
+///
+/// Returns `Err` if a query fails.
 pub async fn find_brackets(
     conn: &mut PgConnection,
     bracket_ids: &[i64],

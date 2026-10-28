@@ -1,4 +1,4 @@
-//! = `StringUtil.kt`.
+//! Small string helpers.
 
 /// Keeps the digits of a string (at most `max_len` of them), with a leading minus sign when the
 /// string started with one.

@@ -1,4 +1,5 @@
-//! = `RaceResultReporterKtTest.kt`.
+//! Smoke tests of race reports and series standings: placing order in a bracket, the no-record score and the
+//! fixture's RC volunteer entry.
 
 use pretty_assertions::assert_eq;
 use regatta_common::FinishCode;
@@ -71,7 +72,7 @@ fn gsi_14_1_2_dns_scores_starters_plus_one() {
     standings.assert_class_totals(&[("A", 2), ("B", 4), ("C", 6)]);
 }
 
-/// The series builder's rcVolunteer adds a DNS_RC record in the boat's usual class and bracket.
+/// The series builder's `rc_volunteer` adds a DNS_RC record in the boat's usual class and bracket.
 #[test]
 fn rc_volunteer_enters_the_boat_as_dns_rc() {
     let fixture = series(|s| {

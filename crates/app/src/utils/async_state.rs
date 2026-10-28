@@ -1,6 +1,8 @@
-//! = `Async.kt`: the load state of a screen's data, fed by [`Loaded`] (a resource over a server
-//! function) and [`call`] (a mutation); the screens render a spinner for `Loading`, `ErrorDisplay`
-//! for `Error`.
+//! The load state of a screen's data ([`Async`]), fed by [`Loaded`] (a resource over a server function) and
+//! [`call`] (a mutation).
+//!
+//! The screens render a spinner for `Loading` and an `ErrorDisplay` for `Error` (see
+//! [`crate::routes::async_view`]).
 
 pub const DEFAULT_ERROR_MESSAGE: &str = "An unknown error occurred :(";
 
@@ -61,11 +63,11 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::future::Future;
 
-/// A screen's server data (= the `Async<T>` fields of the Kotlin view models, fed by `Api` calls
-/// in `init`/`reload`): a leptos `Resource` over a server function, so the server renders the
-/// page with the data and the hydrating browser picks it up without a second request, viewed as
-/// an [`Async`] for the screens. A mutation that fails parks its message in `failure`, which the
-/// view shows as `ErrorDisplay` with a reload button, as the Kotlin `Error` state did.
+/// A screen's server data: a leptos `Resource` over a server function, viewed as an [`Async`].
+///
+/// The server renders the page with the data and the hydrating browser picks it up without a second request. A
+/// mutation that fails parks its message in `failure`, which the view shows as an `ErrorDisplay` with a reload
+/// button.
 pub struct Loaded<T: Send + Sync + 'static> {
     resource: Option<Resource<Result<T, ServerFnError>>>,
     failure: RwSignal<Option<String>>,
@@ -84,7 +86,7 @@ impl<T> Loaded<T>
 where
     T: Clone + Serialize + DeserializeOwned + Send + Sync + 'static,
 {
-    /// Loads once (and on every `reload`).
+    /// Creates a load that runs once, and again on every [`Loaded::reload`].
     pub fn new<Fut>(fetcher: impl Fn() -> Fut + Send + Sync + 'static) -> Loaded<T>
     where
         Fut: Future<Output = Result<T, ServerFnError>> + Send + 'static,
@@ -92,7 +94,7 @@ where
         Loaded::with_source(|| (), move |()| fetcher())
     }
 
-    /// Loads whenever `source` changes (the selected year, the race id).
+    /// Creates a load that runs whenever `source` changes (the selected year, the race id).
     pub fn with_source<S, Fut>(
         source: impl Fn() -> S + Send + Sync + 'static,
         fetcher: impl Fn(S) -> Fut + Send + Sync + 'static,
@@ -107,7 +109,7 @@ where
         }
     }
 
-    /// Never loads: stays `Loading`. For contexts created outside the app (component tests).
+    /// Creates a load that never runs and stays `Loading`, for contexts created outside the app (component tests).
     pub fn inert() -> Loaded<T> {
         Loaded {
             resource: None,
@@ -115,7 +117,7 @@ where
         }
     }
 
-    /// The load state, tracked. Read it inside a `<Suspense>` so the server waits for the data.
+    /// Returns the load state, tracked. Read it inside a `<Suspense>` so the server waits for the data.
     pub fn get(&self) -> Async<T> {
         let loaded = match self.resource {
             Some(resource) => match resource.get() {
@@ -150,14 +152,14 @@ where
         }
     }
 
-    /// The loaded value, untracked.
+    /// Returns the loaded value, untracked; `None` while loading or failed.
     pub fn value(&self) -> Option<T> {
         self.resource
             .and_then(|r| r.get_untracked())
             .and_then(|r| r.ok())
     }
 
-    /// Fetches again (`reload()`): the view shows the spinner meanwhile.
+    /// Fetches again; the view shows the spinner meanwhile.
     pub fn reload(&self) {
         self.failure.set(None);
         if let Some(resource) = self.resource {
@@ -165,12 +167,12 @@ where
         }
     }
 
-    /// A mutation failed: show its message in place of the list.
+    /// Records a failed mutation, so its message shows in place of the list.
     pub fn fail(&self, message: impl Into<String>) {
         self.failure.set(Some(message.into()));
     }
 
-    /// `then` after a mutation: reload on success, show the failure otherwise.
+    /// Handles a mutation's outcome: reloads on success, shows the failure otherwise.
     pub fn after(&self, result: Result<(), String>) {
         match result {
             Ok(()) => self.reload(),
@@ -179,8 +181,9 @@ where
     }
 }
 
-/// Runs a server function from an event handler (= `launch { Api... }` in a view model) and
-/// hands the outcome to `then`, the failure as the text the UI shows.
+/// Runs a server function from an event handler and hands the outcome to `then`.
+///
+/// A failure arrives as the text the UI shows ([`crate::server_fns::error_message`]).
 pub fn call<T: 'static>(
     fut: impl Future<Output = Result<T, ServerFnError>> + 'static,
     then: impl FnOnce(Result<T, String>) + 'static,

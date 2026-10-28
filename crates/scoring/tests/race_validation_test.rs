@@ -1,4 +1,4 @@
-//! = `RaceValidationTest.kt`: validateRace guards the POST race and POST raceSchedule routes (R4a, orc_series_standings.md).
+//! Tests of `validate_race`, which guards the POST race and POST raceSchedule routes (R4a, `orc_series_standings.md`).
 
 use pretty_assertions::assert_eq;
 use regatta_common::{Orc3Band, Orc5Band, OrcScoringOption, Race};

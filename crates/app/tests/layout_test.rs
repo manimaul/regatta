@@ -1,4 +1,4 @@
-//! = `LayoutTest.kt`: layout helpers emit Tailwind / rg-* classes with Bootstrap's sizes.
+//! Tests that the layout helpers emit Tailwind and `.rg-*` classes with Bootstrap's sizes.
 #![cfg(all(not(target_arch = "wasm32"), feature = "ssr"))]
 
 mod common;
@@ -9,8 +9,10 @@ use regatta_app::components::*;
 use regatta_app::state::alerts::use_alerts;
 use std::collections::BTreeSet;
 
-/// Mirrors `@source inline("{m,p}{,t,b,s,e,x,y}-{0,1,2,4,6,12,auto}")` in app.css. Customizer spells these class
-/// names out, and Tailwind generates them because of that safelist: keep the two in sync.
+/// Tells whether `cls` is in the `@source inline("{m,p}{,t,b,s,e,x,y}-{0,1,2,4,6,12,auto}")` safelist of
+/// `crates/app/style/app.css`.
+///
+/// Customizer spells these class names out, and Tailwind generates them because of that safelist: keep the two in sync.
 fn safelisted(cls: &str) -> bool {
     let (space, rest) = cls.split_at(1);
     if !matches!(space, "m" | "p") {

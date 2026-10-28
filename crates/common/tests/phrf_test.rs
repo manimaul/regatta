@@ -1,4 +1,4 @@
-//! = `PhrfTest.kt`.
+//! Band edges of [`regatta_common::PhrfBFactor::from_b_factor`].
 
 use regatta_common::PhrfBFactor;
 

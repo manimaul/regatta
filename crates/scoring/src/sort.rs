@@ -1,20 +1,19 @@
-//! The stable sort Kotlin's `sortedWith` runs on the JVM, for comparators that are not total
-//! orders.
+//! A stable sort that never panics on a comparator that is not a total order.
 //!
-//! `assign_places` sorts the series rows with a comparator whose tiebreak (GSI 14.5 / D5) skips
-//! the races where *either* boat was the RC volunteer, so it is not transitive in general: the
-//! race it skips depends on the pair. Rust's `slice::sort_by` may panic on such a comparator;
-//! `java.util.Arrays.sort(T[], Comparator)` never does, and for fewer than 32 elements it runs
-//! `countRunAndMakeAscending` followed by a binary insertion sort (`TimSort.binarySort`). This is
-//! that algorithm, so the Rust standings place the rows exactly as the Kotlin server did, even
-//! where the comparator is inconsistent. From 32 elements on Java merges runs instead; here the
-//! binary insertion sort continues, which gives the same order whenever the comparator is a
-//! consistent total preorder (the only case the data has reached).
+//! [`crate::assign_places`] sorts the series rows with a comparator whose tiebreak (GSI 14.5, D5 in
+//! `test_audit_and_plan.md`) skips the races where *either* boat was the RC volunteer, so it is not transitive in
+//! general: the race it skips depends on the pair. `slice::sort_by` may panic on such a comparator. [`java_sort`]
+//! is TimSort's short-array path, a leading run (`countRunAndMakeAscending`) followed by a binary insertion sort
+//! (`binarySort`), which is the order the approved golden standings were recorded in, even where the comparator
+//! is inconsistent. TimSort merges runs from 32 elements on; here the binary insertion sort continues, which gives
+//! the same order whenever the comparator is a consistent total preorder (the only case the data has reached).
 
 use std::cmp::Ordering;
 
-/// Stable sort of `a` by `c`, in the order `java.util.Arrays.sort` produces for fewer than 32
-/// elements. Never panics on an inconsistent comparator.
+/// Sorts `a` by `c`, stably, in the order TimSort's binary insertion sort produces.
+///
+/// Never panics on an inconsistent comparator. For fewer than 32 elements the order equals
+/// `java.util.Arrays.sort`'s, the order the golden standings were recorded in.
 pub fn java_sort<T, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], mut c: F) {
     let n = a.len();
     if n < 2 {
@@ -24,8 +23,10 @@ pub fn java_sort<T, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], mut c: F) {
     binary_sort(a, run, &mut c);
 }
 
-/// `TimSort.countRunAndMakeAscending`: the length of the leading run; a strictly descending run
-/// is reversed in place (strict, so stability holds).
+/// Returns the length of the leading run of `a`, reversing it in place if it is strictly descending.
+///
+/// Only a strictly descending run is reversed, so equal elements keep their order. TimSort's
+/// `countRunAndMakeAscending`.
 fn count_run_and_make_ascending<T, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], c: &mut F) -> usize {
     let hi = a.len();
     let mut run_hi = 1;
@@ -47,8 +48,9 @@ fn count_run_and_make_ascending<T, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], c:
     run_hi
 }
 
-/// `TimSort.binarySort`: inserts each element from `start` on into the sorted prefix, after any
-/// equal elements (stable).
+/// Inserts each element from `start` on into the sorted prefix, after any equal elements (stable).
+///
+/// TimSort's `binarySort`.
 fn binary_sort<T, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], mut start: usize, c: &mut F) {
     if start == 0 {
         start = 1;

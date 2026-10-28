@@ -1,4 +1,4 @@
-//! = `RgButton.kt`.
+//! The button component and its styles.
 
 use crate::cb::Cb;
 use crate::components::modal::ModalClose;
@@ -39,7 +39,7 @@ impl RgButtonStyle {
     }
 }
 
-/// A button: `custom_classes` first, then the style's classes (the Kotlin order).
+/// A button with the style's `.rg-btn` classes, after `custom_classes` in the class attribute.
 ///
 /// `closes_modal`: when true and this button is inside an `RgModalBody`, the modal is closed
 /// after `click`.

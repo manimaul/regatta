@@ -1,6 +1,6 @@
-//! = `ResizeObserver.kt` + the resize handler of `Main.js.kt`: the app's root div reports its
-//! height to the embedding page (`window.parent.postMessage({regatta_scroll_height})`) so an
-//! iframe host can size itself.
+//! Reports the app's height to an embedding page so an iframe host can size itself.
+//!
+//! The root div posts `{regatta_scroll_height}` through `window.parent.postMessage`.
 
 use leptos::prelude::*;
 
