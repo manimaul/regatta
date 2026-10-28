@@ -77,5 +77,8 @@ web-sys = { workspace = true, features = ["EventInit", "KeyboardEventInit", "Mou
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
+
+# the SSR render tests' executor (tests/common); mio does not build for wasm32
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { workspace = true }
 any_spawner = { workspace = true, features = ["tokio"] }

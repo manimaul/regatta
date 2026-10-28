@@ -47,7 +47,8 @@ async fn get(app: &App, path: &str, cookie: Option<&str>) -> Page {
     Page {
         status,
         content_type,
-        html: String::from_utf8(body.to_vec()).unwrap(),
+        // without the `<!>` text-node markers that erased components put inside elements
+        html: String::from_utf8(body.to_vec()).unwrap().replace("<!>", ""),
     }
 }
 

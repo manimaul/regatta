@@ -7,3 +7,9 @@ LEPTOS_OUTPUT_NAME = "regatta"
 # `cargo xtask <task>`: build, image and deploy tasks (crates/xtask).
 [alias]
 xtask = "run -q -p regatta-xtask --"
+
+# Leptos type erasure (`AnyView` for every component). Both halves must agree: an erased hydrate bundle
+# over a non-erased server render panics in hydration (tachys `failed_to_cast_marker_node`). It cuts
+# the wasm from 3.3 MB to 2.6 MB (gzip 1.16 MB to 0.90 MB).
+[build]
+rustflags = ["--cfg", "erase_components"]

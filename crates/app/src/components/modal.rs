@@ -70,8 +70,14 @@ pub fn RgModalBody(
         alerts.confirmation_modal_created();
         on_cleanup(move || alerts.confirmation_modal_destroyed());
     }
+    // The close event is queued, so it can arrive after a new `confirm` reopened the dialog; that
+    // one is not a dismissal of the new question.
     let on_close_event = move |_| {
-        if is_confirmation {
+        let reopened = dialog_ref
+            .get_untracked()
+            .map(|d| d.open())
+            .unwrap_or(false);
+        if is_confirmation && !reopened {
             alerts.confirmation_closed();
         }
     };

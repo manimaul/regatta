@@ -29,7 +29,8 @@ pub fn render<V: IntoView + 'static>(f: impl FnOnce() -> V) -> String {
     owner.set();
     let html = f().to_html();
     owner.cleanup();
-    html
+    // without the `<!>` text-node markers that erased components put inside elements
+    html.replace("<!>", "")
 }
 
 /// Renders inside a `<Router>` positioned at `path`, for components using the router hooks.
