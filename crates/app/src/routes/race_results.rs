@@ -648,6 +648,8 @@ pub fn RaceResultsEdit(race_id: Option<i64>) -> impl IntoView {
 /// saved whole (R4a). A rejected save keeps the modal open and shows the server's reason.
 #[component]
 fn RaceConfigModal(state: RaceResultAddState) -> impl IntoView {
+    // the form is rebuilt when a draft opens or closes, not on an edit to it
+    let has_draft = Memo::new(move |_| state.config_draft.with(Option::is_some));
     view! {
         <RgModalBody
             id=RACE_CONFIG_MODAL_ID
@@ -670,7 +672,7 @@ fn RaceConfigModal(state: RaceResultAddState) -> impl IntoView {
             {move || {
                 // re-keyed by config_version: a fresh form per open
                 let _version = state.config_version.get();
-                state.config_draft.get().map(|_| {
+                has_draft.get().then(|| {
                     let draft = Signal::derive(move || state.config_draft.get().unwrap_or_default());
                     view! {
                         <RaceConfigForm

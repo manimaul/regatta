@@ -232,8 +232,14 @@ pub fn RgTime(
     let report = move |value: Option<Timestamp>| {
         if let Some(v) = value {
             listener.run(v);
+            true
+        } else {
+            false
         }
     };
+    let hour = Signal::derive(move || double_digit(i32::from(local.get().hour())));
+    let minute = Signal::derive(move || double_digit(i32::from(local.get().minute())));
+    let second = Signal::derive(move || double_digit(i32::from(local.get().second())));
     view! {
         {show_date.then(|| view! {
             <div style=max_width class="rg-input-group rg-input-group-sm">
@@ -243,38 +249,55 @@ pub fn RgTime(
                     class="rg-input"
                     value=move || input_str(&local.get())
                     prop:value=move || input_str(&local.get())
-                    on:input=move |ev| report(with_input_date(local.get_untracked(), &event_target_value(&ev)))
+                    on:input=move |ev| { report(with_input_date(local.get_untracked(), &event_target_value(&ev))); }
                 />
             </div>
         })}
         <div style=max_width class="rg-input-group rg-input-group-sm">
             {time_label.map(|l| view! { <span class="rg-input-addon">{l}</span> })}
-            <input
-                type="number"
-                class="rg-input"
-                value=move || double_digit(i32::from(local.get().hour()))
-                prop:value=move || double_digit(i32::from(local.get().hour()))
-                on:input=move |ev| report(with_input_hour(local.get_untracked(), &event_target_value(&ev)))
-            />
+            <TimeField value=hour max=23 on_edit=move |v: String| report(with_input_hour(local.get_untracked(), &v))/>
             <span class="rg-input-addon">":"</span>
-            <input
-                type="number"
-                class="rg-input"
-                value=move || double_digit(i32::from(local.get().minute()))
-                prop:value=move || double_digit(i32::from(local.get().minute()))
-                on:input=move |ev| report(with_input_minute(local.get_untracked(), &event_target_value(&ev)))
-            />
+            <TimeField value=minute max=59 on_edit=move |v: String| report(with_input_minute(local.get_untracked(), &v))/>
             {show_seconds.then(|| view! {
                 <span class="rg-input-addon">":"</span>
-                <input
-                    type="number"
-                    class="rg-input"
-                    value=move || double_digit(i32::from(local.get().second()))
-                    prop:value=move || double_digit(i32::from(local.get().second()))
-                    on:input=move |ev| report(with_input_second(local.get_untracked(), &event_target_value(&ev)))
-                />
+                <TimeField value=second max=59 on_edit=move |v: String| report(with_input_second(local.get_untracked(), &v))/>
             })}
         </div>
+    }
+}
+
+/// One number field of [`RgTime`], limited to `0..=max`. `on_edit` reports whether the typed
+/// value was taken; a value out of range is replaced by the current one at once, and an empty or
+/// partial field is restored when it loses focus.
+#[component]
+fn TimeField(
+    #[prop(into)] value: Signal<String>,
+    max: i32,
+    on_edit: impl Fn(String) -> bool + 'static,
+) -> impl IntoView {
+    let input: NodeRef<leptos::html::Input> = NodeRef::new();
+    let restore = move || {
+        if let Some(el) = input.get_untracked() {
+            el.set_value(&value.get_untracked());
+        }
+    };
+    view! {
+        <input
+            node_ref=input
+            type="number"
+            class="rg-input"
+            min="0"
+            max=max
+            value=move || value.get()
+            prop:value=move || value.get()
+            on:input=move |ev| {
+                let typed = event_target_value(&ev);
+                if !typed.is_empty() && !on_edit(typed) {
+                    restore();
+                }
+            }
+            on:blur=move |_| restore()
+        />
     }
 }
 

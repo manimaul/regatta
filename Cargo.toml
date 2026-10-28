@@ -99,6 +99,7 @@ panic = "abort"
 [[workspace.metadata.leptos]]
 name = "regatta"
 bin-package = "regatta-server"
+bin-exe-name = "regatta"
 lib-package = "regatta-frontend"
 site-root = "target/site"
 site-pkg-dir = "pkg"
