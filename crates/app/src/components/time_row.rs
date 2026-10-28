@@ -22,6 +22,7 @@ pub fn TimeRow(
     #[prop(into)] on_finish: Cb<(FinishCode, Option<Timestamp>, Option<i32>)>,
     #[prop(into)] on_penalty: Cb<Option<i32>>,
 ) -> impl IntoView {
+    let has_finish = Memo::new(move |_| finish.with(Option::is_some));
     let penalty_label = move || format!("Penalty {}", penalty.get().unwrap_or(0));
     let penalty_minus_classes = super::join_classes(&[
         app_style::MARGIN_START,
@@ -31,9 +32,14 @@ pub fn TimeRow(
     let penalty_classes = super::join_classes(&[app_style::MARGIN_TOP, app_style::MARGIN_BOT]);
     let hoc_minus_classes = super::join_classes(&[app_style::MARGIN_TOP, app_style::MARGIN_START]);
     view! {
-        {move || finish.get().map(|f| view! {
-            <RgTime date=Signal::derive(move || finish.get().unwrap_or(f)) show_date=true show_seconds=true listener=move |t: Timestamp| on_finish.run((FinishCode::Time, Some(t), None))/>
-            {start.get().map(|s| view! { <p>{format!("Elapsed time: {}", display(f.duration_since(s)))}</p> })}
+        // rebuilt when a finish time is set or cleared, not on an edit to it (a rebuilt field
+        // loses focus after every keystroke)
+        {move || has_finish.get().then(|| {
+            let f = finish.get_untracked().unwrap_or_default();
+            view! {
+                <RgTime date=Signal::derive(move || finish.get().unwrap_or(f)) show_date=true show_seconds=true listener=move |t: Timestamp| on_finish.run((FinishCode::Time, Some(t), None))/>
+                {move || finish.get().zip(start.get()).map(|(f, s)| view! { <p>{format!("Elapsed time: {}", display(f.duration_since(s)))}</p> })}
+            }
         })}
         // D4: a scoring penalty only applies to a finishing place, timed or HOC
         {move || finish_code.get().is_finisher().then(|| view! {
