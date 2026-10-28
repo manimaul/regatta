@@ -4,13 +4,17 @@
 //! `ClassReportCards.orc3Band` / `orc5Band` from `phrfBFactor`; `RaceResult.finishCode` /
 //! `RaceResultFull.finishCode` from `finish`). Those structs deserialize through a private
 //! `…Raw` mirror whose dependent fields are `Option`s (`#[serde(from = "…Raw")]`), and the
-//! `From` impl fills the missing ones the way the Kotlin constructor does. Serialization is the
-//! plain derive, so the output order and keys are unaffected.
+//! `From` impl fills the missing ones the way the Kotlin constructor does. The properties are
+//! non-nullable in Kotlin, so an explicit `null` for one is a decode error here too
+//! (`non_null`), not the default. Serialization is the plain derive, so the output order and keys
+//! are unaffected.
 
 use crate::data::{
     orc_certificate_url, FinishCode, Orc3Band, Orc5Band, OrcCertificate, OrcScoringOption,
 };
-use crate::serde_kotlin::{kotlin_duration, kotlin_instant, DISTANT_FUTURE, DISTANT_PAST};
+use crate::serde_kotlin::{
+    kotlin_duration, kotlin_instant, non_null, DISTANT_FUTURE, DISTANT_PAST,
+};
 use crate::utils::{kotlin_f32_to_string, CORRECTION_FACTOR_DEFAULT};
 use jiff::{SignedDuration, Timestamp};
 use serde::{Deserialize, Serialize};
@@ -243,7 +247,9 @@ struct RaceRaw {
     report_image: Option<String>,
     phrf_b_factor: i32,
     orc_scoring_option: OrcScoringOption,
+    #[serde(deserialize_with = "non_null::deserialize")]
     orc3_band: Option<Orc3Band>,
+    #[serde(deserialize_with = "non_null::deserialize")]
     orc5_band: Option<Orc5Band>,
 }
 
@@ -536,6 +542,7 @@ struct RaceResultFullRaw {
     race_class_id: i64,
     penalty: Option<i32>,
     rating_type: RatingType,
+    #[serde(deserialize_with = "non_null::deserialize")]
     finish_code: Option<FinishCode>,
 }
 
@@ -627,6 +634,7 @@ struct RaceResultRaw {
     race_class_id: i64,
     penalty: Option<i32>,
     rating_type: RatingType,
+    #[serde(deserialize_with = "non_null::deserialize")]
     finish_code: Option<FinishCode>,
 }
 
@@ -888,7 +896,9 @@ struct ClassReportCardsRaw {
     race_class: RaceClass,
     phrf_b_factor: i32,
     orc_scoring_option: OrcScoringOption,
+    #[serde(deserialize_with = "non_null::deserialize")]
     orc3_band: Option<Orc3Band>,
+    #[serde(deserialize_with = "non_null::deserialize")]
     orc5_band: Option<Orc5Band>,
     bracket_report: Vec<BracketReportCards>,
     has_orc_results: bool,
@@ -1025,6 +1035,23 @@ mod tests {
             (c.orc3_band, c.orc5_band),
             (Orc3Band::Medium, Orc5Band::Medium)
         );
+    }
+
+    #[test]
+    fn dependent_defaults_reject_explicit_null() {
+        // kotlinx rejects null for a non-nullable property; only a missing key gets the default
+        for json in [r#"{"orc3Band": null}"#, r#"{"orc5Band": null}"#] {
+            assert!(serde_json::from_str::<Race>(json).is_err(), "{json}");
+            assert!(
+                serde_json::from_str::<ClassReportCards>(json).is_err(),
+                "{json}"
+            );
+        }
+        let result = r#"{"ratingType": "PHRF", "finishCode": null}"#;
+        assert!(serde_json::from_str::<RaceResult>(result).is_err());
+        assert!(serde_json::from_str::<RaceResultFull>(result).is_err());
+        let r: RaceResult = serde_json::from_str(r#"{"ratingType": "PHRF"}"#).unwrap();
+        assert_eq!(r.finish_code, FinishCode::Ret);
     }
 
     fn r_default() -> Race {

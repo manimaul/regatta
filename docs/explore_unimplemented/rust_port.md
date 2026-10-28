@@ -402,7 +402,7 @@ Tick each box as it lands. Each phase ends with `cargo test --workspace`, `cargo
       `dbQuery` wrapped several statements (`deletePerson`, `deleteRace`, `insertSchedule`).
       Every `RegattaDatabase` method becomes a service function the REST handlers and, in Phase 4,
       the server functions call.
-- [ ] `.sqlx/` offline data committed; `SQLX_OFFLINE=true` in the image build. — not applicable: the service layer uses the non-macro sqlx API (sqlx 0.9 has no jiff types, timestamps go through `::text`), so there is no `.sqlx/` and builds need no database.
+- [x] `.sqlx/` offline data committed; `SQLX_OFFLINE=true` in the image build. — not applicable: the service layer uses the non-macro sqlx API (sqlx 0.9 has no jiff types, timestamps go through `::text`), so there is no `.sqlx/` and builds need no database.
 - [x] Auth: `Token` port (sha2 + base64), bootstrap rule, bearer extractor reproducing the
       recorded behavior for missing/malformed/expired tokens; `TokenTest` vectors.
 - [x] Routes: one handler per row of the route table, nested under `/v1/api`, same query parameter
@@ -417,9 +417,19 @@ Tick each box as it lands. Each phase ends with `cargo test --workspace`, `cargo
       placeholder shell, so the contract's fallback steps pass before the UI exists.
       `CompressionLayer` on (superseded by the Leptos shell in Phase 4)
 - [x] T2 replay passes against the Rust server (`cargo test -p regatta-contract`).
-- [ ] T3 differential run passes (scripted + proptest).
-- [ ] `database/fix_orc_bands.py` and `database/orc_backfill.py` run unchanged against the Rust
-      server (`--base-url`), dry run and `--apply` on a dev restore.
+- [x] T3 differential run passes (scripted + proptest). — `diff --random 200 --seed 42` and
+      `--random 1000 --seed 7` against the Kotlin dist (in a JRE container, port 8890) and the
+      Rust server, each on a fresh load of the dump with the fixed clock: every step equal except
+      the Rust-only boat validation (154-156) and step 160, which follows from it (Kotlin stores the
+      invalid boats, then `GET allBoat` throws `NoSuchElementException`). The run found one
+      divergence, fixed in `regatta-common`: an explicit `null` for `orc3Band` / `orc5Band` /
+      `finishCode` (non-nullable in Kotlin, with a computed default) decoded to the default
+      instead of failing (`serde_kotlin::non_null`).
+- [x] `database/fix_orc_bands.py` and `database/orc_backfill.py` run unchanged against the Rust
+      server (`--base-url`), dry run and `--apply` on a dev restore. — dry run, `--apply`, dry
+      run again against both servers on fresh loads of the dump: identical output (63 races
+      updated, then 0 to change; 2 certificates resolved, 5 not active), identical `race` and
+      `orc` tables afterwards.
 
 ### Phase 4: `regatta-app` + `regatta-frontend` (Leptos SSR)
 
