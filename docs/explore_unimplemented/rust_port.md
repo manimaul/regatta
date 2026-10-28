@@ -473,10 +473,23 @@ Screen and component map (Kotlin → Rust module in `crates/app/src/`):
       edit modal, schedule editor), Rc, RaceResults add/edit, RaceResultsView, SeriesStandings,
       Course (map), Admin. Match the current markup and classes so `app.css` needs no changes.
 - [x] Port the pure `jsTest`s natively, the markup tests as SSR render tests, the interactive ones
-      with `wasm-bindgen-test` (Chrome headless and Firefox; `FIREFOX_BIN` honored). (the 12 wasm-bindgen-test cases compile for wasm32; not executed: no wasm-pack / browser driver installed)
-- [ ] T6 smoke walk-through with a GIF (curl smoke of every route and the login flow done; browser walk-through pending). T7 green: `crates/server/tests/ssr.rs`. Render threads need a 32 MiB stack (`RENDER_THREAD_STACK`): the Classes screen overflows the default 2 MiB in a debug build.
-- [ ] Bundle size check (wasm + js, gzip) against today's `web.js`; `wasm-opt` via cargo-leptos,
+      with `wasm-bindgen-test` (Chrome headless and Firefox; `FIREFOX_BIN` honored). (12/12 pass under `wasm-pack test --headless --chrome` and `--firefox`; tokio is a native-only dev-dependency, mio does not build for wasm32. Running them found a race: the confirmation dialog's queued `close` event cleared a question `confirm`ed again before it fired; the handler now ignores it while the dialog is open)
+- [x] T6 smoke walk-through with a GIF (curl smoke of every route; browser walk-through of the release build over the golden snapshot: results, standings, course map, theme toggle, bootstrap create admin, login, every admin screen with full loads and client navigation, edit modals, filter, logout; no console errors; `regatta_rust_t6_walkthrough.gif`). T7 green: `crates/server/tests/ssr.rs`. Render threads need a 32 MiB stack (`RENDER_THREAD_STACK`): the Classes screen overflows the default 2 MiB in a debug build.
+- [x] Bundle size check (wasm + js, gzip) against today's `web.js`; `wasm-opt` via cargo-leptos,
       `opt-level = "z"`/`lto`/`codegen-units = 1` in the `wasm-release` profile.
+
+      | | raw | gzip -9 | brotli |
+      |---|---|---|---|
+      | Kotlin `web.js` (webpack production) | 2068 KB | 522 KB | 397 KB |
+      | `regatta.wasm`, as profiled | 3293 KB | 1162 KB | 801 KB |
+      | `regatta.wasm` + `--cfg erase_components` | 2574 KB | 905 KB | 624 KB |
+      | `regatta.js` (glue) | 31 KB | 9 KB | 8 KB |
+
+      The size is spread over ~14,700 functions with no single hot spot (Leptos view generics).
+      `erase_components` (`.cargo/config.toml`, `[build] rustflags`) is now on for every build:
+      it must be on for both halves, since an erased bundle over a non-erased server render panics
+      in hydration. The bundle stays ~1.6x `web.js` over the wire (brotli, served precompressed);
+      accepted, the page is server-rendered and readable before the wasm arrives.
 
 ### Phase 5: Build, image, deploy
 

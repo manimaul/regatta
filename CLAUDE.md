@@ -52,7 +52,9 @@ Configuration (`crates/service/src/config.rs`, environment or the matching `--fl
 
 **Always build the server through cargo-leptos**, not a plain `cargo build`, for anything a browser will load: leptos
 bakes the hydration bundle's file name in at compile time from `LEPTOS_OUTPUT_NAME`. `.cargo/config.toml` pins it to
-`regatta` so plain builds, tests and rust-analyzer agree with cargo-leptos anyway. Dev builds carry line tables only
+`regatta` so plain builds, tests and rust-analyzer agree with cargo-leptos anyway. It also sets
+`--cfg erase_components` for every build (a `RUSTFLAGS` variable replaces it): the server and the wasm bundle must
+agree on it, or hydration panics. Dev builds carry line tables only
 (`debug = "line-tables-only"`): full debuginfo for this dependency set is about 20 GB of `target/`.
 
 ### Tests
