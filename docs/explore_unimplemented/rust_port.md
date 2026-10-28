@@ -470,22 +470,22 @@ Screen and component map (Kotlin → Rust module in `crates/app/src/`):
 
 ### Phase 5: Build, image, deploy
 
-- [ ] `cargo xtask run`: `cargo leptos serve --release` (needs `database/podman-compose up`).
-- [ ] `cargo leptos build --release --precompress` produces the server binary and
+- [x] `cargo xtask run`: `cargo leptos serve --release` (needs `database/podman-compose up`).
+- [x] `cargo leptos build --release --precompress` produces the server binary and
       `target/site` with `.br`/`.gz` siblings (replaces `installJvmDist` + `precompress.js`).
-- [ ] `Containerfile`: stage 1 `rust:<pinned>-bookworm` with `wasm32-unknown-unknown`,
+- [x] `Containerfile`: stage 1 `rust:<pinned>-bookworm` with `wasm32-unknown-unknown`,
       `cargo-leptos` (via `cargo-binstall`), `SQLX_OFFLINE=true`, `--platform linux/amd64`;
       stage 2 `gcr.io/distroless/cc-debian12` with the server binary and `site/`;
       `LEPTOS_SITE_ROOT=site`, `LEPTOS_SITE_ADDR=0.0.0.0:8888`, `LEPTOS_ENV=PROD`; `EXPOSE 8888`;
-      env defaults replacing `JDK_JAVA_OPTIONS`.
-- [ ] `k8s_deploy/server.yaml`: `JDK_JAVA_OPTIONS` → `REGATTA_DB_URL` built from the same
+      env defaults replacing `JDK_JAVA_OPTIONS`. (cargo-leptos from its checksum-verified release binary instead of cargo-binstall; no `SQLX_OFFLINE`, the non-macro sqlx API needs none; the build stage runs on the host architecture and cross-compiles for `x86_64-unknown-linux-gnu`, since rustc crashes under qemu)
+- [x] `k8s_deploy/server.yaml`: `JDK_JAVA_OPTIONS` → `REGATTA_DB_URL` built from the same
       `{REGATTA_PG_USER}`/`{REGATTA_PG_PASS}` placeholders; readiness probe on `/`; memory
-      request/limit revisited (JVM 256Mi/768Mi → far less).
-- [ ] `cargo xtask makeImg | pubImg | k8sApplySecrets | k8sApplyServer | rolloutRestart |
-      deployServer`, reading `~/.gradle/gradle.properties` for the credentials as today.
-- [ ] pgbouncer: confirm `pool_mode` in `regatta-pgbouncer-ini`; with transaction pooling set
+      request/limit revisited (JVM 256Mi/768Mi → far less). (requests/limits 64Mi/256Mi)
+- [x] `cargo xtask makeImg | pubImg | k8sApplySecrets | k8sApplyServer | rolloutRestart |
+      deployServer`, reading `~/.gradle/gradle.properties` for the credentials as today. (kebab-case names, plus `k8s-delete-server` and `--dry-run`; credentials from the `REGATTA_PG_USER`/`REGATTA_PG_PASS` environment variables, not `~/.gradle/gradle.properties`)
+- [x] pgbouncer: confirm `pool_mode` in `regatta-pgbouncer-ini`; with transaction pooling set
       sqlx's `statement_cache_capacity(0)` or require pgbouncer ≥ 1.21 with
-      `max_prepared_statements`.
+      `max_prepared_statements`. (`pool_mode = transaction`, `max_prepared_statements = 200`, `cloudnative-pg/pgbouncer:latest`)
 - [ ] Ingress: the cookie is `Secure`; confirm haproxy forwards `X-Forwarded-Proto` or set the
       flag from config.
 - [ ] Deploy to a staging namespace or a second deployment name, point it at a prod restore, run
@@ -502,11 +502,11 @@ Screen and component map (Kotlin → Rust module in `crates/app/src/`):
 
 ### Phase 7: Cleanup
 
-- [ ] Move `golden/` (dump + approved + deviations) to `crates/scoring/tests/golden/` and update
+- [x] Move `golden/` (dump + approved + deviations) to `crates/scoring/tests/golden/` and update
       `audit_scoring.py` defaults, `scrub_dump.py`, CLAUDE.md.
 - [ ] Delete `common/`, `server/`, `web/`, `buildSrc/`, `gradle*`, `settings.gradle.kts`,
       `build.gradle.kts`, `kotlin-js-store/`, `gradle/libs.versions.toml`.
-- [ ] Rewrite CLAUDE.md (commands, architecture, the JSON rules above, the fixed-clock knob, the
+- [x] Rewrite CLAUDE.md (commands, architecture, the JSON rules above, the fixed-clock knob, the
       contract harness, the service layer / server function / REST split, "run image tasks from
       `regatta/`" note retired), `README.MD`, `database/README.md`.
 - [ ] Move this document to `docs/explore_implemented/`.
