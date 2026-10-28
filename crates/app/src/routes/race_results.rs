@@ -64,29 +64,24 @@ pub struct RaceResultAddState {
     pub config_error: RwSignal<Option<String>>,
     /// Bumped on open so the form re-keys.
     pub config_version: RwSignal<u32>,
+    /// Why the result cannot be saved: no class, no bracket in the class for the rating, a rating
+    /// the type needs, or a timed finish without a time.
+    pub invalid: Signal<Option<String>>,
     pub is_valid: Signal<bool>,
 }
 
-/// `getRating(ratingType, phrfRating, orcCertificate)`: the PHRF-equivalent rating a result or
-/// boat is placed by.
-pub fn rating_of(
-    rating_type: RatingType,
-    phrf_rating: Option<i32>,
-    orc_certificate: Option<&OrcCertificate>,
-) -> i32 {
-    match rating_type {
-        RatingType::Orc => phrf_rating
-            .or_else(|| orc_certificate.map(OrcCertificate::virtual_phrf))
-            .unwrap_or(RATING_DEFAULT),
-        _ => phrf_rating.unwrap_or(RATING_DEFAULT),
-    }
+/// `getRating(phrfRating, orcCertificate)`: the PHRF-equivalent rating a result or
+/// boat is placed by: the PHRF rating, else the certificate's virtual PHRF (an ORC boat, also in a
+/// PHRF class), else the default.
+pub fn rating_of(phrf_rating: Option<i32>, orc_certificate: Option<&OrcCertificate>) -> i32 {
+    phrf_rating
+        .or_else(|| orc_certificate.map(OrcCertificate::virtual_phrf))
+        .unwrap_or(RATING_DEFAULT)
 }
 
 /// `getRating(boat)`.
 pub fn boat_rating(boat: Option<&Boat>) -> i32 {
     rating_of(
-        boat.map(|b| b.rating_type)
-            .unwrap_or(RatingType::CruisingNonFlyingSails),
         boat.and_then(|b| b.phrf_rating),
         boat.and_then(|b| find_preferred(&b.orc_certs)),
     )
@@ -119,29 +114,74 @@ pub fn available_brackets(
         .unwrap_or_default()
 }
 
-/// `getAvailableClasses`: the classes with a bracket for the rating; an ORC class only for a boat
-/// with a certificate.
-pub fn available_classes(
-    boat: Option<&Boat>,
-    schedule: Option<&RaceSchedule>,
-    rating: i32,
-) -> Vec<RaceClass> {
+/// `getAvailableClasses`: the race's classes, an ORC class only for a boat with a certificate. A
+/// class without a bracket for the rating is listed; [`RaceResultAddState::invalid`] says so.
+pub fn available_classes(boat: Option<&Boat>, schedule: Option<&RaceSchedule>) -> Vec<RaceClass> {
     let can_orc = boat.is_some_and(|b| !b.orc_certs.is_empty());
     schedule
         .map(|s| {
             s.schedule
                 .iter()
-                .filter(|cs| {
-                    if cs.race_class.rating_type == RatingType::Orc && !can_orc {
-                        false
-                    } else {
-                        cs.brackets.iter().any(|b| in_bracket(b, rating))
-                    }
-                })
+                .filter(|cs| cs.race_class.rating_type != RatingType::Orc || can_orc)
                 .map(|cs| cs.race_class.clone())
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// Why `result` cannot be saved in `class`, or `None`.
+pub fn result_invalid(
+    result: &RaceResultFull,
+    class: Option<&RaceClass>,
+    brackets: &[Bracket],
+) -> Option<String> {
+    if !result.boat.boat.as_ref().is_some_and(|b| b.id != 0) {
+        return None;
+    }
+    let Some(class) = class else {
+        return Some("Select a class".to_string());
+    };
+    // an ORC-only boat is placed by its certificate's virtual PHRF, in a PHRF class too
+    let orc_only = result
+        .boat
+        .boat
+        .as_ref()
+        .is_some_and(|b| b.phrf_rating.is_none())
+        && result.orc_certificate.is_some();
+    if result.rating_type.is_phrf() && result.phrf_rating.is_none() && !orc_only {
+        return Some(format!(
+            "A {} result needs a PHRF rating",
+            result.rating_type.label()
+        ));
+    }
+    if brackets.is_empty() {
+        let rating = rating_of(result.phrf_rating, result.orc_certificate.as_ref());
+        let kind = if result.phrf_rating.is_none() && orc_only {
+            "virtual PHRF"
+        } else {
+            "PHRF"
+        };
+        return Some(format!(
+            "{} has no bracket for a {kind} rating of {rating}",
+            class.name
+        ));
+    }
+    if result.rating_type.is_phrf() && result.phrf_rating.is_none() {
+        return Some(format!(
+            "A {} result needs a PHRF rating",
+            result.rating_type.label()
+        ));
+    }
+    if result.rating_type.is_orc() && result.orc_certificate.is_none() {
+        return Some(format!(
+            "An {} result needs an ORC certificate",
+            result.rating_type.label()
+        ));
+    }
+    if result.finish_code == FinishCode::Time && result.finish.is_none() {
+        return Some("A timed finish needs a finish time".to_string());
+    }
+    None
 }
 
 fn class_start(schedule: Option<&RaceSchedule>, class_id: Option<i64>) -> Option<Timestamp> {
@@ -187,6 +227,12 @@ impl RaceResultAddState {
         });
         let selected_class = RwSignal::new(None::<RaceClass>);
         let selected_bracket = RwSignal::new(None::<Bracket>);
+        let brackets = RwSignal::new(Vec::<Bracket>::new());
+        let invalid = Signal::derive(move || {
+            race_result.with(|r| {
+                selected_class.with(|c| brackets.with(|b| result_invalid(r, c.as_ref(), b)))
+            })
+        });
         let results: Loaded<RaceScheduleResults> = Loaded::new(move || async move {
             server_fns::schedule_results(race_id)
                 .await?
@@ -229,7 +275,7 @@ impl RaceResultAddState {
             max_hoc,
             allow_boat_change: RwSignal::new(true),
             classes: RwSignal::new(Vec::new()),
-            brackets: RwSignal::new(Vec::new()),
+            brackets,
             orc_certs: RwSignal::new(Vec::new()),
             selected_class,
             selected_class_start: RwSignal::new(None),
@@ -237,23 +283,16 @@ impl RaceResultAddState {
             config_draft: RwSignal::new(None),
             config_error: RwSignal::new(None),
             config_version: RwSignal::new(0),
+            invalid,
             // `isValid`: a boat, a class, a bracket, the rating the type needs, and a time for a timed finish
             is_valid: Signal::derive(move || {
-                race_result.with(|r| {
-                    r.boat.boat.as_ref().is_some_and(|b| b.id != 0)
-                        && r.race_class_id != 0
-                        && r.bracket_id != 0
-                        && (r.finish_code != FinishCode::Time || r.finish.is_some())
-                        && match r.rating_type {
-                            RatingType::OrcPhrf => {
-                                r.phrf_rating.is_some() && r.orc_certificate.is_some()
-                            }
-                            RatingType::Orc => r.orc_certificate.is_some(),
-                            RatingType::Phrf => r.phrf_rating.is_some(),
-                            RatingType::CruisingFlyingSails
-                            | RatingType::CruisingNonFlyingSails => true,
-                        }
-                }) && selected_class.with(|c| c.is_some())
+                invalid.with(Option::is_none)
+                    && race_result.with(|r| {
+                        r.boat.boat.as_ref().is_some_and(|b| b.id != 0)
+                            && r.race_class_id != 0
+                            && r.bracket_id != 0
+                    })
+                    && selected_class.with(|c| c.is_some())
                     && selected_bracket.with(|b| b.is_some())
             }),
         }
@@ -291,12 +330,8 @@ impl RaceResultAddState {
     /// result has none.
     pub fn focus_result_for_edit(&self, result: &RaceResultFull) {
         let schedule = self.schedule();
-        let rating = rating_of(
-            result.rating_type,
-            result.phrf_rating,
-            result.orc_certificate.as_ref(),
-        );
-        let classes = available_classes(result.boat.boat.as_ref(), schedule.as_ref(), rating);
+        let rating = rating_of(result.phrf_rating, result.orc_certificate.as_ref());
+        let classes = available_classes(result.boat.boat.as_ref(), schedule.as_ref());
         let selected_class = classes
             .iter()
             .find(|c| c.id == result.race_class_id)
@@ -341,7 +376,7 @@ impl RaceResultAddState {
         let b = boat.as_ref().and_then(|bs| bs.boat.as_ref());
         let rating_type = b.map(|b| b.rating_type).unwrap_or(RatingType::Phrf);
         let rating = boat_rating(b);
-        let classes = available_classes(b, schedule.as_ref(), rating);
+        let classes = available_classes(b, schedule.as_ref());
         let select_class = classes
             .iter()
             .find(|c| c.rating_type == rating_type)
@@ -350,6 +385,7 @@ impl RaceResultAddState {
                     .iter()
                     .find(|c| c.rating_type.is_compatible(rating_type))
             })
+            .or_else(|| classes.first())
             .cloned();
         let start = class_start(schedule.as_ref(), select_class.as_ref().map(|c| c.id));
         let brackets = available_brackets(
@@ -382,7 +418,7 @@ impl RaceResultAddState {
         let schedule = self.schedule();
         let (rating, boat, can_orc) = self.race_result.with_untracked(|r| {
             (
-                rating_of(r.rating_type, r.phrf_rating, r.orc_certificate.as_ref()),
+                rating_of(r.phrf_rating, r.orc_certificate.as_ref()),
                 r.boat.boat.clone(),
                 r.boat
                     .boat
@@ -390,7 +426,7 @@ impl RaceResultAddState {
                     .is_some_and(|b| !b.orc_certs.is_empty()),
             )
         });
-        let classes = available_classes(boat.as_ref(), schedule.as_ref(), rating);
+        let classes = available_classes(boat.as_ref(), schedule.as_ref());
         let brackets = available_brackets(schedule.as_ref(), Some(class.id), rating);
         let start = class_start(schedule.as_ref(), Some(class.id));
         let rating_type = if class.rating_type.is_orc() && !can_orc {
@@ -409,6 +445,31 @@ impl RaceResultAddState {
         self.selected_class.set(Some(class));
         self.selected_class_start.set(start);
         self.selected_bracket.set(select_bracket);
+    }
+
+    /// The selected class's brackets for the current rating: the selected bracket while it still
+    /// fits, else the first that does, else none.
+    fn refresh_brackets(&self) {
+        let schedule = self.schedule();
+        let class_id = self
+            .selected_class
+            .with_untracked(|c| c.as_ref().map(|c| c.id));
+        let rating = self
+            .race_result
+            .with_untracked(|r| rating_of(r.phrf_rating, r.orc_certificate.as_ref()));
+        let brackets = available_brackets(schedule.as_ref(), class_id, rating);
+        let selected = self
+            .selected_bracket
+            .with_untracked(|s| {
+                s.as_ref()
+                    .and_then(|s| brackets.iter().find(|b| b.id == s.id))
+            })
+            .or_else(|| brackets.first())
+            .cloned();
+        self.race_result
+            .update(|r| r.bracket_id = selected.as_ref().map(|b| b.id).unwrap_or(0));
+        self.brackets.set(brackets);
+        self.selected_bracket.set(selected);
     }
 
     pub fn select_bracket(&self, bracket: Bracket) {
@@ -439,6 +500,7 @@ impl RaceResultAddState {
                 Action::Delete => None,
             }
         });
+        self.refresh_brackets();
     }
 
     pub fn select_rating(&self, rating_type: RatingType, phrf_rating: i32) {
@@ -450,6 +512,13 @@ impl RaceResultAddState {
                 None
             };
         });
+        self.refresh_brackets();
+    }
+
+    /// The PHRF box was emptied.
+    pub fn clear_phrf_rating(&self) {
+        self.race_result.update(|r| r.phrf_rating = None);
+        self.refresh_brackets();
     }
 
     /// `postResult`: `POST results` with the sparse result; on success `on_success`, a fresh
@@ -738,6 +807,7 @@ pub fn AddResult(state: RaceResultAddState) -> impl IntoView {
                 certs=state.orc_certs
                 on_orc=move |(a, c): (Action, OrcCertificate)| state.select_orc(a, c)
                 type_change=move |(t, r): (RatingType, i32)| state.select_rating(t, r)
+                phrf_clear=move |()| state.clear_phrf_rating()
             />
 
             {move || state.selected_class.get().map(|selected| view! {
@@ -750,6 +820,8 @@ pub fn AddResult(state: RaceResultAddState) -> impl IntoView {
                 <span><b>"Bracket"</b></span>
                 <RgDropdown items=state.brackets selected_item=selected name=|b: &Bracket| b.label() handler=move |b: Bracket| state.select_bracket(b)/>
             })}
+
+            {move || state.invalid.get().map(|message| view! { <p class="text-danger-fg">{message}</p> })}
         </div>
     }
 }
