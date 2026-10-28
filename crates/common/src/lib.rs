@@ -1,5 +1,5 @@
 //! regatta-common: the shared models, API paths and label helpers of the Rust port
-//! (= the Kotlin `common` module; see `docs/explore_unimplemented/rust_port.md`, Phase 1).
+//! (= the Kotlin `common` module; see `docs/explore_implemented/rust_port.md`, Phase 1).
 //!
 //! The JSON produced by these types is byte-for-byte the Kotlin server's (kotlinx.serialization
 //! with `encodeDefaults = true`): field order is the Kotlin declaration order, defaults and nulls

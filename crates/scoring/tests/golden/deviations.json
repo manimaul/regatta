@@ -1,5 +1,5 @@
 {
-  "source": "server/src/jvmTest/resources/golden/approved",
+  "source": "crates/scoring/tests/golden/approved",
   "races": 118,
   "standings": 22,
   "counts": {},

@@ -8,18 +8,3 @@ target
 database/backup
 k8s_deploy/.___*
 *.received.json
-
-# Legacy sources, not part of the Rust build.
-.gradle
-.kotlin
-build
-buildSrc
-common
-server
-web
-gradle
-kotlin-js-store
-*.gradle.kts
-gradlew
-gradlew.bat
-gradle.properties

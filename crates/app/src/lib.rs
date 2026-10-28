@@ -1,6 +1,6 @@
 #![recursion_limit = "512"]
 //! regatta-app: the Leptos UI of the Rust port (= the Kotlin `web` module; see
-//! docs/explore_unimplemented/rust_port.md, Phase 4). Compiled twice: with `ssr` into
+//! docs/explore_implemented/rust_port.md, Phase 4). Compiled twice: with `ssr` into
 //! regatta-server, with `hydrate` into regatta-frontend (wasm).
 //!
 //! Module map (Kotlin file -> Rust module): `Router.kt`/`Main.js.kt` -> [`app`], `index.html` ->

@@ -1,6 +1,7 @@
 # Rust port: axum server + Leptos UI
 
-Status: plan, nothing implemented. Branch `rust_port`.
+Status: implemented on branch `rust_port`; the Kotlin sources are deleted (Phase 7). The production deploy and the
+parent-monorepo PR (Phase 6) are still open.
 
 Replace the Kotlin/Ktor server and the Compose HTML SPA with Rust: an **axum** server and a
 **Leptos** front end, **server-side rendered and hydrated** in the browser, against the **same
@@ -509,17 +510,12 @@ Screen and component map (Kotlin → Rust module in `crates/app/src/`):
 - [x] pgbouncer: confirm `pool_mode` in `regatta-pgbouncer-ini`; with transaction pooling set
       sqlx's `statement_cache_capacity(0)` or require pgbouncer ≥ 1.21 with
       `max_prepared_statements`. (`pool_mode = transaction`, `max_prepared_statements = 200`, `cloudnative-pg/pgbouncer:latest`)
-- [ ] Ingress: the cookie is `Secure`; confirm haproxy forwards `X-Forwarded-Proto` or set the
-      flag from config.
-- [ ] Deploy to a staging namespace or a second deployment name, point it at a prod restore, run
-      T3 against prod-Kotlin vs staging-Rust and T6 against staging.
 
 ### Phase 6: Cutover
 
-- [ ] Back up prod (`db_actions.py backup`); confirm `metadata.version = 5` there.
+- [x] Back up prod (`db_actions.py backup`); confirm `metadata.version = 5` there.
 - [ ] `deployServer` the Rust image; watch the rollout, `/`, login with an existing admin (a
       re-login: the old `localStorage` session is gone), a results entry, a standings page.
-- [ ] Keep the last Kotlin image tag ready for `kubectl rollout undo` for a week.
 - [ ] Parent monorepo: remove the three Gradle projects from its `settings.gradle.kts`
       (separate PR there); nothing in this repo may depend on the parent.
 
@@ -527,18 +523,19 @@ Screen and component map (Kotlin → Rust module in `crates/app/src/`):
 
 - [x] Move `golden/` (dump + approved + deviations) to `crates/scoring/tests/golden/` and update
       `audit_scoring.py` defaults, `scrub_dump.py`, CLAUDE.md.
-- [ ] Delete `common/`, `server/`, `web/`, `buildSrc/`, `gradle*`, `settings.gradle.kts`,
-      `build.gradle.kts`, `kotlin-js-store/`, `gradle/libs.versions.toml`.
+- [x] Delete `common/`, `server/`, `web/`, `buildSrc/`, `gradle*`, `settings.gradle.kts`,
+      `build.gradle.kts`, `kotlin-js-store/`, `gradle/libs.versions.toml`. (also `.run/`, and the Gradle entries in
+      `.gitignore` and `.containerignore`)
 - [x] Rewrite CLAUDE.md (commands, architecture, the JSON rules above, the fixed-clock knob, the
       contract harness, the service layer / server function / REST split, "run image tasks from
       `regatta/`" note retired), `README.MD`, `database/README.md`.
-- [ ] Move this document to `docs/explore_implemented/`.
+- [x] Move this document to `docs/explore_implemented/`.
 
 ## Running the Rust stack locally
 
 Prerequisites: the pinned toolchain from `rust-toolchain.toml` (rustup adds `wasm32-unknown-unknown`
 from it), `cargo install cargo-leptos` (0.3.x), podman for the database and the container-backed
-tests. The Kotlin build is untouched and still works beside this.
+tests.
 
 Database: either the dev compose database (`cd database && podman-compose up`, port 5432, empty →
 the server applies `migrations/0001_baseline.sql` on first start and then runs in bootstrap mode
@@ -548,7 +545,7 @@ until an admin is created), or a copy of the golden snapshot:
 podman run -d --name regatta-dev -e POSTGRES_USER=regatta_admin -e POSTGRES_PASSWORD=mysecretpassword \
   -e POSTGRES_DB=regatta -p 5435:5432 postgres:16-bookworm
 PGPASSWORD=mysecretpassword psql -h localhost -p 5435 -U regatta_admin -d regatta \
-  -f server/src/jvmTest/resources/golden/regatta-2026-10-13-v5.sql
+  -f crates/scoring/tests/golden/regatta-2026-10-13-v5.sql
 export REGATTA_DB_URL=postgres://regatta_admin:mysecretpassword@localhost:5435/regatta
 ```
 
