@@ -73,6 +73,9 @@ pub struct RcState {
     manual_race: RwSignal<Option<RaceSchedule>>,
     /// The selected race with the config edits not yet (or just) saved.
     edited_race: RwSignal<Option<RaceSchedule>>,
+    /// Schedules saved on this page, newer than their copy in `races` (`checkSchedule` replaced
+    /// the race in the list).
+    saved_races: RwSignal<Vec<RaceSchedule>>,
     pub selected_race: Signal<Option<RaceSchedule>>,
     pub boats: RwSignal<Async<Vec<CheckIn>>>,
     pub add_state: RwSignal<Option<RaceResultAddState>>,
@@ -140,6 +143,7 @@ impl RcState {
         let races: Loaded<Vec<RaceSchedule>> = Loaded::new(move || server_fns::all_races(year));
         let manual_race = RwSignal::new(None::<RaceSchedule>);
         let edited_race = RwSignal::new(None::<RaceSchedule>);
+        let saved_races = RwSignal::new(Vec::<RaceSchedule>::new());
         // `fetchRaces`: the first race starting after yesterday is selected
         let selected_race = Signal::derive(move || {
             if let Some(edited) = edited_race.get() {
@@ -158,11 +162,17 @@ impl RcState {
                         .cloned()
                 })
                 .flatten()
+                .map(|r| {
+                    saved_races
+                        .with(|saved| saved.iter().find(|s| s.race.id == r.race.id).cloned())
+                        .unwrap_or(r)
+                })
         });
         RcState {
             races,
             manual_race,
             edited_race,
+            saved_races,
             selected_race,
             boats: RwSignal::new(Async::Loading(None)),
             add_state: RwSignal::new(None),
@@ -175,16 +185,22 @@ impl RcState {
     /// `reload()`: the races again (the browser then refreshes the boats of the selection).
     pub fn reload(&self) {
         self.edited_race.set(None);
+        self.saved_races.set(Vec::new());
         self.races.reload();
     }
 
     pub fn select_race(&self, race: RaceSchedule) {
+        let race = self
+            .saved_races
+            .with_untracked(|saved| saved.iter().find(|s| s.race.id == race.race.id).cloned())
+            .unwrap_or(race);
         self.edited_race.set(None);
         self.manual_race.set(Some(race));
     }
 
     /// The browser's half of `selectRace`: the race's saved check-ins, a fresh result editor for
-    /// it and its boats and results. Runs whenever the selection changes.
+    /// it and its boats and results. Runs when the selected race id changes, not on config edits
+    /// (those keep the race id, and resetting the sync state here would drop the pending save).
     pub fn race_selected(&self, race: Option<&RaceSchedule>) {
         let Some(race) = race else {
             self.boats.set(Async::Loading(None));
@@ -254,7 +270,8 @@ impl RcState {
     }
 
     /// `checkSchedule`: posts a dirty race (`POST raceSchedule`); `Synced` with the stored
-    /// schedule on success, `Dirty` again otherwise.
+    /// schedule on success, `Dirty` again otherwise and retried 3 s later. An edit made while the
+    /// post is in flight stays dirty and is posted by its own timeout.
     fn check_schedule(&self) {
         if self.sync_state.get_untracked() != SyncState::Dirty {
             return;
@@ -266,10 +283,19 @@ impl RcState {
         self.sync_state.set(SyncState::Working);
         call(server_fns::post_race_schedule(race), move |r| match r {
             Ok(saved) => {
-                this.edited_race.set(Some(saved));
-                this.sync_state.set(SyncState::Synced);
+                this.saved_races.update(|list| {
+                    list.retain(|s| s.race.id != saved.race.id);
+                    list.push(saved.clone());
+                });
+                if this.sync_state.get_untracked() == SyncState::Working {
+                    this.edited_race.set(Some(saved));
+                    this.sync_state.set(SyncState::Synced);
+                }
             }
-            Err(_) => this.sync_state.set(SyncState::Dirty),
+            Err(_) => {
+                this.sync_state.set(SyncState::Dirty);
+                browser::set_timeout(move || this.check_schedule(), 3000);
+            }
         });
     }
 
@@ -399,9 +425,10 @@ pub fn RcLoggedIn() -> impl IntoView {
         move || state.reload(),
         move |races: Vec<RaceSchedule>| {
             // the browser's half of `selectRace`: check-ins, result editor, boats (effects never run on the server)
+            let selected_id = Memo::new(move |_| selected.with(|r| r.as_ref().map(|r| r.race.id)));
             Effect::new(move |_| {
-                let race = selected.get();
-                state.race_selected(race.as_ref());
+                selected_id.track();
+                state.race_selected(selected.get_untracked().as_ref());
             });
             let first = races.first().cloned().unwrap_or_default();
             let current = Signal::derive(move || selected.get().unwrap_or_else(|| first.clone()));
@@ -428,7 +455,9 @@ pub fn RcLoggedIn() -> impl IntoView {
                         }).collect_view()}
                     </ul>
                 </RgDiv>
-                {move || selected.get().map(|selected_race| match state.tab.get() {
+                // rebuilt when the race or tab changes, not on a config edit (that would rebuild
+                // the config form and drop the focused field)
+                {move || selected_id.get().and_then(|_| selected.get_untracked()).map(|selected_race| match state.tab.get() {
                     RcTab::RaceConfig => EitherOf3::A(view! { <RcRaceConfig state=state selected_race=selected_race/> }),
                     RcTab::Checkin => EitherOf3::B(view! { <RcCheckin state=state/> }),
                     RcTab::FinishLine => EitherOf3::C(view! { <RcFinish state=state/> }),

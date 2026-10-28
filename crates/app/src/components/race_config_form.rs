@@ -26,16 +26,26 @@ pub fn RaceConfigForm(
     let band3 = Signal::derive(move || schedule.with(|s| s.race.orc3_band));
     let band5 = Signal::derive(move || schedule.with(|s| s.race.orc5_band));
     view! {
-        {move || schedule.get().schedule.into_iter().map(|class_schedule| {
-            let cs = class_schedule.clone();
-            let start = class_schedule.start_date;
-            view! {
-                <h6>{class_schedule.race_class.name.clone()}</h6>
-                <RgDiv customizer=Customizer::new().set(Some(RgSpace::M), Some(RgSide::B), Some(RgSz::S3))>
-                    <RgTime label="Start time" date=start listener=move |t: Timestamp| on_class_start.run((cs.clone(), t))/>
-                </RgDiv>
+        // keyed by class, so an edit updates the start fields in place instead of rebuilding
+        // them (a rebuilt input loses focus after every keystroke)
+        <For
+            each=move || schedule.with(|s| s.schedule.iter().map(|cs| (cs.race_class.id, cs.race_class.name.clone())).collect::<Vec<_>>())
+            key=|class| class.clone()
+            children=move |(class_id, name)| {
+                let class_schedule = move || schedule.with(|s| s.schedule.iter().find(|cs| cs.race_class.id == class_id).cloned());
+                let start = Signal::derive(move || class_schedule().map(|cs| cs.start_date).unwrap_or_default());
+                view! {
+                    <h6>{name}</h6>
+                    <RgDiv customizer=Customizer::new().set(Some(RgSpace::M), Some(RgSide::B), Some(RgSz::S3))>
+                        <RgTime label="Start time" date=start listener=move |t: Timestamp| {
+                            if let Some(cs) = schedule.with_untracked(|s| s.schedule.iter().find(|cs| cs.race_class.id == class_id).cloned()) {
+                                on_class_start.run((cs, t));
+                            }
+                        }/>
+                    </RgDiv>
+                }
             }
-        }).collect_view()}
+        />
 
         <RgInput label="PHRF B Factor" value=b_factor listener=move |v: String| on_phrf_b_factor.run(Some(v.parse::<i32>().unwrap_or(0)))/>
 
