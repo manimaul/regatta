@@ -1,0 +1,41 @@
+{
+  "index": 185,
+  "name": "result-create-orc-without-cert",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "raceId": 138,
+        "boatId": 1,
+        "finish": "2026-06-01T19:40:00Z",
+        "phrfRating": null,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "ORC",
+        "finishCode": "TIME"
+      }
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "38",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "An ORC result needs an ORC certificate"
+    }
+  }
+}

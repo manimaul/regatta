@@ -1,0 +1,22 @@
+{
+  "index": 248,
+  "name": "class-delete",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/raceClass?id=41",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

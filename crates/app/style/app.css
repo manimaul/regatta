@@ -408,6 +408,11 @@
         border: 1px solid var(--rg-border-strong);
         border-radius: .25em;
     }
+    /* the forms plugin's checked fill sits in the base layer, which the background above overrides */
+    .rg-checkbox:checked {
+        background-color: currentColor;
+        border-color: transparent;
+    }
     .rg-checkbox:focus, .rg-switch:focus {
         outline: 0;
         box-shadow: 0 0 0 .25rem var(--rg-focus-ring);

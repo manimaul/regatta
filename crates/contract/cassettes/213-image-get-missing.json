@@ -1,0 +1,22 @@
+{
+  "index": 213,
+  "name": "image-get-missing",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/imagenope.png",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

@@ -10,7 +10,7 @@ cargo run -p regatta-contract -- replay --base-url http://localhost:8889 --casse
 cargo run -p regatta-contract -- diff --left http://localhost:8888 --right http://localhost:8889 [--random 200 --seed 42] [--fixed-now ...]
 ```
 
-The committed `cassettes/` (274 steps) were recorded from a server started with
+The committed `cassettes/` (277 steps) were recorded from a server started with
 `REGATTA_FIXED_NOW=2026-10-14T02:10:11Z` against a `postgres:16-bookworm` container holding the
 dump. `cargo xtask contract` replays them against an in-process server
 (`crates/server/tests/contract.rs`).
@@ -55,9 +55,10 @@ In order:
 6. **Mutations** per aggregate (series, class + brackets, person + boat, race + schedule +
    results, image, ORC certificate): create, read back, update, then the error paths: unknown
    JSON key, bad enum name, empty body, wrong `Content-Type`, not-a-list, defaults-only body,
-   `validateRace` / `validateResult` 400 texts, foreign-key 409s (unknown series / class /
-   skipper / boat / certificate on insert; class, bracket, person, boat, series in use on delete),
-   delete-race-with-results 409, duplicate names, unicode names.
+   `validateRace` / `validateResult` / `validate_boat` 400 texts (the boat steps 154-156 were
+   written for the Rust server, not recorded from Kotlin), foreign-key 409s (unknown series /
+   class / skipper / boat / certificate on insert; class, bracket, person, boat, series in use
+   on delete), delete-race-with-results 409, duplicate names, unicode names.
 7. **Image**: multipart with an `image/png` part (a 73-byte PNG built in `src/png.rs`) and a
    `text/plain` part the server ignores; only the text part; no parts; no `raceId`; a non-numeric
    one; an unknown race; not multipart; no token. Then the download: the route is

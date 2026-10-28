@@ -1,0 +1,22 @@
+{
+  "index": 229,
+  "name": "result-delete-dnf",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "DELETE",
+    "url": "/v1/api/results?id=2433",
+    "headers": {
+      "authorization": "Bearer {{token}}"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

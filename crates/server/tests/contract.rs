@@ -45,5 +45,5 @@ async fn contract_cassettes_replay_cleanly() {
         report.is_clean(),
         "contract replay has mismatches:\n{report}"
     );
-    assert_eq!(report.outcomes.len(), 274, "every recorded step ran");
+    assert_eq!(report.outcomes.len(), 277, "every recorded step ran");
 }

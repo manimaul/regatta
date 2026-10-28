@@ -1,0 +1,54 @@
+{
+  "index": 193,
+  "name": "result-create-orc",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "raceId": 138,
+        "boatId": 62,
+        "finish": "2026-06-01T19:45:00Z",
+        "phrfRating": 90,
+        "orcRef": "04560003NFK",
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "ORC_PHRF",
+        "finishCode": "TIME"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "217",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 2432,
+        "raceId": 138,
+        "boatId": 62,
+        "finish": "2026-06-01T19:45:00Z",
+        "phrfRating": 90,
+        "orcRef": "04560003NFK",
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "ORC_PHRF",
+        "finishCode": "TIME"
+      }
+    }
+  }
+}

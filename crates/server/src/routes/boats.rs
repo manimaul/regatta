@@ -1,10 +1,11 @@
 use crate::error::AppResult;
 use crate::extract::{Admin, Json, Params};
-use crate::respond::{empty, json};
+use crate::respond::{empty, json, text};
 use crate::AppState;
 use axum::extract::State;
 use axum::http::StatusCode;
 use regatta_common::Boat;
+use regatta_scoring::validate_boat;
 
 pub async fn all_boats(_admin: Admin, State(state): State<AppState>) -> AppResult {
     Ok(json(&state.db.all_boats().await?))
@@ -27,11 +28,15 @@ pub async fn get_boat(_admin: Admin, State(state): State<AppState>, params: Para
     }
 }
 
+/// `POST boat`: `validate_boat` text as a 400, else the upserted boat.
 pub async fn post_boat(
     _admin: Admin,
     State(state): State<AppState>,
     Json(boat): Json<Boat>,
 ) -> AppResult {
+    if let Some(message) = validate_boat(&boat) {
+        return Ok(text(StatusCode::BAD_REQUEST, &message));
+    }
     match state.db.upsert_boat(&boat).await? {
         Some(saved) => Ok(json(&saved)),
         None => Ok(empty(StatusCode::INTERNAL_SERVER_ERROR)),

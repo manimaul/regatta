@@ -637,7 +637,7 @@ pub fn steps(options: &ScenarioOptions) -> Vec<Step> {
             .admin()
             .capture("boat_id", "/id"),
     );
-    s.push(post("boat-create-unknown-skipper", "boat").json(json!({"id": 0, "name": "Orphan Boat", "sailNumber": "", "boatType": "", "phrfRating": null, "orcCerts": [], "skipperId": 99999, "ratingType": "PHRF", "numberOfRaces": 0, "active": true})).admin());
+    s.push(post("boat-create-unknown-skipper", "boat").json(json!({"id": 0, "name": "Orphan Boat", "sailNumber": "", "boatType": "", "phrfRating": 100, "orcCerts": [], "skipperId": 99999, "ratingType": "PHRF", "numberOfRaces": 0, "active": true})).admin());
     s.push(
         post("boat-create-bad-enum", "boat")
             .json(json!({"id": 0, "name": "Bad Enum Boat", "ratingType": "NOPE"}))
@@ -651,6 +651,21 @@ pub fn steps(options: &ScenarioOptions) -> Vec<Step> {
     s.push(
         post("boat-create-invalid-cert", "boat")
             .json(json!({"id": 0, "name": "Zero Cert Boat", "orcCerts": [{"RefNo": "CONTRACT0"}]}))
+            .admin(),
+    );
+    s.push(
+        post("boat-create-phrf-no-rating", "boat")
+            .json(json!({"id": 0, "name": "Unrated Boat", "ratingType": "PHRF"}))
+            .admin(),
+    );
+    s.push(
+        post("boat-create-orc-no-cert", "boat")
+            .json(json!({"id": 0, "name": "Uncertified Boat", "ratingType": "ORC"}))
+            .admin(),
+    );
+    s.push(
+        post("boat-create-orc-phrf-no-cert", "boat")
+            .json(json!({"id": 0, "name": "Uncertified Boat", "phrfRating": 100, "ratingType": "ORC_PHRF"}))
             .admin(),
     );
     s.push(

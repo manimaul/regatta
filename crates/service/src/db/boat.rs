@@ -1,5 +1,6 @@
 //! = `BoatTable.kt`.
 
+use super::orc_table::InvalidCertificate;
 use super::{enum_from_name, orc_table, race_results};
 use anyhow::{anyhow, Result};
 use regatta_common::{Boat, BoatSkipper, OrcCertificate, Person, RatingType, RATING_DEFAULT};
@@ -106,12 +107,12 @@ pub async fn find_boat_skippers(
         .collect())
 }
 
+/// Upserts the boat row first and then links `orc_certs` to the id it got, so a new boat's
+/// certificates reference it (the `orc.boat_id` foreign key). An invalid certificate fails the
+/// call before anything is written, without taking a boat id from the sequence.
 pub async fn upsert_boat(conn: &mut PgConnection, boat: &Boat) -> Result<Option<Boat>> {
-    if boat.id > 0 {
-        orc_table::unlink_certs(conn, boat.id).await?;
-    }
-    for cert in &boat.orc_certs {
-        orc_table::upsert_cert(conn, boat.id, cert).await?;
+    if !boat.orc_certs.iter().all(orc_table::validate) {
+        return Err(InvalidCertificate.into());
     }
     let set = "name = EXCLUDED.name, sail_number = EXCLUDED.sail_number, boat_type = EXCLUDED.boat_type, \
                phrf_rating = EXCLUDED.phrf_rating, skipper_id = EXCLUDED.skipper_id, active = EXCLUDED.active, \
@@ -149,6 +150,12 @@ pub async fn upsert_boat(conn: &mut PgConnection, boat: &Boat) -> Result<Option<
     };
     match row {
         Some(row) => {
+            if boat.id > 0 {
+                orc_table::unlink_certs(conn, row.id).await?;
+            }
+            for cert in &boat.orc_certs {
+                orc_table::upsert_cert(conn, row.id, cert).await?;
+            }
             let races = race_results::race_count(conn, row.id).await?;
             let certs = orc_table::find_certificates_of_boat(conn, row.id).await?;
             Ok(Some(to_boat(&row, races, certs)?))
