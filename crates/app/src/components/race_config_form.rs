@@ -7,6 +7,7 @@ use crate::cb::Cb;
 use crate::components::rg_dropdown::RgIdDropdown;
 use crate::components::rg_form::{RgInput, RgTime};
 use crate::components::rg_grid::{Customizer, RgDiv, RgSide, RgSpace, RgSz};
+use crate::utils::race_config::{time_limit, time_limit_text};
 use jiff::Timestamp;
 use leptos::either::EitherOf3;
 use leptos::prelude::*;
@@ -34,6 +35,7 @@ pub fn RaceConfigForm(
             children=move |(class_id, name)| {
                 let class_schedule = move || schedule.with(|s| s.schedule.iter().find(|cs| cs.race_class.id == class_id).cloned());
                 let start = Signal::derive(move || class_schedule().map(|cs| cs.start_date).unwrap_or_default());
+                let limit = move || class_schedule().as_ref().and_then(time_limit).map(|l| format!("{} time limit", time_limit_text(l)));
                 view! {
                     <h6>{name}</h6>
                     <RgDiv customizer=Customizer::new().set(Some(RgSpace::M), Some(RgSide::B), Some(RgSz::S3))>
@@ -42,6 +44,7 @@ pub fn RaceConfigForm(
                                 on_class_start.run((cs, t));
                             }
                         }/>
+                        {move || limit().map(|text| view! { <p>{text}</p> })}
                     </RgDiv>
                 }
             }
