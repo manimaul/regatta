@@ -293,7 +293,7 @@ real server code against it. This covers everything the pure-function tests can'
   - leaves everything else untouched. **Person names stay.**
 - The output is committed as `server/src/jvmTest/resources/golden/regatta-2026-10-13-v5.sql` (the same
   2026-10-13 snapshot, re-dumped after the Kotlin server migrated it to schema version 5 so the Rust
-  port, which only loads version 5, can use it; see `docs/explore_unimplemented/rust_port.md` Phase 0).
+  port, which only loads version 5, can use it; see `docs/explore_implemented/rust_port.md` Phase 0).
   The date in the file name is the dump date, and the tests use it as `now` (see below).
 - **`database/.gitignore` ignores `*.py`, `*.json` and `*.sql`.** Without a change, both scripts
   in this section would be silently untracked. Add `!scrub_dump.py` and `!audit_scoring.py` to it

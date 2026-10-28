@@ -3,7 +3,7 @@
 //! adapter over `regatta-service`; statuses, bodies and headers reproduce the Kotlin server's as
 //! recorded in `crates/contract/cassettes`), the Leptos server functions under `/api`, and the
 //! server-rendered UI (`regatta_app`) with the site files under the fallback. See "Quirks to
-//! reproduce" and Phase 4 in `docs/explore_unimplemented/rust_port.md`.
+//! reproduce" and Phase 4 in `docs/explore_implemented/rust_port.md`.
 
 /// Stack size of the threads that render pages. Rendering a large screen (the Classes editor) in
 /// a debug build nests far deeper than the 2 MiB a tokio worker gets by default and aborts the

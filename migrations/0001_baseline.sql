@@ -11,7 +11,7 @@
 -- CREATE SEQUENCE, sequence ownership, column default, constraint, index and foreign key is kept
 -- verbatim. The only addition is the metadata row at the end: a fresh Kotlin install writes
 -- currentDbVersion + 10 (15); the Rust server treats a fresh install as version 5 (D6 in
--- docs/explore_unimplemented/rust_port.md), and only version 5 (or 15) is served.
+-- docs/explore_implemented/rust_port.md), and only version 5 (or 15) is served.
 --
 -- The orphan `checkin` table that older production databases carried is not here: the Kotlin
 -- 4 -> 5 migration drops it and it is not in the `tables` array. The Rust server applies this file

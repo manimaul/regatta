@@ -4,7 +4,7 @@
 //! in [`db`]), the report and standings wrappers over `regatta-scoring` ([`reporter`]), the
 //! auth tokens ([`auth`]) and the ORC client ([`orc`]). The axum REST handlers and, in Phase 4,
 //! the Leptos server functions are thin adapters over this crate.
-//! See `docs/explore_unimplemented/rust_port.md`, Phase 3.
+//! See `docs/explore_implemented/rust_port.md`, Phase 3.
 
 pub mod auth;
 pub mod config;

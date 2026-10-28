@@ -1,51 +1,17 @@
-**/VersionInfo.kt
-
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 example.py
 examples.sh
-.kotlin/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
 
 ### VS Code ###
 .vscode/
 
-local.properties
-kotlin-js-store/yarn.lock
-
-# golden test output written on a mismatch (server/src/jvmTest/resources/golden/approved)
+# golden test output written on a mismatch (crates/scoring/tests/golden/approved)
 *.received.json
-
 
 # Rust workspace
 target/

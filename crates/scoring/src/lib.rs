@@ -1,6 +1,6 @@
 //! regatta-scoring: the pure race and series scoring of the Rust port (= the Kotlin
 //! `RaceResultReporter`, `RaceValidation` and `ResultValidation`; D8 in
-//! `docs/explore_unimplemented/rust_port.md`).
+//! `docs/explore_implemented/rust_port.md`).
 //!
 //! Everything here is a function of its arguments: [`card`] builds a result's report card from
 //! its record, class start, race configuration and ORC certificate; [`report`] places the cards

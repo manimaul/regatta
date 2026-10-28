@@ -1,4 +1,4 @@
-//! Startup (D6 in `docs/explore_unimplemented/rust_port.md`): connect, apply the baseline schema
+//! Startup (D6 in `docs/explore_implemented/rust_port.md`): connect, apply the baseline schema
 //! to an empty database, and refuse any schema version other than 5 (or 15, what a fresh Kotlin
 //! install writes). Nothing is ever altered or upgraded here.
 
