@@ -1,0 +1,23 @@
+{
+  "index": 199,
+  "name": "result-count-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/resultCount?raceId=138",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "1",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": 4
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "index": 190,
+  "name": "result-create-bad-instant",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "raceId": 138,
+        "boatId": 1,
+        "finish": "yesterday",
+        "phrfRating": 100,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "PHRF",
+        "finishCode": "TIME"
+      }
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-length": "21",
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "body": {
+      "text": "Internal server error"
+    }
+  }
+}

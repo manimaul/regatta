@@ -1,0 +1,32 @@
+{
+  "index": 207,
+  "name": "image-upload-no-race-id",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/image",
+    "headers": {
+      "content-type": "multipart/form-data; boundary=----regatta-contract-boundary",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "multipart": [
+        {
+          "name": "image",
+          "filename": "contract.png",
+          "content_type": "image/png",
+          "base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR4AQEFAPr/AP8AAP8FAAH/+lyI0QAAAABJRU5ErkJggg=="
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-length": "0"
+    },
+    "body": null
+  }
+}

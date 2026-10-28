@@ -1,0 +1,48 @@
+{
+  "index": 167,
+  "name": "race-create-single-number-any-band",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/race",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "name": "Contract Single Number",
+        "seriesId": 20,
+        "rcId": null,
+        "reportImage": null,
+        "phrfBFactor": 480,
+        "orcScoringOption": "SingleNumberAllPurpose",
+        "orc3Band": "Low",
+        "orc5Band": "Low"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "183",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 139,
+        "name": "Contract Single Number",
+        "seriesId": 20,
+        "rcId": null,
+        "reportImage": null,
+        "phrfBFactor": 480,
+        "orcScoringOption": "SingleNumberAllPurpose",
+        "orc3Band": "Low",
+        "orc5Band": "Low"
+      }
+    }
+  }
+}

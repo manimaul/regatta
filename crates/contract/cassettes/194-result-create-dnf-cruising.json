@@ -1,0 +1,54 @@
+{
+  "index": 194,
+  "name": "result-create-dnf-cruising",
+  "auth": "admin",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "POST",
+    "url": "/v1/api/results",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer {{token}}"
+    },
+    "body": {
+      "json": {
+        "id": 0,
+        "raceId": 138,
+        "boatId": 6,
+        "finish": null,
+        "phrfRating": null,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "CruisingNonFlyingSails",
+        "finishCode": "DNF"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "204",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 2433,
+        "raceId": 138,
+        "boatId": 6,
+        "finish": null,
+        "phrfRating": null,
+        "orcRef": null,
+        "hocPosition": null,
+        "bracketId": 73,
+        "raceClassId": 41,
+        "penalty": null,
+        "ratingType": "CruisingNonFlyingSails",
+        "finishCode": "DNF"
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "index": 218,
+  "name": "race-schedule-with-image",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/raceSchedule?id=1",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "1694",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "race": {
+          "id": 1,
+          "name": "Harbor Series #1",
+          "seriesId": 1,
+          "rcId": 31,
+          "reportImage": "contract.png",
+          "phrfBFactor": 600,
+          "orcScoringOption": "FiveBandWindwardLeeward",
+          "orc3Band": "Low",
+          "orc5Band": "LowMedium"
+        },
+        "resultCount": 8,
+        "series": {
+          "id": 1,
+          "name": "Harbor Series",
+          "sort": 0,
+          "raceCount": 9,
+          "active": true
+        },
+        "rc": {
+          "id": 31,
+          "first": "Danny",
+          "last": "Kenck",
+          "clubMember": true,
+          "active": true
+        },
+        "schedule": [
+          {
+            "raceClass": {
+              "id": 1,
+              "name": "Fast (72-)",
+              "sort": 2,
+              "ratingType": "ORC_PHRF",
+              "numberOfRaces": 81,
+              "active": true
+            },
+            "brackets": [
+              {
+                "id": 16,
+                "name": "I/II",
+                "description": "Rating 10 to 72",
+                "active": true,
+                "numberOfRaces": 17,
+                "minRating": 10.0,
+                "maxRating": 72.0,
+                "classId": 1
+              }
+            ],
+            "startDate": "2024-01-20T18:00:00Z",
+            "endDate": "2024-01-21T00:00:00Z"
+          },
+          {
+            "raceClass": {
+              "id": 2,
+              "name": "Half Fast (73+)",
+              "sort": 3,
+              "ratingType": "ORC_PHRF",
+              "numberOfRaces": 81,
+              "active": true
+            },
+            "brackets": [
+              {
+                "id": 17,
+                "name": "III/IV",
+                "description": null,
+                "active": true,
+                "numberOfRaces": 17,
+                "minRating": 73.0,
+                "maxRating": 200.0,
+                "classId": 2
+              }
+            ],
+            "startDate": "2024-01-20T18:00:00Z",
+            "endDate": "2024-01-21T00:00:00Z"
+          },
+          {
+            "raceClass": {
+              "id": 4,
+              "name": "Windseekers FS",
+              "sort": 6,
+              "ratingType": "CruisingFlyingSails",
+              "numberOfRaces": 99,
+              "active": true
+            },
+            "brackets": [
+              {
+                "id": 19,
+                "name": "All",
+                "description": null,
+                "active": true,
+                "numberOfRaces": 99,
+                "minRating": -1000.0,
+                "maxRating": 1000.0,
+                "classId": 4
+              }
+            ],
+            "startDate": "2024-01-20T18:00:00Z",
+            "endDate": "2024-01-21T00:00:00Z"
+          },
+          {
+            "raceClass": {
+              "id": 3,
+              "name": "Windseekers NFS",
+              "sort": 7,
+              "ratingType": "CruisingNonFlyingSails",
+              "numberOfRaces": 99,
+              "active": true
+            },
+            "brackets": [
+              {
+                "id": 18,
+                "name": "All",
+                "description": null,
+                "active": true,
+                "numberOfRaces": 99,
+                "minRating": -1000.0,
+                "maxRating": 1000.0,
+                "classId": 3
+              }
+            ],
+            "startDate": "2024-01-20T18:00:00Z",
+            "endDate": "2024-01-21T00:00:00Z"
+          }
+        ]
+      }
+    }
+  }
+}

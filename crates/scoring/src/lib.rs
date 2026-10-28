@@ -34,4 +34,4 @@ pub use reporter::{
     assign_places, boat_corrected_time, card, class_card, effective_race_class, group_scores,
     orc_tcf, phrf_tcf, report, round_to_tenth, standings, tie_breaker, GroupScores, OrcTcfError,
 };
-pub use validation::{validate_race, validate_result};
+pub use validation::{validate_boat, validate_race, validate_result};

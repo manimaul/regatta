@@ -1,7 +1,7 @@
-//! = `RaceValidation.kt` and `ResultValidation.kt`. The messages are what the clients show,
+//! = `RaceValidation.kt` and `ResultValidation.kt`, plus the boat check. The messages are what the clients show,
 //! verbatim.
 
-use regatta_common::{Orc3Band, Orc5Band, Race, RaceResult};
+use regatta_common::{Boat, Orc3Band, Orc5Band, Race, RaceResult};
 
 /// Checks a race before it is saved. Returns an error message for the client, or null when the
 /// race is acceptable. R4a (orc_series_standings.md): the ORC wind band the scoring option uses
@@ -48,6 +48,25 @@ pub fn validate_result(result: &RaceResult) -> Option<String> {
         return Some(format!(
             "An {} result needs an ORC certificate",
             result.rating_type.label()
+        ));
+    }
+    None
+}
+
+/// Checks a boat before it is saved. Returns an error message for the client, or null when the
+/// boat is acceptable. The same rule as [`validate_result`]: a PHRF or ORC/PHRF boat needs a PHRF
+/// rating, an ORC or ORC/PHRF boat needs an ORC certificate, or its results could not be scored.
+pub fn validate_boat(boat: &Boat) -> Option<String> {
+    if boat.rating_type.is_phrf() && boat.phrf_rating.is_none() {
+        return Some(format!(
+            "A {} boat needs a PHRF rating",
+            boat.rating_type.label()
+        ));
+    }
+    if boat.rating_type.is_orc() && boat.orc_certs.is_empty() {
+        return Some(format!(
+            "An {} boat needs an ORC certificate",
+            boat.rating_type.label()
         ));
     }
     None

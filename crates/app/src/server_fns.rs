@@ -459,10 +459,14 @@ pub async fn all_boats() -> Result<Vec<BoatSkipper>, ServerFnError> {
     db.all_boats().await.map_err(ssr::internal)
 }
 
+/// `POST boat`: the `validate_boat` message as the error text, else the upserted boat.
 #[server(name = PostBoatCall, prefix = "/api", endpoint = "post_boat", input = Json)]
 pub async fn post_boat(boat: Boat) -> Result<Boat, ServerFnError> {
     let db = ssr::db()?;
     ssr::require_admin(&db).await?;
+    if let Some(message) = regatta_scoring::validate_boat(&boat) {
+        return Err(ServerFnError::ServerError(message));
+    }
     db.upsert_boat(&boat)
         .await
         .map_err(ssr::internal)?

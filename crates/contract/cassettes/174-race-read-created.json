@@ -1,0 +1,33 @@
+{
+  "index": 174,
+  "name": "race-read-created",
+  "auth": "none",
+  "compare": "full",
+  "volatile": [],
+  "request": {
+    "method": "GET",
+    "url": "/v1/api/race?id=138",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "181",
+      "content-type": "application/json"
+    },
+    "body": {
+      "json": {
+        "id": 138,
+        "name": "Contract Race",
+        "seriesId": 20,
+        "rcId": null,
+        "reportImage": null,
+        "phrfBFactor": 600,
+        "orcScoringOption": "FiveBandWindwardLeeward",
+        "orc3Band": "Low",
+        "orc5Band": "LowMedium"
+      }
+    }
+  }
+}

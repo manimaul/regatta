@@ -17,7 +17,7 @@
         "name": "Orphan Boat",
         "sailNumber": "",
         "boatType": "",
-        "phrfRating": null,
+        "phrfRating": 100,
         "orcCerts": [],
         "skipperId": 99999,
         "ratingType": "PHRF",
