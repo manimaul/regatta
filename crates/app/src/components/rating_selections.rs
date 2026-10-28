@@ -27,10 +27,12 @@ pub fn RatingSelectionsBoat(
     #[prop(into)] boat: Signal<Boat>,
     #[prop(optional, into)] on_orc: Option<Cb<(Action, OrcCertificate)>>,
     #[prop(into)] type_change: Cb<(RatingType, i32)>,
+    /// The PHRF box was emptied.
+    #[prop(optional, into)]
+    phrf_clear: Option<Cb<()>>,
 ) -> impl IntoView {
     let boat_type = Signal::derive(move || boat.with(|b| b.rating_type));
-    let phrf_rating =
-        Signal::derive(move || Some(boat.with(|b| b.phrf_rating.unwrap_or(RATING_DEFAULT))));
+    let phrf_rating = Signal::derive(move || boat.with(|b| b.phrf_rating));
     let orc_certificate = Signal::derive(move || {
         if select_mode {
             boat.with(|b| find_preferred(&b.orc_certs).cloned())
@@ -48,6 +50,7 @@ pub fn RatingSelectionsBoat(
             certs=certs
             on_orc=on_orc.unwrap_or_else(|| Cb::new(|_: (Action, OrcCertificate)| {}))
             type_change=type_change
+            phrf_clear=phrf_clear.unwrap_or_else(|| Cb::new(|()| {}))
         />
     }
 }
@@ -63,6 +66,9 @@ pub fn RatingSelections(
     #[prop(optional, into)] certs: Signal<Vec<OrcCertificate>>,
     #[prop(optional, into)] on_orc: Option<Cb<(Action, OrcCertificate)>>,
     #[prop(into)] type_change: Cb<(RatingType, i32)>,
+    /// The PHRF box was emptied; without it an empty box keeps the last rating.
+    #[prop(optional, into)]
+    phrf_clear: Option<Cb<()>>,
 ) -> impl IntoView {
     let orc = Cb::new(move |(action, cert): (Action, OrcCertificate)| {
         if let Some(cb) = &on_orc {
@@ -85,7 +91,7 @@ pub fn RatingSelections(
     let phrf_input = move || {
         view! {
             <p>
-                <RgNumberInput label="PHRF Rating" value=phrf_value listener=move |n: f64| type_change.run((boat_type.get_untracked(), n as i32))/>
+                <RgNumberInput label="PHRF Rating" value=phrf_value listener=move |n: f64| type_change.run((boat_type.get_untracked(), n as i32)) on_clear=phrf_clear.unwrap_or_else(|| Cb::new(|()| {}))/>
             </p>
         }
     };

@@ -19,16 +19,28 @@ pub const ADD_EDIT_BOAT_MODAL_ID: &str = "add-edit-boat";
 pub struct AddEditBoatState {
     pub add_boat: RwSignal<Boat>,
     pub add_skipper: RwSignal<Option<Person>>,
+    /// Why the draft cannot be saved: a blank name, or what its rating type is missing.
+    pub invalid: Signal<Option<String>>,
     pub is_valid: Signal<bool>,
 }
 
 impl AddEditBoatState {
     pub fn new() -> AddEditBoatState {
         let add_boat = RwSignal::new(Boat::default());
+        let invalid = Signal::derive(move || {
+            add_boat.with(|b| {
+                if b.name.trim().is_empty() {
+                    Some("A boat needs a name".to_string())
+                } else {
+                    b.missing_rating()
+                }
+            })
+        });
         AddEditBoatState {
             add_boat,
             add_skipper: RwSignal::new(None),
-            is_valid: Signal::derive(move || add_boat.with(|b| !b.name.trim().is_empty())),
+            invalid,
+            is_valid: Signal::derive(move || invalid.with(Option::is_none)),
         }
     }
 
@@ -68,6 +80,10 @@ impl AddEditBoatState {
                 None
             };
         });
+    }
+
+    pub fn clear_phrf_rating(&self) {
+        self.add_boat.update(|b| b.phrf_rating = None);
     }
 
     pub fn add_orc_certificate(&self, cert: OrcCertificate) {
@@ -143,7 +159,7 @@ pub fn AddEditBoatModal(
                     <div class="mb-4"><RgSkipperDropdown people=people person=state.add_skipper handler={move |p: Option<Person>| state.set_skipper(p)}/></div>
                     <p><RgInput label="Sail Number" value=sail place_holder=true listener=move |v: String| state.set_sail_number(v)/></p>
                     <p><RgInput label="Boat Type" value=boat_type place_holder=true listener=move |v: String| state.set_boat_type(v)/></p>
-                    <p>
+                    <div class="mb-4">
                         <RatingSelectionsBoat
                             boat=state.add_boat
                             on_orc=move |(a, cert): (Action, OrcCertificate)| match a {
@@ -151,8 +167,10 @@ pub fn AddEditBoatModal(
                                 Action::Delete => state.delete_orc_certificate(cert),
                             }
                             type_change=move |(t, r): (RatingType, i32)| state.set_rating_type(t, r)
+                            phrf_clear=move |()| state.clear_phrf_rating()
                         />
-                    </p>
+                    </div>
+                    {move || state.invalid.get().map(|message| view! { <p class="text-danger-fg">{message}</p> })}
                 </fieldset>
             </RgForm>
         </RgModalBody>

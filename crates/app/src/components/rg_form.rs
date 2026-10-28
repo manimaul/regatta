@@ -50,6 +50,9 @@ pub fn RgNumberInput(
     #[prop(optional, into)] custom_classes: super::Cls,
     #[prop(optional)] number_type: NumberType,
     #[prop(into)] listener: Cb<f64>,
+    /// Runs when the box is emptied; without it an empty box keeps the last number.
+    #[prop(optional, into)]
+    on_clear: Option<Cb<()>>,
 ) -> impl IntoView {
     let locked = RwSignal::new(false);
     let r_number = RwSignal::new(String::new());
@@ -85,6 +88,8 @@ pub fn RgNumberInput(
                     if let Some(n) = number_type.parse(&text) {
                         listener.run(n);
                     }
+                } else if let Some(clear) = &on_clear {
+                    clear.run(());
                 }
             }
         />

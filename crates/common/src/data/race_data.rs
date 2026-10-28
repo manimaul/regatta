@@ -431,6 +431,24 @@ impl Boat {
             .min()
             .map(|v| format!("~{v}"))
     }
+
+    /// What the boat's rating type is missing: a PHRF or ORC/PHRF boat needs a PHRF rating, an
+    /// ORC or ORC/PHRF boat needs an ORC certificate. `None` when it has both it needs.
+    pub fn missing_rating(&self) -> Option<String> {
+        if self.rating_type.is_phrf() && self.phrf_rating.is_none() {
+            return Some(format!(
+                "A {} boat needs a PHRF rating",
+                self.rating_type.label()
+            ));
+        }
+        if self.rating_type.is_orc() && self.orc_certs.is_empty() {
+            return Some(format!(
+                "An {} boat needs an ORC certificate",
+                self.rating_type.label()
+            ));
+        }
+        None
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
