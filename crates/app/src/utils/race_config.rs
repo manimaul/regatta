@@ -3,7 +3,7 @@
 //! `tests/race_config_test.rs`. The PHRF B factor is the authority on the wind: the ORC bands
 //! always follow it, and choosing a band sets the B factor.
 
-use jiff::Timestamp;
+use jiff::{SignedDuration, Timestamp};
 use regatta_common::{
     ClassSchedule, Orc3Band, Orc5Band, OrcScoringOption, RaceSchedule, CORRECTION_FACTOR_DEFAULT,
 };
@@ -50,7 +50,21 @@ pub fn with_orc_option(
     out
 }
 
-/// Moves one class's start; the other classes are untouched.
+/// The class's time limit: its end less its start, when both are set and the end is later.
+pub fn time_limit(class_schedule: &ClassSchedule) -> Option<SignedDuration> {
+    let start = class_schedule.race_start()?;
+    let end = class_schedule.race_end()?;
+    (end > start).then(|| end.duration_since(start))
+}
+
+/// A time limit as `H:MM`.
+pub fn time_limit_text(limit: SignedDuration) -> String {
+    let minutes = limit.as_secs() / 60;
+    format!("{}:{:02}", minutes / 60, minutes % 60)
+}
+
+/// Moves one class's start and keeps its time limit fixed by moving the end with it; the other
+/// classes are untouched. A class without a time limit keeps its end.
 pub fn with_class_start(
     schedule: &RaceSchedule,
     class_schedule: &ClassSchedule,
@@ -59,6 +73,9 @@ pub fn with_class_start(
     let mut out = schedule.clone();
     for cs in &mut out.schedule {
         if cs.race_class.id == class_schedule.race_class.id {
+            if let Some(end) = time_limit(cs).and_then(|limit| start.checked_add(limit).ok()) {
+                cs.end_date = end;
+            }
             cs.start_date = start;
         }
     }
