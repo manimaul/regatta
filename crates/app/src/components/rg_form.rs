@@ -249,13 +249,7 @@ pub fn RgTime(
         {show_date.then(|| view! {
             <div style=max_width class="rg-input-group rg-input-group-sm">
                 {date_label.map(|l| view! { <span class="rg-input-addon">{l}</span> })}
-                <input
-                    type="date"
-                    class="rg-input"
-                    value=move || input_str(&local.get())
-                    prop:value=move || input_str(&local.get())
-                    on:input=move |ev| { report(with_input_date(local.get_untracked(), &event_target_value(&ev))); }
-                />
+                <DateField value=Signal::derive(move || input_str(&local.get())) on_edit=move |v: String| report(with_input_date(local.get_untracked(), &v))/>
             </div>
         })}
         <div style=max_width class="rg-input-group rg-input-group-sm">
@@ -302,6 +296,42 @@ fn TimeField(
                 }
             }
             on:blur=move |_| restore()
+        />
+    }
+}
+
+/// The date field of [`RgTime`]. The browser keeps the day, month and year typed so far in the
+/// field itself, so the value is written back only when it differs from what the field holds
+/// (writing it resets that typing). A year under 1000 is a year still being typed and is not
+/// reported; the field shows the current value again when it loses focus.
+#[component]
+fn DateField(
+    #[prop(into)] value: Signal<String>,
+    on_edit: impl Fn(String) -> bool + 'static,
+) -> impl IntoView {
+    let input: NodeRef<leptos::html::Input> = NodeRef::new();
+    let restore = move |v: &str| {
+        if let Some(el) = input.get_untracked() {
+            if el.value() != v {
+                el.set_value(v);
+            }
+        }
+    };
+    Effect::new(move |_| restore(&value.get()));
+    view! {
+        <input
+            node_ref=input
+            type="date"
+            class="rg-input"
+            value=move || value.get()
+            on:input=move |ev| {
+                let typed = event_target_value(&ev);
+                let full_year = typed.split('-').next().and_then(|y| y.parse::<i32>().ok()).is_some_and(|y| y >= 1000);
+                if full_year {
+                    on_edit(typed);
+                }
+            }
+            on:blur=move |_| restore(&value.get_untracked())
         />
     }
 }
