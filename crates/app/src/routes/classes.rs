@@ -57,6 +57,16 @@ impl ClassesState {
         self.edit_class.set(class);
     }
 
+    /// A not rated type opens every bracket's rating range.
+    pub fn set_rating_type(&self, rating_type: RatingType) {
+        self.edit_class.update(|c| {
+            c.race_class.rating_type = rating_type;
+            if rating_type.is_cruising() {
+                open_ranges(&mut c.brackets);
+            }
+        });
+    }
+
     pub fn add_bracket(&self) {
         self.edit_class
             .update(|c| c.brackets.push(Bracket::default()));
@@ -78,15 +88,25 @@ impl ClassesState {
         });
     }
 
-    /// `isUpsertClassBracketsValid`: a name, at least one bracket, every bracket named.
+    /// `isUpsertClassBracketsValid`: a name, at least one bracket, every bracket named and, in a
+    /// rated class, its max rating above its min rating.
     pub fn is_upsert_class_brackets_valid(&self, class: &RaceClassBrackets) -> bool {
+        let rating_type = class.race_class.rating_type;
         !class.race_class.name.trim().is_empty()
             && !class.brackets.is_empty()
-            && class.brackets.iter().all(|b| !b.name.trim().is_empty())
+            && class
+                .brackets
+                .iter()
+                .all(|b| !b.name.trim().is_empty() && is_range_valid(rating_type, b))
     }
 
-    /// `upsertClassBrackets`: a new class takes the next sort value; the editor resets; then reload.
-    pub fn upsert_class_brackets(&self, class: RaceClassBrackets) {
+    /// `upsertClassBrackets`: a new class takes the next sort value; the brackets of an editable
+    /// not rated class get the open rating range (the editor hides it); the editor resets; then
+    /// reload.
+    pub fn upsert_class_brackets(&self, mut class: RaceClassBrackets) {
+        if class.race_class.rating_type.is_cruising() && class.race_class.number_of_races == 0 {
+            open_ranges(&mut class.brackets);
+        }
         let class = if class.race_class.id == 0 {
             RaceClassBrackets {
                 race_class: RaceClass {
@@ -134,6 +154,20 @@ impl ClassesState {
             list.after(r.map(drop))
         });
     }
+}
+
+/// The open range, -1000 to 1000, that every rating falls in.
+fn open_ranges(brackets: &mut [Bracket]) {
+    let open = Bracket::default();
+    for b in brackets {
+        b.min_rating = open.min_rating;
+        b.max_rating = open.max_rating;
+    }
+}
+
+/// A not rated class's range is hidden and opened on save, so only a rated one is checked.
+fn is_range_valid(rating_type: RatingType, bracket: &Bracket) -> bool {
+    rating_type.is_cruising() || bracket.max_rating > bracket.min_rating
 }
 
 impl Default for ClassesState {
@@ -246,7 +280,7 @@ pub fn AddEditClassModal(state: ClassesState) -> impl IntoView {
     };
     let name = Signal::derive(move || edit.with(|c| c.race_class.name.clone()));
     let rating = Signal::derive(move || edit.with(|c| c.race_class.rating_type));
-    let fresh = move || edit.with(|c| c.race_class.number_of_races == 0);
+    let fresh = Memo::new(move |_| edit.with(|c| c.race_class.number_of_races == 0));
     view! {
         <RgModalBody
             id=ADD_EDIT_CLASS_MODAL_ID
@@ -267,13 +301,13 @@ pub fn AddEditClassModal(state: ClassesState) -> impl IntoView {
                 <fieldset>
                     <p><RgInput label="Name" value=name place_holder=true listener=move |v: String| edit.update(|c| c.race_class.name = v)/></p>
                     <div class="mb-4">
-                        {move || if fresh() {
+                        {move || if fresh.get() {
                             Either::Left(view! {
                                 <RgDropdown
                                     items=RatingType::ENTRIES.to_vec()
                                     selected_item=rating
                                     name=|t: &RatingType| t.label().to_string()
-                                    handler=move |t: RatingType| edit.update(|c| c.race_class.rating_type = t)
+                                    handler=move |t: RatingType| state.set_rating_type(t)
                                 />
                             })
                         } else {
@@ -282,15 +316,21 @@ pub fn AddEditClassModal(state: ClassesState) -> impl IntoView {
                     </div>
                     <h6>"Brackets"</h6>
                     <hr/>
-                    {move || edit.get().brackets.into_iter().enumerate().map(|(i, bracket)| view! {
-                        {if fresh() {
-                            Either::Left(view! { <div class="mb-4"><EditBracket index=i state=state/></div> })
-                        } else {
-                            Either::Right(view! { <p><ViewBracket bracket=bracket/></p> })
-                        }}
-                        <hr/>
-                    }).collect_view()}
-                    {move || fresh().then(|| view! {
+                    // keyed by class, editability and index, so typing doesn't rebuild the inputs
+                    <For
+                        each=move || edit.with(|c| (0..c.brackets.len()).map(|i| (c.race_class.id, fresh.get(), i)).collect::<Vec<_>>())
+                        key=|k| *k
+                        children=move |(_, editable, i)| view! {
+                            {if editable {
+                                Either::Left(view! { <div class="mb-4"><EditBracket index=i state=state/></div> })
+                            } else {
+                                let bracket = edit.with_untracked(|c| c.brackets.get(i).cloned().unwrap_or_default());
+                                Either::Right(view! { <div class="mb-4"><ViewBracket bracket=bracket/></div> })
+                            }}
+                            <hr/>
+                        }
+                    />
+                    {move || fresh.get().then(|| view! {
                         <p><RgButton label="+" click=move |()| state.add_bracket()/></p>
                     })}
                 </fieldset>
@@ -316,6 +356,11 @@ pub fn EditBracket(index: usize, state: ClassesState) -> impl IntoView {
         Signal::derive(move || bracket.with(|b| b.description.clone().unwrap_or_default()));
     let min_rating = Signal::derive(move || Some(f64::from(bracket.with(|b| b.min_rating))));
     let max_rating = Signal::derive(move || Some(f64::from(bracket.with(|b| b.max_rating))));
+    let rated = Memo::new(move |_| {
+        !state
+            .edit_class
+            .with(|c| c.race_class.rating_type.is_cruising())
+    });
     let update = move |f: &dyn Fn(&mut Bracket)| {
         let mut b = bracket.get_untracked();
         f(&mut b);
@@ -329,9 +374,14 @@ pub fn EditBracket(index: usize, state: ClassesState) -> impl IntoView {
         <div>
             <RgInput label="Bracket Description" value=description custom_classes=app_style::MARGIN_BOT listener=move |v: String| update(&|b| b.description = Some(v.clone()))/>
         </div>
-        <div class="flex-auto flex justify-between">
-            <RgNumberInput label="Min Rating" value=min_rating number_type=NumberType::NumberInt listener=move |n: f64| update(&|b| b.min_rating = n as f32)/>
-            <RgNumberInput label="Max Rating" value=max_rating number_type=NumberType::NumberInt listener=move |n: f64| update(&|b| b.max_rating = n as f32)/>
-        </div>
+        {move || rated.get().then(|| view! {
+            <div class="flex-auto flex justify-between">
+                <RgNumberInput label="Min Rating" value=min_rating number_type=NumberType::NumberInt listener=move |n: f64| update(&|b| b.min_rating = n as f32)/>
+                <RgNumberInput label="Max Rating" value=max_rating number_type=NumberType::NumberInt listener=move |n: f64| update(&|b| b.max_rating = n as f32)/>
+            </div>
+        })}
+        {move || (!state.edit_class.with(|c| bracket.with(|b| is_range_valid(c.race_class.rating_type, b)))).then(|| view! {
+            <p class="text-danger-fg">"Max rating must be greater than min rating"</p>
+        })}
     }
 }
