@@ -285,6 +285,20 @@ pub mod kotlin_duration {
     }
 }
 
+/// `#[serde(default, deserialize_with = "non_null::deserialize")]` for an `Option<T>` that stands
+/// in for a non-nullable Kotlin property with a computed default: a missing key keeps the
+/// container's `None` (the Kotlin default applies), an explicit `null` is an error, as kotlinx
+/// rejects `null` for a non-nullable type.
+pub mod non_null {
+    use super::*;
+
+    pub fn deserialize<'de, D: Deserializer<'de>, T: Deserialize<'de>>(
+        d: D,
+    ) -> Result<Option<T>, D::Error> {
+        T::deserialize(d).map(Some)
+    }
+}
+
 /// A `Timestamp` newtype that serializes like a Kotlin `Instant`, for places that need a
 /// `Serialize`/`Deserialize` value rather than a field attribute.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
