@@ -50,7 +50,8 @@ pub const SORTABLE_JS: &str = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/So
 
 /// Reads the `theme` cookie of the current request, when leptos_axum put the request parts in context.
 ///
-/// Returns `None` on the client and in tests.
+/// In the browser it reads `document.cookie`, so hydration starts from the same theme the server rendered.
+/// Returns `None` in native tests.
 pub fn theme_from_cookie() -> Option<Theme> {
     #[cfg(feature = "ssr")]
     {
@@ -64,15 +65,16 @@ pub fn theme_from_cookie() -> Option<Theme> {
     }
     #[cfg(not(feature = "ssr"))]
     {
-        None
+        state::theme::theme_from_cookie_header(&utils::browser::cookies())
     }
 }
 
-/// Returns the theme the page starts in.
+/// Returns the theme the page renders and hydrates in: the `theme` cookie, light otherwise.
 ///
-/// That is the request cookie on the server, the applied attribute or saved choice in the browser, light otherwise.
+/// Server and browser must agree on it, or hydration panics on the toggle's icon. A saved choice that differs (a
+/// `localStorage` value without the cookie) is applied after hydration by [`state::theme::provide_theme`].
 pub fn initial_theme() -> Theme {
-    theme_from_cookie().unwrap_or_else(state::theme::initial_theme)
+    theme_from_cookie().unwrap_or_default()
 }
 
 /// Returns the path of the Tailwind stylesheet, `/pkg/regatta.<hash>.css` when file hashing is on.

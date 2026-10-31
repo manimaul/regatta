@@ -69,10 +69,20 @@ pub fn theme_from_cookie_header(header: &str) -> Option<Theme> {
 #[derive(Debug, Clone, Copy)]
 pub struct ThemeState(pub RwSignal<Theme>);
 
+/// Provides the theme signal, starting at `initial` (what the server rendered).
+///
+/// When the browser's saved choice differs (the inline theme script already applied `localStorage` to
+/// `data-theme`), the signal switches to it in an effect, i.e. after hydration, so the hydrated markup still matches
+/// the server's; switching also writes the cookie so the next server render agrees.
 pub fn provide_theme(initial: Theme) -> ThemeState {
     let state = ThemeState(RwSignal::new(initial));
     provide_context(state);
-    apply(initial);
+    let saved = initial_theme();
+    if cfg!(feature = "hydrate") && saved != initial {
+        Effect::new(move |_| state.set_theme(saved));
+    } else {
+        apply(initial);
+    }
     state
 }
 
