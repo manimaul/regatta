@@ -108,6 +108,9 @@ reload-port = 3001
 # only tailwind-input-file: with style-file set to the same file, the raw CSS replaced the Tailwind output
 tailwind-input-file = "crates/app/style/app.css"
 assets-dir = "crates/app/public"
+# content hashes in the js/wasm/css names (hash.txt beside the binary): a new deploy never pairs fresh HTML with a
+# stale cached bundle, and the hashed files can be cached forever (crates/server/src/fallback.rs)
+hash-files = true
 bin-features = ["ssr"]
 bin-default-features = false
 lib-features = ["hydrate"]

@@ -75,6 +75,36 @@ pub fn initial_theme() -> Theme {
     theme_from_cookie().unwrap_or_else(state::theme::initial_theme)
 }
 
+/// Returns the path of the Tailwind stylesheet, `/pkg/regatta.<hash>.css` when file hashing is on.
+///
+/// `<HydrationScripts>` names the hashed js and wasm the same way, from the `hash.txt` cargo-leptos writes beside the
+/// server binary; its `css:` line is read once per process. Without hashing (or without the file) the name is
+/// `/pkg/regatta.css`.
+pub fn stylesheet_href(options: &LeptosOptions) -> String {
+    let mut name = options.output_name.to_string();
+    if options.hash_files {
+        if let Some(hash) = css_hash(&options.hash_file) {
+            name.push('.');
+            name.push_str(hash);
+        }
+    }
+    format!("/{}/{name}.css", options.site_pkg_dir)
+}
+
+/// The `css:` entry of the hash file beside the running executable, read once.
+fn css_hash(hash_file: &str) -> Option<&'static str> {
+    static HASH: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+    HASH.get_or_init(|| {
+        let path = std::env::current_exe().ok()?.parent()?.join(hash_file);
+        let hashes = std::fs::read_to_string(path).ok()?;
+        hashes.lines().find_map(|line| {
+            let (file, hash) = line.trim().split_once(':')?;
+            (file.trim() == "css").then(|| hash.trim().to_string())
+        })
+    })
+    .as_deref()
+}
+
 /// Renders the HTML document around the app.
 ///
 /// `data-theme` comes from the `theme` cookie so the server renders the chosen theme without a flash; the CDN tags
@@ -91,7 +121,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <script inner_html=THEME_SCRIPT></script>
                 <link rel="stylesheet" href=MAPLIBRE_CSS/>
                 // a plain link: `<Stylesheet>` needs the meta context, which `App` provides inside <body>
-                <link rel="stylesheet" href=format!("/{}/{}.css", options.site_pkg_dir, options.output_name)/>
+                <link rel="stylesheet" href=stylesheet_href(&options)/>
                 <AutoReload options=options.clone()/>
                 <HydrationScripts options/>
                 <MetaTags/>

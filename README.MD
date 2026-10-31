@@ -75,7 +75,7 @@ Build & Install Binary
 ```shell
 cargo leptos build --release --precompress
 sudo mkdir -p /opt/regatta
-sudo cp target/release/regatta /opt/regatta/regatta
+sudo cp target/release/regatta target/release/hash.txt /opt/regatta/
 sudo cp -r target/site /opt/regatta/site
 ```
 
@@ -87,6 +87,7 @@ LEPTOS_SITE_ROOT=/opt/regatta/site
 LEPTOS_SITE_PKG_DIR=pkg
 LEPTOS_SITE_ADDR=0.0.0.0:8888
 LEPTOS_ENV=PROD
+LEPTOS_HASH_FILES=true
 RUST_LOG=info
 ```
 

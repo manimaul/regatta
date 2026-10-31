@@ -28,7 +28,7 @@ Run the server with the UI (http://127.0.0.1:8888):
 cargo leptos watch            # rebuild on change, live reload
 cargo leptos serve            # one build, then serve
 cargo xtask run               # release build, then serve
-cargo leptos build --release --precompress   # target/release/regatta + target/site
+cargo leptos build --release --precompress   # target/release/regatta + hash.txt + target/site
 ```
 
 An empty database gets `migrations/0001_baseline.sql` on first start and then runs in bootstrap mode until an admin
@@ -172,7 +172,9 @@ features) with these crates:
   thin adapter over `regatta-service`; its statuses and bodies are pinned by the contract cassettes), the Leptos
   server functions under `/api/<fn>` that the UI calls (`crates/app/src/server_fns.rs`), and the server-rendered UI.
   `fallback.rs` serves files under the site root first (`.br`/`.gz` siblings when precompressed), else renders the
-  shell for the path so client routes deep-link.
+  shell for the path so client routes deep-link. `hash-files` puts content hashes in the `/pkg` names (from the
+  `hash.txt` beside the binary, read when `LEPTOS_HASH_FILES=true`), so those files are served `immutable`; the
+  image and a bare-metal install must ship `hash.txt` next to `regatta`.
 - **Render threads** need a large stack: the runtime builds its workers with `RENDER_THREAD_STACK` (32 MiB). The
   Classes screen overflows the 2 MiB default in a debug build.
 - **Database:** `regatta-service`'s `Db` over a `PgPool`, using the non-macro sqlx API (no `.sqlx/` offline data;

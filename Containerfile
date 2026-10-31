@@ -59,6 +59,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo leptos build --release --precompress \
  && mkdir -p /out \
  && cp target/x86_64-unknown-linux-gnu/release/regatta /out/regatta \
+ && cp target/x86_64-unknown-linux-gnu/release/hash.txt /out/hash.txt \
  && cp -r target/site /out/site
 
 # ---- runtime -----------------------------------------------------------------------------------
@@ -66,6 +67,8 @@ FROM --platform=linux/amd64 gcr.io/distroless/cc-debian12
 
 WORKDIR /opt/regatta
 COPY --from=build /out/regatta /opt/regatta/regatta
+# the content hashes of the /pkg file names (hash-files); leptos reads it beside the binary
+COPY --from=build /out/hash.txt /opt/regatta/hash.txt
 COPY --from=build /out/site /opt/regatta/site
 
 # Leptos runtime options (the site the server serves) and the server's own configuration
@@ -75,6 +78,7 @@ ENV LEPTOS_OUTPUT_NAME=regatta \
     LEPTOS_SITE_PKG_DIR=pkg \
     LEPTOS_SITE_ADDR=0.0.0.0:8888 \
     LEPTOS_ENV=PROD \
+    LEPTOS_HASH_FILES=true \
     REGATTA_DB_URL=postgres://regatta_admin:mysecretpassword@localhost:5432/regatta \
     RUST_LOG=info
 
