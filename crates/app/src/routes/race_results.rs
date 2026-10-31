@@ -22,7 +22,7 @@ use crate::server_fns;
 use crate::state::alerts::use_alerts;
 use crate::state::login::use_login;
 use crate::utils::async_state::{call, Loaded};
-use crate::utils::date_util::{display, display_opt, year_opt};
+use crate::utils::date_util::{display, display_opt, now, year_opt};
 use crate::utils::race_config::{with_class_start, with_orc_option, with_phrf_b_factor};
 use crate::utils::race_report::finish_code_text;
 use jiff::Timestamp;
@@ -314,14 +314,20 @@ impl RaceResultAddState {
         self.results.value().map(|r| r.race_schedule)
     }
 
-    /// Starts a fresh result, finishing at the race end.
-    pub fn clear_result_for_boat_selection(&self) {
-        let schedule = self.schedule();
-        self.race_result.set(RaceResultFull {
+    /// Returns a fresh timed result, finishing at the race end (now when the race has none).
+    fn fresh_result(&self) -> RaceResultFull {
+        let end = self.schedule().as_ref().and_then(RaceSchedule::end_time);
+        RaceResultFull {
             race_id: self.race_id,
-            finish: schedule.as_ref().and_then(RaceSchedule::end_time),
+            finish: Some(end.unwrap_or_else(now)),
+            finish_code: FinishCode::Time,
             ..RaceResultFull::default()
-        });
+        }
+    }
+
+    /// Starts a fresh timed result, finishing at the race end.
+    pub fn clear_result_for_boat_selection(&self) {
+        self.race_result.set(self.fresh_result());
         self.allow_boat_change.set(true);
         self.selected_class.set(None);
         self.selected_bracket.set(None);
@@ -545,17 +551,7 @@ impl RaceResultAddState {
         call(server_fns::post_result(sparse), move |r| match r {
             Ok(_) => {
                 on_success();
-                let end = this.schedule().and_then(|s| s.end_time());
-                this.race_result.set(RaceResultFull {
-                    race_id: this.race_id,
-                    finish: end,
-                    finish_code: if end.is_some() {
-                        FinishCode::Time
-                    } else {
-                        FinishCode::Ret
-                    },
-                    ..RaceResultFull::default()
-                });
+                this.race_result.set(this.fresh_result());
                 this.results.reload();
             }
             Err(message) => this.results.fail(message),
