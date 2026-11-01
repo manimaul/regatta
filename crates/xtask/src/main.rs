@@ -2,10 +2,10 @@
 //!
 //! The `xtask` alias is in `.cargo/config.toml`, and every command runs from the repository root.
 //!
-//! The k8s manifests in `k8s_deploy/` carry `{REGATTA_PG_USER}`, `{REGATTA_PG_PASS}` and
-//! `{REGATTA_DB_URL}` placeholders. They are filled from the `REGATTA_PG_USER` /
-//! `REGATTA_PG_PASS` environment variables and piped to `kubectl apply -f -`, so a filled
-//! manifest never touches the disk.
+//! `k8s_deploy/secrets.yaml` carries a `{REGATTA_DB_URL}` placeholder, filled from the
+//! `REGATTA_PG_HOST` / `REGATTA_PG_PORT` / `REGATTA_PG_USER` / `REGATTA_PG_PASS` environment
+//! variables and piped to `kubectl apply -f -`, so a filled manifest never touches the disk and no
+//! environment-specific endpoint is committed. `server.yaml` has no placeholders and needs neither.
 
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
@@ -16,8 +16,6 @@ const IMAGE: &str = "ghcr.io/manimaul/regatta:latest";
 const PLATFORM: &str = "linux/amd64";
 const NAMESPACE: &str = "mxmariner";
 const DEPLOYMENT: &str = "deployment/regatta-deployment";
-/// The pgbouncer sidecar, on the pod loopback.
-const DB_HOST: &str = "localhost:5432";
 const DB_NAME: &str = "regatta";
 
 #[derive(Parser)]
@@ -39,7 +37,7 @@ enum Task {
     MakeImg,
     /// Build the image, then push it to ghcr.io (needs `podman login ghcr.io`).
     PubImg,
-    /// Apply the pgbouncer sidecar's secrets (first deploy and credential changes).
+    /// Apply the database URL secret (first deploy and credential changes).
     K8sApplySecrets(KubectlArgs),
     /// Apply the server manifest (autoscaler, service, deployment, certificate, ingress).
     K8sApplyServer(KubectlArgs),
@@ -152,34 +150,45 @@ fn rollout_restart(sh: &Shell) -> Result<()> {
     Ok(())
 }
 
-/// Runs `kubectl <verb> -f -` with `k8s_deploy/<manifest>` on stdin, its placeholders filled from the environment.
+/// Runs `kubectl <verb> -f -` with `k8s_deploy/<manifest>` on stdin, its placeholders (if any) filled from the
+/// environment.
 fn kubectl(sh: &Shell, verb: &str, manifest: &str, dry_run: bool) -> Result<()> {
     let path = Path::new("k8s_deploy").join(manifest);
     let template = sh
         .read_file(&path)
         .with_context(|| format!("reading {}", path.display()))?;
-    let yaml = fill(&template)?;
+    let yaml = if template.contains(DB_URL_PLACEHOLDER) {
+        fill(&template)?
+    } else {
+        template
+    };
     let dry = dry_run.then_some("--dry-run=client");
     cmd!(sh, "kubectl {verb} {dry...} -f -").stdin(yaml).run()?;
     Ok(())
 }
 
-/// Fills the `{REGATTA_PG_USER}`, `{REGATTA_PG_PASS}` and `{REGATTA_DB_URL}` placeholders of a manifest.
+/// The placeholder in `k8s_deploy/secrets.yaml` that [`fill`] replaces with the database URL.
+const DB_URL_PLACEHOLDER: &str = "{REGATTA_DB_URL}";
+
+/// Fills the `{REGATTA_DB_URL}` placeholder of a manifest from `REGATTA_PG_HOST` / `REGATTA_PG_PORT` /
+/// `REGATTA_PG_USER` / `REGATTA_PG_PASS`.
 ///
-/// The database URL points at the pgbouncer sidecar with the credentials percent-encoded; a missing or empty
-/// `REGATTA_PG_USER` / `REGATTA_PG_PASS` is an error.
+/// Any of them missing or empty is an error.
 fn fill(template: &str) -> Result<String> {
+    let host = require_env("REGATTA_PG_HOST")?;
+    let port = require_env("REGATTA_PG_PORT")?;
     let user = require_env("REGATTA_PG_USER")?;
     let pass = require_env("REGATTA_PG_PASS")?;
-    let db_url = format!(
-        "postgres://{}:{}@{DB_HOST}/{DB_NAME}",
-        percent_encode(&user),
-        percent_encode(&pass)
-    );
-    Ok(template
-        .replace("{REGATTA_PG_USER}", &user)
-        .replace("{REGATTA_PG_PASS}", &pass)
-        .replace("{REGATTA_DB_URL}", &db_url))
+    Ok(template.replace(DB_URL_PLACEHOLDER, &db_url(&host, &port, &user, &pass)))
+}
+
+/// The server's database URL: credentials percent-encoded, TLS required end to end.
+fn db_url(host: &str, port: &str, user: &str, pass: &str) -> String {
+    format!(
+        "postgres://{}:{}@{host}:{port}/{DB_NAME}?sslmode=require",
+        percent_encode(user),
+        percent_encode(pass)
+    )
 }
 
 fn require_env(name: &str) -> Result<String> {
@@ -204,11 +213,21 @@ fn percent_encode(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::percent_encode;
+    use super::{db_url, percent_encode};
 
     #[test]
     fn userinfo_is_percent_encoded() {
         assert_eq!(percent_encode("regatta_admin"), "regatta_admin");
+        // not real password
         assert_eq!(percent_encode("p@ss:w/rd é"), "p%40ss%3Aw%2Frd%20%C3%A9");
+    }
+
+    #[test]
+    fn db_url_uses_host_port_and_tls() {
+        assert_eq!(
+            db_url("db.example.internal", "6432", "regatta", "p@ss"),
+            // not real password
+            "postgres://regatta:p%40ss@db.example.internal:6432/regatta?sslmode=require"
+        );
     }
 }

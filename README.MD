@@ -50,7 +50,7 @@ podman run --pull=never -p 8888:8888 \
 
 ### Deploy to Kubernetes
 ```shell
-export REGATTA_PG_USER=... REGATTA_PG_PASS=...
+export REGATTA_PG_HOST=... REGATTA_PG_PORT=... REGATTA_PG_USER=... REGATTA_PG_PASS=...
 podman login ghcr.io
 cargo xtask k8s-apply-secrets   # first deploy and credential changes
 cargo xtask deploy-server       # build and push the image, apply k8s_deploy/server.yaml, restart and wait

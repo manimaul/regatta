@@ -12,7 +12,7 @@ podman-compose up
 
 ## Production database
 Production is the `regatta` database on the managed PostgreSQL cluster  
-`REGATTA_PG_USER` / `REGATTA_PG_PASS` come from the environment (the same variables `cargo xtask` uses for the k8s manifests).
+`REGATTA_PG_USER` / `REGATTA_PG_PASS` come from the environment (the same variables `cargo xtask` uses for the k8s manifests, alongside `REGATTA_PG_HOST` / `REGATTA_PG_PORT`).
 Keep the password in `PGPASSWORD`, never in the URI.
 
 ```shell

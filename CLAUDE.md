@@ -127,15 +127,16 @@ the published image over the local tag.
 ```shell
 cargo xtask make-img            # build ghcr.io/manimaul/regatta:latest for linux/amd64 (checks the architecture)
 cargo xtask pub-img             # build, then push to ghcr.io (podman login ghcr.io first)
-cargo xtask k8s-apply-secrets   # the pgbouncer sidecar's secrets; first deploy and credential changes
+cargo xtask k8s-apply-secrets   # the database URL secret; first deploy and credential changes
 cargo xtask deploy-server       # pub-img, k8s-apply-server, rollout-restart
-cargo xtask k8s-apply-server --dry-run   # validate the filled manifest without applying it
+cargo xtask k8s-apply-server --dry-run   # validate the manifest without applying it
 ```
 
-The k8s tasks fill the `{REGATTA_PG_USER}`, `{REGATTA_PG_PASS}` and `{REGATTA_DB_URL}` placeholders in
-`k8s_deploy/*.yaml` from the `REGATTA_PG_USER` / `REGATTA_PG_PASS` environment variables and pipe the result to
-`kubectl` on stdin, so filled manifests never land on disk. The server reaches the database through a pgbouncer
-sidecar on the pod loopback (transaction pooling, `max_prepared_statements` set for sqlx's prepared statements). The
+`k8s-apply-secrets` fills the `{REGATTA_DB_URL}` placeholder in `k8s_deploy/secrets.yaml` (the `regatta-db`
+secret) from the `REGATTA_PG_HOST` / `REGATTA_PG_PORT` / `REGATTA_PG_USER` / `REGATTA_PG_PASS` environment
+variables (all required) and pipes the result to `kubectl` on stdin, so the filled manifest never lands on disk and
+no environment-specific endpoint is committed; `server.yaml` reads the URL from that secret and needs no
+credentials. The server connects to that host (`sslmode=require`) with sqlx's own pool (10 connections per pod). The
 deployment pins `kubernetes.io/arch: amd64`. `k8s_deploy/k8s_init.sh` creates the ghcr.io pull secret. Backups and
 restores (prod and dev) are `database/db_actions.py`, see `database/README.md`.
 

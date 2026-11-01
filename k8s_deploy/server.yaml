@@ -59,9 +59,11 @@ spec:
             limits:
               memory: 256Mi
           env:
-            # Through the pgbouncer sidecar on the pod loopback; filled by `cargo xtask`.
             - name: REGATTA_DB_URL
-              value: "{REGATTA_DB_URL}"
+              valueFrom:
+                secretKeyRef:
+                  name: regatta-db
+                  key: REGATTA_DB_URL
             - name: RUST_LOG
               value: "info"
           readinessProbe:
@@ -77,29 +79,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 30
             failureThreshold: 3
-        - name: pgbouncer
-          image: ghcr.io/cloudnative-pg/pgbouncer:latest
-          ports:
-            - containerPort: 5432
-          resources:
-            limits:
-              cpu: 250m
-              memory: 64Mi
-            requests:
-              cpu: 50m
-              memory: 32Mi
-          volumeMounts:
-            - name: pgbouncer-config
-              mountPath: /etc/pgbouncer
-              readOnly: true
-      volumes:
-        - name: pgbouncer-config
-          projected:
-            sources:
-              - secret:
-                  name: regatta-pgbouncer-ini
-              - secret:
-                  name: regatta-pgbouncer-userlist-txt
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
