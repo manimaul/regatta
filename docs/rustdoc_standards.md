@@ -1,193 +1,301 @@
-# Rust doc comment standards
+# Rust documentation (rustdoc) standards
 
-How we write `///` and `//!` comments in this workspace. It distills
-[How to write documentation](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html) from the rustdoc book
-and adapts it to a project that is not a published library: our readers are the maintainers and the AI agents that
-work on this code, and both usually arrive at an item cold, from a search hit or a stack trace, without having read
-the code around it.
+> Source: [How to write documentation](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html), from The rustdoc book.
 
-The aim is that a doc comment alone is enough to use an item correctly and to know why it behaves the way it does.
+Good documentation is not natural.  There are opposing goals that make writing
+good documentation difficult.  It requires expertise in the subject but also
+writing to a novice perspective.  Documentation therefore often glazes over
+implementation detail, or leaves readers with unanswered questions.
 
-## Core principles
+There are a few tenets to Rust documentation that can help guide anyone through
+the process of documenting libraries so that everyone has an ample opportunity
+to use the code.
 
-1. **Say what it is and why it exists, not how it works.** The code shows the how. The doc gives the contract
-   (inputs, result, side effects, invariants) and the reason behind any rule that is not obvious.
-2. **Write for a reader with no surrounding context.** Assume they reached this item from `grep` or a jump to
-   definition. Don't write "see above" or "as before", and don't rely on the reader having just read the previous
-   function. Name the domain concept outright: "the PHRF corrected time", not "the time".
-3. **Cite the source of every rule.** Scoring and validation rules come from the sailing instructions or a recorded
-   decision. Name it (`GSI 14.1.4`, `D3`, `R4a`) and the document that holds it
-   (`docs/explore_implemented/test_audit_and_plan.md`, `orc_series_standings.md`). The citation is what lets someone
-   tell a deliberate rule from a bug.
-4. **Document what is true now.** The Kotlin port is finished. Describe the Rust item on its own terms; don't add
-   "`= Kotlin fooBar`" mappings, and remove them when you touch a comment that still has one. Use Rust vocabulary:
-   `None`, not "null"; "returns `Err`", not "throws".
-5. **Don't repeat the signature.** rustdoc already shows and links the types. Spend the words on what the types
-   can't say: units, ordering, which `None` means what, who calls this and when.
-6. **A stale doc is worse than none.** Change the doc in the same commit as the behavior. If you can't keep a
-   statement true, delete it.
+This chapter covers not only how to write documentation but specifically
+how to write **good** documentation.  It is important to be as clear
+as you can, and as complete as possible.  As a rule of thumb: the more
+documentation you write for your crate the better.  If an item is public
+then it should be documented.
 
-## Structure of an item doc
+## Getting Started
 
-```
-[one-line summary]
+Documenting a crate should begin with front-page documentation.  As an
+example, the [`hashbrown`] crate level documentation summarizes the role of
+the crate, provides links to explain technical details, and explains why you
+would want to use the crate.
 
-[details: contract, rationale, invariants]
+After introducing the crate, it is important that the front-page gives
+an example of how to use the crate in a real world setting.  Stick to the
+library's role in the example, but do so without shortcuts to benefit users who
+may copy and paste the example to get started.
 
-[# Errors / # Panics / # Safety, when they apply]
+[`futures`] uses inline comments to explain line by line
+the complexities of using a [`Future`], because a person's first exposure to
+rust's [`Future`] may be this example.
 
-[# Examples, when the call shape isn't obvious]
-```
+The [`backtrace`] documentation walks through the whole process, explaining
+changes made to the `Cargo.toml` file, passing command line arguments to the
+compiler, and shows a quick example of backtrace in the wild.
 
-### The summary line
+Finally, the front-page can eventually become a comprehensive reference
+how to use a crate, like [`regex`].  In this front page, all
+requirements are outlined, the edge cases shown, and practical examples
+provided.  The front page goes on to show how to use regular expressions
+then concludes with crate features.
 
-Everything before the first blank line becomes the summary in module indexes and search results, and it is often
-the only part a reader (or an agent skimming a file) looks at.
+Don't worry about comparing your crate, which is just beginning, to other more
+developed crates.  To get the documentation to something more polished, start
+incrementally and put in an introduction, example, and features.  Rome was not
+built in a day!
 
-- One sentence, ideally under 100 characters.
-- Functions start with a verb in the third person: "Ranks the cards...", "Checks a race before it is saved."
-- Types and modules start with a noun phrase saying what the thing is: "Which entries [`place`] ranks: ..."
-- It must be true and useful on its own, without the paragraphs below it.
-
-### Details
-
-Include what applies, skip what doesn't:
-
-- **Rationale and source.** The GSI section or decision ID, plus a one-line reason when the rule is surprising.
-- **Units and formats.** Milliseconds or seconds, seconds per mile, local or UTC, which ORC wind band, a JSON
-  format the golden files pin.
-- **Ordering and identity.** Sort order and whether it is stable or total, whether indices point into another
-  slice, whether input order is preserved.
-- **Side effects.** Database writes, cookies set, cache invalidation, anything that mutates through a `&mut` or a
-  callback.
-- **Non-local invariants.** Constraints that break something far away when violated. The usual ones here: the
-  golden JSON is byte for byte (field order, defaults, nulls); server and wasm must render the same markup or
-  hydration panics; Tailwind class names must be literal strings.
-- **Meaning of the edge cases.** What an empty input, a `None` field or a missing rating does.
-
-### Sections
-
-Use rustdoc's standard headings so readers and tools find them in the same place:
-
-- `# Errors`: for every public function that returns `Result`, the conditions that produce each kind of error.
-  One line per case is enough.
-- `# Panics`: whenever a panic is reachable from inputs the caller controls. If a panic means "a bug elsewhere"
-  (an invariant violated), say which invariant.
-- `# Safety`: required on every `unsafe fn` and `unsafe` trait: what the caller must uphold.
-- `# Examples`: optional here, unlike in a published library. Add one when the call shape isn't obvious from the
-  signature: builders, the scoring fixture DSL, callbacks, anything with a non-obvious setup. Examples are doctests
-  and run with `cargo test --workspace`, so they must compile and pass; use `no_run` for anything that needs a
-  database or network, and avoid `ignore`, which rots silently.
-
-## Module and crate docs (`//!`)
-
-Every crate's `lib.rs` and every non-trivial module opens with a `//!` block that tells a newcomer where they are:
-
-1. One sentence: what the module is for and where it sits in the workspace (which crate calls it, what it calls).
-2. The main entry points, as intra-doc links.
-3. Constraints that apply to the whole module: "pure, no I/O", "SSR only", "every query goes through `::text` for
-   timestamps".
-4. Pointers to the design documents in `docs/` that explain it in depth.
-
-A module doc is a map, not a manual; a short paragraph and a list of links is usually right.
-
-## What to document
-
-- Every `pub` item in `regatta-common`, `regatta-scoring` and `regatta-service`: these are the crates other crates
-  build on.
-- In `regatta-server`, `regatta-app` and the rest: every module, plus any item whose behavior isn't obvious from
-  its name and signature. A component with props needs a doc; a three-line route handler that calls the service
-  usually does not.
-- Private items when they carry a rule, an invariant or a workaround. Rationale is worth more on a private helper
-  than a summary on an obvious getter.
-- Struct fields and enum variants whose meaning or unit isn't evident from the name.
-
-Skip docs that only restate the name (`/// The boat name.` on `boat_name`). No doc is better than a doc that adds
-nothing.
-
-## Doc comments versus `//` comments
-
-- `///` and `//!` describe the contract: what a caller needs to know.
-- `//` inside a body explains a non-obvious step: why this order, why this workaround, a link to the bug it avoids.
-  Keep these sparse, matching the surrounding code.
-- Don't narrate code (`// loop over the cards`), and don't leave history (`// changed from X`); git keeps history.
-
-## Markdown and links
-
-- Link items with intra-doc links: [`place`], [`RaceReportCard`], [`crate::fixture`]. Rustdoc checks them and the
-  link survives a reader jumping around in an editor. Use plain backticks only for things rustdoc can't resolve.
-- Code, identifiers, file paths, env variables and literal values go in backticks: `REGATTA_FIXED_NOW`,
-  `crates/scoring/src/fixture.rs`.
-- Refer to files by repository-relative path so a reader can open them directly.
-- Lists and tables are fine when they make a contract easier to scan (a mapping of finish codes, say).
-  Avoid headings other than the standard sections.
-- Wrap at 120 columns, the same as the code.
-
-## Example
-
-Before (a port artifact: Kotlin vocabulary, a mapping that no longer helps, and the second paragraph describes the
-Kotlin version rather than this one):
+The first lines within the `lib.rs` will compose the front-page, and they
+use a different convention than the rest of the rustdocs.  Lines should
+start with `//!` which indicate module-level or crate-level documentation.
+Here's a quick example of the difference:
 
 ```rust
-/// Ranks the cards that `among` includes and hands each its place through `place_handler`.
-/// Returns the ranked cards in place order, followed by the cards `among` left out, untouched
-/// and in their input order. The ORC ranking uses the ORC corrected times.
+//! Fast and easy queue abstraction.
+//!
+//! Provides an abstraction over a queue.  When the abstraction is used
+//! there are these advantages:
+//! - Fast
+//! - [`Easy`]
+//!
+//! [`Easy`]: http://thatwaseasy.example.com
+
+/// This module makes it easy.
+pub mod easy {
+
+    /// Use the abstraction function to do this specific thing.
+    pub fn abstraction() {}
+
+}
+```
+
+Ideally, this first line of documentation is a sentence without highly
+technical details, but with a good description of where this crate fits
+within the rust ecosystem.  Users should know whether this crate meets their use
+case after reading this line.
+
+## Documenting components
+
+Whether it is modules, structs, functions, or macros: the public
+API of all code should have documentation. Rarely does anyone
+complain about too much documentation!
+
+It is recommended that each item's documentation follows this basic structure:
+
+```text
+[short sentence explaining what it is]
+
+[more detailed explanation]
+
+[at least one code example that users can copy/paste to try it]
+
+[even more advanced explanations if necessary]
+```
+
+This basic structure should be straightforward to follow when writing your
+documentation; while you might think that a code example is trivial,
+the examples are really important because they can help users understand
+what an item is, how it is used, and for what purpose it exists.
+
+Let's see an example coming from the [standard library] by taking a look at the
+[`std::env::args()`][env::args] function:
+
+``````markdown
+Returns the arguments which this program was started with (normally passed
+via the command line).
+
+The first element is traditionally the path of the executable, but it can be
+set to arbitrary text, and may not even exist. This means this property should
+not be relied upon for security purposes.
+
+On Unix systems shell usually expands unquoted arguments with glob patterns
+(such as `*` and `?`). On Windows this is not done, and such arguments are
+passed as-is.
+
+# Panics
+
+The returned iterator will panic during iteration if any argument to the
+process is not valid unicode. If this is not desired,
+use the [`args_os`] function instead.
+
+# Examples
+
+```
+use std::env;
+
+// Prints each argument on a separate line
+for argument in env::args() {
+    println!("{argument}");
+}
+```
+
+[`args_os`]: ./fn.args_os.html
+``````
+
+Everything before the first empty line will be reused to describe the component
+in searches and module overviews.  For example, the function `std::env::args()`
+above will be shown on the [`std::env`] module documentation. It is good
+practice to keep the summary to one line: concise writing is a goal of good
+documentation.
+
+Because the type system does a good job of defining what types a function
+passes and returns, there is no benefit of explicitly writing it
+into the documentation, especially since `rustdoc` adds hyper links to all types in the function signature.
+
+In the example above, a 'Panics' section explains when the code might abruptly exit,
+which can help the reader prevent reaching a panic.  A panic section is recommended
+every time edge cases in your code can be reached if known.
+
+As you can see, it follows the structure detailed above: it starts with a short
+sentence explaining what the functions does, then it provides more information
+and finally provides a code example.
+
+## Markdown
+
+`rustdoc` uses the [CommonMark Markdown specification]. You might be
+interested in taking a look at their website to see what's possible:
+
+ - [CommonMark quick reference]
+ - [current spec]
+
+In addition to the standard CommonMark syntax, `rustdoc` supports several
+extensions:
+
+### Strikethrough
+
+Text may be rendered with a horizontal line through the center by wrapping the
+text with one or two tilde characters on each side:
+
+```text
+An example of ~~strikethrough text~~. You can also use ~single tildes~.
+```
+
+This example will render as:
+
+> An example of ~~strikethrough text~~. You can also use ~single tildes~.
+
+This follows the [GitHub Strikethrough extension][strikethrough].
+
+### Footnotes
+
+A footnote generates a small numbered link in the text which when clicked
+takes the reader to the footnote text at the bottom of the item. The footnote
+label is written similarly to a link reference with a caret at the front. The
+footnote text is written like a link reference definition, with the text
+following the label. Example:
+
+```text
+This is an example of a footnote[^note].
+
+[^note]: This text is the contents of the footnote, which will be rendered
+    towards the bottom.
+```
+
+This example will render as:
+
+> This is an example of a footnote[^note].
+>
+> [^note]: This text is the contents of the footnote, which will be rendered
+>     towards the bottom.
+
+The footnotes are automatically numbered based on the order the footnotes are
+written.
+
+### Tables
+
+Tables can be written using pipes and dashes to draw the rows and columns of
+the table. These will be translated to HTML table matching the shape. Example:
+
+```text
+| Header1 | Header2 |
+|---------|---------|
+| abc     | def     |
+```
+
+This example will render similarly to this:
+
+> | Header1 | Header2 |
+> |---------|---------|
+> | abc     | def     |
+
+See the specification for the [GitHub Tables extension][tables] for more
+details on the exact syntax supported.
+
+### Task lists
+
+Task lists can be used as a checklist of items that have been completed.
+Example:
+
+```md
+- [x] Complete task
+- [ ] Incomplete task
+```
+
+This will render as:
+
+> - [x] Complete task
+> - [ ] Incomplete task
+
+See the specification for the [task list extension] for more details.
+
+### Smart punctuation
+
+Some ASCII punctuation sequences will be automatically turned into fancy Unicode
+characters:
+
+| ASCII sequence | Unicode |
+|----------------|---------|
+| `--`           | –       |
+| `---`          | —       |
+| `...`          | …       |
+| `"`            | “ or ”, depending on context |
+| `'`            | ‘ or ’, depending on context |
+
+So, no need to manually enter those Unicode characters!
+
+### Adding a warning block
+
+If you want to make a warning or similar note stand out in the documentation,
+you can wrap it like this:
+
+```md
+/// documentation
 ///
-/// The Kotlin extension works on shared card objects; here `cards` is the one card store and
-/// `subset` the indices into it that stand for the Kotlin receiver list. The returned indices are
-/// the Kotlin return list, and `place_handler` mutates the card in place as the Kotlin lambda did.
-pub fn place(/* ... */) -> Vec<usize>
-```
-
-After (self-contained, with the source of the rule and the index contract stated in Rust terms):
-
-```rust
-/// Ranks the cards in `subset` that `among` includes and hands each its place.
+/// <div class="warning">A big warning!</div>
 ///
-/// `subset` holds indices into `cards`; the result holds the same indices, the ranked ones in place
-/// order followed by the ones `among` left out, in their input order. `place_handler` gets each
-/// ranked card with its place: 1-based for finishers, equal corrected times sharing one (D7), and the
-/// finish code's score otherwise (GSI 14.1 / D3), plus any penalty capped at the DNF score (D4). The
-/// ORC ranking orders by ORC corrected time, the others by PHRF corrected time (see [`compare`]).
-/// R1 (`orc_series_standings.md`): each rating is placed among its own entries only.
-pub fn place(/* ... */) -> Vec<usize>
+/// more documentation
 ```
 
-And a validation function, before and after:
+Please note that if you want to put markdown in the HTML tag and for it to
+be interpreted as such, you need to have an empty line between the HTML tags
+and your markdown content. For example if you want to use a link:
 
-```rust
-/// Checks a race before it is saved. Returns an error message for the client, or null when the
-/// race is acceptable.
-```
-
-```rust
-/// Checks a race before it is saved, returning the message to show the user, or `None` if it is valid.
+```md
+/// documentation
 ///
-/// R4a (`orc_series_standings.md`): the ORC wind band the scoring option uses must be the one the PHRF
-/// B factor maps to, so both time corrections agree on the wind. Nothing is corrected here; the user
-/// is told what to change.
+/// <div class="warning">
+///
+/// Go to [this link](https://rust-lang.org)!
+///
+/// </div>
+///
+/// more documentation
 ```
 
-## Checking
-
-```shell
-cargo doc --workspace --no-deps          # broken intra-doc links appear as warnings
-cargo test --workspace --doc             # runs the examples
-```
-
-Treat a rustdoc warning like a clippy warning: fix it before committing.
-
-`regatta-common`, `regatta-scoring` and `regatta-service` enable `clippy::missing_errors_doc` and
-`clippy::missing_panics_doc` (`[lints.clippy]` in their `Cargo.toml`), so `cargo clippy ... -D warnings` fails on a
-missing `# Errors` or `# Panics` section there.
-
-## Checklist
-
-- [ ] The summary line stands alone and fits on one line.
-- [ ] The doc states the contract, not the implementation.
-- [ ] Every scoring or validation rule names its GSI section or decision ID.
-- [ ] Units, ordering and the meaning of `None` are explicit where they matter.
-- [ ] `# Errors`, `# Panics` and `# Safety` are present where they apply.
-- [ ] Items are linked with intra-doc links; `cargo doc` is warning-free.
-- [ ] No Kotlin mappings, no "null", no history.
-- [ ] The doc changed in the same commit as the behavior it describes.
+[`backtrace`]: https://docs.rs/backtrace/0.3.50/backtrace/
+[commonmark markdown specification]: https://commonmark.org/
+[commonmark quick reference]: https://commonmark.org/help/
+[env::args]: https://doc.rust-lang.org/stable/std/env/fn.args.html
+[`Future`]: https://doc.rust-lang.org/std/future/trait.Future.html
+[`futures`]: https://docs.rs/futures/0.3.5/futures/
+[`hashbrown`]: https://docs.rs/hashbrown/0.8.2/hashbrown/
+[`regex`]: https://docs.rs/regex/1.3.9/regex/
+[standard library]: https://doc.rust-lang.org/stable/std/index.html
+[current spec]: https://spec.commonmark.org/current/
+[`std::env`]: https://doc.rust-lang.org/stable/std/env/index.html#functions
+[strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
+[tables]: https://github.github.com/gfm/#tables-extension-
+[task list extension]: https://github.github.com/gfm/#task-list-items-extension-

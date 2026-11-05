@@ -142,6 +142,11 @@ restores (prod and dev) are `database/db_actions.py`, see `database/README.md`.
 
 No dedicated lint task beyond `cargo clippy` and `cargo fmt`.
 
+### Doc comments
+
+Every `///` and `//!` comment follows `docs/rustdoc_standards.md`. Apply it to new code and to any doc comment
+you touch.
+
 ### Commits
 
 Only commit changes if explicitly instructed by the user.
