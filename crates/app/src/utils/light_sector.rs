@@ -1,5 +1,5 @@
 //! Light sector images for the OpenENC chart style, drawn the same way as njord's `SvgLightSector.kt`
-//! (mxmariner.com / openenc.com).
+//! (mxmariner.com / njord.mxmariner.com).
 //!
 //! The style's `LIGHTS_sector` layer uses the feature's `SI` property as its icon id, and the id
 //! encodes everything needed to draw the sector:

@@ -17,7 +17,7 @@ use crate::state::theme::Theme;
 /// Returns the OpenENC chart style for the site theme: the day palette in light mode, dusk in dark mode.
 pub fn chart_style_url(theme: Theme) -> &'static str {
     match theme {
-        Theme::Light => "https://openenc.com/v1/style/feet/day",
-        Theme::Dark => "https://openenc.com/v1/style/feet/dusk",
+        Theme::Light => "https://njord.mxmariner.com/v1/style/feet/day",
+        Theme::Dark => "https://njord.mxmariner.com/v1/style/feet/dusk",
     }
 }
