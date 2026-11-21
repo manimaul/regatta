@@ -1,7 +1,8 @@
-//! wasm-bindgen externs to the MapLibre GL JS 4.7.1 UMD global `window.maplibregl` (hydrate only).
+//! wasm-bindgen externs to MapLibre GL JS through the global `window.maplibregl` (hydrate only).
 //!
-//! The library is loaded by a CDN tag in the shell ([`crate::MAPLIBRE_JS`]), never bundled. Only the subset the
-//! chart controller uses is bound.
+//! The library is an ES module loaded from a CDN, never bundled: the shell's module script
+//! ([`crate::MAPLIBRE_MODULE_SCRIPT`]) imports it and publishes it as that global. Only the subset the chart
+//! controller uses is bound.
 
 use wasm_bindgen::prelude::*;
 
@@ -114,6 +115,12 @@ extern "C" {
     pub fn load_image(this: &Map, url: &str) -> js_sys::Promise;
     #[wasm_bindgen(method, js_name = addImage)]
     pub fn add_image(this: &Map, id: &str, image: &JsValue);
+    /// Installs the function MapLibre calls with the id of an image the style names and does not have.
+    ///
+    /// The function registers the image with [`Map::add_image`]. MapLibre waits for the promise it returns, if
+    /// any, and treats the image as missing if it is still absent then.
+    #[wasm_bindgen(method, js_name = setMissingStyleImageResolver)]
+    pub fn set_missing_style_image_resolver(this: &Map, resolver: &js_sys::Function);
     #[wasm_bindgen(method, js_name = hasImage)]
     pub fn has_image(this: &Map, id: &str) -> bool;
     #[wasm_bindgen(method, js_name = isStyleLoaded)]

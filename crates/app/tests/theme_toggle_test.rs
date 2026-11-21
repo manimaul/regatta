@@ -65,7 +65,9 @@ fn shell_renders_data_theme_from_the_cookie_default_light() {
     );
     assert!(
         html.contains(regatta_app::MAPLIBRE_CSS)
-            && html.contains(regatta_app::MAPLIBRE_JS)
+            && html.contains(regatta_app::MAPLIBRE_MODULE_SCRIPT)
+            && regatta_app::MAPLIBRE_MODULE_SCRIPT.contains(regatta_app::MAPLIBRE_JS)
+            && regatta_app::MAPLIBRE_MODULE_SCRIPT.contains(regatta_app::MAPLIBRE_WORKER_PATH)
             && html.contains(regatta_app::SORTABLE_JS)
     );
     assert!(
@@ -82,5 +84,22 @@ fn shell_renders_data_theme_from_the_cookie_default_light() {
     assert!(
         !html.contains("<h1>Skippers</h1>"),
         "the screen body is streamed, not rendered synchronously"
+    );
+}
+
+/// The site's worker module must import the same MapLibre release the shell loads: a worker from
+/// another version does not speak the main module's protocol.
+#[test]
+fn the_worker_module_imports_the_pinned_maplibre_worker() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/public",
+        "/maplibre-gl-worker.mjs"
+    );
+    assert!(path.ends_with(regatta_app::MAPLIBRE_WORKER_PATH));
+    let module = std::fs::read_to_string(path).expect("the worker module is a public asset");
+    assert!(
+        module.contains(&format!("import \"{}\";", regatta_app::MAPLIBRE_WORKER_JS)),
+        "{module}"
     );
 }

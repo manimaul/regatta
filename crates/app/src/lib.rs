@@ -43,9 +43,44 @@ use state::theme::Theme;
 /// stable so existing users keep their saved theme.
 pub const THEME_SCRIPT: &str = r#"try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}"#;
 
-pub const MAPLIBRE_CSS: &str =
-    "https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css";
-pub const MAPLIBRE_JS: &str = "https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js";
+/// A file of the pinned MapLibre GL JS release's `dist/` on jsDelivr.
+macro_rules! maplibre_dist {
+    ($file:literal) => {
+        concat!(
+            "https://cdn.jsdelivr.net/npm/maplibre-gl@6.19.0/dist/",
+            $file
+        )
+    };
+}
+
+pub const MAPLIBRE_CSS: &str = maplibre_dist!("maplibre-gl.css");
+
+/// MapLibre GL JS's ES module. The library has no script build and defines no global; the shell
+/// loads this through [`MAPLIBRE_MODULE_SCRIPT`].
+pub const MAPLIBRE_JS: &str = maplibre_dist!("maplibre-gl.mjs");
+
+/// MapLibre GL JS's worker module on the CDN, which [`MAPLIBRE_WORKER_PATH`] imports.
+pub const MAPLIBRE_WORKER_JS: &str = maplibre_dist!("maplibre-gl-worker.mjs");
+
+/// The site's own path of the module MapLibre starts its worker from
+/// (`crates/app/public/maplibre-gl-worker.mjs`), which only imports [`MAPLIBRE_WORKER_JS`].
+///
+/// It exists because the worker must start from this origin: for a worker module on another
+/// origin MapLibre goes through a `blob:` URL that it revokes before Chromium has loaded it, and
+/// the map then never draws.
+pub const MAPLIBRE_WORKER_PATH: &str = "/maplibre-gl-worker.mjs";
+
+/// The inline module script that imports [`MAPLIBRE_JS`], points it at [`MAPLIBRE_WORKER_PATH`]
+/// and publishes it as `window.maplibregl`, the global the chart's wasm-bindgen externs
+/// ([`chart::maplibre`]) are bound to.
+///
+/// The shell puts it before the hydration script. Module scripts run in document order, so the
+/// global exists before any chart code can run.
+pub const MAPLIBRE_MODULE_SCRIPT: &str = concat!(
+    "import * as maplibregl from \"",
+    maplibre_dist!("maplibre-gl.mjs"),
+    "\"; maplibregl.setWorkerUrl(\"/maplibre-gl-worker.mjs\"); globalThis.maplibregl = maplibregl;"
+);
 pub const SORTABLE_JS: &str = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js";
 
 /// Reads the `theme` cookie of the current request, when leptos_axum put the request parts in context.
@@ -110,7 +145,8 @@ fn css_hash(hash_file: &str) -> Option<&'static str> {
 /// Renders the HTML document around the app.
 ///
 /// `data-theme` comes from the `theme` cookie so the server renders the chosen theme without a flash; the CDN tags
-/// load MapLibre and SortableJS, which are not bundled.
+/// load MapLibre and SortableJS, which are not bundled. MapLibre's module script comes before the hydration
+/// script, so `window.maplibregl` is set before the app runs.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     let theme = initial_theme();
     view! {
@@ -124,13 +160,13 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <link rel="stylesheet" href=MAPLIBRE_CSS/>
                 // a plain link: `<Stylesheet>` needs the meta context, which `App` provides inside <body>
                 <link rel="stylesheet" href=stylesheet_href(&options)/>
+                <script type="module" inner_html=MAPLIBRE_MODULE_SCRIPT></script>
                 <AutoReload options=options.clone()/>
                 <HydrationScripts options/>
                 <MetaTags/>
             </head>
             <body>
                 <App/>
-                <script src=MAPLIBRE_JS></script>
                 <script src=SORTABLE_JS></script>
             </body>
         </html>

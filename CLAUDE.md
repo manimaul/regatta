@@ -211,9 +211,15 @@ features) with these crates:
   `<body>`.
 - **Maps:** `chart/` (hydrate only) binds `window.maplibregl` through wasm-bindgen. maplibre-gl and SortableJS are
   **not bundled**: the shell loads them from jsDelivr (`MAPLIBRE_JS`, `MAPLIBRE_CSS`, `SORTABLE_JS` in
-  `crates/app/src/lib.rs`); the map container renders empty on the server. The OpenENC style's `LIGHTS_sector`
+  `crates/app/src/lib.rs`); the map container renders empty on the server. maplibre-gl 6 is ES modules only and
+  defines no global, so the shell's inline module script (`MAPLIBRE_MODULE_SCRIPT`) imports it and sets
+  `window.maplibregl`; it must stay ahead of `<HydrationScripts>`, because module scripts run in document order.
+  The worker starts from this origin: `crates/app/public/maplibre-gl-worker.mjs` (`MAPLIBRE_WORKER_PATH`) only
+  imports the CDN's worker module, because MapLibre's own path to a cross-origin worker fails in Chromium. Its
+  version must match `lib.rs`'s (`theme_toggle_test.rs` checks). The OpenENC style's `LIGHTS_sector`
   layer names its icons `sector_<bearings>_<colors>_<radius>`; `utils/light_sector.rs` parses that id and draws the
-  SVG, and the chart controller registers it on `styleimagemissing` in the current theme's palette.
+  SVG, and the chart controller registers it from MapLibre's missing style image resolver
+  (`setMissingStyleImageResolver`) in the current theme's palette.
 - **Styles:** Tailwind CSS v4 run by cargo-leptos from `crates/app/style/app.css` (theme tokens, a Reboot-like base
   layer, and all `.rg-*` component classes); `crates/app/public/` holds the static assets. Components keep their look
   in `.rg-*` classes; Rust code uses Tailwind utilities only for one-off layout. Tailwind finds classes by scanning
@@ -250,7 +256,7 @@ it is not a crate.
 | Serialization | serde / serde_json |
 | Time | jiff |
 | Styles | Tailwind CSS 4 |
-| Maps | MapLibre GL JS 4.7.1 (CDN) |
+| Maps | MapLibre GL JS 6.19.0 (CDN) |
 | Drag-and-drop | SortableJS 1.15.2 (CDN) |
 | Deployment | linux/amd64 container on Kubernetes (`k8s_deploy/`) or a bare-metal install (`README.MD`) |
 

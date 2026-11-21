@@ -1,7 +1,7 @@
 //! The course chart controller (hydrate only): owns the MapLibre map, its markers and popups.
 //!
-//! It answers `styleimagemissing` with the light sector SVGs of [`crate::utils::light_sector`] in the current
-//! theme's palette.
+//! It supplies the style's missing images (MapLibre's missing style image resolver) with the light sector SVGs of
+//! [`crate::utils::light_sector`] in the current theme's palette.
 
 use super::chart_style_url;
 use super::chart_view_model::{MapLocation, MapPoint, Mark};
@@ -18,6 +18,9 @@ use wasm_bindgen::JsCast;
 
 type Listener = Closure<dyn FnMut(JsValue)>;
 
+/// MapLibre's missing style image resolver: takes the image id, returns a promise or `undefined`.
+type ImageResolver = Closure<dyn FnMut(JsValue) -> JsValue>;
+
 pub struct ChartController {
     pub map_view: Option<Rc<Map>>,
     pub on_move_end: Option<Rc<dyn Fn(MapLocation)>>,
@@ -29,6 +32,8 @@ pub struct ChartController {
     mark_popup_map: HashMap<&'static str, Popup>,
     markers: Vec<Marker>,
     listeners: Vec<Listener>,
+    /// Kept alive for as long as the map can call it.
+    image_resolver: Option<ImageResolver>,
 }
 
 impl Default for ChartController {
@@ -49,6 +54,7 @@ impl ChartController {
             mark_popup_map: HashMap::new(),
             markers: Vec::new(),
             listeners: Vec::new(),
+            image_resolver: None,
         }
     }
 
@@ -223,32 +229,28 @@ impl ChartController {
         listeners.push(load);
 
         let w = weak;
-        let missing = Closure::<dyn FnMut(JsValue)>::new(move |event: JsValue| {
-            let Some(this) = w.upgrade() else { return };
-            if let Some(id) = js_sys::Reflect::get(&event, &JsValue::from_str("id"))
-                .ok()
-                .and_then(|v| v.as_string())
-            {
+        // MapLibre waits for the returned promise before it treats the image as missing.
+        let missing = ImageResolver::new(move |id: JsValue| {
+            let pending = w.upgrade().zip(id.as_string()).and_then(|(this, id)| {
                 let (map, theme) = {
                     let ctl = this.borrow();
                     (ctl.map_view.clone(), (ctl.theme)())
                 };
-                if let Some(map) = map {
-                    add_sector_image(map, &id, theme);
-                }
-            }
+                add_sector_image(map?, &id, theme)
+            });
+            pending.map_or(JsValue::UNDEFINED, JsValue::from)
         });
-        map.on("styleimagemissing", missing.as_ref().unchecked_ref());
-        listeners.push(missing);
+        map.set_missing_style_image_resolver(missing.as_ref().unchecked_ref());
 
         let mut ctl = this.borrow_mut();
         ctl.listeners.extend(listeners);
+        ctl.image_resolver = Some(missing);
         ctl.map_view = Some(map);
     }
 
     /// Swaps the chart style in place; markers and popups are DOM elements and survive it. The
     /// light sector images are drawn in the theme's palette under theme-independent ids, so they
-    /// are dropped first and `styleimagemissing` redraws them for the new theme.
+    /// are dropped first and the missing style image resolver redraws them for the new theme.
     pub fn set_theme(&mut self, theme: Theme) {
         if let Some(map) = &self.map_view {
             // listImages raises a JS "Style is not done loading" error mid-load; there is nothing to drop then
@@ -270,6 +272,7 @@ impl ChartController {
             map.remove();
         }
         self.listeners.clear();
+        self.image_resolver = None;
     }
 
     fn map_libre_args(&self, container: &web_sys::HtmlElement) -> JsValue {
@@ -317,25 +320,32 @@ impl ChartController {
 }
 
 /// Rasterizes a `LIGHTS_sector` icon (see `SectorImage`) and registers it under its id.
-fn add_sector_image(map: Rc<Map>, id: &str, theme: Theme) {
-    let Some(sector) = parse_sector_image_id(id) else {
-        return;
-    };
-    let svg = sector.svg(theme);
-    let Ok(img) = web_sys::HtmlImageElement::new_with_width_and_height(200, 200) else {
-        return;
-    };
+///
+/// The browser rasterizes an SVG only asynchronously, so the image is registered later. The returned promise
+/// resolves once it is, or once the SVG has failed to load; it never rejects. `None` when `id` is not a sector
+/// image id.
+fn add_sector_image(map: Rc<Map>, id: &str, theme: Theme) -> Option<js_sys::Promise> {
+    let svg = parse_sector_image_id(id)?.svg(theme);
+    let img = web_sys::HtmlImageElement::new_with_width_and_height(200, 200).ok()?;
     let id = id.to_string();
-    let image = img.clone();
-    let onload = Closure::<dyn FnMut()>::new(move || {
-        if !map.has_image(&id) {
-            map.add_image(&id, &image);
-        }
+    let promise = js_sys::Promise::new(&mut |resolve, _reject| {
+        let (map, id, image) = (map.clone(), id.clone(), img.clone());
+        let failed = resolve.clone();
+        let onload = Closure::once_into_js(move || {
+            if !map.has_image(&id) {
+                map.add_image(&id, &image);
+            }
+            let _ = resolve.call0(&JsValue::UNDEFINED);
+        });
+        img.set_onload(Some(onload.unchecked_ref()));
+        let onerror = Closure::once_into_js(move || {
+            let _ = failed.call0(&JsValue::UNDEFINED);
+        });
+        img.set_onerror(Some(onerror.unchecked_ref()));
     });
-    img.set_onload(Some(onload.as_ref().unchecked_ref()));
-    onload.forget();
     img.set_src(&format!(
         "data:image/svg+xml;charset=utf-8,{}",
         encode_uri_component(&svg)
     ));
+    Some(promise)
 }
